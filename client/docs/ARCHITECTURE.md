@@ -65,5 +65,6 @@ frontend/
 │   ├── Layout.jsx                    # Main application layout and conditional Navigation.
 │   ├── index.css                     # Global CSS and Tailwind directives.
 │   └── main.jsx                      # React DOM entry point.
-│
+|
+├── docs/                             # Documents
 └── package.json                      # Frontend dependencies and scripts.

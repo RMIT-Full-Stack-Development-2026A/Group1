@@ -4,21 +4,21 @@ import { useAuthStore } from "@/stores/AuthStore";
 import ProtectedRoute from "./ProtectedRoute";
 
 // Lazy-loaded pages
-const LandingPage = lazy(() => import("@/pages/Guest/Landing"));
-const LoginPage = lazy(() => import("@/pages/Guest/Login"));
-const RegisterPage = lazy(() => import("@/pages/Guest/Register"));
+const LandingPage = lazy(() => import("@/pages/Guest/Landing/index.jsx"));
+const LoginPage = lazy(() => import("@/pages/Guest/Login/index.jsx"));
+const RegisterPage = lazy(() => import("@/pages/Guest/Register/index.jsx"));
 
-const ProfilePage = lazy(() => import("@/pages/Player/Profile"));
-const GameModeSelect = lazy(() => import("@/pages/Player/GameModeSelect"));
-const GameLobby = lazy(() => import("@/pages/Player/GameLobby"));
-const GameCustomization = lazy(() => import("@/pages/Player/GameCustomization"));
-const GameBoard = lazy(() => import("@/pages/Player/GameBoard"));
-const MatchReplay = lazy(() => import("@/pages/Player/MatchReplay"));
-const SubscriptionPage = lazy(() => import("@/pages/Player/Subscription"));
+const ProfilePage = lazy(() => import("@/pages/Player/Profile/index.jsx"));
+const GameModeSelect = lazy(() => import("@/pages/Player/GameModeSelect/index.jsx"));
+const GameLobby = lazy(() => import("@/pages/Player/GameLobby/index.jsx"));
+const GameCustomization = lazy(() => import("@/pages/Player/GameCustomization/index.jsx"));
+const GameBoard = lazy(() => import("@/pages/Player/GameBoard/index.jsx"));
+const MatchReplay = lazy(() => import("@/pages/Player/MatchReplay/index.jsx"));
+const SubscriptionPage = lazy(() => import("@/pages/Player/Subscription/index.jsx"));
 
-const AdminDashboard = lazy(() => import("@/pages/Admin/AdminDashboard"));
-const PlayerManagement = lazy(() => import("@/pages/Admin/PlayerManagement"));
-const GameRoomMonitor = lazy(() => import("@/pages/Admin/GameRoomMonitor"));
+const AdminDashboard = lazy(() => import("@/pages/Admin/AdminDashboard/index.jsx"));
+const PlayerManagement = lazy(() => import("@/pages/Admin/PlayerManagement/index.jsx"));
+const GameRoomMonitor = lazy(() => import("@/pages/Admin/GameRoomMonitor/index.jsx"));
 
 const RedirectAuthenticatedUser = ({ children }) => {
     const { isAuthenticated, user } = useAuthStore();

@@ -1,7 +1,8 @@
-import bcryptjs from "bcryptjs";
+import bcryptjs from 'bcryptjs';
 import { AuthRepository } from "../repositories/auth.repository.js";
 import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
 import { validateRegisterInput } from "../../../utils/validate.js";
+import { User } from '../models/user.model.js';
 
 export const AuthService = {
     registerUser: async (userData, res) => {
@@ -30,5 +31,28 @@ export const AuthService = {
 
         generateTokenAndSetCookie(res, newUser._id, newUser.role); // JWT generation
         return { user: newUser };
+    },
+
+    loginUser: async (identifier, password) => {
+        // find user by email or username
+        const user = await User.findOne({
+            $or: [{ email: identifier }, { username: identifier }]
+        });
+
+        // if cannot find user 
+        if (!user) {
+            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+        }
+
+        // compare password (Bcrypt compare)
+        const isMatch = await bcrypt.compare(password, user.password);
+        
+        // If password is incorrect
+        if (!isMatch) {
+            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+        }
+
+        // If everything is perfect, return user information to the Controller
+        return user;
     },
 };

@@ -54,17 +54,3 @@ export const validateRegisterInput = (data) => {
 
     return errors;
 };
-
-// DTO hide Password when returning user data to client
-export const toUserDTO = (user) => {
-    return {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        country: user.country,
-        avatarUrl: user.avatarUrl,
-        isPremium: user.isPremium,
-        isActive: user.isActive
-    };
-};

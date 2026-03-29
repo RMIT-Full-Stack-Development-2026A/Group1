@@ -1,35 +1,24 @@
 import { AuthService } from "../services/auth.service.js";
-import { validateRegisterInput, toUserDTO } from "../dtos/auth.validation.js";
+import { AuthDTO } from "../dtos/auth.dto.js";
 
 export const AuthController = {
     register: async (req, res) => {
         try {
-            // 1. Validation
-            const validationErrors = validateRegisterInput(req.body);
-            if (validationErrors.length > 0) {
-                return res.status(400).json({
-                    error: "VALIDATION_FAILED",
-                    message: "Invalid input data",
-                    details: validationErrors 
-                });
-            }
-
-            // 2. Call Service handle database
-            const newUser = await AuthService.registerUser(req.body);
-
-            // return Response
-            return res.status(201).json({
-                message: "User registered successfully",
-                data: toUserDTO(newUser)
-            });
-
+            const result = await AuthService.registerUser(req.body, res);
+            const safeUser = AuthDTO.toUserResponse(result.user);
+            return res.status(201).json({ success: true, message: "User registered successfully", user: safeUser });
         } catch (error) {
-            if (error.status) {
-                return res.status(error.status).json({
-                    error: error.error,
-                    message: error.message
+            // The custom validation error from the service
+            if (error.statusCode === 400 && error.details) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: "VALIDATION_ERROR", 
+                    message: "Invalid input provided.",
+                    details: error.details
                 });
             }
+
+            // Fallback for actual server/database errors
             console.error("Register Error:", error);
             return res.status(500).json({ error: "SERVER_ERROR", message: "Internal server error" });
         }

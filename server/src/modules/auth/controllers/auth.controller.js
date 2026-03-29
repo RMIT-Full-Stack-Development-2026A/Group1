@@ -82,5 +82,17 @@ export const AuthController = {
     },
     checkAuth: async (req, res) => {
         res.status(200).json({ message: "CheckAuth endpoint coming soon!" });
-    }
+    },
+    logout: (req, res) => {
+        // Chỉ cần xóa cái Cookie chứa Token đi là xong phim!
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
+
+        return res.status(200).json({
+            message: "Logout successful"
+        });
+    },
 };

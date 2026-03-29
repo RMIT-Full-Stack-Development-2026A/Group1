@@ -5,7 +5,7 @@ export const AuthService = {
     registerUser: async (userData) => {
         const { email, password, username, country } = userData;
 
-        // Check trùng lặp
+        // Check duplicate
         const existingUser = await AuthRepository.findByEmailOrUsername(email);
         if (existingUser) {
             throw { 
@@ -24,10 +24,10 @@ export const AuthService = {
             };
         }
 
-        // Băm mật khẩu
+        // hash password
         const hashedPassword = await bcryptjs.hash(password, 10);
 
-        // Lưu Database
+        // save Database
         const newUser = await AuthRepository.createUser({
             email,
             username,

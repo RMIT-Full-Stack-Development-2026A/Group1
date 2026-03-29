@@ -1,11 +1,12 @@
-import bcryptjs from "bcryptjs";
+import bcrypt from 'bcryptjs';
 import { AuthRepository } from "../repositories/auth.repository.js";
+import { User } from '../models/user.model.js';
 
 export const AuthService = {
     registerUser: async (userData) => {
         const { email, password, username, country } = userData;
 
-        // Check trùng lặp
+        // Check for duplicate
         const existingUser = await AuthRepository.findByEmailOrUsername(email);
         if (existingUser) {
             throw { 
@@ -24,10 +25,10 @@ export const AuthService = {
             };
         }
 
-        // Băm mật khẩu
+        // hash password
         const hashedPassword = await bcryptjs.hash(password, 10);
 
-        // Lưu Database
+        // Save to DB
         const newUser = await AuthRepository.createUser({
             email,
             username,
@@ -36,5 +37,27 @@ export const AuthService = {
         });
 
         return newUser; 
-    }
+    },
+    loginUser: async (identifier, password) => {
+        // find user by email or username
+        const user = await User.findOne({
+            $or: [{ email: identifier }, { username: identifier }]
+        });
+
+        // if cannot find user 
+        if (!user) {
+            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+        }
+
+        // compare password (Bcrypt compare)
+        const isMatch = await bcrypt.compare(password, user.password);
+        
+        // If password is incorrect
+        if (!isMatch) {
+            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+        }
+
+        // If everything is perfect, return user information to the Controller
+        return user;
+    },
 };

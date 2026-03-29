@@ -1,5 +1,3 @@
-
-//This is where Mongoose commands are stored.
 import { User } from '../models/user.model.js';
 
 export const AuthRepository = {

@@ -1,5 +1,6 @@
 
 import { useNavigate } from "react-router";
+import Navigation from "@/components/Navigation/index";
 
 export default function Landing() {
     const navigate = useNavigate();
@@ -7,38 +8,7 @@ export default function Landing() {
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
             {/* Top Navigation */}
-            <nav className="flex justify-between items-center px-6 h-16 w-full sticky top-0 z-50 bg-[#0d0d1a] border-b border-[#3d484d] border-b-2">
-                <div className="flex items-center gap-4">
-                    <span className="text-2xl font-black text-[#4cc9f0] [text-shadow:2px_2px_0px_#1e1e2c] font-headline uppercase tracking-widest">
-                        TTT
-                    </span>
-                    <div className="hidden md:flex gap-6 font-mono uppercase tracking-widest text-xs">
-                        <a className="text-[#4cc9f0] border-b-2 border-[#4cc9f0] hover:text-[#4cc9f0] hover:bg-[#1e1e2c] transition-all cursor-pointer">
-                            TERMINAL
-                        </a>
-                        <a className="text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] hover:bg-[#1e1e2c] transition-all cursor-pointer">
-                            LEADERBOARD
-                        </a>
-                        <a className="text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] hover:bg-[#1e1e2c] transition-all cursor-pointer">
-                            ARCHIVES
-                        </a>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate("/login")}
-                        className="font-mono uppercase tracking-widest text-xs text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] transition-all px-4 py-2"
-                    >
-                        Login
-                    </button>
-                    <button
-                        onClick={() => navigate("/register")}
-                        className="font-mono uppercase tracking-widest text-xs bg-[#4cc9f0] text-[#003543] px-4 py-2 active:translate-y-[1px] shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#4cc9f0]"
-                    >
-                        Register
-                    </button>
-                </div>
-            </nav>
+            <Navigation />
 
             {/* Main Content */}
             <main className="relative min-h-screen flex flex-col items-center">

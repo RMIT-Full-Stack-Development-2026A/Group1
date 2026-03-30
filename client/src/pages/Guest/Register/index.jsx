@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockAuthService } from "@/services/mockAuthService";
+import Navigation from "@/components/Navigation/index";
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -94,38 +95,7 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body flex flex-col">
             {/* Top Navigation */}
-            <header className="fixed top-0 w-full z-50 bg-[#12121f] border-b-2 border-[#3d484d] shadow-[0_2px_0_0_#343342] flex justify-between items-center px-6 h-16">
-                <div
-                    onClick={() => navigate("/")}
-                    className="text-2xl font-black text-[#4cc9f0] tracking-tighter hover:drop-shadow-[0_0_8px_#4cc9f0] transition-all font-headline uppercase cursor-pointer"
-                >
-                    TICTACTOANG
-                </div>
-
-                <nav className="hidden md:flex gap-8 items-center">
-                    <a className="font-headline uppercase tracking-widest text-sm text-white/70 hover:text-white transition-colors duration-100 cursor-pointer">
-                        ARCADE
-                    </a>
-                    <a className="font-headline uppercase tracking-widest text-sm text-white/70 hover:text-white transition-colors duration-100 cursor-pointer">
-                        LEADERBOARD
-                    </a>
-                    <a className="font-headline uppercase tracking-widest text-sm text-white/70 hover:text-white transition-colors duration-100 cursor-pointer">
-                        RULES
-                    </a>
-                    <a className="font-headline uppercase tracking-widest text-sm text-[#4cc9f0] border-b-2 border-[#4cc9f0] pb-1 transition-colors duration-100">
-                        REGISTER
-                    </a>
-                </nav>
-
-                <div className="flex items-center gap-4">
-                    <span className="text-[#4cc9f0] cursor-pointer hover:bg-[#1e1e2c] p-2 transition-all active:translate-y-[2px] text-xl">
-                        🎮
-                    </span>
-                    <span className="text-[#4cc9f0] cursor-pointer hover:bg-[#1e1e2c] p-2 transition-all active:translate-y-[2px] text-xl">
-                        ⚙
-                    </span>
-                </div>
-            </header>
+            <Navigation />
 
             {/* Main Content */}
             <main className="flex-grow flex items-center justify-center pt-24 pb-12 px-4">
@@ -149,18 +119,6 @@ export default function RegisterPage() {
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Message Display */}
-                        {message.text && (
-                            <div
-                                className={`p-4 text-sm text-center rounded-none border-2 font-bold uppercase ${
-                                    message.type === "success"
-                                        ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"
-                                        : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab]"
-                                }`}
-                            >
-                                {message.text}
-                            </div>
-                        )}
                         {/* Username */}
                         <div className="space-y-2">
                             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
@@ -283,6 +241,19 @@ export default function RegisterPage() {
                             </button>
                         </div>
                     </form>
+
+                    {/* Message Display - Below Form */}
+                    {message.text && (
+                        <div
+                            className={`mt-6 p-4 text-sm text-center rounded-none border-2 font-bold uppercase ${
+                                message.type === "success"
+                                    ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"
+                                    : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab]"
+                            }`}
+                        >
+                            {message.text}
+                        </div>
+                    )}
 
                     {/* Login Link */}
                     <div className="mt-8 pt-6 border-t border-[#3d484d] text-center">

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '@/stores/AuthStore';
 
 class HttpHelper {
     constructor() {
@@ -10,6 +11,25 @@ class HttpHelper {
                 'Content-Type': 'application/json',
             },
         });
+        
+        // Add a request interceptor to automatically attach the JWT token
+        this.api.interceptors.request.use(
+            (config) => {
+                // Retrieve the token from localStorage
+                const token = localStorage.getItem('jwt_token');
+                
+                // If token exists, attach it to the Authorization header using Bearer schema
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
+                
+                return config;
+            },
+            (error) => {
+                // Handle request errors before they are sent
+                return Promise.reject(error);
+            }
+        );
 
         // Intercept responses to strip Axios wrappers and extract clean error messages
         this.api.interceptors.response.use(
@@ -17,6 +37,16 @@ class HttpHelper {
                 return response.data;
             },
             (error) => {
+                // Handle 401 Unauthorized globally (e.g., when token expires)
+                if (error.response?.status === 401) {
+                    console.warn("Unauthorized! Token might be invalid or expired.");
+                    //Dispatch an event to tell AuthStore to log the user out
+                    useAuthStore.getState().logout();
+                    
+                    // Force redirect to login page
+                    window.location.href = '/login';
+                }
+
                 const message = error.response?.data?.message || "An unexpected error occurred. Please try again.";
                 return Promise.reject(message);
             }

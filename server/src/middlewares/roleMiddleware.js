@@ -1,11 +1,11 @@
 export const requireAdmin = (req, res, next) => {
     try {
-        if (!req.role) {
+        if (!req.user || !req.user.role) {
             return res.status(401).json({ success: false, message: "Unauthorized - Role not found" });
         }
 
         // Check register user role 'PLAYER' and 'ADMIN'
-        if (req.role !== 'ADMIN') {
+        if (req.user.role !== 'ADMIN') {
             return res.status(403).json({
                 success: false,
                 message: "Forbidden - You do not have administrator privileges."

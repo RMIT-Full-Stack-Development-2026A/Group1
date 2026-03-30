@@ -78,7 +78,7 @@ export const AuthService = {
 
     logoutUser: async (res) => {
         // Clear user cookie
-        res.clearCookie("token");
+        res.clearCookie("access_token");
         return { success: true };
     }
 };

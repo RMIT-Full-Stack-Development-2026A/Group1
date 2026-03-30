@@ -41,5 +41,32 @@ export const AdminController = {
                 message: "Internal server error"
             });
         }
+    },
+    toggleUserStatus: async (req, res) => {
+        try {
+            const { userId } = req.params; // Get ID from URL: /users/:userId/status
+            const { isActive } = req.body; // Get true/false from Body
+
+            if (typeof isActive !== 'boolean') {
+                return res.status(400).json({ 
+                    error: "BAD_REQUEST", 
+                    message: "isActive must be a boolean value" 
+                });
+            }
+
+            const updatedUser = await AdminService.updateUserStatus(userId, isActive);
+
+            return res.status(200).json({
+                message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
+                data: {
+                    id: updatedUser._id,
+                    username: updatedUser.username,
+                    isActive: updatedUser.isActive
+                }
+            });
+        } catch (error) {
+            if (error.status) return res.status(error.status).json({ error: error.error, message: error.message });
+            return res.status(500).json({ error: "SERVER_ERROR", message: "Internal server error" });
+        }
     }
 };

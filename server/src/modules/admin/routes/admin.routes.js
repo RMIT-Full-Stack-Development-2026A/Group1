@@ -7,5 +7,5 @@ const router = express.Router();
 
 // Protect route with 2 layers: Must be logged in AND must be ADMIN
 router.get('/users', verifyToken, requireAdmin, AdminController.getAllUsers);
-
+router.patch('/users/:userId/status', verifyToken, requireAdmin, AdminController.toggleUserStatus);
 export default router;

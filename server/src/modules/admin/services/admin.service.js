@@ -16,5 +16,19 @@ export const AdminService = {
         const total = await User.countDocuments();
 
         return { users, total };
+    },
+    // Toggle user status (Activate/Deactivate)
+    updateUserStatus: async (userId, isActive) => {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: { isActive: isActive } },
+            { new: true }
+        ).select('-password');
+
+        if (!updatedUser) {
+            throw { status: 404, error: "NOT_FOUND", message: "User not found" };
+        }
+
+        return updatedUser;
     }
 };

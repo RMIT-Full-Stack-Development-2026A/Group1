@@ -5,21 +5,18 @@ import { validateRegisterInput, validateLoginInput } from "../../../utils/valida
 
 export const AuthService = {
     registerUser: async (userData, res) => {
-        // Validation
         const validationErrors = validateRegisterInput(userData);
 
-        // hrow a error to the controller
         if (validationErrors.length > 0) {
-            const error = new Error("Validation Failed");
+            const error = new Error("Invalid input provided.");
             error.statusCode = 400; 
+            error.errorCode = "VALIDATION_ERROR"; 
             error.details = validationErrors; 
             throw error;
         }
         
         const { email, password, username, country } = userData;
-
-        // Creation
-        const hashedPassword = await bcryptjs.hash(password, 10); // Hashing required
+        const hashedPassword = await bcryptjs.hash(password, 10); 
 
         const newUser = await AuthRepository.createUser({
             email,
@@ -28,57 +25,55 @@ export const AuthService = {
             country,
         });
 
-        generateTokenAndSetCookie(res, newUser._id, newUser.role); // JWT generation
+        generateTokenAndSetCookie(res, newUser._id, newUser.role); 
         return { user: newUser };
     },
 
     loginUser: async (userData, res) => {
-        // Validation
         const validationErrors = validateLoginInput(userData);
         if (validationErrors.length > 0) {
-            const error = new Error("Validation Failed");
+            const error = new Error("Invalid input provided.");
             error.statusCode = 400;
+            error.errorCode = "VALIDATION_ERROR";
             error.details = validationErrors;
             throw error;
         }
 
         const { identifier, password } = userData;
 
-        // Fetch User
         const user = await AuthRepository.findByEmailOrUsername(identifier);
         if (!user) {
             const error = new Error("Invalid credentials");
             error.statusCode = 401;
+            error.errorCode = "INVALID_CREDENTIALS"; 
             throw error;
         }
 
-        // Check Brute-Force Lock
         if (user.lockUntil && user.lockUntil > Date.now()) {
             const error = new Error("Account locked due to 5 failed attempts. Try again later after 60 seconds.");
             error.statusCode = 403;
+            error.errorCode = "ACCOUNT_LOCKED";
             throw error;
         }
 
-        // Verify Password
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
-            await AuthRepository.incrementLoginAttempts(user); // Increment failed attempts
+            await AuthRepository.incrementLoginAttempts(user); 
             const error = new Error("Invalid credentials");
             error.statusCode = 401;
+            error.errorCode = "INVALID_CREDENTIALS"; 
             throw error;
         }
 
-        // Success cleanup & JWT
         await AuthRepository.resetLoginAttempts(user);
         await AuthRepository.updateLastLogin(user._id);
 
-        generateTokenAndSetCookie(res, user._id, user.role); // Provide JWS token
+        generateTokenAndSetCookie(res, user._id, user.role); 
         return { user };
     },
 
     logoutUser: async (res) => {
-        // Clear user cookie
         res.clearCookie("access_token");
-        return { success: true };
-    }
+        return; // Removed the old { success: true }
+    },
 };

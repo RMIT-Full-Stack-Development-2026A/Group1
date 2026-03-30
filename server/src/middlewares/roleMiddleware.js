@@ -1,13 +1,15 @@
 export const requireAdmin = (req, res, next) => {
     try {
         if (!req.user || !req.user.role) {
-            return res.status(401).json({ success: false, message: "Unauthorized - Role not found" });
+            return res.status(401).json({ 
+                error: "UNAUTHORIZED_ROLE", 
+                message: "Unauthorized - Role not found" 
+            });
         }
-
-        // Check register user role 'PLAYER' and 'ADMIN'
+        
         if (req.user.role !== 'ADMIN') {
             return res.status(403).json({
-                success: false,
+                error: "FORBIDDEN",
                 message: "Forbidden - You do not have administrator privileges."
             });
         }
@@ -15,6 +17,9 @@ export const requireAdmin = (req, res, next) => {
         next();
     } catch (error) {
         console.log("Error in roleMiddleware", error);
-        return res.status(500).json({ success: false, message: "Internal server error during role validation" });
+        return res.status(500).json({ 
+            error: "SERVER_ERROR", 
+            message: "Internal server error during role validation" 
+        });
     }
 };

@@ -35,43 +35,48 @@ export const AuthController = {
             const safeUser = AuthDTO.toUserResponse(result.user);
             
             return res.status(200).json({
-                success: true,
-                message: "Login successful",
-                data: safeUser
+                data: safeUser,
+                message: "Login successful"
             });
 
         } catch (error) {
-            // Catch Validation Errors
             if (error.statusCode === 400 && error.details) {
                 return res.status(400).json({
-                    success: false,
                     error: "VALIDATION_ERROR",
                     message: "Invalid input provided.",
                     details: error.details
                 });
             }
             
-            // Catch Authentication/Lock Errors
             if (error.statusCode === 401 || error.statusCode === 403) {
+                const errorCode = error.statusCode === 401 ? "UNAUTHORIZED" : "ACCOUNT_LOCKED";
                 return res.status(error.statusCode).json({
-                    success: false,
-                    error: "AUTH_ERROR",
+                    error: errorCode,
                     message: error.message
                 });
             }
 
             console.error("Login Error:", error);
-            return res.status(500).json({ error: "SERVER_ERROR", message: "Internal server error" });
+            return res.status(500).json({ 
+                error: "SERVER_ERROR", 
+                message: "Internal server error" 
+            });
         }
     },
 
     logout: async (req, res) => {
         try {
             await AuthService.logoutUser(res);
-            return res.status(200).json({ success: true, message: "Logged out successfully" });
+            return res.status(200).json({ 
+                data: null, 
+                message: "Logged out successfully" 
+            });
         } catch (error) {
             console.error("Logout Error:", error);
-            return res.status(500).json({ success: false, message: "Error logging out" });
+            return res.status(500).json({ 
+                error: "LOGOUT_FAILED", 
+                message: "Error logging out" 
+            });
         }
     },
 

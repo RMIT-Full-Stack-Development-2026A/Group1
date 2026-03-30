@@ -80,5 +80,11 @@ export const AuthService = {
         // Clear user cookie
         res.clearCookie("token");
         return { success: true };
+    },
+
+    checkAuthUser: async (userId) => {
+        const user = await AuthRepository.findById(userId);
+        if (!user) throw new Error("User not found");
+        return { user };
     }
 };

@@ -12,6 +12,10 @@ export const AuthRepository = {
         return await newUser.save();
     },
 
+    findById: async (id) => {
+        return User.findById(id);
+    },
+
     incrementLoginAttempts: async (user) => {
         // Blocks account for 60 seconds if 5 failed attempts occur
         const updates = { $inc: { loginAttempts: 1 } };

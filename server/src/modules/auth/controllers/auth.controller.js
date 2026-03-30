@@ -76,6 +76,12 @@ export const AuthController = {
     },
 
     checkAuth: async (req, res) => {
-        res.status(200).json({ message: "CheckAuth endpoint coming soon!" });
-    },
+        try {
+            const result = await AuthService.checkAuthUser(req.userId);
+            const safeUser = AuthDTO.toUserResponse(result.user);
+            res.status(200).json({ success: true, user: safeUser });
+        } catch (error) {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+    }
 };

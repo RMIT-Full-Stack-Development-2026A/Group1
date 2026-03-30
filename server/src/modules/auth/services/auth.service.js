@@ -1,63 +1,79 @@
-import bcrypt from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { AuthRepository } from "../repositories/auth.repository.js";
-import { User } from '../models/user.model.js';
+import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
+import { validateRegisterInput, validateLoginInput } from "../../../utils/validate.js";
 
 export const AuthService = {
-    registerUser: async (userData) => {
+    registerUser: async (userData, res) => {
+        const validationErrors = validateRegisterInput(userData);
+
+        if (validationErrors.length > 0) {
+            const error = new Error("Invalid input provided.");
+            error.statusCode = 400; 
+            error.errorCode = "VALIDATION_ERROR"; 
+            error.details = validationErrors; 
+            throw error;
+        }
+        
         const { email, password, username, country } = userData;
+        const hashedPassword = await bcryptjs.hash(password, 10); 
 
-        // Check for duplicate
-        const existingUser = await AuthRepository.findByEmailOrUsername(email);
-        if (existingUser) {
-            throw { 
-                status: 409, 
-                error: "CONFLICT",
-                message: "Email or Username is already taken."
-            };
-        }
-
-        const existingUsername = await AuthRepository.findByEmailOrUsername(username);
-        if (existingUsername) {
-            throw { 
-                status: 409, 
-                error: "CONFLICT",
-                message: "Email or Username is already taken."
-            };
-        }
-
-        // hash password
-        const hashedPassword = await bcryptjs.hash(password, 10);
-
-        // Save to DB
         const newUser = await AuthRepository.createUser({
             email,
             username,
             password: hashedPassword,
-            country
+            country,
         });
 
-        return newUser; 
+        generateTokenAndSetCookie(res, newUser._id, newUser.role); 
+        return { user: newUser };
     },
-    loginUser: async (identifier, password) => {
-        // find user by email or username
-        const user = await User.findOne({
-            $or: [{ email: identifier }, { username: identifier }]
-        });
 
-        // if cannot find user 
+    loginUser: async (userData, res) => {
+        const validationErrors = validateLoginInput(userData);
+        if (validationErrors.length > 0) {
+            const error = new Error("Invalid input provided.");
+            error.statusCode = 400;
+            error.errorCode = "VALIDATION_ERROR";
+            error.details = validationErrors;
+            throw error;
+        }
+
+        const { identifier, password } = userData;
+
+        const user = await AuthRepository.findByEmailOrUsername(identifier);
         if (!user) {
-            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+            const error = new Error("Invalid credentials");
+            error.statusCode = 401;
+            error.errorCode = "INVALID_CREDENTIALS"; 
+            throw error;
         }
 
-        // compare password (Bcrypt compare)
-        const isMatch = await bcrypt.compare(password, user.password);
-        
-        // If password is incorrect
+        if (user.lockUntil && user.lockUntil > Date.now()) {
+            const error = new Error("Account locked due to 5 failed attempts. Try again later after 60 seconds.");
+            error.statusCode = 403;
+            error.errorCode = "ACCOUNT_LOCKED";
+            throw error;
+        }
+
+        const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
-            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+            await AuthRepository.incrementLoginAttempts(user); 
+            const error = new Error("Invalid credentials");
+            error.statusCode = 401;
+            error.errorCode = "INVALID_CREDENTIALS"; 
+            throw error;
         }
 
-        // If everything is perfect, return user information to the Controller
-        return user;
+        await AuthRepository.resetLoginAttempts(user);
+        await AuthRepository.updateLastLogin(user._id);
+
+        generateTokenAndSetCookie(res, user._id, user.role); 
+        return { user };
+    },
+
+    logoutUser: async (res) => {
+        res.clearCookie("access_token");
+        return; // Removed the old { success: true }
     },
 };

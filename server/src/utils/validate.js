@@ -55,16 +55,18 @@ export const validateRegisterInput = (data) => {
     return errors;
 };
 
-// DTO hide Password when returning user data to client
-export const toUserDTO = (user) => {
-    return {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        country: user.country,
-        avatarUrl: user.avatarUrl,
-        isPremium: user.isPremium,
-        isActive: user.isActive
-    };
+export const validateLoginInput = (data) => {
+    const { identifier, password } = data;
+    const errors = [];
+
+    if (!identifier || !password) {
+        errors.push({
+            field: "all",
+            error: "MISSING_FIELDS",
+            cause: "Identifier (email/username) or password is missing.",
+            example: "Provide identifier and password."
+        });
+    }
+
+    return errors;
 };

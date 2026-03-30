@@ -1,8 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import { AuthRepository } from "../repositories/auth.repository.js";
 import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
-import { validateRegisterInput } from "../../../utils/validate.js";
-import { User } from '../models/user.model.js';
+import { validateRegisterInput, validateLoginInput } from "../../../utils/validate.js";
 
 export const AuthService = {
     registerUser: async (userData, res) => {
@@ -33,26 +32,53 @@ export const AuthService = {
         return { user: newUser };
     },
 
-    loginUser: async (identifier, password) => {
-        // find user by email or username
-        const user = await User.findOne({
-            $or: [{ email: identifier }, { username: identifier }]
-        });
+    loginUser: async (userData, res) => {
+        // Validation
+        const validationErrors = validateLoginInput(userData);
+        if (validationErrors.length > 0) {
+            const error = new Error("Validation Failed");
+            error.statusCode = 400;
+            error.details = validationErrors;
+            throw error;
+        }
 
-        // if cannot find user 
+        const { identifier, password } = userData;
+
+        // Fetch User
+        const user = await AuthRepository.findByEmailOrUsername(identifier);
         if (!user) {
-            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+            const error = new Error("Invalid credentials");
+            error.statusCode = 401;
+            throw error;
         }
 
-        // compare password (Bcrypt compare)
-        const isMatch = await bcrypt.compare(password, user.password);
-        
-        // If password is incorrect
+        // Check Brute-Force Lock
+        if (user.lockUntil && user.lockUntil > Date.now()) {
+            const error = new Error("Account locked due to 5 failed attempts. Try again later after 60 seconds.");
+            error.statusCode = 403;
+            throw error;
+        }
+
+        // Verify Password
+        const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
-            throw { status: 401, error: "UNAUTHORIZED", message: "Invalid credentials" };
+            await AuthRepository.incrementLoginAttempts(user); // Increment failed attempts
+            const error = new Error("Invalid credentials");
+            error.statusCode = 401;
+            throw error;
         }
 
-        // If everything is perfect, return user information to the Controller
-        return user;
+        // Success cleanup & JWT
+        await AuthRepository.resetLoginAttempts(user);
+        await AuthRepository.updateLastLogin(user._id);
+
+        generateTokenAndSetCookie(res, user._id, user.role); // Provide JWS token
+        return { user };
     },
+
+    logoutUser: async (res) => {
+        // Clear user cookie
+        res.clearCookie("token");
+        return { success: true };
+    }
 };

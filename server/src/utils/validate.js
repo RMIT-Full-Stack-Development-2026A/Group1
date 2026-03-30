@@ -54,3 +54,19 @@ export const validateRegisterInput = (data) => {
 
     return errors;
 };
+
+export const validateLoginInput = (data) => {
+    const { identifier, password } = data;
+    const errors = [];
+
+    if (!identifier || !password) {
+        errors.push({
+            field: "all",
+            error: "MISSING_FIELDS",
+            cause: "Identifier (email/username) or password is missing.",
+            example: "Provide identifier and password."
+        });
+    }
+
+    return errors;
+};

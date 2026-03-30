@@ -5,7 +5,7 @@ export const generateTokenAndSetCookie = (res, userId, role) => {
         expiresIn: "7d",
     });
 
-    res.cookie('access_token', token, {
+    res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

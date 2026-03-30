@@ -6,7 +6,7 @@ export const AuthDTO = {
             email: user.email,
             username: user.username,
             country: user.country,
-            imageAvatar: user.imageAvatar,
+            avatar: user.avatar,
             role: user.role,
             isActive: user.isActive,
             isPremium: user.isPremium

@@ -84,7 +84,20 @@ export const AuthService = {
 
     checkAuthUser: async (userId) => {
         const user = await AuthRepository.findById(userId);
-        if (!user) throw new Error("User not found");
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            error.errorCode = "USER_NOT_FOUND";
+            throw error;
+        }
+
+        if (!user.isActive) {
+            const error = new Error("Account is deactivated");
+            error.statusCode = 403;
+            error.errorCode = "ACCOUNT_DEACTIVATED";
+            throw error;
+        };
+
         return { user };
     }
 };

@@ -77,11 +77,27 @@ export const AuthController = {
 
     checkAuth: async (req, res) => {
         try {
-            const result = await AuthService.checkAuthUser(req.userId);
+            // Check for missing user id from middleware
+            if (!req.user || !req.user.id) {
+                return res.status(401).json({ 
+                    error: "UNAUTHORIZED", 
+                    message: "No token provided or token invalid" 
+                });
+            }
+
+            const result = await AuthService.checkAuthUser(req.user.id);
             const safeUser = AuthDTO.toUserResponse(result.user);
-            res.status(200).json({ success: true, user: safeUser });
+            
+            return res.status(200).json({ 
+                data: safeUser,
+                message: "User is authenticated"
+            });
         } catch (error) {
-            return res.status(400).json({ success: false, message: error.message });
+            const errorCode = error.statusCode === 404 ? "USER_NOT_FOUND" : "ACCOUNT_DEACTIVATED";
+            return res.status(error.statusCode || 400).json({ 
+                error: errorCode, 
+                message: error.message 
+            });
         }
     }
 };

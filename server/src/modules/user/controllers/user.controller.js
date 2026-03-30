@@ -4,7 +4,8 @@ export const UserController = {
     getProfile: async (req, res) => {
         try {
             // Extract userId from the request (injected by verifyToken middleware)
-            const userId = req.user.id || (req.user && req.user.userId); 
+            // Tui rút gọn lại luôn vì middleware của Thắng chắc chắn là req.user.id rồi
+            const userId = req.user.id; 
 
             if (!userId) {
                 return res.status(401).json({ 
@@ -16,10 +17,23 @@ export const UserController = {
             // Fetch user profile via Service
             const user = await UserService.getUserProfile(userId);
 
-            // Return success response with user data
+            // Transform user object to match CONTRACT Rule 4 & 5
+            const userResponse = {
+                id: user._id, // Transform _id to id ở chỗ này nè
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                country: user.country,
+                avatar: user.avatar,
+                isPremium: user.isPremium,
+                isActive: user.isActive,
+                createdAt: user.createdAt
+            };
+
+            // Return success response with strictly shaped user data
             return res.status(200).json({
                 message: "Profile fetched successfully",
-                data: user
+                data: userResponse
             });
             
         } catch (error) {

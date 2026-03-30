@@ -8,7 +8,7 @@ export const AuthService = {
         // Validation
         const validationErrors = validateRegisterInput(userData);
 
-        // hrow a error to the controller
+        // Show a error to the controller
         if (validationErrors.length > 0) {
             const error = new Error("Validation Failed");
             error.statusCode = 400; 

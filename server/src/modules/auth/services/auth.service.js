@@ -26,7 +26,6 @@ export const AuthService = {
             country,
         });
 
-        generateTokenAndSetCookie(res, newUser._id, newUser.role); 
         return { user: newUser };
     },
 

@@ -73,6 +73,25 @@ export const AuthService = {
 
     logoutUser: async (res) => {
         res.clearCookie("access_token");
-        return; // Removed the old { success: true }
+        return { success: true };
     },
+
+    checkAuthUser: async (userId) => {
+        const user = await AuthRepository.findById(userId);
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            error.errorCode = "USER_NOT_FOUND";
+            throw error;
+        }
+
+        if (!user.isActive) {
+            const error = new Error("Account is deactivated");
+            error.statusCode = 403;
+            error.errorCode = "ACCOUNT_DEACTIVATED";
+            throw error;
+        };
+
+        return { user };
+    }
 };

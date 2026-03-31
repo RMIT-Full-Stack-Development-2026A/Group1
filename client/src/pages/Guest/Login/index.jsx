@@ -1,5 +1,5 @@
 // Route: /login
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockAuthService } from "@/services/mockAuthService";
 import Navigation from "@/components/Navigation/index";
@@ -16,6 +16,41 @@ export default function LoginPage() {
     const [message, setMessage] = useState({ type: "", text: "" });
     const [failedAttempts, setFailedAttempts] = useState(0);
     const [isLocked, setIsLocked] = useState(false);
+    const [lockoutCountdown, setLockoutCountdown] = useState(0);
+
+    // Auto-lock when failedAttempts reaches 5
+    useEffect(() => {
+        if (failedAttempts === 5 && !isLocked) {
+            setIsLocked(true);
+            setLockoutCountdown(60);
+        }
+    }, [failedAttempts, isLocked]);
+
+    // Countdown timer for lockout
+    useEffect(() => {
+        let interval;
+        if (lockoutCountdown > 0) {
+            interval = setInterval(() => {
+                setLockoutCountdown((prev) => prev - 1);
+            }, 1000);
+        } else if (lockoutCountdown === 0 && isLocked) {
+            // Countdown finished, reset lockout
+            setIsLocked(false);
+            setFailedAttempts(0);
+            setMessage({ type: "", text: "" });
+        }
+        return () => clearInterval(interval);
+    }, [lockoutCountdown, isLocked]);
+
+    // Update error message with countdown
+    useEffect(() => {
+        if (isLocked && lockoutCountdown > 0) {
+            setMessage({
+                type: "error",
+                text: `Account locked due to too many failed attempts. Try again in ${lockoutCountdown}s.`,
+            });
+        }
+    }, [lockoutCountdown, isLocked]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -39,10 +74,8 @@ export default function LoginPage() {
         // Check if account is locked
         if (mockAuthService.isAccountLockedForEmail(formData.email)) {
             setIsLocked(true);
-            setMessage({
-                type: "error",
-                text: "Account locked due to too many failed attempts. Try again in 60 seconds.",
-            });
+            setLockoutCountdown(60);
+            // Message will be set by the countdown useEffect
             return;
         }
 
@@ -71,6 +104,7 @@ export default function LoginPage() {
 
                 if (result.isLocked) {
                     setIsLocked(true);
+                    setLockoutCountdown(60);
                 }
 
                 setMessage({
@@ -120,14 +154,12 @@ export default function LoginPage() {
                             PLAYER LOGIN
                         </h1>
 
-                        {/* Warning Bar - Only show after 2 failed attempts */}
-                        {failedAttempts >= 2 && (
+                        {/* Warning Bar - Show only when approaching lockout (before it's locked) */}
+                        {failedAttempts >= 2 && !isLocked && (
                             <div className="bg-[#93000a] border-l-4 border-[#ffb4ab] text-[#ffdad6] p-3 mb-8 flex items-center gap-3 text-[10px] font-bold">
                                 <span>🔒</span>
                                 <span>
-                                    {isLocked
-                                        ? "ACCOUNT LOCKED - TOO MANY ATTEMPTS"
-                                        : `WARNING: ${5 - failedAttempts} ATTEMPTS REMAINING BEFORE LOCKOUT`}
+                                    WARNING: {5 - failedAttempts} ATTEMPTS REMAINING BEFORE LOCKOUT
                                 </span>
                             </div>
                         )}

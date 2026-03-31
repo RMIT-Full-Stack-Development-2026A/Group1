@@ -18,17 +18,16 @@ export const AdminService = {
         return { users, total };
     },
     // Toggle user status (Activate/Deactivate)
-    updateUserStatus: async (userId, isActive) => {
+    changePlayerStatus: async (playerId, status) => {
         const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { $set: { isActive: isActive } },
+            playerId, 
+            { isActive: status }, 
             { new: true }
-        ).select('-password');
-
+        );
+        
         if (!updatedUser) {
-            throw { status: 404, error: "NOT_FOUND", message: "User not found" };
+            throw { statusCode: 404, message: "Player not found" }; // Ném lỗi nếu không tìm thấy
         }
-
         return updatedUser;
     }
 };

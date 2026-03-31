@@ -42,30 +42,32 @@ export const AdminController = {
             });
         }
     },
-    toggleUserStatus: async (req, res) => {
+    deactivatePlayer: async (req, res) => {
         try {
-            const { userId } = req.params; // Get ID from URL: /users/:userId/status
-            const { isActive } = req.body; // Get true/false from Body
-
-            if (typeof isActive !== 'boolean') {
-                return res.status(400).json({ 
-                    error: "BAD_REQUEST", 
-                    message: "isActive must be a boolean value" 
-                });
-            }
-
-            const updatedUser = await AdminService.updateUserStatus(userId, isActive);
-
+            const { id } = req.params;
+            const updatedUser = await AdminService.changePlayerStatus(id, false);
+            
             return res.status(200).json({
-                message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
-                data: {
-                    id: updatedUser._id,
-                    username: updatedUser.username,
-                    isActive: updatedUser.isActive
-                }
+                message: "Player account deactivated successfully",
+                data: updatedUser // Nhớ format qua DTO nếu cần nhé
             });
         } catch (error) {
-            if (error.status) return res.status(error.status).json({ error: error.error, message: error.message });
+            console.error("Deactivate Player Error:", error);
+            return res.status(500).json({ error: "SERVER_ERROR", message: "Internal server error" });
+        }
+    },
+
+    reactivatePlayer: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const updatedUser = await AdminService.changePlayerStatus(id, true);
+            
+            return res.status(200).json({
+                message: "Player account reactivated successfully",
+                data: updatedUser // Nhớ format qua DTO nếu cần nhé
+            });
+        } catch (error) {
+            console.error("Reactivate Player Error:", error);
             return res.status(500).json({ error: "SERVER_ERROR", message: "Internal server error" });
         }
     }

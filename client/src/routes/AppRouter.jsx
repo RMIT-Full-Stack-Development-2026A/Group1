@@ -35,8 +35,8 @@ export default function AppRouter() {
             <Routes>
                 {/* 1. Guest Pages */}
                 <Route path="/" element={<LandingPage />} />
-                {/*<Route path="/login" element={<RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>} />*/}
-                {/*<Route path="/register" element={<RedirectAuthenticatedUser><RegisterPage /></RedirectAuthenticatedUser>} />*/}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
                 {/*/!* 2. Player Pages (Free & Premium) *!/*/}
                 {/*<Route path="/profile" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><ProfilePage /></ProtectedRoute>} />*/}

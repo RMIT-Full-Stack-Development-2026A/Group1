@@ -17,6 +17,11 @@ class HttpHelper {
                 return response.data;
             },
             (error) => {
+                if (error.response && error.response.status === 401) {
+                    // Bắn một event toàn cục để AuthStore bắt được
+                    window.dispatchEvent(new Event('auth:unauthorized'));
+                }
+                
                 const message = error.response?.data?.message || "An unexpected error occurred. Please try again.";
                 return Promise.reject(message);
             }

@@ -7,10 +7,10 @@ export const authorizeMiddleware = (allowedRoles = []) => {
     return (req, res, next) => {
         try {
             // Validate
-            if (!req.user || !req.user.role) {
-                return res.status(401).json({ 
-                    error: "UNAUTHORIZED_ROLE", 
-                    message: "Unauthorized - Role not found" 
+            if (!req.user || !req.user.role) { 
+                return res.status(401).json({
+                    error: "UNAUTHORIZED_ROLE",
+                    message: "Unauthorized - Role not found"
                 });
             }
 
@@ -25,9 +25,9 @@ export const authorizeMiddleware = (allowedRoles = []) => {
             next();
         } catch (error) {
             console.log("Error in authorizeMiddleware", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error during role validation" 
+            return res.status(500).json({
+                error: "SERVER_ERROR",
+                message: "Internal server error during role validation"
             });
         }
     };

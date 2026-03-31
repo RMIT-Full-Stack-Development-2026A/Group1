@@ -4,7 +4,7 @@ import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput } from "../../../utils/validate.js";
 
 export const AuthService = {
-    registerUser: async (userData, res) => {
+    registerUser: async (userData) => {
         const validationErrors = validateRegisterInput(userData);
 
         // Show a error to the controller

@@ -7,7 +7,7 @@ export const authorizeMiddleware = (allowedRoles = []) => {
     return (req, res, next) => {
         try {
             // Validate
-            if (!req.user || !req.user.role) {
+            if (!req.user || !req.user.role) { 
                 return res.status(401).json({
                     error: "UNAUTHORIZED_ROLE",
                     message: "Unauthorized - Role not found"

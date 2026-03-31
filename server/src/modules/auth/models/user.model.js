@@ -26,13 +26,13 @@ const userSchema = new mongoose.Schema({
         enum: ['PLAYER', 'ADMIN'],
         default: 'PLAYER'
     },
-    imageAvatar: {
+    avatar: { 
         type: String,
         default: null,
     },
     lastLogin: {
-        type: String,
-        default: Date.now(),
+        type: Date,
+        default: Date.now,
     },
     // Brute-force protection fields
     loginAttempts: {
@@ -43,10 +43,6 @@ const userSchema = new mongoose.Schema({
     lockUntil: {
         type: Number
     },
-    // isVerify: {
-    //     type: Boolean,
-    //     default: false
-    // },
     isPremium: {
         type: Boolean,
         default: false, // Updated upon successful subscription
@@ -58,9 +54,7 @@ const userSchema = new mongoose.Schema({
     walletBalance: {
         type: Number,
         default: 0, // For depositing funds
-    },
-    // verificationToken: String,
-    // verificationTokenExpiresAt: Date,
+    }
 }, {timestamps: true});
 
 export const User = mongoose.model('User', userSchema);

@@ -4,7 +4,7 @@ import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput } from "../../../utils/validate.js";
 
 export const AuthService = {
-    registerUser: async (userData, res) => {
+    registerUser: async (userData) => {
         const validationErrors = validateRegisterInput(userData);
 
         if (validationErrors.length > 0) {
@@ -25,7 +25,6 @@ export const AuthService = {
             country,
         });
 
-        generateTokenAndSetCookie(res, newUser._id, newUser.role); 
         return { user: newUser };
     },
 

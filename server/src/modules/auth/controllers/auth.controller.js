@@ -2,9 +2,9 @@ import { AuthService } from "../services/auth.service.js"
 import { AuthDTO } from "../dtos/auth.dto.js"
 
 export const AuthController = {
-    register: async (req, res) => {
+    register: async (req) => {
         try {
-            const result = await AuthService.registerUser(req.body, res);
+            const result = await AuthService.registerUser(req.body);
             const safeUser = AuthDTO.toUserResponse(result.user);
             
         

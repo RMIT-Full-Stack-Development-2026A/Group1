@@ -191,9 +191,11 @@ export default function LoginPage() {
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         disabled={loading || isLocked}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3d484d] hover:text-[#4cc9f0] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                                            showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                                        } hover:text-[#4cc9f0]`}
                                     >
-                                        {showPassword ? "👁" : "👁‍🗨"}
+                                        👁
                                     </button>
                                 </div>
                             </div>

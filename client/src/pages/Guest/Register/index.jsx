@@ -11,13 +11,30 @@ export default function RegisterPage() {
         email: "",
         password: "",
         confirmPassword: "",
-        country: "NEO-TOKYO (NT-01)",
+        country: "Vietnam",
     });
 
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [passwordMismatch, setPasswordMismatch] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [emailValidation, setEmailValidation] = useState({
+        hasAt: false,
+        hasDot: false,
+        validLength: false,
+        noProhibited: false,
+    });
+    const [usernameValidation, setUsernameValidation] = useState({
+        validChars: false,
+    });
+    const [passwordValidation, setPasswordValidation] = useState({
+        hasLength: false,
+        hasNumber: false,
+        hasSpecial: false,
+        hasCapital: false,
+    });
 
     const calculatePasswordStrength = (password) => {
         let strength = 0;
@@ -28,6 +45,36 @@ export default function RegisterPage() {
         setPasswordStrength(strength);
     };
 
+    const validateEmail = (email) => {
+        const atCount = (email.match(/@/g) || []).length;
+        const hasAt = atCount === 1;
+        const hasDot = hasAt && email.substring(email.indexOf("@")).includes(".");
+        const validLength = email.length < 255;
+        const prohibitedChars = /[\s();\:]/;
+        const noProhibited = !prohibitedChars.test(email);
+
+        setEmailValidation({
+            hasAt,
+            hasDot,
+            validLength,
+            noProhibited,
+        });
+    };
+
+    const validateUsername = (username) => {
+        const validChars = /^[a-zA-Z0-9_-]*$/.test(username);
+        setUsernameValidation({ validChars });
+    };
+
+    const validatePassword = (password) => {
+        setPasswordValidation({
+            hasLength: password.length >= 8,
+            hasNumber: /[0-9]/.test(password),
+            hasSpecial: /[^A-Za-z0-9]/.test(password),
+            hasCapital: /[A-Z]/.test(password),
+        });
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -35,8 +82,17 @@ export default function RegisterPage() {
             [name]: value,
         }));
 
+        if (name === "email") {
+            validateEmail(value);
+        }
+
+        if (name === "username") {
+            validateUsername(value);
+        }
+
         if (name === "password") {
             calculatePasswordStrength(value);
+            validatePassword(value);
         }
 
         if (name === "confirmPassword" || name === "password") {
@@ -49,8 +105,33 @@ export default function RegisterPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        const errors = [];
+
+        // Validate email criteria
+        if (!emailValidation.hasAt || !emailValidation.hasDot || !emailValidation.validLength || !emailValidation.noProhibited) {
+            errors.push("Email does not meet all requirements");
+        }
+
+        // Validate username criteria
+        if (formData.username.length === 0 || !usernameValidation.validChars) {
+            errors.push("Username must contain only letters, numbers, underscore, and hyphen");
+        }
+
+        // Validate password criteria
+        if (!passwordValidation.hasLength || !passwordValidation.hasNumber || !passwordValidation.hasSpecial || !passwordValidation.hasCapital) {
+            errors.push("Password does not meet all requirements");
+        }
+        
         if (formData.password !== formData.confirmPassword) {
-            setPasswordMismatch(true);
+            errors.push("Passwords must match");
+        }
+
+        // If there are any errors, display them all
+        if (errors.length > 0) {
+            setMessage({
+                type: "error",
+                text: errors.join("\n"),
+            });
             return;
         }
 
@@ -92,6 +173,23 @@ export default function RegisterPage() {
         return "#5cb85c"; // green
     };
 
+    const CriteriaCheckbox = ({ met, label }) => (
+        <div className="flex items-center gap-2 text-[10px] uppercase font-mono">
+            <span className={`w-4 h-4 flex items-center justify-center border ${
+                met 
+                    ? "bg-[#5cb85c] border-[#5cb85c]"
+                    : "bg-[#ffb4ab] border-[#ffb4ab]"
+            }`}>
+                {met ? (
+                    <span className="text-[#0d0d1a] font-bold">✓</span>
+                ) : (
+                    <span className="text-[#0d0d1a] font-bold">✗</span>
+                )}
+            </span>
+            <span className={met ? "text-[#5cb85c]" : "text-[#ffb4ab]"}>{label}</span>
+        </div>
+    );
+
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body flex flex-col">
             {/* Top Navigation */}
@@ -132,6 +230,15 @@ export default function RegisterPage() {
                                 placeholder="PLAYER_01"
                                 className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none"
                             />
+                            {formData.username.length > 0 && (
+                                <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">
+                                    <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">Requirements:</p>
+                                    <CriteriaCheckbox 
+                                        met={usernameValidation.validChars} 
+                                        label="Only letters, numbers, underscore (_), hyphen (-)"
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         {/* Email */}
@@ -147,6 +254,29 @@ export default function RegisterPage() {
                                 placeholder="PROTOCOL@NETWORK.COM"
                                 className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none"
                             />
+                            {formData.email.length > 0 && (
+                                <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">
+                                    <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">Requirements:</p>
+                                    <div className="space-y-1">
+                                        <CriteriaCheckbox 
+                                            met={emailValidation.hasAt} 
+                                            label="Contains exactly one '@' symbol"
+                                        />
+                                        <CriteriaCheckbox 
+                                            met={emailValidation.hasDot} 
+                                            label="Has '.' after '@' symbol"
+                                        />
+                                        <CriteriaCheckbox 
+                                            met={emailValidation.validLength} 
+                                            label="Less than 255 characters"
+                                        />
+                                        <CriteriaCheckbox 
+                                            met={emailValidation.noProhibited} 
+                                            label="No spaces or prohibited chars ( ) ; :"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Password */}
@@ -154,33 +284,48 @@ export default function RegisterPage() {
                             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                 Encryption Key
                             </label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                placeholder="••••••••"
-                                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none"
-                            />
-                            {/* Strength Indicator */}
-                            <div className="flex gap-1 mt-2 items-center">
-                                {[0, 1, 2, 3].map((i) => (
-                                    <div
-                                        key={i}
-                                        className="w-6 h-2 transition-colors"
-                                        style={{
-                                            backgroundColor: i < passwordStrength ? getStrengthColor() : "#343342",
-                                        }}
-                                    ></div>
-                                ))}
-                                <span className="ml-2 text-[10px] text-[#fad100] font-bold uppercase tracking-widest">
-                                    {passwordStrength === 0 && "Strength: Weak"}
-                                    {passwordStrength === 1 && "Strength: Fair"}
-                                    {passwordStrength === 2 && "Strength: Good"}
-                                    {passwordStrength === 3 && "Strength: Strong"}
-                                    {passwordStrength === 4 && "Strength: Very Strong"}
-                                </span>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    placeholder="••••••••"
+                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer ${
+                                        showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                                    } hover:text-[#4cc9f0]`}
+                                >
+                                    👁
+                                </button>
                             </div>
+                            {formData.password.length > 0 && (
+                                <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">
+                                    <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">Requirements:</p>
+                                    <div className="space-y-1">
+                                        <CriteriaCheckbox 
+                                            met={passwordValidation.hasLength} 
+                                            label="At least 8 characters"
+                                        />
+                                        <CriteriaCheckbox 
+                                            met={passwordValidation.hasNumber} 
+                                            label="At least 1 number (0-9)"
+                                        />
+                                        <CriteriaCheckbox 
+                                            met={passwordValidation.hasSpecial} 
+                                            label="At least 1 special character ($#@!)"
+                                        />
+                                        <CriteriaCheckbox 
+                                            met={passwordValidation.hasCapital} 
+                                            label="At least 1 capital letter"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Confirm Password */}
@@ -188,18 +333,29 @@ export default function RegisterPage() {
                             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                 Verify Key
                             </label>
-                            <input
-                                type="password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleInputChange}
-                                placeholder="••••••••"
-                                className={`w-full bg-[#0d0d1a] border-b-2 p-3 font-body focus:ring-0 transition-colors outline-none ${
-                                    passwordMismatch
-                                        ? "border-[#ffb4ab] text-[#ffb4ab] focus:border-[#ffb4ab]"
-                                        : "border-[#3d484d] text-[#4cc9f0] focus:border-[#4cc9f0]"
-                                }`}
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleInputChange}
+                                    placeholder="••••••••"
+                                    className={`w-full bg-[#0d0d1a] border-b-2 p-3 font-body focus:ring-0 transition-colors outline-none pr-10 ${
+                                        passwordMismatch
+                                            ? "border-[#ffb4ab] text-[#ffb4ab] focus:border-[#ffb4ab]"
+                                            : "border-[#3d484d] text-[#4cc9f0] focus:border-[#4cc9f0]"
+                                    }`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer ${
+                                        showConfirmPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                                    } hover:text-[#4cc9f0]`}
+                                >
+                                    👁
+                                </button>
+                            </div>
                             {passwordMismatch && (
                                 <p className="text-[10px] text-[#ffb4ab] font-bold tracking-widest uppercase mt-1">
                                     ⚠ PASSWORDS MUST MATCH
@@ -218,10 +374,25 @@ export default function RegisterPage() {
                                 onChange={handleInputChange}
                                 className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none cursor-pointer"
                             >
-                                <option>NEO-TOKYO (NT-01)</option>
-                                <option>EURO-NET (EU-04)</option>
-                                <option>AMERICAS-GRID (AG-09)</option>
-                                <option>ORBITAL-STATION (OS-00)</option>
+                                <option>Vietnam</option>
+                                <option>Japan</option>
+                                <option>South Korea</option>
+                                <option>Thailand</option>
+                                <option>Philippines</option>
+                                <option>Indonesia</option>
+                                <option>Malaysia</option>
+                                <option>Singapore</option>
+                                <option>China</option>
+                                <option>India</option>
+                                <option>United States</option>
+                                <option>Canada</option>
+                                <option>United Kingdom</option>
+                                <option>Germany</option>
+                                <option>France</option>
+                                <option>Australia</option>
+                                <option>New Zealand</option>
+                                <option>Brazil</option>
+                                <option>Mexico</option>
                             </select>
                         </div>
 
@@ -250,6 +421,7 @@ export default function RegisterPage() {
                                     ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"
                                     : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab]"
                             }`}
+                            style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                         >
                             {message.text}
                         </div>

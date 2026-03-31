@@ -282,7 +282,7 @@ export default function RegisterPage() {
                         {/* Password */}
                         <div className="space-y-2">
                             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
-                                Encryption Key
+                                Password
                             </label>
                             <div className="relative">
                                 <input
@@ -331,7 +331,7 @@ export default function RegisterPage() {
                         {/* Confirm Password */}
                         <div className="space-y-2">
                             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
-                                Verify Key
+                                Verify Password
                             </label>
                             <div className="relative">
                                 <input
@@ -374,7 +374,8 @@ export default function RegisterPage() {
                                 onChange={handleInputChange}
                                 className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none cursor-pointer"
                             >
-                                <option>Vietnam</option>
+                                {/* See if there's API call for countries instead of manual */}
+                                <option>🇻🇳 Vietnam</option>
                                 <option>Japan</option>
                                 <option>South Korea</option>
                                 <option>Thailand</option>

@@ -11,7 +11,7 @@ export default function Navigation() {
                     onClick={() => navigate("/")}
                     className="text-2xl font-black text-[#4cc9f0] [text-shadow:2px_2px_0px_#1e1e2c] font-headline uppercase tracking-widest cursor-pointer hover:drop-shadow-[0_0_8px_#4cc9f0] transition-all"
                 >
-                    TTT
+                    TicTacToang
                 </span>
             </div>
 

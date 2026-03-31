@@ -268,7 +268,7 @@ export default function Landing() {
                     </div>
                 </section>
 
-                {/* Stats Section */}
+                {/* Stats Section */} {/* To Be Removed */}
                 <section className="w-full bg-[#1e1e2c] py-12 border-y border-[#3d484d]">
                     <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
                         <div className="flex flex-col items-center">

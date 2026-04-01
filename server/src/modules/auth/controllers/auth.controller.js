@@ -2,32 +2,34 @@ import { AuthService } from "../services/auth.service.js"
 import { AuthDTO } from "../dtos/auth.dto.js"
 
 export const AuthController = {
-    register: async (req) => {
+    register: async (req, res) => { // Fixed: Added 'res' parameter
         try {
-            const result = await AuthService.registerUser(req.body);
-            const safeUser = AuthDTO.toUserResponse(result.user);
+            const newUser = await AuthService.registerUser(req.body);
             
-        
+            // Transform user to safe response shape
+            const safeUser = AuthDTO.toUserResponse(newUser);
+            
+            //  Success shape and 201 status
             return res.status(201).json({ 
-                message: "User registered successfully", 
+                message: "User registered successfully.", 
                 data: safeUser 
             });
         } catch (error) {
-            // The custom validation error from the service
-            if (error.statusCode === 400 && error.details) {
-               
-                return res.status(400).json({ 
-                    error: "VALIDATION_ERROR", 
-                    message: "Invalid input provided.",
-                    details: error.details
+            //  formatted errors from service
+            if (error.status) {
+                return res.status(error.status).json({ 
+                    error: error.error, 
+                    message: error.message,
+                    cause: error.cause,
+                    valid_example: error.valid_example
                 });
             }
 
-            // Fallback for actual server/database errors
+            //  Generic 500 error (No stack trace)
             console.error("Register Error:", error);
             return res.status(500).json({ 
                 error: "SERVER_ERROR", 
-                message: "Internal server error" 
+                message: "Internal server error occurred during registration." 
             });
         }
     },

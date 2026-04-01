@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockAuthService } from "@/services/mockAuthService";
 import Navigation from "@/components/Navigation/index";
+import { LockoutWarning, AuthMessage } from "@/components/Login";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -155,27 +156,13 @@ export default function LoginPage() {
                         </h1>
 
                         {/* Warning Bar - Show only when approaching lockout (before it's locked) */}
-                        {failedAttempts >= 2 && !isLocked && (
-                            <div className="bg-[#93000a] border-l-4 border-[#ffb4ab] text-[#ffdad6] p-3 mb-8 flex items-center gap-3 text-[10px] font-bold">
-                                <span>🔒</span>
-                                <span>
-                                    WARNING: {5 - failedAttempts} ATTEMPTS REMAINING BEFORE LOCKOUT
-                                </span>
-                            </div>
-                        )}
+                        <LockoutWarning 
+                            failedAttempts={failedAttempts}
+                            isLocked={isLocked}
+                        />
 
                         {/* Error/Success Message */}
-                        {message.text && (
-                            <div
-                                className={`p-4 text-sm text-center rounded-none border-2 font-bold uppercase mb-6 ${
-                                    message.type === "success"
-                                        ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"
-                                        : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab]"
-                                }`}
-                            >
-                                {message.text}
-                            </div>
-                        )}
+                        <AuthMessage message={message} />
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-6">

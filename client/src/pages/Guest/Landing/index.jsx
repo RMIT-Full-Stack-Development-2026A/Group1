@@ -1,6 +1,7 @@
 
 import { useNavigate } from "react-router";
 import Navigation from "@/components/Navigation/index";
+import { BoardVisualizer } from "@/components/BoardVisualizer";
 
 export default function Landing() {
     const navigate = useNavigate();
@@ -128,144 +129,7 @@ export default function Landing() {
                     </div>
 
                     {/* Board Visualization */}
-                    <div className="mt-24 w-full relative h-[400px] border border-[#3d484d] bg-[#1a1a28] overflow-hidden">
-                        <div className="absolute top-0 left-0 p-4 border-r border-b border-[#3d484d] font-headline text-[10px] text-[#3d484d]">
-                            VISUALIZER_v4.2
-                        </div>
-
-                        {/* Board Markers */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center pointer-events-none">
-                            <div className="relative w-[400px] h-[400px] grid grid-cols-10 grid-rows-10 gap-0 border border-[#3d484d]">
-                                {/* Row 1 */}
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 2 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 3 */}
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 4 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 5 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 6 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 7 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 8 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 9 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 10 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                            </div>
-                        </div>
-
-                        {/* Scanning Progress */}
-                        <div className="absolute bottom-4 right-4 text-right">
-                            <p className="text-[10px] font-headline text-[#93e2ff] opacity-50">SCANNING SECTOR...</p>
-                            <div className="w-32 h-1 bg-[#3d484d] mt-1">
-                                <div className="w-2/3 h-full bg-[#4cc9f0] shadow-[0_0_5px_#4cc9f0]"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <BoardVisualizer />
                 </section>
 
                 {/* Stats Section */} {/* To Be Removed */}

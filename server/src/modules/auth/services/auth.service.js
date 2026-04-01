@@ -7,22 +7,34 @@ export const AuthService = {
     registerUser: async (userData) => {
         const { email, password, username, country } = userData;
 
-        // Enforce unique email constraint
-        const existingUser = await AuthRepository.findByEmail(email);
-        if (existingUser) {
+        //  Enforce Unique Identity (Check both Email and Username)
+        // We check for any user that might already have this email or this username
+        const emailConflict = await AuthRepository.findByEmail(email);
+        if (emailConflict) {
             throw {
-                status: 409, // Contract Rule 2: Conflict
+                status: 409, 
                 error: "EMAIL_ALREADY_EXISTS",
                 message: "Registration failed. Email is already in use.",
-                cause: "A user with this email address already exists in the system.",
-                valid_example: "use_a_different_email@example.com"
+                cause: "The provided email address is already registered to another account.",
+                valid_example: "new_player_email@example.com"
             };
         }
 
-        // Password must be hashed
+        const usernameConflict = await AuthRepository.findByEmailOrUsername(username);
+        if (usernameConflict) {
+            throw {
+                status: 409,
+                error: "USERNAME_ALREADY_TAKEN",
+                message: "Registration failed. Username is already taken.",
+                cause: "The provided username is already claimed by another player.",
+                valid_example: "Unique_Player_2026"
+            };
+        }
+
+        // Secure Password Hashing
         const hashedPassword = await bcryptjs.hash(password, 10);
 
-        // Create user via Repository
+        // Create user via Repository 
         const newUser = await AuthRepository.createUser({
             email,
             username,

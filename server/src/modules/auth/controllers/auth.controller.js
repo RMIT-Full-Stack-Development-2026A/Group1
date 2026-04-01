@@ -2,30 +2,32 @@ import { AuthService } from "../services/auth.service.js"
 import { AuthDTO } from "../dtos/auth.dto.js"
 
 export const AuthController = {
-    register: async (req, res) => { // Fixed: Added 'res' parameter
+    register: async (req, res) => {
         try {
             const newUser = await AuthService.registerUser(req.body);
-            
-            // Transform user to safe response shape
             const safeUser = AuthDTO.toUserResponse(newUser);
             
-            //  Success shape and 201 status
             return res.status(201).json({ 
                 message: "User registered successfully.", 
                 data: safeUser 
             });
         } catch (error) {
-            //  formatted errors from service
+            // Catch standardized formatting (including validation details if any)
             if (error.status) {
-                return res.status(error.status).json({ 
-                    error: error.error, 
+                const errorResponse = {
+                    error: error.error,
                     message: error.message,
                     cause: error.cause,
                     valid_example: error.valid_example
-                });
+                };
+                
+                if (error.details) {
+                    errorResponse.details = error.details;
+                }
+
+                return res.status(error.status).json(errorResponse);
             }
 
-            //  Generic 500 error (No stack trace)
             console.error("Register Error:", error);
             return res.status(500).json({ 
                 error: "SERVER_ERROR", 
@@ -53,14 +55,18 @@ export const AuthController = {
             });
 
         } catch (error) {
-            // Handle standardized 
+            // Catch standardized formatting (including validation details if any)
             if (error.status) {
-                return res.status(error.status).json({
+                const errorResponse = {
                     error: error.error,
                     message: error.message,
                     cause: error.cause,
                     valid_example: error.valid_example
-                });
+                };
+                // Include validation details if it's a 400 validation error
+                if (error.details) errorResponse.details = error.details;
+
+                return res.status(error.status).json(errorResponse);
             }
 
             // Fallback for unexpected server errors 
@@ -76,25 +82,25 @@ export const AuthController = {
         try {
             await AuthService.logoutUser(res);
             return res.status(200).json({ 
-                data: null, 
-                message: "Logged out successfully" 
+                message: "Logged out successfully." 
             });
         } catch (error) {
             console.error("Logout Error:", error);
             return res.status(500).json({ 
-                error: "LOGOUT_FAILED", 
-                message: "Error logging out" 
+                error: "SERVER_ERROR", 
+                message: "Internal server error occurred during logout." 
             });
         }
     },
 
     checkAuth: async (req, res) => {
         try {
-            // Check for missing user id from middleware
             if (!req.user || !req.user.id) {
                 return res.status(401).json({ 
                     error: "UNAUTHORIZED", 
-                    message: "No token provided or token invalid" 
+                    message: "Authentication failed. No valid token found.",
+                    cause: "The request context lacks user identity information.",
+                    valid_example: "A valid session token in cookies."
                 });
             }
 
@@ -102,14 +108,23 @@ export const AuthController = {
             const safeUser = AuthDTO.toUserResponse(result.user);
             
             return res.status(200).json({ 
-                data: safeUser,
-                message: "User is authenticated"
+                message: "User is authenticated.",
+                data: safeUser
             });
         } catch (error) {
-            const errorCode = error.statusCode === 404 ? "USER_NOT_FOUND" : "ACCOUNT_DEACTIVATED";
-            return res.status(error.statusCode || 400).json({ 
-                error: errorCode, 
-                message: error.message 
+            if (error.status) {
+                return res.status(error.status).json({ 
+                    error: error.error, 
+                    message: error.message,
+                    cause: error.cause,
+                    valid_example: error.valid_example
+                });
+            }
+
+            console.error("Check Auth Error:", error);
+            return res.status(500).json({ 
+                error: "SERVER_ERROR", 
+                message: "Internal server error occurred during authentication check." 
             });
         }
     }

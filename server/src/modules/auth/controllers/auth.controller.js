@@ -42,34 +42,32 @@ export const AuthController = {
             };
 
             const result = await AuthService.loginUser(loginData, res);
+            
+          
             const safeUser = AuthDTO.toUserResponse(result.user);
             
+            //  Success Shape { data, message }
             return res.status(200).json({
-                data: safeUser,
-                message: "Login successful"
+                message: "Login successful.",
+                data: safeUser
             });
 
         } catch (error) {
-            if (error.statusCode === 400 && error.details) {
-                return res.status(400).json({
-                    error: "VALIDATION_ERROR",
-                    message: "Invalid input provided.",
-                    details: error.details
-                });
-            }
-            
-            if (error.statusCode === 401 || error.statusCode === 403) {
-                const errorCode = error.statusCode === 401 ? "UNAUTHORIZED" : "ACCOUNT_LOCKED";
-                return res.status(error.statusCode).json({
-                    error: errorCode,
-                    message: error.message
+            // Handle standardized 
+            if (error.status) {
+                return res.status(error.status).json({
+                    error: error.error,
+                    message: error.message,
+                    cause: error.cause,
+                    valid_example: error.valid_example
                 });
             }
 
+            // Fallback for unexpected server errors 
             console.error("Login Error:", error);
             return res.status(500).json({ 
                 error: "SERVER_ERROR", 
-                message: "Internal server error" 
+                message: "Internal server error occurred during login." 
             });
         }
     },

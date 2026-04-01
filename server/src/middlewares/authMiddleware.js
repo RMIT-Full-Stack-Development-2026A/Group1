@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
+    // JWT stored in httpOnly cookie named 'access_token'
     const token = req.cookies.access_token;
     
     if (!token) {
@@ -8,12 +9,13 @@ export const verifyToken = (req, res, next) => {
             error: "UNAUTHORIZED", 
             message: "Authentication failed. No token provided.",
             cause: "The request lacks an access token in the cookies.",
-            valid_example: "A valid JWT token stored in 'access_token' cookie."
+            valid_example: "A valid JWT token stored in the 'access_token' cookie."
         });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
         if (!decoded) { 
             return res.status(401).json({ 
                 error: "INVALID_TOKEN", 
@@ -23,10 +25,18 @@ export const verifyToken = (req, res, next) => {
             }); 
         }
 
-        req.user = { id: decoded.userId, role: decoded.role };
+        // JWT payload contains { userId, role, isPremium }
+        // Attach ALL these to req.user so downstream controllers can use them
+        req.user = { 
+            id: decoded.userId, 
+            role: decoded.role,
+            isPremium: decoded.isPremium 
+        };
+        
         next();
     } catch (error) {
-        console.log("Error in verifyToken", error);
+        //  500 errors do not expose stack trace, but token verification is a 401
+        console.error("Error in verifyToken", error);
         return res.status(401).json({ 
             error: "TOKEN_VERIFICATION_FAILED", 
             message: "Authentication failed during token verification.",

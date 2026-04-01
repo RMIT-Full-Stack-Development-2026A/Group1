@@ -1,61 +1,74 @@
 import { create } from 'zustand';
-import http from '@/utils/httpHelper';
+import http from '../utils/httpHelper';
+import { API_ENDPOINTS } from '../config/apiConfig';
+
+
+    // { data: <user object>, message: ... }
 
 export const useAuthStore = create((set) => ({
-    // 1. Initial State
-    isAuthenticated: false,
     user: null,
-    isCheckingAuth: true, 
+    isAuthenticated: false,
+    isCheckingAuth: true, // loading state
+    isLoading: false,
+    error: null,
 
-    // 2. Actions to modify state when login, logout
-    // and want to check if Authentication is still there or not
-    checkAuth: async () => {
-        set({ isCheckingAuth: true });
-
-        console.log("AuthStore: checking authentication..."); // Testing log
-
+    // login function
+    login: async (credentials) => {
+        set({ isLoading: true, error: null });
         try {
-            // Retrieve token from local storage
-            const token = localStorage.getItem('jwt_token');
+            const response = await http.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
 
-            // If no token, stop checking and set state to unauthenticated
-            if (!token) {
-                set({ isAuthenticated: false, user: null, isCheckingAuth: false });
-                return;
-            }
-
-            // TODO: Replace with your actual endpoint, e.g., '/auth/me' or '/users/profile'
-            const endpoint = 'YOUR_AUTH_ME_ENDPOINT_HERE'; 
-            
-            const response = await http.get(endpoint);
-
-            // Assuming the backend returns the user object directly or nested like response.data.user
-            //TODO: Update this based on your actual backend response structure
-            const userData = response.user || response;
-
-            set({ 
-                isAuthenticated: true, 
-                user: userData, 
-                isCheckingAuth: false 
-            });
+            set({ isAuthenticated: true, user: response.data, isLoading: false });
+            return response;
         } catch (error) {
-            console.error("AuthStore Error:", error);
-            localStorage.removeItem('jwt_token');
+            set({ error: error, isLoading: false });
+            throw error;
+        }
+    },
+
+    // 2. register function
+    register: async (userData) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await http.post(API_ENDPOINTS.AUTH.REGISTER, userData);
+            set({ isAuthenticated: true, user: response.data, isLoading: false });
+            return response;
+        } catch (error) {
+            set({ error: error, isLoading: false });
+            throw error;
+        }
+    },
+
+    // logout
+    logout: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            await http.post(API_ENDPOINTS.AUTH.LOGOUT);
+        } catch (error) {
+            console.error("Logout API failed:", error);
+        } finally {
+            // Dù API gọi fail hay success, FE vẫn phải clear state
+            set({ isAuthenticated: false, user: null, isLoading: false });
+        }
+    },
+
+    // check cookie after reloading
+    checkAuth: async () => {
+        set({ isCheckingAuth: true, error: null });
+        try {
+            const response = await http.get(API_ENDPOINTS.AUTH.CHECK_AUTH);
+            set({ isAuthenticated: true, user: response.data, isCheckingAuth: false });
+        } catch (error) {
+            // Nếu API báo lỗi 401 (chưa có token), set state về false
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
         }
     },
 
-    // Action to handle successful login from the UI
-    login: (userData, token) => {
-        localStorage.setItem('jwt_token', token);
-        set({ isAuthenticated: true, user: userData });
-        console.log("AuthStore: Login successful ->", userData);
-    },
-
-    logout: () => {
-        // Clear storage and state
-        localStorage.removeItem('jwt_token');
-        set({ isAuthenticated: false, user: null });
-        console.log("AuthStore: Logged out");
-    }
+    clearError: () => set({ error: null })
 }));
+
+// 401 token expiration from axios 
+window.addEventListener('auth:unauthorized', () => {
+    useAuthStore.getState().logout();
+    window.location.href = '/login';
+});

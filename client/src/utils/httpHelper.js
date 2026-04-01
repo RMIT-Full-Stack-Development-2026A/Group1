@@ -37,16 +37,11 @@ class HttpHelper {
                 return response.data;
             },
             (error) => {
-                // Handle 401 Unauthorized globally (e.g., when token expires)
-                if (error.response?.status === 401) {
-                    console.warn("Unauthorized! Token might be invalid or expired.");
-                    //Dispatch an event to tell AuthStore to log the user out
-                    useAuthStore.getState().logout();
-                    
-                    // Force redirect to login page
-                    window.location.href = '/login';
+                if (error.response && error.response.status === 401) {
+                    // Bắn một event toàn cục để AuthStore bắt được
+                    window.dispatchEvent(new Event('auth:unauthorized'));
                 }
-
+                
                 const message = error.response?.data?.message || "An unexpected error occurred. Please try again.";
                 return Promise.reject(message);
             }

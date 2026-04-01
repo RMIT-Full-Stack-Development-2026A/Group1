@@ -35,7 +35,7 @@ Before you begin, ensure you have the following installed and set up:
 
 4. Start the backend development server:
     ```bash
-    npm run dev
+    npm run dev # or node ./src/index.js
     ``` 
 `Note`: The server will run on `http://localhost:5000` by default and uses `nodemon` to automatically restart on file changes.
 

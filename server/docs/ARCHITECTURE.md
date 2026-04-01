@@ -42,7 +42,7 @@ backend/
 │   │
 │   ├── sockets/                      # WebSocket configurations for real-time game synchronization (/ws/game namespace).
 │   ├── app.js                        # Main Express application entry point.
-│   └── server.js                     # HTTP and WebSocket server initialization.
+│   └── index.js                     # HTTP and WebSocket server initialization.
 |
 ├── docs/                             # Documents
 └── package.json                      # Node.js dependencies.

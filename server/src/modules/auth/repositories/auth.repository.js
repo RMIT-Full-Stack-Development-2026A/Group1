@@ -1,6 +1,9 @@
 import { User } from '../models/user.model.js';
 
 export const AuthRepository = {
+    findByEmail: async (email) => {
+        return await User.findOne({ email });
+    },
     findByEmailOrUsername: async (identifier) => {
         return await User.findOne({
             $or: [{ email: identifier }, { username: identifier }]

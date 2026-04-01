@@ -4,30 +4,34 @@ import { AuthDTO } from "../dtos/auth.dto.js"
 export const AuthController = {
     register: async (req, res) => {
         try {
-            const result = await AuthService.registerUser(req.body, res);
-            const safeUser = AuthDTO.toUserResponse(result.user);
+            const newUser = await AuthService.registerUser(req.body);
+            const safeUser = AuthDTO.toUserResponse(newUser);
             
-        
             return res.status(201).json({ 
-                message: "User registered successfully", 
+                message: "User registered successfully.", 
                 data: safeUser 
             });
         } catch (error) {
-            // The custom validation error from the service
-            if (error.statusCode === 400 && error.details) {
-               
-                return res.status(400).json({ 
-                    error: "VALIDATION_ERROR", 
-                    message: "Invalid input provided.",
-                    details: error.details
-                });
+            // Catch standardized formatting (including validation details if any)
+            if (error.status) {
+                const errorResponse = {
+                    error: error.error,
+                    message: error.message,
+                    cause: error.cause,
+                    valid_example: error.valid_example
+                };
+                
+                if (error.details) {
+                    errorResponse.details = error.details;
+                }
+
+                return res.status(error.status).json(errorResponse);
             }
 
-            // Fallback for actual server/database errors
             console.error("Register Error:", error);
             return res.status(500).json({ 
                 error: "SERVER_ERROR", 
-                message: "Internal server error" 
+                message: "Internal server error occurred during registration." 
             });
         }
     },
@@ -40,34 +44,36 @@ export const AuthController = {
             };
 
             const result = await AuthService.loginUser(loginData, res);
+            
+          
             const safeUser = AuthDTO.toUserResponse(result.user);
             
+            //  Success Shape { data, message }
             return res.status(200).json({
-                data: safeUser,
-                message: "Login successful"
+                message: "Login successful.",
+                data: safeUser
             });
 
         } catch (error) {
-            if (error.statusCode === 400 && error.details) {
-                return res.status(400).json({
-                    error: "VALIDATION_ERROR",
-                    message: "Invalid input provided.",
-                    details: error.details
-                });
-            }
-            
-            if (error.statusCode === 401 || error.statusCode === 403) {
-                const errorCode = error.statusCode === 401 ? "UNAUTHORIZED" : "ACCOUNT_LOCKED";
-                return res.status(error.statusCode).json({
-                    error: errorCode,
-                    message: error.message
-                });
+            // Catch standardized formatting (including validation details if any)
+            if (error.status) {
+                const errorResponse = {
+                    error: error.error,
+                    message: error.message,
+                    cause: error.cause,
+                    valid_example: error.valid_example
+                };
+                // Include validation details if it's a 400 validation error
+                if (error.details) errorResponse.details = error.details;
+
+                return res.status(error.status).json(errorResponse);
             }
 
+            // Fallback for unexpected server errors 
             console.error("Login Error:", error);
             return res.status(500).json({ 
                 error: "SERVER_ERROR", 
-                message: "Internal server error" 
+                message: "Internal server error occurred during login." 
             });
         }
     },
@@ -76,25 +82,25 @@ export const AuthController = {
         try {
             await AuthService.logoutUser(res);
             return res.status(200).json({ 
-                data: null, 
-                message: "Logged out successfully" 
+                message: "Logged out successfully." 
             });
         } catch (error) {
             console.error("Logout Error:", error);
             return res.status(500).json({ 
-                error: "LOGOUT_FAILED", 
-                message: "Error logging out" 
+                error: "SERVER_ERROR", 
+                message: "Internal server error occurred during logout." 
             });
         }
     },
 
     checkAuth: async (req, res) => {
         try {
-            // Check for missing user id from middleware
             if (!req.user || !req.user.id) {
                 return res.status(401).json({ 
                     error: "UNAUTHORIZED", 
-                    message: "No token provided or token invalid" 
+                    message: "Authentication failed. No valid token found.",
+                    cause: "The request context lacks user identity information.",
+                    valid_example: "A valid session token in cookies."
                 });
             }
 
@@ -102,14 +108,23 @@ export const AuthController = {
             const safeUser = AuthDTO.toUserResponse(result.user);
             
             return res.status(200).json({ 
-                data: safeUser,
-                message: "User is authenticated"
+                message: "User is authenticated.",
+                data: safeUser
             });
         } catch (error) {
-            const errorCode = error.statusCode === 404 ? "USER_NOT_FOUND" : "ACCOUNT_DEACTIVATED";
-            return res.status(error.statusCode || 400).json({ 
-                error: errorCode, 
-                message: error.message 
+            if (error.status) {
+                return res.status(error.status).json({ 
+                    error: error.error, 
+                    message: error.message,
+                    cause: error.cause,
+                    valid_example: error.valid_example
+                });
+            }
+
+            console.error("Check Auth Error:", error);
+            return res.status(500).json({ 
+                error: "SERVER_ERROR", 
+                message: "Internal server error occurred during authentication check." 
             });
         }
     }

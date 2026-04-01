@@ -51,7 +51,6 @@ export const AuthService = {
 
         const { identifier, password } = userData;
 
-        // Fetch User
         const user = await AuthRepository.findByEmailOrUsername(identifier);
         if (!user) {
             throw {
@@ -63,7 +62,6 @@ export const AuthService = {
             };
         }
 
-        // Check Brute-Force Lock
         if (user.lockUntil && user.lockUntil > Date.now()) {
             throw {
                 status: 403,
@@ -74,7 +72,6 @@ export const AuthService = {
             };
         }
 
-        // Verify Password
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
             await AuthRepository.incrementLoginAttempts(user);
@@ -98,7 +95,6 @@ export const AuthService = {
             };
         }
 
-        // Success cleanup & JWT
         await AuthRepository.resetLoginAttempts(user);
         await AuthRepository.updateLastLogin(user._id);
 
@@ -107,7 +103,6 @@ export const AuthService = {
     },
 
     logoutUser: async (res) => {
-        // Clear user cookie
         res.clearCookie("access_token");
         return; 
     },

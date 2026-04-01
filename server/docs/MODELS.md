@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         match: /^[a-zA-Z0-9_-]+$/, // Alphabets, numbers, underscore, hyphen
+        unique: true
+        trim: true
     },
+    
     email: {
         type: String,
         required: true,

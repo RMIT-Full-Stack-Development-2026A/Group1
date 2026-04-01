@@ -12,13 +12,13 @@ export const AuthController = {
                 data: safeUser 
             });
         } catch (error) {
-            // Catch standardized formatting (including validation details if any)
+            // Catch standardized formatting 
             if (error.status) {
                 const errorResponse = {
                     error: error.error,
                     message: error.message,
                     cause: error.cause,
-                    valid_example: error.valid_example
+                    example: error.example
                 };
                 
                 if (error.details) {
@@ -44,28 +44,24 @@ export const AuthController = {
             };
 
             const result = await AuthService.loginUser(loginData, res);
-            
-          
             const safeUser = AuthDTO.toUserResponse(result.user);
             
-            //  Success Shape { data, message }
             return res.status(200).json({
                 message: "Login successful.",
                 data: safeUser
             });
 
         } catch (error) {
-            // Catch standardized formatting (including validation details if any)
+            // Catch standardized formatting 
             if (error.status) {
                 const errorResponse = {
                     error: error.error,
                     message: error.message,
                     cause: error.cause,
-                    valid_example: error.valid_example
+                    example: error.example
                 };
-                // Include validation details if it's a 400 validation error
+                // Validation details if it's a 400 validation error
                 if (error.details) errorResponse.details = error.details;
-
                 return res.status(error.status).json(errorResponse);
             }
 
@@ -100,7 +96,7 @@ export const AuthController = {
                     error: "UNAUTHORIZED", 
                     message: "Authentication failed. No valid token found.",
                     cause: "The request context lacks user identity information.",
-                    valid_example: "A valid session token in cookies."
+                    example: "A valid session token in cookies."
                 });
             }
 
@@ -117,7 +113,7 @@ export const AuthController = {
                     error: error.error, 
                     message: error.message,
                     cause: error.cause,
-                    valid_example: error.valid_example
+                    example: error.example
                 });
             }
 

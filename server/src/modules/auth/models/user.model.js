@@ -41,7 +41,8 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
     lockUntil: {
-        type: Number
+        type: Number,
+        default: 0
     },
     isPremium: {
         type: Boolean,

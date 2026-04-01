@@ -57,25 +57,26 @@ export const validateRegisterInput = (data) => {
 };
 
 export const validateRegisterConflicts = async (email, username) => {
-    const emailConflict = await AuthRepository.findByEmail(email);
+    const emailConflict = await AuthRepository.findByEmailOrUsername(email);
+    const usernameConflict = await AuthRepository.findByEmailOrUsername(username);
+    
     if (emailConflict) {
         throw {
             status: 409,
             error: "EMAIL_ALREADY_EXISTS",
             message: "Registration failed. Email is already in use.",
             cause: "The provided email address is already registered to another account.",
-            valid_example: "new_player@example.com"
+            example: "new_player@example.com"
         };
     }
 
-    const usernameConflict = await AuthRepository.findByEmailOrUsername(username);
     if (usernameConflict) {
         throw {
             status: 409,
             error: "USERNAME_ALREADY_TAKEN",
             message: "Registration failed. Username is already taken.",
             cause: "The provided username is already claimed by another player.",
-            valid_example: "Unique_Player_99"
+            example: "Unique_Player_99"
         };
     }
 };

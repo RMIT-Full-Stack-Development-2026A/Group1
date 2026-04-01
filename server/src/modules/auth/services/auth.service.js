@@ -5,7 +5,7 @@ import { validateRegisterInput, validateLoginInput, validateRegisterConflicts } 
 
 export const AuthService = {
     registerUser: async (userData) => {
-        // 1. Basic Validation (Regex & Missing Fields)
+        // Validation 
         const validationErrors = validateRegisterInput(userData);
         if (validationErrors.length > 0) {
             throw {
@@ -18,21 +18,18 @@ export const AuthService = {
 
         const { email, password, username, country } = userData;
 
-        // 2. Async Validation (DB Conflicts)
+        // Async Validation (DB Conflicts)
         await validateRegisterConflicts(email, username);
 
-        // 3. Hash Password
+        // Hash Password
         const hashedPassword = await bcryptjs.hash(password, 10);
 
-        // 4. Create User
+        // Create User
         const newUser = await AuthRepository.createUser({
             email,
             username,
             password: hashedPassword,
             country,
-            role: "PLAYER",
-            isActive: true,
-            isPremium: false
         });
 
         return newUser;
@@ -59,22 +56,24 @@ export const AuthService = {
                 error: "INVALID_CREDENTIALS",
                 message: "Login failed. Invalid identifier or password.",
                 cause: "No account matches the provided credentials.",
-                valid_example: "Ensure your email/username and password are correct."
+                example: "Ensure your email/username and password are correct."
             };
         }
 
-        //Check for account lockout 
+        // Check for account lockout 
         if (user.lockUntil && user.lockUntil > Date.now()) {
+            // Show user lock time left before next login
+            const lockTimeLeft = Math.floor((user.lockUntil - Date.now()) / 1000);
             throw {
                 status: 403,
                 error: "ACCOUNT_LOCKED",
                 message: "Login failed. Account is temporarily locked.",
-                cause: "Account locked due to multiple failed attempts. Please wait 60 seconds.",
-                valid_example: "Try logging in again after 1 minute."
+                cause: `Account locked due to multiple failed attempts. Please wait ${lockTimeLeft} seconds.`,
+                example: `Try logging in again after ${lockTimeLeft} seconds.`
             };
         }
 
-        // 3. Verify Password
+        // Verify Password
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
             await AuthRepository.incrementLoginAttempts(user);
@@ -83,38 +82,26 @@ export const AuthService = {
                 error: "INVALID_CREDENTIALS",
                 message: "Login failed. Invalid identifier or password.",
                 cause: "The password provided does not match our records.",
-                valid_example: "Check for typos or reset your password if forgotten."
+                example: "Check for typos or reset your password if forgotten."
             };
         }
 
-        // Check if account is active (CRITICAL FIX)
+        // Check if account is active
         if (!user.isActive) {
             throw {
                 status: 403,
                 error: "ACCOUNT_DEACTIVATED",
                 message: "Login failed. Your account has been deactivated.",
                 cause: "An administrator has disabled this account. Access is restricted.",
-                valid_example: "Contact a system administrator to request reactivation."
+                example: "Contact a system administrator to request reactivation."
             };
         }
 
-        // Check if account is active 
-        if (!user.isActive) {
-            throw {
-                status: 403,
-                error: "ACCOUNT_DEACTIVATED",
-                message: "Login failed. Your account has been deactivated.",
-                cause: "An administrator has disabled this account. Access is restricted.",
-                valid_example: "Contact a system administrator to request reactivation."
-            };
-        }
-
-        // Success: Reset attempts and update login time
+        // Reset attempts and update login time
         await AuthRepository.resetLoginAttempts(user);
         await AuthRepository.updateLastLogin(user._id);
 
-        //  Generate Token 
-        // Ensure payload 
+        //  Generate Token
         generateTokenAndSetCookie(res, user._id, user.role, user.isPremium); 
         
         return { user };
@@ -133,7 +120,7 @@ export const AuthService = {
                 error: "USER_NOT_FOUND",
                 message: "Authentication check failed. User not found.",
                 cause: "The user ID provided in the token does not exist in the database.",
-                valid_example: "A valid user ID."
+                example: "A valid user ID."
             };
         }
 
@@ -143,7 +130,7 @@ export const AuthService = {
                 error: "ACCOUNT_DEACTIVATED",
                 message: "Authentication check failed. Account is deactivated.",
                 cause: "The user account is currently disabled.",
-                valid_example: "Contact support for reactivation."
+                example: "Contact support for reactivation."
             };
         }
 

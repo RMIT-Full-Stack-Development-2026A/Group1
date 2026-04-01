@@ -8,7 +8,7 @@ const router = express.Router();
 
 const requireAdmin = authorizeMiddleware(['admin', 'Admin', 'ADMIN']); 
 
-// Protect route with 2 layers: Must be logged in AND must be ADMIN
+// Protect route with 2 layers: Must be logged in AND must be ADMIN.
 router.get('/users', verifyToken, requireAdmin, AdminController.getAllUsers);
 router.patch('/players/:id/deactivate', verifyToken, requireAdmin, AdminController.deactivatePlayer);
 router.patch('/players/:id/reactivate', verifyToken, requireAdmin, AdminController.reactivatePlayer);

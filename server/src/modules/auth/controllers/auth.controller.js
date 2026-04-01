@@ -12,13 +12,20 @@ export const AuthController = {
                 data: safeUser 
             });
         } catch (error) {
+            // Catch standardized formatting (including validation details if any)
             if (error.status) {
-                return res.status(error.status).json({ 
-                    error: error.error, 
+                const errorResponse = {
+                    error: error.error,
                     message: error.message,
                     cause: error.cause,
                     valid_example: error.valid_example
-                });
+                };
+                
+                if (error.details) {
+                    errorResponse.details = error.details;
+                }
+
+                return res.status(error.status).json(errorResponse);
             }
 
             console.error("Register Error:", error);

@@ -33,17 +33,13 @@ const userSchema = new mongoose.Schema({
         enum: ['PLAYER', 'ADMIN'],
         default: 'PLAYER'
     },
-    avatarUrl: {
+    avatar: {
         type: String,
         default: null, 
     },
     lastLogin: {
-        type: String,
+        type: Date,
         default: Date.now(),
-    },
-    isVerify: {
-        type: Boolean,
-        default: false
     },
     isPremium: {
         type: Boolean,
@@ -57,8 +53,6 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0, 
     },
-    verificationToken: String,
-    verificationTokenExpiresAt: Date,
 }, {timestamps: true});
 
 export const User = mongoose.model('User', userSchema);

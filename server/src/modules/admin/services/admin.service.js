@@ -5,7 +5,7 @@ export const AdminService = {
         // Calculate how many documents to skip based on the current page
         const skip = (page - 1) * limit;
 
-        // Fetch users, sort by newest, apply pagination, and exclude passwords
+        // Fetch users, sort by newest, apply pagination, and exclude passwords 
         const users = await User.find()
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -17,16 +17,24 @@ export const AdminService = {
 
         return { users, total };
     },
+
     // Toggle user status (Activate/Deactivate)
     changePlayerStatus: async (playerId, status) => {
         const updatedUser = await User.findByIdAndUpdate(
             playerId, 
             { isActive: status }, 
-            { new: true }
-        );
+            { new: true, runValidators: true }
+        ).select('-password'); 
         
         if (!updatedUser) {
-            throw { statusCode: 404, message: "Player not found" }; // Ném lỗi nếu không tìm thấy
+            // Throw custom error 
+            throw { 
+                status: 404, 
+                error: "PLAYER_NOT_FOUND",
+                message: "Status update failed. Player not found.",
+                cause: `No user record exists in the database matching the provided ID: ${playerId}.`,
+                valid_example: "A valid User ID currently existing in the database."
+            }; 
         }
         return updatedUser;
     }

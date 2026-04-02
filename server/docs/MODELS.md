@@ -1,4 +1,4 @@
-# TicTacToang MongoDB Data Models (Revised)
+# TicTacToang MongoDB Data Models
 
 This revision keeps the Modular Monolith ownership boundaries but improves the schema design so it better supports:
 
@@ -50,6 +50,7 @@ const baseSchemaOptions = {
 
 ## 3. User Model (`user.model.js`)
 **Owned by**: auth module
+
 **Purpose**: Stores account identity, authentication state, premium state, and wallet balance snapshot.
 
 ```js
@@ -155,9 +156,10 @@ export const User = mongoose.model('User', userSchema);
 
 ## 4. Game Session Model (`gameSession.model.js`)
 **Owned by**: game module
+
 **Purpose**: Stores completed or aborted matches for history, replay, filtering, and analytics.
 
-### Pảticipant sub-schema
+### Participant sub-schema
 Used for each side in a saved match.
 ```js
 const participantSchema = new mongoose.Schema({
@@ -216,7 +218,7 @@ const moveSchema = new mongoose.Schema({
   coordinate: {
     type: String, // Human-friendly algebraic notation
     required: true // Useful for replay UI and readable records
-    match: /^[A-O](?:[1:9]|1[0-5])
+    match: /^[A-O](?:[1:9]|1[0-5])$/
   },
   placedAt: {
     type: Date, // When this move was made
@@ -357,6 +359,7 @@ export const GameSession = mongoose.model('GameSession', gameSessionSchema)
 
 ## 5. Game Room Model (`gameRoom.model.js`)
 **Owned by**: room module
+
 **Purpose**: Stores live online room state for socket-first multiplayer.
 
 This model is for active online matches / waiting rooms, not long-term history.
@@ -486,6 +489,7 @@ export const GameRoom = mongoose.model('GameRoom', gameRoomSchema);
 
 ## 6. Transaction Model (`transaction.model.js`)
 **Owned by**: wallet module
+
 **Purpose**: Stores immutable financial history for deposits and subscriptions.
 
 ```js

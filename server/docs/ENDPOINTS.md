@@ -1,4 +1,4 @@
-# TicTacToang Backend API Endpoints (Revised)
+# TicTacToang Backend API Endpoints
 
 This document defines the **recommended server contract** for TicTacToang so that it matches the SRS, respects the team policy, and minimizes unnecessary API calls by:
 

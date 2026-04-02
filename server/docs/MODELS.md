@@ -89,7 +89,7 @@ const moveSchema = new mongoose.Schema({
     coordinate: {
         type: String,
         required: true,
-        match: /^[a-o][1-9]$|^[a-o]1[0-5]$/ // Algebraic notation for 15x15 max
+        match: /^[A-O][1-9]$|^[A-O]1[0-5]$/ // Algebraic notation for 15x15 max (Uppercase)
     },
     moveNumber: {
         type: Number,

@@ -41,5 +41,14 @@ const gameSessionSchema = new mongoose.Schema({
     },
     moves: [moveSchema] // Array of moves to reconstruct the game
 }, {timestamps: true});
+// change _id to id 
+gameSessionSchema.set('toJSON', {
+    virtuals: true, // include virtuals
+    versionKey: false, // remove __v
+    transform: function (doc, ret) {
+        ret.id = ret._id; // copy _id to id 
+        delete ret._id; // remove _id
+    }
+});
 
 export const GameSession = mongoose.model('GameSession', gameSessionSchema);

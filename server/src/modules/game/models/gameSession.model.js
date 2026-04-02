@@ -36,8 +36,9 @@ const gameSessionSchema = new mongoose.Schema({
     endTime: {type: Date},
     result: {
         type: String,
-        enum: ['PLAYER1_WIN', 'PLAYER2_WIN', 'DRAW', 'ABORTED'],
-        required: true
+        enum: ['PLAYER1_WIN', 'PLAYER2_WIN', 'DRAW', 'ABORTED', 'ONGOING'],
+        required: true,
+        default: 'ONGOING'
     },
     moves: [moveSchema] // Array of moves to reconstruct the game
 }, {timestamps: true});

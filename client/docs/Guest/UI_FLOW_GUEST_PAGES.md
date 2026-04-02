@@ -6,7 +6,209 @@ This document describes the user interface flow for the guest-facing pages of Ti
 
 ---
 
-## 1. Page Structure & Routing
+## 1. Data Transfer Objects (DTOs) Overview
+
+The frontend now uses JavaScript DTOs to ensure type-safe and validated data structures when communicating with the backend.
+
+### 1.1 DTO File Location
+
+**File:** `src/models/auth.js`
+
+This file contains all authentication-related DTOs:
+- `LoginRequest` - Validates and formats login data
+- `RegisterRequest` - Validates and formats registration data  
+- `AuthResponse` - Handles authentication API responses
+- `LoginResponse` - Extends AuthResponse with login-specific data
+- `RegisterResponse` - Extends AuthResponse with registration-specific data
+
+### 1.2 advantages of Using DTOs
+
+✅ **Type Safety** - Ensures consistent data structure across components
+✅ **Centralized Validation** - All validation logic in one place
+✅ **Documentation** - DTOs serve as contracts with the backend
+✅ **Maintainability** - Easy to update data structures globally
+✅ **Error Prevention** - Catch issues before API calls
+
+### 1.3 DTO Usage Pattern
+
+```javascript
+// 1. Create DTO from form data
+const loginRequest = new LoginRequest({ email: "user@example.com", password: "pass123" });
+
+// 2. Validate data
+const validation = loginRequest.validate();
+if (!validation.valid) {
+  console.log(validation.errors); // ["Email is required", "..."]
+  return;
+}
+
+// 3. Submit to API
+const response = await httpHelper.post('/auth/login', loginRequest.toJSON());
+
+// 4. Wrap response in DTO for type-safe access
+const authResponse = new LoginResponse(response);
+if (authResponse.isSuccess()) {
+  const user = authResponse.getUser();
+  const token = authResponse.getToken();
+}
+```
+
+---
+
+## 2. DTO API Reference
+
+### 2.1 LoginRequest DTO
+
+**Location:** `src/models/auth.js`
+
+**Constructor:**
+```javascript
+const loginRequest = new LoginRequest({
+  email: "user@example.com",
+  password: "password123"
+});
+```
+
+**Methods:**
+- `validate()` - Returns `{ valid: boolean, errors: string[] }`
+- `toJSON()` - Returns JSON for API submission
+
+**Validation Rules:**
+- Email: Required, must contain "@" symbol
+- Password: Required, minimum characters
+
+**Example:**
+```javascript
+const loginRequest = new LoginRequest(formData);
+const validation = loginRequest.validate();
+
+if (!validation.valid) {
+  console.log(validation.errors); // ["Email is required", ...]
+  return;
+}
+
+httpHelper.post('/auth/login', loginRequest.toJSON());
+```
+
+### 2.2 RegisterRequest DTO
+
+**Location:** `src/models/auth.js`
+
+**Constructor:**
+```javascript
+const registerRequest = new RegisterRequest({
+  username: "newplayer",
+  email: "player@example.com",
+  password: "SecurePass123!",
+  country: "Vietnam"
+});
+```
+
+**Methods:**
+- `validate()` - Returns `{ valid: boolean, errors: string[] }`
+- `toJSON()` - Returns JSON for API submission
+
+**Validation Rules:**
+- Username: Required, only letters/numbers/underscore/hyphen
+- Email: Required, must contain @ and .
+- Password: Required, minimum 8 characters
+- Country: Required, dropdown selection
+
+**Example:**
+```javascript
+const registerRequest = new RegisterRequest(formData);
+const validation = registerRequest.validate();
+
+if (!validation.valid) {
+  setErrors(validation.errors);
+  return;
+}
+
+httpHelper.post('/auth/register', registerRequest.toJSON());
+```
+
+### 2.3 AuthResponse DTO
+
+**Location:** `src/models/auth.js`
+
+**Constructor:**
+```javascript
+const authResponse = new AuthResponse({
+  success: true,
+  data: {
+    token: "jwt-token-here",
+    user: {
+      id: "user-id",
+      username: "username",
+      email: "user@example.com",
+      role: "PLAYER"
+    }
+  }
+});
+```
+
+**Methods:**
+- `isSuccess()` - Returns boolean
+- `hasError()` - Returns boolean
+- `getErrorMessage()` - Returns error string
+- `getUser()` - Returns user object or null
+- `getToken()` - Returns JWT token or null
+
+**Example:**
+```javascript
+const response = new AuthResponse(apiResponse);
+
+if (response.isSuccess()) {
+  const user = response.getUser();
+  const token = response.getToken();
+  localStorage.setItem('authToken', token);
+} else {
+  console.error(response.getErrorMessage());
+}
+```
+
+### 2.4 LoginResponse DTO
+
+**Location:** `src/models/auth.js`
+
+**Extends:** AuthResponse
+
+**Additional Methods:**
+- `getIsLocked()` - Returns boolean (account locked status)
+- `getAttemptsRemaining()` - Returns number or null
+
+**Example:**
+```javascript
+const response = new LoginResponse(apiResponse);
+
+if (response.getIsLocked()) {
+  setIsLocked(true);
+  setCountdown(60);
+}
+```
+
+### 2.5 RegisterResponse DTO
+
+**Location:** `src/models/auth.js`
+
+**Extends:** AuthResponse
+
+**Additional Methods:**
+- `getVerificationCodeSent()` - Returns boolean (for future email verification)
+
+**Example:**
+```javascript
+const response = new RegisterResponse(apiResponse);
+
+if (response.isSuccess()) {
+  // Account created successfully
+  navigate('/login');
+}
+```
+
+---
+
+## 3. Page Structure & Routing
 
 ### Route Configuration
 
@@ -29,9 +231,9 @@ API Base: http://localhost:5000/api/v1
 
 ---
 
-## 2. Landing Page Flow
+## 4. Landing Page Flow
 
-### 2.1 Page Overview
+### 4.1 Page Overview
 
 **File:** `src/pages/Guest/Landing/index.jsx`
 
@@ -41,7 +243,7 @@ The landing page serves as the entry point to the application. It displays:
 - Feature cards
 - Call-to-action buttons (PLAY NOW, LOGIN)
 
-### 2.2 Navigation Trigger
+### 4.2 Navigation Trigger
 
 ```
 User Clicks Button
@@ -53,7 +255,7 @@ React Router updates URL
 Navigates to corresponding page
 ```
 
-### 2.3 Component Hierarchy
+### 4.3 Component Hierarchy
 
 ```
 Landing Page (index.jsx)
@@ -68,7 +270,7 @@ Landing Page (index.jsx)
     └── "LOGIN" → navigate("/login")
 ```
 
-### 2.4 Event Handlers
+### 4.4 Event Handlers
 
 | Event | Handler | Action |
 |-------|---------|--------|
@@ -77,9 +279,9 @@ Landing Page (index.jsx)
 
 ---
 
-## 3. Login Page Flow
+## 5. Login Page Flow
 
-### 3.1 Page Overview
+### 5.1 Page Overview
 
 **File:** `src/pages/Guest/Login/index.jsx`
 
@@ -90,7 +292,46 @@ The login page allows existing users to authenticate. Features include:
 - Account lockout mechanism (5 failed attempts)
 - Auto-redirect to profile on success
 
-### 3.2 State Management
+### 5.2 Using LoginRequest DTO
+
+**Implementation:**
+```javascript
+import { LoginRequest, LoginResponse } from "@/models/auth";
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  // Step 1: Create DTO from form data
+  const loginRequest = new LoginRequest(formData);
+
+  // Step 2: Validate using DTO
+  const validation = loginRequest.validate();
+  if (!validation.valid) {
+    setMessage({ type: "error", text: validation.errors.join(", ") });
+    return;
+  }
+
+  // Step 3: Call API with DTO
+  setLoading(true);
+  const result = await mockAuthService.login(
+    loginRequest.email,
+    loginRequest.password
+  );
+
+  // Step 4: Wrap response in DTO for type-safe access
+  const response = new LoginResponse(result);
+  
+  if (response.isSuccess()) {
+    navigate("/profile");
+  } else if (response.getIsLocked()) {
+    setIsLocked(true);
+  } else {
+    setMessage({ type: "error", text: response.getErrorMessage() });
+  }
+};
+```
+
+### 5.3 State Management
 
 **Local State Components:**
 

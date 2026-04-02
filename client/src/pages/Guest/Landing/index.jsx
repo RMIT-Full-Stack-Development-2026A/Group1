@@ -1,6 +1,7 @@
 
 import { useNavigate } from "react-router";
 import Navigation from "@/components/Navigation/index";
+import Footer from "@/components/Footer";
 import { BoardVisualizer } from "@/components/BoardVisualizer";
 
 export default function Landing() {
@@ -164,23 +165,7 @@ export default function Landing() {
             </main>
 
             {/* Footer */}
-            <footer className="w-full py-4 px-6 flex justify-center items-center bg-[#0d0d1a] border-t border-[#3d484d]">
-                <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center gap-4 mb-2">
-                        <span className="text-[#4cc9f0] font-headline text-xs">TTT SYSTEM</span>
-                        <span className="w-px h-3 bg-[#3d484d]"></span>
-                        <span className="text-[#bcc8ce] font-mono text-[10px] uppercase tracking-tighter hover:text-[#e2e8f0] cursor-pointer">
-                            Security Protocol
-                        </span>
-                        <span className="text-[#bcc8ce] font-mono text-[10px] uppercase tracking-tighter hover:text-[#e2e8f0] cursor-pointer">
-                            User Agreement
-                        </span>
-                    </div>
-                    <p className="font-mono text-[10px] uppercase tracking-tighter text-[#3d484d]">
-                        © 2070 NEON-GRID ARCADE SYSTEMS. ALL RIGHTS RESERVED.
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

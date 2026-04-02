@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockAuthService } from "@/services/mockAuthService";
+import { LoginRequest, LoginResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
+import Footer from "@/components/Footer";
 import { LockoutWarning, AuthMessage } from "@/components/Login";
 
 export default function LoginPage() {
@@ -64,16 +66,21 @@ export default function LoginPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.email || !formData.password) {
+        // Create LoginRequest DTO from form data
+        const loginRequest = new LoginRequest(formData);
+
+        // Validate request
+        const validation = loginRequest.validate();
+        if (!validation.valid) {
             setMessage({
                 type: "error",
-                text: "Please enter email and password",
+                text: validation.errors.join(", "),
             });
             return;
         }
 
         // Check if account is locked
-        if (mockAuthService.isAccountLockedForEmail(formData.email)) {
+        if (mockAuthService.isAccountLockedForEmail(loginRequest.email)) {
             setIsLocked(true);
             setLockoutCountdown(60);
             // Message will be set by the countdown useEffect
@@ -85,9 +92,13 @@ export default function LoginPage() {
 
         // Simulate API call delay
         setTimeout(() => {
-            const result = mockAuthService.login(formData.email, formData.password);
+            // Mock API call with DTO
+            const result = mockAuthService.login(loginRequest.email, loginRequest.password);
+            
+            // Wrap result in LoginResponse DTO
+            const response = new LoginResponse(result);
 
-            if (result.success) {
+            if (response.isSuccess()) {
                 setFailedAttempts(0);
                 setIsLocked(false);
                 setMessage({
@@ -99,18 +110,18 @@ export default function LoginPage() {
                     navigate("/profile");
                 }, 2000);
             } else {
-                const attemptsRemaining = result.attemptsRemaining || 0;
+                const attemptsRemaining = response.getAttemptsRemaining() || 0;
                 const currentFailures = 5 - attemptsRemaining;
                 setFailedAttempts(currentFailures);
 
-                if (result.isLocked) {
+                if (response.getIsLocked()) {
                     setIsLocked(true);
                     setLockoutCountdown(60);
                 }
 
                 setMessage({
                     type: "error",
-                    text: result.message || "Login failed",
+                    text: response.getErrorMessage(),
                 });
             }
             setLoading(false);
@@ -122,7 +133,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="bg-[#0d0d1a] text-[#e3e0f4] min-h-screen flex flex-col overflow-x-hidden">
+        <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">
             {/* Background Layers */}
             <div
                 className="fixed inset-0 opacity-20 pointer-events-none"
@@ -146,14 +157,17 @@ export default function LoginPage() {
             {/* Main Content */}
             <main className="flex-grow flex flex-col items-center justify-center pt-24 pb-12 px-4 z-10">
                 {/* Login Card */}
-                <div className="w-full max-w-[420px] bg-[#1a1a2e] border border-[#2a2a4e] flex flex-col shadow-2xl">
+                <div className="w-full max-w-[480px] bg-[#1a1a2e] border border-[#2a2a4e] flex flex-col shadow-[4px_4px_0px_0px_#343342]">
                     {/* Card Header Bar */}
-                    <div className="h-1.5 w-full bg-[#4cc9f0]"></div>
+                    <div className="h-1 w-full bg-[#4cc9f0]"></div>
 
                     <div className="p-8">
-                        <h1 className="font-headline text-xl text-[#4cc9f0] mb-8 drop-shadow-[0_0_8px_#4cc9f0] tracking-tighter text-center">
-                            PLAYER LOGIN
+                        <h1 className="font-headline text-lg text-[#e3e0f4] mb-3 tracking-tighter text-center uppercase">
+                            LOGIN
                         </h1>
+                        <div className="h-[2px] w-full bg-[#4cc9f0] relative mb-8">
+                            <div className="absolute top-0 right-0 w-12 h-[2px] bg-white"></div>
+                        </div>
 
                         {/* Warning Bar - Show only when approaching lockout (before it's locked) */}
                         <LockoutWarning 
@@ -168,7 +182,7 @@ export default function LoginPage() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Email/Username */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-[#879398] tracking-wider block">
+                                <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                     USERNAME OR EMAIL
                                 </label>
                                 <input
@@ -178,22 +192,16 @@ export default function LoginPage() {
                                     onChange={handleInputChange}
                                     placeholder="USER_ID_70"
                                     disabled={loading || isLocked}
-                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-mono text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>
 
                             {/* Password */}
                             <div className="space-y-2">
                                 <div className="flex justify-between items-end">
-                                    <label className="text-[10px] font-bold text-[#879398] tracking-wider block">
+                                    <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                         PASSWORD
                                     </label>
-                                    <button
-                                        type="button"
-                                        className="text-[10px] text-[#3d484d] hover:text-[#4cc9f0] transition-colors cursor-pointer"
-                                    >
-                                        Forgot password?
-                                    </button>
                                 </div>
 
                                 <div className="relative">
@@ -204,7 +212,7 @@ export default function LoginPage() {
                                         onChange={handleInputChange}
                                         placeholder="••••••••"
                                         disabled={loading || isLocked}
-                                        className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-mono text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed pr-10"
+                                        className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed pr-10"
                                     />
                                     <button
                                         type="button"
@@ -271,16 +279,7 @@ export default function LoginPage() {
             </main>
 
             {/* Footer */}
-            <footer className="w-full border-t-2 border-[#3d484d] mt-auto bg-[#0d0d1a] flex flex-col md:flex-row justify-between items-center px-6 py-4">
-                <div className="font-mono text-[10px] uppercase tracking-tighter text-slate-500">
-                    © 2070 TICTACTOANG TERMINAL. ALL RIGHTS RESERVED.
-                </div>
-                <div className="flex gap-6 mt-4 md:mt-0 font-mono text-[10px] uppercase tracking-tighter">
-                    <span className="text-[#fad100]">SYSTEM: ONLINE</span>
-                    <span className="text-slate-500">LATENCY: 12MS</span>
-                    <span className="text-slate-500">v4.0.2</span>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

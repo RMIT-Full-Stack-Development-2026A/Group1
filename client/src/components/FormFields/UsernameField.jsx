@@ -24,7 +24,7 @@ const UsernameField = ({
                 onChange={onChange}
                 placeholder={placeholder}
                 disabled={disabled}
-                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {value.length > 0 && (
                 <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">

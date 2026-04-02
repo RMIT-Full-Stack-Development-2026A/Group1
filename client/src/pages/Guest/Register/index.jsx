@@ -2,7 +2,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { mockAuthService } from "@/services/mockAuthService";
+import { RegisterRequest, RegisterResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
+import Footer from "@/components/Footer";
 import { EmailField, PasswordField, UsernameField } from "@/components/FormFields";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import {
@@ -37,19 +39,22 @@ export default function RegisterPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        // Create RegisterRequest DTO from form data
+        const registerRequest = new RegisterRequest(form.formData);
+
         const errors = [];
 
-        // Validate email
+        // Validate email using DTO validation
         if (!isEmailValid(form.emailValidation)) {
             errors.push("Email does not meet all requirements");
         }
 
-        // Validate username
+        // Validate username using DTO validation
         if (form.formData.username.length === 0 || !isUsernameValid(form.usernameValidation)) {
             errors.push("Username must contain only letters, numbers, underscore, and hyphen");
         }
 
-        // Validate password
+        // Validate password using DTO validation
         if (!isPasswordValid(form.passwordValidation)) {
             errors.push("Password does not meet all requirements");
         }
@@ -73,14 +78,13 @@ export default function RegisterPage() {
 
         // Simulate API call delay
         setTimeout(() => {
-            const result = mockAuthService.register({
-                username: form.formData.username,
-                email: form.formData.email,
-                password: form.formData.password,
-                country: form.formData.country,
-            });
+            // Mock API call with DTO
+            const result = mockAuthService.register(registerRequest.toJSON());
+            
+            // Wrap result in RegisterResponse DTO
+            const response = new RegisterResponse(result);
 
-            if (result.success) {
+            if (response.isSuccess()) {
                 form.setMessage({
                     type: "success",
                     text: "Account created! Redirecting to login...",
@@ -92,7 +96,7 @@ export default function RegisterPage() {
             } else {
                 form.setMessage({
                     type: "error",
-                    text: result.message || "Registration failed",
+                    text: response.getErrorMessage(),
                 });
             }
             form.setLoading(false);
@@ -109,15 +113,11 @@ export default function RegisterPage() {
                 <div className="w-full max-w-[480px] bg-[#1a1a2e] border border-[#2a2a4e] p-8 shadow-[4px_4px_0px_0px_#343342] relative">
                     {/* Terminal Header Decoration */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-[#4cc9f0]"></div>
-                    <div className="absolute top-2 right-4 flex gap-1">
-                        <div className="w-2 h-2 bg-[#3d484d]"></div>
-                        <div className="w-2 h-2 bg-[#3d484d]"></div>
-                    </div>
 
                     {/* Title */}
                     <div className="mb-8">
-                        <h1 className="font-headline text-lg text-[#e3e0f4] tracking-tighter mb-4 uppercase">
-                            NEW PLAYER
+                        <h1 className="font-headline text-lg text-[#e3e0f4] tracking-tighter mb-4 text-center uppercase">
+                            REGISTRATION
                         </h1>
                         <div className="h-[2px] w-full bg-[#4cc9f0] relative">
                             <div className="absolute top-0 right-0 w-12 h-[2px] bg-white"></div>
@@ -153,6 +153,7 @@ export default function RegisterPage() {
                             showPassword={form.showPassword}
                             onToggleShow={() => form.setShowPassword(!form.showPassword)}
                             passwordValidation={form.passwordValidation}
+                            passwordStrength={form.passwordStrength}
                             CriteriaCheckbox={CriteriaCheckbox}
                             disabled={form.loading}
                         />
@@ -181,7 +182,7 @@ export default function RegisterPage() {
                                 value={form.formData.country}
                                 onChange={form.handleInputChange}
                                 disabled={form.loading}
-                                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <option>🇻🇳 Vietnam</option>
                                 <option>Japan</option>
@@ -206,7 +207,7 @@ export default function RegisterPage() {
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-4">
+                        <div>
                             <button
                                 type="submit"
                                 disabled={form.loading}
@@ -245,36 +246,11 @@ export default function RegisterPage() {
                             Already have an account? LOGIN
                         </button>
                     </div>
-
-                    {/* Decorative corner data */}
-                    <div className="absolute -bottom-12 left-0 text-[10px] text-[#3d484d] font-body">
-                        STATUS: IDLE_WAITING_FOR_INPUT<br />
-                        ENCRYPTION: AES-4096-QUANTUM
-                    </div>
-                    <div className="absolute -bottom-12 right-0 text-[10px] text-[#3d484d] font-body text-right">
-                        VER: 2.0.70<br />
-                        S_ID: ARC-9821
-                    </div>
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="bg-[#0d0d1a] border-t-2 border-[#3d484d] flex flex-col md:flex-row justify-between items-center px-8 py-4 w-full font-body text-[10px] tracking-[0.2em]">
-                <div className="text-[#4cc9f0] font-bold uppercase mb-4 md:mb-0">
-                    © 2070 NEOTRONICS ARCADE SYSTEMS
-                </div>
-                <div className="flex gap-8">
-                    <a className="text-[#343342] hover:text-[#4cc9f0] cursor-pointer transition-colors">
-                        SUPPORT
-                    </a>
-                    <a className="text-[#343342] hover:text-[#4cc9f0] cursor-pointer transition-colors">
-                        TERMS
-                    </a>
-                    <a className="text-[#343342] hover:text-[#4cc9f0] cursor-pointer transition-colors">
-                        SYSTEM_STATUS
-                    </a>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

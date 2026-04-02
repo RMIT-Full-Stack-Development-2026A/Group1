@@ -2,7 +2,7 @@ import React from "react";
 
 /**
  * PasswordField Component
- * Reusable password input with visibility toggle and validation criteria display
+ * Reusable password input with visibility toggle, validation criteria display, and strength indicator
  * Can be used for both main password and confirm password fields
  */
 const PasswordField = ({
@@ -15,10 +15,22 @@ const PasswordField = ({
     onToggleShow,
     passwordValidation = null,
     passwordMismatch = false,
+    passwordStrength = 0,
     CriteriaCheckbox,
     disabled = false,
     isConfirmField = false,
 }) => {
+    // Determine strength level and colors
+    const getStrengthDisplay = () => {
+        const levels = [
+            { label: "TOO WEAK", color: "#EE4B2B", bgColor: "#3f2a2a", percentage: 0 },
+            { label: "WEAK", color: "#ffb4ab", bgColor: "#3f3a2a", percentage: 25 },
+            { label: "FAIR", color: "#fda866", bgColor: "#3f3f2a", percentage: 50 },
+            { label: "STRONG", color: "#fad100", bgColor: "#2a3f2a", percentage: 75 },
+            { label: "VERY STRONG", color: "#5cb85c", bgColor: "#2a3f2a", percentage: 100 },
+        ];
+        return levels[passwordStrength] || levels[0];
+    };
     return (
         <div className="space-y-2">
             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
@@ -32,7 +44,7 @@ const PasswordField = ({
                     onChange={onChange}
                     placeholder={placeholder}
                     disabled={disabled}
-                    className={`w-full bg-[#0d0d1a] border-b-2 p-3 font-body focus:ring-0 transition-colors outline-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full bg-[#0d0d1a] border-b-2 p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed ${
                         isConfirmField && passwordMismatch
                             ? "border-[#ffb4ab] text-[#ffb4ab] focus:border-[#ffb4ab]"
                             : "border-[#3d484d] text-[#4cc9f0] focus:border-[#4cc9f0]"
@@ -52,27 +64,54 @@ const PasswordField = ({
 
             {/* Show validation criteria only for main password field */}
             {!isConfirmField && passwordValidation && value.length > 0 && (
-                <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">
-                    <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
-                        Requirements:
-                    </p>
+                <div className="mt-3 space-y-3">
+                    {/* Strength Indicator Bar */}
                     <div className="space-y-1">
-                        <CriteriaCheckbox
-                            met={passwordValidation.hasLength}
-                            label="At least 8 characters"
-                        />
-                        <CriteriaCheckbox
-                            met={passwordValidation.hasNumber}
-                            label="At least 1 number (0-9)"
-                        />
-                        <CriteriaCheckbox
-                            met={passwordValidation.hasSpecial}
-                            label="At least 1 special character ($#@!)"
-                        />
-                        <CriteriaCheckbox
-                            met={passwordValidation.hasCapital}
-                            label="At least 1 capital letter"
-                        />
+                        <div className="flex justify-between items-center">
+                            <p className="text-[10px] text-[#4cc9f0] font-bold uppercase tracking-widest">
+                                Strength:
+                            </p>
+                            <span
+                                className="text-[10px] font-bold"
+                                style={{ color: getStrengthDisplay().color }}
+                            >
+                                {getStrengthDisplay().label}
+                            </span>
+                        </div>
+                        <div className="w-full h-2 bg-[#0d0d1a] border border-[#2a2a4e] overflow-hidden">
+                            <div
+                                className="h-full transition-all duration-300"
+                                style={{
+                                    width: `${getStrengthDisplay().percentage}%`,
+                                    backgroundColor: getStrengthDisplay().color,
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+
+                    {/* Requirements Box */}
+                    <div className="p-3 bg-[#1a1a28] border border-[#2a2a4e]">
+                        <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
+                            Requirements:
+                        </p>
+                        <div className="space-y-1">
+                            <CriteriaCheckbox
+                                met={passwordValidation.hasLength}
+                                label="At least 8 characters"
+                            />
+                            <CriteriaCheckbox
+                                met={passwordValidation.hasNumber}
+                                label="At least 1 number (0-9)"
+                            />
+                            <CriteriaCheckbox
+                                met={passwordValidation.hasSpecial}
+                                label="At least 1 special character ($#@!)"
+                            />
+                            <CriteriaCheckbox
+                                met={passwordValidation.hasCapital}
+                                label="At least 1 capital letter"
+                            />
+                        </div>
                     </div>
                 </div>
             )}

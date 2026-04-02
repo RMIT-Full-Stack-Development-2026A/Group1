@@ -1,7 +1,7 @@
 export const validateProfileUpdate = (req, res, next) => {
     const { username, email, password } = req.body;
 
-    // 1. Validate Username 
+    // Validate Username 
     if (username) {
         const usernameRegex = /^[a-zA-Z0-9_-]+$/;
         if (!usernameRegex.test(username)) {
@@ -14,7 +14,7 @@ export const validateProfileUpdate = (req, res, next) => {
         }
     }
 
-    // 2. Validate Email 
+    // Validate Email 
     if (email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
         if (!emailRegex.test(email) || email.length >= 255) {
@@ -27,7 +27,7 @@ export const validateProfileUpdate = (req, res, next) => {
         }
     }
 
-    // 3. Validate Password ( >= 8 chars, 1 number, 1 special char, 1 capital letter)
+    // Validate Password ( >= 8 chars, 1 number, 1 special char, 1 capital letter)
     if (password) {
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[$#@!%*?&])[A-Za-z\d$#@!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {

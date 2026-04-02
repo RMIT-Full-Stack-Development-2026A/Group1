@@ -31,9 +31,9 @@ export default function Landing() {
                     <div className="w-full flex justify-between items-end mb-12 border-b border-[#3d484d] pb-2">
                         <div className="flex flex-col items-start">
                             <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter">
-                                System Status
+                                COSC2769|COSC2808
                             </span>
-                            <span className="text-xs text-[#fad100] font-headline">ONLINE // STABLE</span>
+                            <span className="text-xs text-[#fad100] font-headline">Fullstack Development</span>
                         </div>
                         <div className="flex gap-1">
                             <div className="w-2 h-2 bg-[#93e2ff]"></div>
@@ -42,9 +42,9 @@ export default function Landing() {
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter">
-                                Loc: Sector 7
+                                Group 1
                             </span>
-                            <span className="text-xs text-[#e3e0f4] font-headline">2070.04.12</span>
+                            <span className="text-xs text-[#e3e0f4] font-headline">Semester 2, 2026</span>
                         </div>
                     </div>
 
@@ -130,38 +130,11 @@ export default function Landing() {
                     </div>
 
                     {/* Board Visualization */}
-                    <BoardVisualizer />
-                </section>
-
-                {/* Stats Section */} {/* To Be Removed */}
-                <section className="w-full bg-[#1e1e2c] py-12 border-y border-[#3d484d]">
-                    <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">142K</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                Matches Played
-                            </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">9.8K</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                Active Pilots
-                            </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">24ms</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                Avg Latency
-                            </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">2070</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                System Year
-                            </span>
-                        </div>
+                    <div className="mt-16 w-full">
+                        <BoardVisualizer />
                     </div>
                 </section>
+
             </main>
 
             {/* Footer */}

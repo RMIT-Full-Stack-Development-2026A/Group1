@@ -6,7 +6,9 @@ import { RegisterRequest, RegisterResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
 import { EmailField, PasswordField, UsernameField } from "@/components/FormFields";
+import { CountrySelect } from "@/components/FormFields/CountrySelect";
 import { useFormValidation } from "@/hooks/useFormValidation";
+import { useCountries } from "@/hooks/useCountries";
 import {
     isEmailValid,
     isUsernameValid,
@@ -17,6 +19,7 @@ import {
 export default function RegisterPage() {
     const navigate = useNavigate();
     const form = useFormValidation();
+    const { countries, loading, error } = useCountries();
 
     // Criteria checkbox component
     const CriteriaCheckbox = ({ met, label }) => (
@@ -177,33 +180,19 @@ export default function RegisterPage() {
                             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                 Regional Sector
                             </label>
-                            <select
-                                name="country"
+                            <CountrySelect
                                 value={form.formData.country}
                                 onChange={form.handleInputChange}
                                 disabled={form.loading}
-                                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <option>🇻🇳 Vietnam</option>
-                                <option>Japan</option>
-                                <option>South Korea</option>
-                                <option>Thailand</option>
-                                <option>Philippines</option>
-                                <option>Indonesia</option>
-                                <option>Malaysia</option>
-                                <option>Singapore</option>
-                                <option>China</option>
-                                <option>India</option>
-                                <option>United States</option>
-                                <option>Canada</option>
-                                <option>United Kingdom</option>
-                                <option>Germany</option>
-                                <option>France</option>
-                                <option>Australia</option>
-                                <option>New Zealand</option>
-                                <option>Brazil</option>
-                                <option>Mexico</option>
-                            </select>
+                                loading={loading}
+                                error={error}
+                                countries={countries}
+                            />
+                            {error && (
+                                <p className="text-[10px] text-[#ffb4ab]">
+                                    Failed to load countries. Please try again.
+                                </p>
+                            )}
                         </div>
 
                         {/* Submit Button */}

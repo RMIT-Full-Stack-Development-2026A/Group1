@@ -5,8 +5,7 @@ import { authService } from "@/services/authService";
 import { RegisterRequest, RegisterResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
-import { EmailField, PasswordField, UsernameField } from "@/components/FormFields";
-import { CountrySelect } from "@/components/FormFields/CountrySelect";
+import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/pages/Guest/sub-components/FormFields";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useCountries } from "@/hooks/useCountries";
 import {

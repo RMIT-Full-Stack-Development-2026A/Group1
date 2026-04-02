@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
-import { BoardVisualizer } from "@/components/BoardVisualizer";
+import { BoardVisualizer } from "./sub-components";
 
 export default function Landing() {
     const navigate = useNavigate();

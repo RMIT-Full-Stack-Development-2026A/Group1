@@ -101,3 +101,5 @@ export const CountrySelect = ({
         </div>
     );
 };
+
+export default CountrySelect;

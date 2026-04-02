@@ -100,31 +100,31 @@ const PasswordField = ({
                                 label="At least 9 characters"
                             />
                             <CriteriaCheckbox
-                                met={passwordValidation.hasLower}
-                                label="At least 1 lowercase letter (a-z)"
+                                met={passwordValidation.hasLowercase}
+                                label="Contains lowercase letter (a-z)"
                             />
                             <CriteriaCheckbox
-                                met={passwordValidation.hasCapital}
-                                label="At least 1 capital letter (A-Z)"
+                                met={passwordValidation.hasUppercase}
+                                label="Contains uppercase letter (A-Z)"
                             />
                             <CriteriaCheckbox
                                 met={passwordValidation.hasNumber}
-                                label="At least 1 number (0-9)"
+                                label="Contains number (0-9)"
                             />
                             <CriteriaCheckbox
-                                met={passwordValidation.hasSpecial}
-                                label="At least 1 special character (@$!%*?&)"
+                                met={passwordValidation.hasSpecialChar}
+                                label="Contains special char (@$!%*?&)"
                             />
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Show mismatch warning for confirm password field */}
+            {/* Show mismatch error for confirm field */}
             {isConfirmField && passwordMismatch && value.length > 0 && (
-                <p className="text-[10px] text-[#ffb4ab] mt-2 font-semibold">
-                    ✗ Passwords do not match
-                </p>
+                <div className="text-[10px] text-[#ffb4ab] font-mono">
+                    ⚠ Passwords do not match
+                </div>
             )}
         </div>
     );

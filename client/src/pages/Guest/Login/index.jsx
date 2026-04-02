@@ -5,7 +5,7 @@ import { authService } from "@/services/authService";
 import { LoginRequest, LoginResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
-import { LockoutWarning, AuthMessage } from "@/components/Login";
+import { LockoutWarning, AuthMessage } from "./sub-components";
 
 export default function LoginPage() {
     const navigate = useNavigate();

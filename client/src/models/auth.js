@@ -14,11 +14,12 @@
 export class LoginRequest {
   /**
    * @param {Object} data - Raw form data
-   * @param {string} data.email - User email
+   * @param {string} data.email - User email (will be converted to identifier)
    * @param {string} data.password - User password
    */
   constructor(data = {}) {
-    this.email = (data.email || "").trim().toLowerCase();
+    // Backend expects 'identifier' which can be email or username
+    this.identifier = (data.email || data.identifier || "").trim().toLowerCase();
     this.password = data.password || "";
   }
 
@@ -29,10 +30,8 @@ export class LoginRequest {
   validate() {
     const errors = [];
 
-    if (!this.email) {
-      errors.push("Email is required");
-    } else if (!this.email.includes("@")) {
-      errors.push("Email must contain @");
+    if (!this.identifier) {
+      errors.push("Email or username is required");
     }
 
     if (!this.password) {
@@ -47,11 +46,11 @@ export class LoginRequest {
 
   /**
    * Convert to JSON for API submission
-   * @returns {Object} JSON representation
+   * @returns {Object} JSON representation with 'identifier' field
    */
   toJSON() {
     return {
-      email: this.email,
+      identifier: this.identifier,
       password: this.password,
     };
   }
@@ -73,6 +72,7 @@ export class RegisterRequest {
     this.username = (data.username || "").trim();
     this.email = (data.email || "").trim().toLowerCase();
     this.password = data.password || "";
+    this.confirmPassword = data.confirmPassword || "";
     this.country = data.country || "Vietnam";
   }
 
@@ -120,6 +120,7 @@ export class RegisterRequest {
       username: this.username,
       email: this.email,
       password: this.password,
+      confirmPassword: this.confirmPassword,
       country: this.country,
     };
   }

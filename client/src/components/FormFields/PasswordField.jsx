@@ -97,7 +97,15 @@ const PasswordField = ({
                         <div className="space-y-1">
                             <CriteriaCheckbox
                                 met={passwordValidation.hasLength}
-                                label="At least 8 characters"
+                                label="At least 9 characters"
+                            />
+                            <CriteriaCheckbox
+                                met={passwordValidation.hasLower}
+                                label="At least 1 lowercase letter (a-z)"
+                            />
+                            <CriteriaCheckbox
+                                met={passwordValidation.hasCapital}
+                                label="At least 1 capital letter (A-Z)"
                             />
                             <CriteriaCheckbox
                                 met={passwordValidation.hasNumber}
@@ -105,11 +113,7 @@ const PasswordField = ({
                             />
                             <CriteriaCheckbox
                                 met={passwordValidation.hasSpecial}
-                                label="At least 1 special character ($#@!)"
-                            />
-                            <CriteriaCheckbox
-                                met={passwordValidation.hasCapital}
-                                label="At least 1 capital letter"
+                                label="At least 1 special character (@$!%*?&)"
                             />
                         </div>
                     </div>

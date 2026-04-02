@@ -8,7 +8,7 @@ const UsernameField = ({
     value,
     onChange,
     placeholder = "PLAYER_01",
-    usernameValidation = { validChars: false },
+    usernameValidation = { validChars: false, validLength: false },
     CriteriaCheckbox,
     disabled = false,
 }) => {
@@ -31,10 +31,16 @@ const UsernameField = ({
                     <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
                         Requirements:
                     </p>
-                    <CriteriaCheckbox
-                        met={usernameValidation.validChars}
-                        label="Only letters, numbers, underscore (_), hyphen (-)"
-                    />
+                    <div className="space-y-1">
+                        <CriteriaCheckbox
+                            met={usernameValidation.validLength}
+                            label="At least 9 characters"
+                        />
+                        <CriteriaCheckbox
+                            met={usernameValidation.validChars}
+                            label="Only letters, numbers, underscore (_), hyphen (-)"
+                        />
+                    </div>
                 </div>
             )}
         </div>

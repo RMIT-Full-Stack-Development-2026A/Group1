@@ -1,7 +1,7 @@
 // Route: /login
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockAuthService } from "@/services/mockAuthService";
+import { authService } from "@/services/authService";
 import { LoginRequest, LoginResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
@@ -79,53 +79,47 @@ export default function LoginPage() {
             return;
         }
 
-        // Check if account is locked
-        if (mockAuthService.isAccountLockedForEmail(loginRequest.email)) {
-            setIsLocked(true);
-            setLockoutCountdown(60);
-            // Message will be set by the countdown useEffect
-            return;
-        }
-
         setLoading(true);
         setMessage({ type: "", text: "" });
 
-        // Simulate API call delay
-        setTimeout(() => {
-            // Mock API call with DTO
-            const result = mockAuthService.login(loginRequest.email, loginRequest.password);
-            
-            // Wrap result in LoginResponse DTO
-            const response = new LoginResponse(result);
+        // Call real API service
+        authService.login(loginRequest.toJSON())
+            .then((response) => {
+                // Backend doesn't return token in body (it's in HttpOnly cookie)
+                // Just check if response has user data
+                if (response.data && response.data.data) {
+                    setFailedAttempts(0);
+                    setIsLocked(false);
+                    setMessage({
+                        type: "success",
+                        text: "Login successful! Redirecting...",
+                    });
+                    // Redirect to profile after 2 seconds
+                    setTimeout(() => {
+                        navigate("/profile");
+                    }, 2000);
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Login error:", error);
 
-            if (response.isSuccess()) {
-                setFailedAttempts(0);
-                setIsLocked(false);
-                setMessage({
-                    type: "success",
-                    text: "Login successful! Redirecting...",
-                });
-                // Redirect to profile after 2 seconds
-                setTimeout(() => {
-                    navigate("/profile");
-                }, 2000);
-            } else {
-                const attemptsRemaining = response.getAttemptsRemaining() || 0;
-                const currentFailures = 5 - attemptsRemaining;
-                setFailedAttempts(currentFailures);
-
-                if (response.getIsLocked()) {
+                // Handle specific error codes from backend
+                if (error.statusCode === 403) {
+                    // Account locked
                     setIsLocked(true);
                     setLockoutCountdown(60);
+                } else if (error.statusCode === 401) {
+                    // Invalid credentials
+                    setFailedAttempts((prev) => prev + 1);
                 }
 
                 setMessage({
                     type: "error",
-                    text: response.getErrorMessage(),
+                    text: error.message || "Login failed. Please try again.",
                 });
-            }
-            setLoading(false);
-        }, 500);
+                setLoading(false);
+            });
     };
 
     const handleGuestLogin = () => {

@@ -1,7 +1,7 @@
 // Route: /register
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { mockAuthService } from "@/services/mockAuthService";
+import { authService } from "@/services/authService";
 import { RegisterRequest, RegisterResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
@@ -79,15 +79,9 @@ export default function RegisterPage() {
         form.setLoading(true);
         form.setMessage({ type: "", text: "" });
 
-        // Simulate API call delay
-        setTimeout(() => {
-            // Mock API call with DTO
-            const result = mockAuthService.register(registerRequest.toJSON());
-            
-            // Wrap result in RegisterResponse DTO
-            const response = new RegisterResponse(result);
-
-            if (response.isSuccess()) {
+        // Call real API service
+        authService.register(registerRequest.toJSON())
+            .then((response) => {
                 form.setMessage({
                     type: "success",
                     text: "Account created! Redirecting to login...",
@@ -96,14 +90,25 @@ export default function RegisterPage() {
                 setTimeout(() => {
                     navigate("/login");
                 }, 2000);
-            } else {
-                form.setMessage({
-                    type: "error",
-                    text: response.getErrorMessage(),
-                });
-            }
-            form.setLoading(false);
-        }, 500);
+            })
+            .catch((error) => {
+                console.error("Register error:", error);
+                
+                // Handle backend validation errors
+                if (error.details && Array.isArray(error.details)) {
+                    const errorMessages = error.details.map(e => e.error).join(", ");
+                    form.setMessage({
+                        type: "error",
+                        text: errorMessages,
+                    });
+                } else {
+                    form.setMessage({
+                        type: "error",
+                        text: error.message || "Registration failed. Please try again.",
+                    });
+                }
+                form.setLoading(false);
+            });
     };
 
     return (

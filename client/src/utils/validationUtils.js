@@ -28,24 +28,27 @@ export const validateEmail = (email) => {
 /**
  * Validate username format and criteria
  * @param {string} username - Username to validate
- * @returns {Object} - { validChars }
+ * @returns {Object} - { validChars, validLength }
  */
 export const validateUsername = (username) => {
     const validChars = /^[a-zA-Z0-9_-]*$/.test(username);
-    return { validChars };
+    const validLength = username.length >= 9; // Backend requires 9+ chars
+    return { validChars, validLength };
 };
 
 /**
  * Validate password strength criteria
+ * Backend requires: 9+ chars, lowercase, uppercase, number, and special char (@$!%*?&)
  * @param {string} password - Password to validate
- * @returns {Object} - { hasLength, hasNumber, hasSpecial, hasCapital }
+ * @returns {Object} - { hasLength, hasLower, hasNumber, hasSpecial, hasCapital }
  */
 export const validatePassword = (password) => {
     return {
-        hasLength: password.length >= 8,
-        hasNumber: /[0-9]/.test(password),
-        hasSpecial: /[^A-Za-z0-9]/.test(password),
-        hasCapital: /[A-Z]/.test(password),
+        hasLength: password.length >= 9, // Backend requires 9+ chars
+        hasLower: /[a-z]/.test(password), // Backend requires lowercase
+        hasNumber: /[0-9]/.test(password), // Backend requires digit
+        hasSpecial: /[@$!%*?&]/.test(password), // Backend requires these specific special chars
+        hasCapital: /[A-Z]/.test(password), // Backend requires uppercase
     };
 };
 
@@ -69,7 +72,7 @@ export const isEmailValid = (emailValidation) => {
  * @returns {boolean}
  */
 export const isUsernameValid = (usernameValidation) => {
-    return usernameValidation.validChars;
+    return usernameValidation.validChars && usernameValidation.validLength;
 };
 
 /**
@@ -80,6 +83,7 @@ export const isUsernameValid = (usernameValidation) => {
 export const isPasswordValid = (passwordValidation) => {
     return (
         passwordValidation.hasLength &&
+        passwordValidation.hasLower &&
         passwordValidation.hasNumber &&
         passwordValidation.hasSpecial &&
         passwordValidation.hasCapital

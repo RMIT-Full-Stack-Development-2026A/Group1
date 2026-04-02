@@ -43,10 +43,12 @@ export const useFormValidation = (initialData = {}) => {
 
     const [usernameValidation, setUsernameValidation] = useState({
         validChars: false,
+        validLength: false,
     });
 
     const [passwordValidation, setPasswordValidation] = useState({
         hasLength: false,
+        hasLower: false,
         hasNumber: false,
         hasSpecial: false,
         hasCapital: false,
@@ -57,11 +59,12 @@ export const useFormValidation = (initialData = {}) => {
     // Validation handlers
     const calculatePasswordStrength = (password) => {
         let strength = 0;
-        if (password.length >= 8) strength++;
+        if (password.length >= 9) strength++; // Backend requires 9+
+        if (/[a-z]/.test(password)) strength++; // Must have lowercase
         if (/[A-Z]/.test(password)) strength++;
         if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
-        setPasswordStrength(strength);
+        if (/[@$!%*?&]/.test(password)) strength++; // Specific special chars
+        setPasswordStrength(Math.min(strength - 1, 4)); // Normalize to 0-4
     };
 
     const handleEmailChange = (email) => {

@@ -38,19 +38,19 @@ export default function AppRouter() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
 
-                {/*/!* 2. Player Pages (Free & Premium) *!/*/}
-                {/*<Route path="/profile" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><ProfilePage /></ProtectedRoute>} />*/}
-                {/*<Route path="/play" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><GameModeSelect /></ProtectedRoute>} />*/}
-                {/*<Route path="/lobby" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><GameLobby /></ProtectedRoute>} />*/}
-                {/*<Route path="/play/customize" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><GameCustomization /></ProtectedRoute>} />*/}
-                {/*<Route path="/game/:roomId" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><GameBoard /></ProtectedRoute>} />*/}
-                {/*<Route path="/replay/:gameId" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><MatchReplay /></ProtectedRoute>} />*/}
-                {/*<Route path="/subscription" element={<ProtectedRoute allowedRoles={["PLAYER", "ADMIN"]}><SubscriptionPage /></ProtectedRoute>} />*/}
+                {/* 2. Player Pages (Free & Premium) */}
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/play" element={<GameModeSelect />} />
+                <Route path="/lobby" element={<GameLobby />} />
+                <Route path="/game-customization" element={<GameCustomization />} />
+                <Route path="/play/:roomId" element={<GameBoard />} />
+                <Route path="/replay/:gameId" element={<MatchReplay />} />
+                <Route path="/subscription" element={<SubscriptionPage />} />
 
-                {/*/!* 3. Admin Pages *!/*/}
-                {/*<Route path="/admin" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDashboard /></ProtectedRoute>} />*/}
-                {/*<Route path="/admin/players" element={<ProtectedRoute allowedRoles={["ADMIN"]}><PlayerManagement /></ProtectedRoute>} />*/}
-                {/*<Route path="/admin/rooms" element={<ProtectedRoute allowedRoles={["ADMIN"]}><GameRoomMonitor /></ProtectedRoute>} />*/}
+                {/* 3. Admin Pages */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/players" element={<PlayerManagement />} />
+                <Route path="/admin/rooms" element={<GameRoomMonitor />} />
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

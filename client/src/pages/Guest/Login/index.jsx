@@ -94,9 +94,9 @@ export default function LoginPage() {
                         type: "success",
                         text: "Login successful! Redirecting...",
                     });
-                    // Redirect to profile after 2 seconds
+                    // Redirect to game lobby after 2 seconds
                     setTimeout(() => {
-                        navigate("/profile");
+                        navigate("/lobby");
                     }, 2000);
                 }
                 setLoading(false);

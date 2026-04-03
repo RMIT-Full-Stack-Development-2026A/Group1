@@ -43,3 +43,4 @@ export const API_ENDPOINTS = {
         CLOSE_ROOM: (roomId) => `/admin/rooms/${roomId}`,
     }
 };
+

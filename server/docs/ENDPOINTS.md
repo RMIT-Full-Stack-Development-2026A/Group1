@@ -29,7 +29,9 @@ Failure:
 ```json
 {
   "error": "ERROR_CODE",
-  "message": "Human readable message"
+  "message": "Human readable message",
+  "cause": "Cause of error",
+  "valid_example": "Example of valid inputs"
 }
 ```
 

@@ -6,7 +6,7 @@
 export const authorizeMiddleware = (allowedRoles = []) => {
     return (req, res, next) => {
         try {
-            // Validate if user exists from previous verifyToken middleware
+            // Validate if user exists
             if (!req.user || !req.user.role) { 
                 return res.status(401).json({
                     error: "UNAUTHORIZED_ROLE",
@@ -16,7 +16,7 @@ export const authorizeMiddleware = (allowedRoles = []) => {
                 });
             }
 
-            // Check if user's role is in the allowed roles array
+            // Check user's role is in the allowed roles array
             if (!allowedRoles.includes(req.user.role)) {
                 return res.status(403).json({
                     error: "FORBIDDEN",

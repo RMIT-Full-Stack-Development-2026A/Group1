@@ -25,8 +25,7 @@ export const verifyToken = (req, res, next) => {
             }); 
         }
 
-        // JWT payload contains { userId, role, isPremium }
-        // Attach ALL these to req.user so downstream controllers can use them
+        // JWT payload contains 
         req.user = { 
             id: decoded.userId, 
             role: decoded.role,
@@ -35,7 +34,6 @@ export const verifyToken = (req, res, next) => {
         
         next();
     } catch (error) {
-        //  500 errors do not expose stack trace, but token verification is a 401
         console.error("Error in verifyToken", error);
         return res.status(401).json({ 
             error: "TOKEN_VERIFICATION_FAILED", 

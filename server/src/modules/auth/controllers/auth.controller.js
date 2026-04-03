@@ -1,42 +1,23 @@
-import { AuthService } from "../services/auth.service.js"
-import { AuthDTO } from "../dtos/auth.dto.js"
+import { AuthService } from "../services/auth.service.js";
+import { AuthDTO } from "../dtos/auth.dto.js";
 
+// Controller delegates all business rules to AuthService.
 export const AuthController = {
-    register: async (req, res) => {
+    register: async (req, res, next) => {
         try {
             const newUser = await AuthService.registerUser(req.body);
             const safeUser = AuthDTO.toUserResponse(newUser);
-            
-            return res.status(201).json({ 
-                message: "User registered successfully.", 
-                data: safeUser 
+
+            return res.status(201).json({
+                data: safeUser,
+                message: "User registered successfully."
             });
         } catch (error) {
-            // Catch standardized formatting 
-            if (error.status) {
-                const errorResponse = {
-                    error: error.error,
-                    message: error.message,
-                    cause: error.cause,
-                    example: error.example
-                };
-                
-                if (error.details) {
-                    errorResponse.details = error.details;
-                }
-
-                return res.status(error.status).json(errorResponse);
-            }
-
-            console.error("Register Error:", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error occurred during registration." 
-            });
+            return next(error);
         }
     },
-    
-    login: async (req, res) => {
+
+    login: async (req, res, next) => {
         try {
             const loginData = {
                 identifier: req.body.identifier || req.body.email || req.body.username,
@@ -45,83 +26,48 @@ export const AuthController = {
 
             const result = await AuthService.loginUser(loginData, res);
             const safeUser = AuthDTO.toUserResponse(result.user);
-            
+
             return res.status(200).json({
-                message: "Login successful.",
-                data: safeUser
+                data: safeUser,
+                message: "Login successful."
             });
-
         } catch (error) {
-            // Catch standardized formatting 
-            if (error.status) {
-                const errorResponse = {
-                    error: error.error,
-                    message: error.message,
-                    cause: error.cause,
-                    example: error.example
-                };
-                // Validation details if it's a 400 validation error
-                if (error.details) errorResponse.details = error.details;
-                return res.status(error.status).json(errorResponse);
-            }
-
-            // Fallback for unexpected server errors 
-            console.error("Login Error:", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error occurred during login." 
-            });
+            return next(error);
         }
     },
 
-    logout: async (req, res) => {
+    logout: async (req, res, next) => {
         try {
             await AuthService.logoutUser(res);
-            return res.status(200).json({ 
-                message: "Logged out successfully." 
+
+            return res.status(200).json({
+                data: null,
+                message: "Logged out successfully."
             });
         } catch (error) {
-            console.error("Logout Error:", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error occurred during logout." 
-            });
+            return next(error);
         }
     },
 
-    checkAuth: async (req, res) => {
+    checkAuth: async (req, res, next) => {
         try {
             if (!req.user || !req.user.id) {
-                return res.status(401).json({ 
-                    error: "UNAUTHORIZED", 
+                return res.status(401).json({
+                    error: "UNAUTHORIZED",
                     message: "Authentication failed. No valid token found.",
-                    cause: "The request context lacks user identity information.",
-                    example: "A valid session token in cookies."
+                    cause: "The request context does not contain authenticated user information.",
+                    valid_example: "A valid JWT in the access_token cookie is required."
                 });
             }
 
             const result = await AuthService.checkAuthUser(req.user.id);
-            const safeUser = AuthDTO.toUserResponse(result.user);
-            
-            return res.status(200).json({ 
-                message: "User is authenticated.",
-                data: safeUser
+
+            return res.status(200).json({
+                data: AuthDTO.toCheckAuthResponse(result.user, result.activeRoom),
+                message: "Authenticated."
             });
         } catch (error) {
-            if (error.status) {
-                return res.status(error.status).json({ 
-                    error: error.error, 
-                    message: error.message,
-                    cause: error.cause,
-                    example: error.example
-                });
-            }
-
-            console.error("Check Auth Error:", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error occurred during authentication check." 
-            });
+            return next(error);
         }
     }
 };

@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 
-export const generateTokenAndSetCookie = (res, userId, role) => {
-    const token = jwt.sign({ userId, role }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
+// Generate JWT and store it in the httpOnly cookie
+export const generateTokenAndSetCookie = (res, userId, role, isPremium) => {
+    const token = jwt.sign({ userId, role, isPremium }, process.env.JWT_SECRET, {
+        expiresIn: "7d", // 7 days
     });
 
     res.cookie('access_token', token, {

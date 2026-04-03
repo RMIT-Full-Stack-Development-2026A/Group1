@@ -1,39 +1,105 @@
-import { User } from '../models/user.model.js';
+import { User } from "../models/user.model.js";
 
+// Repository owns direct database access for auth-related user operations.
 export const AuthRepository = {
-    
-    findByEmailOrUsername: async (identifier) => {
-        return await User.findOne({
-            $or: [{ email: identifier }, { username: identifier }]
-        });
+    findByEmailOrUsernameForLogin: async (identifier) => {
+        const normalizedIdentifier = String(identifier).trim();
+
+        return User.findOne({
+            $or: [
+                { email: normalizedIdentifier.toLowerCase() },
+                { username: normalizedIdentifier }
+            ]
+        }).select("+passwordHash");
+    },
+
+    existsByEmail: async (email) => {
+        const normalizedEmail = String(email).trim().toLowerCase();
+        return !!(await User.exists({ email: normalizedEmail }));
+    },
+
+    existsByUsername: async (username) => {
+        const normalizedUsername = String(username).trim();
+        return !!(await User.exists({ username: normalizedUsername }));
     },
 
     createUser: async (userData) => {
         const newUser = new User(userData);
-        return await newUser.save();
+        return newUser.save();
     },
 
     findById: async (id) => {
         return User.findById(id);
     },
 
-    incrementLoginAttempts: async (user) => {
-        // Blocks account for 60 seconds if 5 failed attempts occur
-        const updates = { $inc: { loginAttempts: 1 } };
-        if (user.loginAttempts + 1 >= 5) {
-            updates.$set = { lockUntil: Date.now() + 60000 };
-        }
-        return User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' });
+    findByIdWithPassword: async (id) => {
+        return User.findById(id).select("+passwordHash");
     },
 
-    resetLoginAttempts: async (user) => {
-        return User.findByIdAndUpdate(user._id, {
-            $set: {loginAttempts: 0, lockUntil: 1}
-        }, { returnDocument: 'after' });
+    incrementLoginAttempts: async (user) => {
+        const currentAttempts = user?.auth?.loginAttempts || 0;
+        const updates = {
+            $inc: { "auth.loginAttempts": 1 }
+        };
+
+        if (currentAttempts + 1 >= 5) {
+            updates.$set = { "auth.lockUntil": new Date(Date.now() + 60 * 1000) };
+        }
+
+        return User.findByIdAndUpdate(user._id, updates, { new: true });
+    },
+
+    resetLoginAttempts: async (userId) => {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    "auth.loginAttempts": 0,
+                    "auth.lockUntil": null
+                }
+            },
+            { new: true }
+        );
+    },
+
+    clearExpiredLock: async (userId) => {
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    "auth.loginAttempts": 0,
+                    "auth.lockUntil": null
+                }
+            },
+            { new: true }
+        );
     },
 
     updateLastLogin: async (userId) => {
-        return User.findByIdAndUpdate(userId, { lastLogin: Date.now() }, { returnDocument: 'after' });
+        return User.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    "auth.lastLoginAt": new Date()
+                }
+            },
+            { new: true }
+        );
     },
 
+    updatePremiumExpiry: async (userId, premiumExpiresAt) => {
+        return User.findByIdAndUpdate(
+            userId,
+            { $set: { premiumExpiresAt } },
+            { new: true }
+        );
+    },
+
+    updateAccountStatus: async (userId, isActive) => {
+        return User.findByIdAndUpdate(
+            userId,
+            { $set: { isActive } },
+            { new: true }
+        );
+    }
 };

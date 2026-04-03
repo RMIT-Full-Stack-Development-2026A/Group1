@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { checkWin, checkDraw } from './gameLogic';
-import { gameService } from './game.service';
+import { gameService } from '../service/game.service';
 
 // Helper function to convert (row, col) to Algebraic notation (e.g., 0,0 -> "A1")
 const toAlgebraic = (r, c) => {

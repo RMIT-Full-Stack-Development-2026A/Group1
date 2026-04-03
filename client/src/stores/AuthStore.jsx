@@ -1,22 +1,19 @@
 import { create } from 'zustand';
-import http from '../utils/httpHelper';
-import { API_ENDPOINTS } from '../config/apiConfig';
-
-
-    // { data: <user object>, message: ... }
+import { authService } from '../services/auth.service';
 
 export const useAuthStore = create((set) => ({
     user: null,
     isAuthenticated: false,
-    isCheckingAuth: true, // loading state
-    isLoading: false,
+    isCheckingAuth: true, // loading state on initial load
+    isLoading: false,     // loading state for button clicks (login/register)
     error: null,
 
-    // login function
+    // Login function
     login: async (credentials) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await http.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
+            // Delegate the API call to the service layer
+            const response = await authService.login(credentials);
 
             set({ isAuthenticated: true, user: response.data, isLoading: false });
             return response;
@@ -26,11 +23,13 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    // 2. register function
+    // Register function
     register: async (userData) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await http.post(API_ENDPOINTS.AUTH.REGISTER, userData);
+            // Delegate the API call to the service layer
+            const response = await authService.register(userData);
+            
             set({ isAuthenticated: true, user: response.data, isLoading: false });
             return response;
         } catch (error) {
@@ -39,35 +38,37 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    // logout
+    // Logout function
     logout: async () => {
         set({ isLoading: true, error: null });
         try {
-            await http.post(API_ENDPOINTS.AUTH.LOGOUT);
+            await authService.logout();
         } catch (error) {
             console.error("Logout API failed:", error);
         } finally {
-            // Dù API gọi fail hay success, FE vẫn phải clear state
+            // Always clear state on the frontend regardless of API success/failure
             set({ isAuthenticated: false, user: null, isLoading: false });
         }
     },
 
-    // check cookie after reloading
+    // Check session/cookie after reloading
     checkAuth: async () => {
         set({ isCheckingAuth: true, error: null });
         try {
-            const response = await http.get(API_ENDPOINTS.AUTH.CHECK_AUTH);
+            const response = await authService.checkAuth();
             set({ isAuthenticated: true, user: response.data, isCheckingAuth: false });
         } catch (error) {
-            // Nếu API báo lỗi 401 (chưa có token), set state về false
+            console.log(error);
+            // If API returns 401 (no token/cookie), set unauthenticated state
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
         }
     },
 
+    // Clear error messages from state
     clearError: () => set({ error: null })
 }));
 
-// 401 token expiration from axios 
+// Listen for 401 unauthorized events dispatched from Axios interceptor
 window.addEventListener('auth:unauthorized', () => {
     useAuthStore.getState().logout();
     window.location.href = '/login';

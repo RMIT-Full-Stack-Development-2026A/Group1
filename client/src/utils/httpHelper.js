@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '@/stores/AuthStore';
 
 class HttpHelper {
     constructor() {
@@ -10,6 +11,25 @@ class HttpHelper {
                 'Content-Type': 'application/json',
             },
         });
+        
+        // Add a request interceptor to automatically attach the JWT token
+        this.api.interceptors.request.use(
+            (config) => {
+                // Retrieve the token from localStorage
+                const token = localStorage.getItem('jwt_token');
+                
+                // If token exists, attach it to the Authorization header using Bearer schema
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
+                
+                return config;
+            },
+            (error) => {
+                // Handle request errors before they are sent
+                return Promise.reject(error);
+            }
+        );
 
         // Intercept responses to strip Axios wrappers and extract clean error messages
         this.api.interceptors.response.use(

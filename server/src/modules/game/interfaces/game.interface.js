@@ -1,0 +1,39 @@
+import { GameService } from "../services/game.service.js";
+import { GameDTO } from "../dtos/game.dto.js";
+
+// Interface exposes game-history and replay operations to other modules.
+export const GameInterface = {
+    createLocalGameSession: async (userId, payload) => {
+        // const session = await GameService.createLocalGameSession(userId, payload);
+        // return GameDTO.toGameDetail(session, userId);
+    },
+
+    listUserGameSessions: async (userId, query) => {
+        // const result = await GameService.listUserGameSessions(userId, query);
+        // return GameDTO.toGameListResponse(result.items, result.pagination, userId);
+    },
+
+    getGameSessionDetail: async (userId, gameId) => {
+        // const session = await GameService.getGameSessionDetail(userId, gameId);
+        // if (!session) return null;
+
+        // return GameDTO.toGameDetail(session, userId);
+    },
+
+    getUserGameStats: async (userId) => {
+        // const stats = await GameService.getUserGameStats(userId);
+        // return GameDTO.toStatsSummary(stats);
+    },
+
+    getRecentGames: async (userId, limit = 5) => {
+        // const sessions = await GameService.getRecentGames(userId, limit);
+        // return Array.isArray(sessions)
+        //     ? sessions.map((session) => GameDTO.toGameListItem(session, userId))
+        //     : [];
+    },
+
+    createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
+        // const session = await GameService.createOnlineGameSessionFromRoom(roomClosurePayload);
+        // return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);
+    }
+};

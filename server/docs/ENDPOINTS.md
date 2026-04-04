@@ -120,7 +120,7 @@ These APIs manage user profile data and provide an optimized overview payload fo
 |---|---|---:|---|
 | GET | `/profile` | Yes | Get current user's base profile |
 | GET | `/profile/overview` | Yes | Get profile + subscription + wallet summary + recent game stats in one call |
-| PUT | `/profile` | Yes | Update username, email, or country |
+| PUT | `/profile/update` | Yes | Update username, email, or country |
 | PATCH | `/profile/password` | Yes | Change current user's password |
 | POST | `/profile/avatar` | Yes | Upload avatar image |
 
@@ -279,9 +279,9 @@ This avoids multiple parallel admin summary calls.
 | Method | Endpoint | Auth | Description |
 |---|---|---:|---|
 | GET | `/admin/players` | Admin | List players with pagination and filters |
-| GET | `/admin/players/:id` | Admin | Get one player's admin detail |
-| PATCH | `/admin/players/:id/deactivate` | Admin | Deactivate account |
-| PATCH | `/admin/players/:id/reactivate` | Admin | Reactivate account |
+| GET | `/admin/player/:id` | Admin | Get one player's admin detail |
+| PATCH | `/admin/player/:id/deactivate` | Admin | Deactivate account |
+| PATCH | `/admin/player/:id/reactivate` | Admin | Reactivate account |
 
 #### `GET /admin/players` query params
 | Query | Type | Description |

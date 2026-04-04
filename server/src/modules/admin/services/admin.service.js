@@ -1,19 +1,16 @@
-import { AdminRepository } from '../repositories/admin.repository.js';
+import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
+import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { validatePlayerQuery, validateObjectId } from '../validators/admin.validator.js';
 
 export const AdminService = {
     getPlayers: async (query) => {
         const { filter, sort, pagination } = validatePlayerQuery(query);
         
-        const { users, total } = await AdminRepository.findPlayers(filter, sort, pagination.skip, pagination.limit);
+        const { users, total } = await AuthInterface.getPaginatedUsers(filter, sort, pagination.skip, pagination.limit);
         
         return {
             items: users,
-            pagination: {
-                total,
-                page: pagination.page,
-                limit: pagination.limit
-            }
+            pagination: { total, page: pagination.page, limit: pagination.limit }
         };
     },
 
@@ -28,8 +25,7 @@ export const AdminService = {
             };
         }
 
-        const user = await AdminRepository.findPlayerById(playerId);
-        
+        const user = await AuthInterface.getUserById(playerId);
         if (!user) {
             throw {
                 statusCode: 404,
@@ -41,7 +37,7 @@ export const AdminService = {
         }
 
         // Orchestrate extra stats gathering
-        const extraStats = await AdminRepository.getPlayerStats(playerId);
+        const extraStats = await GameInterface.getUserGameStats(playerId);
 
         return { user, extra: extraStats };
     },
@@ -58,7 +54,7 @@ export const AdminService = {
         }
 
         // Check existence before applying update
-        const existingUser = await AdminRepository.findPlayerById(playerId);
+        const existingUser = await AuthInterface.getUserById(playerId);
         if (!existingUser) {
             throw { 
                 statusCode: 404, 
@@ -79,7 +75,7 @@ export const AdminService = {
             };
         }
 
-        const updatedUser = await AdminRepository.updatePlayerStatus(playerId, isActive);
+        const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
         return updatedUser;
     }
 };

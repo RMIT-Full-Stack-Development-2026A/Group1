@@ -19,7 +19,7 @@ Controller / Gateway Handler
         ↓
 Service
         ↓
-Repository / Interface
+Repository / Interface (module don't contain model)
         ↓
 Model
 ```
@@ -72,7 +72,6 @@ backend/
 │   │   │   ├── routes/
 │   │   │   ├── controllers/
 │   │   │   ├── services/
-│   │   │   ├── repositories/              # Usually none or minimal; profile does not own a model
 │   │   │   ├── dtos/
 │   │   │   ├── validators/
 │   │   │   └── interfaces/                # Optional if FE-facing aggregate queries are reused elsewhere
@@ -112,7 +111,6 @@ backend/
 │   │   │   ├── routes/
 │   │   │   ├── controllers/
 │   │   │   ├── services/
-│   │   │   ├── repositories/              # Usually none; orchestrates auth + wallet + email interfaces
 │   │   │   ├── dtos/
 │   │   │   ├── validators/
 │   │   │   └── interfaces/                # Exposes premium status helpers if needed

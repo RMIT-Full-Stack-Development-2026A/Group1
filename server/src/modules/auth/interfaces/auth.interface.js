@@ -9,7 +9,6 @@ export const AuthInterface = {
 
         return AuthDTO.toUserResponse(user);
     },
-
     getUserSessionContext: async (userId) => {
         const user = await AuthRepository.findById(userId);
         if (!user) return null;
@@ -21,18 +20,32 @@ export const AuthInterface = {
             isActive: user.isActive
         };
     },
-
     setPremiumExpiry: async (userId, premiumExpiresAt) => {
         const user = await AuthRepository.updatePremiumExpiry(userId, premiumExpiresAt);
         if (!user) return null;
 
         return AuthDTO.toUserResponse(user);
     },
-
     setAccountStatus: async (userId, isActive) => {
         const user = await AuthRepository.updateAccountStatus(userId, isActive);
         if (!user) return null;
 
         return AuthDTO.toUserResponse(user);
+    },
+
+    // Expose data for Profile module
+    getUserById: async (userId) => {
+        return AuthRepository.findById(userId);
+    },
+    updateUserProfile: async (userId, updates) => {
+        return AuthRepository.updateUser(userId, updates);
+    },
+    checkProfileConflicts: async (userId, email, username) => {
+        return AuthRepository.checkConflicts(userId, email, username);
+    },
+
+    // Expose data for Admin module
+    getPaginatedUsers: async (filter, sort, skip, limit) => {
+        return AuthRepository.findUsersPaginated(filter, sort, skip, limit);
     }
 };

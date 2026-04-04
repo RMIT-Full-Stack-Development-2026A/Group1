@@ -10,8 +10,8 @@ router.use(verifyToken, requireAdmin)
 
 // Admin endpoint
 router.get('/players', AdminController.getPlayers);
-router.get('/players/:id', AdminController.getPlayerDetail);
-router.patch('/players/:id/deactivate', AdminController.deactivatePlayer);
-router.patch('/players/:id/reactivate', AdminController.reactivatePlayer);
+router.get('/player/:id', AdminController.getPlayerDetail);
+router.patch('/player/:id/deactivate', AdminController.deactivatePlayer);
+router.patch('/player/:id/reactivate', AdminController.reactivatePlayer);
 
 export default router;

@@ -1,14 +1,15 @@
-export const validateProfileUpdate = (req, res, next) => {
-    const { username, email, password } = req.body;
+export const validateProfileUpdate = (data) => {
+    const { username, email, country } = data;
+    const errors = [];
 
     // Validate Username 
     if (username) {
-        const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
         if (!usernameRegex.test(username)) {
-            return res.status(400).json({
-                error: "INVALID_USERNAME_FORMAT",
+            errors.push({
+                error: "INVALID_USERNAME",
                 message: "Profile update failed. Invalid username format.",
-                cause: "Username can only contain English letters, numbers, underscores (_), and hyphens (-). Spaces are not allowed.",
+                cause: "Must be 3-30 characters, using only letters, numbers, hyphens, or underscores.",
                 valid_example: "KienMinh_123"
             });
         }
@@ -18,28 +19,27 @@ export const validateProfileUpdate = (req, res, next) => {
     if (email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
         if (!emailRegex.test(email) || email.length >= 255) {
-            return res.status(400).json({
-                error: "INVALID_EMAIL_FORMAT",
+            errors.push({
+                error: "INVALID_EMAIL",
                 message: "Profile update failed. Invalid email format.",
-                cause: "Email must contain exactly one '@' symbol, a dot ('.') after '@', be under 255 characters, and contain no spaces.",
-                valid_example: "kienminhmou@gmail.com"
+                cause: "Must be a valid email address with an '@' and '.' under 255 characters.",
+                valid_example: "player@gmail.com"
             });
         }
     }
 
-    // Validate Password ( >= 8 chars, 1 number, 1 special char, 1 capital letter)
-    if (password) {
+    // Check country
+    if (country != undefined) {
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[$#@!%*?&])[A-Za-z\d$#@!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
             return res.status(400).json({
-                error: "WEAK_PASSWORD",
+                error: "INVALID_COUNTRY",
                 message: "Profile update failed. Password is not strong enough.",
-                cause: "Password must be at least 8 characters long, including at least 1 uppercase letter, 1 number, and 1 special character (e.g., $#@!).",
-                valid_example: "TictacToang@2026!"
+                cause: "Country must be provided as a valid, non-empty string.",
+                valid_example: "Australia"
             });
         }
     }
 
-    // Proceed to controller if all validations pass
-    next();
+    return errors
 };

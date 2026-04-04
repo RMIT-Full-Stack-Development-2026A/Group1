@@ -455,7 +455,9 @@ The backend must obey the policy response contract everywhere.
 ```json
 {
   "error": "ERROR_CODE",
-  "message": "..."
+  "message": "Human readable message",
+  "cause": "Cause of error",
+  "valid_example": "Example of valid inputs"
 }
 ```
 
@@ -509,7 +511,6 @@ The frontend should not need to spam the server for:
 - replay move lists
 - multiple profile widgets
 - multiple admin summary cards
-
 
 ## 10. Recommended Implementation Notes
 

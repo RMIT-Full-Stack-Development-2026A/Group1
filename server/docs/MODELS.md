@@ -625,13 +625,3 @@ export const Transaction = mongoose.model('Transaction', transactionSchema);
   lastMove
 }
 ```
-
-## 8. Final Recommendations
-
-1. Replace `password` with `passwordHash`
-2. Replace top-level `walletBalance` with `wallet.balance`
-3. Replace top-level `isPremium` storage with `premiumExpiresAt` + virtual `isPremium`
-4. Replace `player1/player2` duplication in finished sessions with `participants[2]`
-5. Persist replay-ready move data with `row`, `col`, and `coordinate`
-6. Expand `GameRoom` so it can support reconnect and authoritative socket state
-7. Add indexes for session history, player lookups, and admin search

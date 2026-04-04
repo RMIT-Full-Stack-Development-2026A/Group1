@@ -1,4 +1,4 @@
-import { AuthRepository } from '../modules/auth/repositories/auth.repository.js';
+import { AuthRepository } from '../repositories/auth.repository.js';
 
 export const validateRegisterInput = (data) => {
     const { username, email, password, confirmPassword, country } = data;

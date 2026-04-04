@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const roomParticipantSchema = new mongoose.Schema({
+export const roomParticipantSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId, // Actual user currently in the live room
     ref: 'User', // Links to User model
@@ -20,5 +20,3 @@ const roomParticipantSchema = new mongoose.Schema({
     default: Date.now // Auto-fill join time
   }
 }, { _id: false });
-
-export const RoomParticipant = mongoose.model('RoomParticipant', roomParticipantSchema);

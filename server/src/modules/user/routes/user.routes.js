@@ -2,7 +2,7 @@ import express from 'express';
 import { UserController } from '../controllers/user.controller.js';
 import { verifyToken } from '../../../middlewares/authMiddleware.js'; 
 import { authorizeMiddleware } from '../../../middlewares/roleMiddleware.js';
-import { validateProfileUpdate } from '../../../middlewares/validationMiddleware.js';
+// import { validateProfileUpdate } from '../../../middlewares/validationMiddleware.js';
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.patch(
     '/profile', 
     verifyToken, 
     authorizeMiddleware(['PLAYER']), // Only users with the 'PLAYER' role can update their profile
-    validateProfileUpdate, 
+    // validateProfileUpdate, 
     UserController.updateProfile
 );
 

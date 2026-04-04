@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { Move } from "./move.model";
-import { Participant } from "./participant.model";
-import { baseSchemaOptions } from "../../../utils/baseSchemaOptions";
+import { moveSchema } from "./move.model.js";
+import { participantSchema } from "./participant.model.js";
+import { baseSchemaOptions } from "../../../utils/baseSchemaOptions.js";
 
 const gameSessionSchema = new mongoose.Schema({
   sessionNumber: {
@@ -44,7 +44,7 @@ const gameSessionSchema = new mongoose.Schema({
   },
 
   participants: {
-    type: [Participant], // Stores exactly two participants of the match
+    type: [participantSchema], // Stores exactly two participants of the match
     validate: {
       validator: (arr) => Array.isArray(arr) && arr.length === 2, // Enforce exactly 2 sides
       message: 'A game session must have exactly 2 participants.'
@@ -88,7 +88,7 @@ const gameSessionSchema = new mongoose.Schema({
   },
 
   moves: {
-    type: [Move], // Full move history for replay
+    type: [moveSchema], // Full move history for replay
     default: [] // Starts empty until moves are added
   },
 

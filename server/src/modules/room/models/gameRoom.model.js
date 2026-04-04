@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { RoomMove } from './roomMove.model';
-import { RoomParticipant } from './roomParticipant.model';
-import { baseSchemaOptions } from '../../../utils/baseSchemaOptions';
+import { roomMoveSchema } from './roomMove.model.js';
+import { roomParticipantSchema } from './roomParticipant.model.js';
+import { baseSchemaOptions } from '../../../utils/baseSchemaOptions.js';
 
 const gameRoomSchema = new mongoose.Schema({
     roomNumber: {
@@ -26,7 +26,7 @@ const gameRoomSchema = new mongoose.Schema({
     },
 
     participants: {
-        type: [RoomParticipant], // Current players inside the room
+        type: [roomParticipantSchema], // Current players inside the room
         default: [] // Starts empty until creator joins / room is created
     },
 
@@ -37,7 +37,7 @@ const gameRoomSchema = new mongoose.Schema({
     },
 
     moves: {
-        type: [RoomMove], // Live move list used for socket sync and reconnect
+        type: [roomMoveSchema], // Live move list used for socket sync and reconnect
         default: [] // No moves at room creation
     },
 

@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 
 // Repository owns direct database access for auth-related user operations.
 export const AuthRepository = {
-    findByEmailOrUsernameForLogin: async (identifier) => {
+    findByEmailOrUsername: async (identifier) => {
         const normalizedIdentifier = String(identifier).trim();
 
         return User.findOne({

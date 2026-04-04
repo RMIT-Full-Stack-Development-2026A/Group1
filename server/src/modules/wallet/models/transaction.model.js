@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { baseSchemaOptions } from '../../../utils/baseSchemaOptions';
+import { baseSchemaOptions } from '../../../utils/baseSchemaOptions.js';
 
 const transactionSchema = new mongoose.Schema({
   userId: {

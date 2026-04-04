@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const participantSchema = new mongoose.Schema({
+export const participantSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId, // Reference to real user account if this side is a human user
     ref: 'User', // Links to User model
@@ -27,5 +27,3 @@ const participantSchema = new mongoose.Schema({
     default: null // Null for human players
   }
 }, { _id: false });
-
-export const Participant = mongoose.model('Participant', participantSchema);

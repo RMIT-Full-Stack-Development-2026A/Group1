@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const moveSchema = new mongoose.Schema({
+export const moveSchema = new mongoose.Schema({
   moveNumber: {
     type: Number, // Move order in the match: 1, 2, 3...
     required: true // Required to replay match in correct sequence
@@ -30,6 +30,3 @@ const moveSchema = new mongoose.Schema({
     default: Date.now // Auto-fill move timestamp
   }
 }, { _id: false });
-
-export const Move = mongoose.model('Move', moveSchema);
-

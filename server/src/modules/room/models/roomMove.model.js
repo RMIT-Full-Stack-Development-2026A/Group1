@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const roomMoveSchema = new mongoose.Schema({
+export const roomMoveSchema = new mongoose.Schema({
   moveNumber: Number, // Sequential order of live moves
   byParticipantIndex: { type: Number, enum: [0, 1] }, // Which side made the move
   row: Number, // Row index of the move
@@ -11,5 +11,3 @@ const roomMoveSchema = new mongoose.Schema({
   },
   placedAt: { type: Date, default: Date.now } // When the move happened
 }, { _id: false });
-
-export const RoomMove = mongoose.model('RoomMove', roomMoveSchema);

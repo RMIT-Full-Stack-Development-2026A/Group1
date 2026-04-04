@@ -54,7 +54,7 @@ export const AuthService = {
         const identifier = String(loginData.identifier).trim();
         const password = String(loginData.password);
 
-        const user = await AuthRepository.findByEmailOrUsernameForLogin(identifier);
+        const user = await AuthRepository.findByEmailOrUsername(identifier);
         if (!user) {
             throw {
                 statusCode: 401,

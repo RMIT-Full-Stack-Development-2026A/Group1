@@ -1,111 +1,56 @@
 import { AdminService } from '../services/admin.service.js';
-
-// Helper function 
-const formatUserDTO = (user) => ({
-    id: user._id || user.id, //  Always use 'id'
-    username: user.username,
-    email: user.email,
-    role: user.role,
-    country: user.country,
-    avatar: user.avatar,
-    isPremium: user.isPremium,
-    isActive: user.isActive,
-    createdAt: user.createdAt
-});
+import { AdminDTO } from '../dtos/admin.dto.js';
 
 export const AdminController = {
-    getAllUsers: async (req, res) => {
+    getPlayers: async (req, res, next) => {
         try {
-            // Extract page and limit from query params, default to 1 and 20 
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 20;
-
-            // Fetch paginated data from Service
-            const { users, total } = await AdminService.getAllUsersPaginated(page, limit);
-
-            // Transform array of users 
-            const formattedUsers = users.map(formatUserDTO);
-
-            // Return success response 
+            const result = await AdminService.getPlayers(req.query);
+            
             return res.status(200).json({
-                message: "Users fetched successfully.",
-                data: {
-                    items: formattedUsers,
-                    total: total,
-                    page: page,
-                    limit: limit
-                }
+                data: AdminDTO.toPlayerList(result.items, result.pagination),
+                message: "Players fetched successfully."
             });
-
         } catch (error) {
-            console.error("Get All Users Error:", error);
-            // Return 500 
-            return res.status(500).json({
-                error: "SERVER_ERROR",
-                message: "Internal server error occurred while fetching users.",
-                cause: "Database connection failed or query execution error.",
-                valid_example: "Ensure valid pagination parameters (?page=1&limit=20) are provided."
+            return next(error);
+        }
+    },
+
+    getPlayerDetail: async (req, res, next) => {
+        try {
+            const result = await AdminService.getPlayerDetail(req.params.id);
+            
+            return res.status(200).json({
+                data: AdminDTO.toPlayerDetail(result.user, result.extra),
+                message: "Player detail fetched successfully."
             });
+        } catch (error) {
+            return next(error);
         }
     },
     
-    deactivatePlayer: async (req, res) => {
+    deactivatePlayer: async (req, res, next) => {
         try {
-            const { id } = req.params;
-            const updatedUser = await AdminService.changePlayerStatus(id, false);
+            const updatedUser = await AdminService.changePlayerStatus(req.params.id, false);
             
-            // Return success response 
             return res.status(200).json({
-                message: "Player account deactivated successfully.",
-                data: formatUserDTO(updatedUser) 
+                data: AdminDTO.toPlayerDetail(updatedUser),
+                message: "Player account deactivated successfully."
             });
         } catch (error) {
-            // Catch and format custom errors 
-            if (error.status) {
-                return res.status(error.status).json({ 
-                    error: error.error, 
-                    message: error.message,
-                    cause: error.cause,
-                    valid_example: error.valid_example
-                });
-            }
-            console.error("Deactivate Player Error:", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error during account deactivation.",
-                cause: "An unexpected exception occurred in the database layer.",
-                valid_example: "Check server logs for specific database errors." 
-            });
+            return next(error);
         }
     },
 
-    reactivatePlayer: async (req, res) => {
+    reactivatePlayer: async (req, res, next) => {
         try {
-            const { id } = req.params;
-            const updatedUser = await AdminService.changePlayerStatus(id, true);
+            const updatedUser = await AdminService.changePlayerStatus(req.params.id, true);
             
-            // Return success response 
             return res.status(200).json({
-                message: "Player account reactivated successfully.",
-                data: formatUserDTO(updatedUser) 
+                data: AdminDTO.toPlayerDetail(updatedUser),
+                message: "Player account reactivated successfully."
             });
         } catch (error) {
-            // Catch and format custom errors 
-            if (error.status) {
-                return res.status(error.status).json({ 
-                    error: error.error, 
-                    message: error.message,
-                    cause: error.cause,
-                    valid_example: error.valid_example
-                });
-            }
-            console.error("Reactivate Player Error:", error);
-            return res.status(500).json({ 
-                error: "SERVER_ERROR", 
-                message: "Internal server error during account reactivation.",
-                cause: "An unexpected exception occurred in the database layer.",
-                valid_example: "Check server logs for specific database errors." 
-            });
+            return next(error);
         }
     }
 };

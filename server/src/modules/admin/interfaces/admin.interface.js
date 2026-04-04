@@ -9,29 +9,29 @@ export const AdminInterface = {
     },
 
     getPlayers: async (query) => {
-        // const result = await AdminService.getPlayers(query);
-        // return AdminDTO.toPlayerList(result.items, result.pagination);
+        const result = await AdminService.getPlayers(query);
+        return AdminDTO.toPlayerList(result.items, result.pagination);
     },
 
     getPlayerDetail: async (userId) => {
-        // const result = await AdminService.getPlayerDetail(userId);
-        // if (!result) return null;
+        const result = await AdminService.getPlayerDetail(userId);
+        if (!result) return null;
 
-        // return AdminDTO.toPlayerDetail(result.user, result.extra);
+        return AdminDTO.toPlayerDetail(result.user, result.extra);
     },
 
     deactivatePlayer: async (userId, adminUserId) => {
-        // const user = await AdminService.deactivatePlayer(userId, adminUserId);
-        // if (!user) return null;
+        const user = await AdminService.deactivatePlayer(userId, adminUserId);
+        if (!user) return null;
 
-        // return AdminDTO.toPlayerDetail(user);
+        return AdminDTO.toPlayerDetail(user);
     },
 
     reactivatePlayer: async (userId, adminUserId) => {
-        // const user = await AdminService.reactivatePlayer(userId, adminUserId);
-        // if (!user) return null;
+        const user = await AdminService.reactivatePlayer(userId, adminUserId);
+        if (!user) return null;
 
-        // return AdminDTO.toPlayerDetail(user);
+        return AdminDTO.toPlayerDetail(user);
     },
 
     getRooms: async (query) => {

@@ -5,17 +5,13 @@ import { authorizeMiddleware } from '../../../middlewares/roleMiddleware.js';
 
 const router = express.Router();
 
-// role is strictly "PLAYER" or "ADMIN". 
-// We restrict this exclusively to uppercase 'ADMIN' to match the database shape.
 const requireAdmin = authorizeMiddleware(['ADMIN']); 
+router.use(verifyToken, requireAdmin)
 
-//  Fetch paginated list of all users
-router.get('/users', verifyToken, requireAdmin, AdminController.getAllUsers);
-
-// Deactivate a specific player account
-router.patch('/players/:id/deactivate', verifyToken, requireAdmin, AdminController.deactivatePlayer);
-
-// Reactivate a specific player account
-router.patch('/players/:id/reactivate', verifyToken, requireAdmin, AdminController.reactivatePlayer);
+// Admin endpoint
+router.get('/players', AdminController.getPlayers);
+router.get('/players/:id', AdminController.getPlayerDetail);
+router.patch('/players/:id/deactivate', AdminController.deactivatePlayer);
+router.patch('/players/:id/reactivate', AdminController.reactivatePlayer);
 
 export default router;

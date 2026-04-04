@@ -1,41 +1,85 @@
-import { User } from '../../auth/models/user.model.js';
+import { AdminRepository } from '../repositories/admin.repository.js';
+import { validatePlayerQuery, validateObjectId } from '../validators/admin.validator.js';
 
 export const AdminService = {
-    getAllUsersPaginated: async (page, limit) => {
-        // Calculate how many documents to skip based on the current page
-        const skip = (page - 1) * limit;
-
-        // Fetch users, sort by newest, apply pagination, and exclude passwords 
-        const users = await User.find()
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .select('-password');
-
-        // Get the total count of users for the pagination metadata
-        const total = await User.countDocuments();
-
-        return { users, total };
+    getPlayers: async (query) => {
+        const { filter, sort, pagination } = validatePlayerQuery(query);
+        
+        const { users, total } = await AdminRepository.findPlayers(filter, sort, pagination.skip, pagination.limit);
+        
+        return {
+            items: users,
+            pagination: {
+                total,
+                page: pagination.page,
+                limit: pagination.limit
+            }
+        };
     },
 
-    // Toggle user status (Activate/Deactivate)
-    changePlayerStatus: async (playerId, status) => {
-        const updatedUser = await User.findByIdAndUpdate(
-            playerId, 
-            { isActive: status }, 
-            { new: true, runValidators: true }
-        ).select('-password'); 
+    getPlayerDetail: async (playerId) => {
+        if (!validateObjectId(playerId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Failed to fetch player. Invalid user ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        const user = await AdminRepository.findPlayerById(playerId);
         
-        if (!updatedUser) {
-            // Throw custom error 
+        if (!user) {
+            throw {
+                statusCode: 404,
+                error: "PLAYER_NOT_FOUND",
+                message: "Player not found.",
+                cause: `No user record exists in the database matching ID: ${playerId}.`,
+                valid_example: "Ensure the user ID exists before requesting details."
+            };
+        }
+
+        // Orchestrate extra stats gathering
+        const extraStats = await AdminRepository.getPlayerStats(playerId);
+
+        return { user, extra: extraStats };
+    },
+
+    changePlayerStatus: async (playerId, isActive) => {
+        if (!validateObjectId(playerId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Status update failed. Invalid user ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        // Check existence before applying update
+        const existingUser = await AdminRepository.findPlayerById(playerId);
+        if (!existingUser) {
             throw { 
-                status: 404, 
+                statusCode: 404, 
                 error: "PLAYER_NOT_FOUND",
                 message: "Status update failed. Player not found.",
-                cause: `No user record exists in the database matching the provided ID: ${playerId}.`,
+                cause: `No user record exists in the database matching ID: ${playerId}.`,
                 valid_example: "A valid User ID currently existing in the database."
             }; 
         }
+
+        if (existingUser.isActive === isActive) {
+            throw {
+                statusCode: 409,
+                error: "CONFLICT",
+                message: `Status update failed. Player is already ${isActive ? 'active' : 'deactivated'}.`,
+                cause: "The requested status matches the user's current status.",
+                valid_example: `Request to deactivate an currently active player.`
+            };
+        }
+
+        const updatedUser = await AdminRepository.updatePlayerStatus(playerId, isActive);
         return updatedUser;
     }
 };

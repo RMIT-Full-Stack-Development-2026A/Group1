@@ -8,8 +8,6 @@ This document defines the **recommended server contract** for TicTacToang so tha
 
 Base API URL: `/api/v1`
 
----
-
 ## 0. Global API Conventions
 
 ### Response shape

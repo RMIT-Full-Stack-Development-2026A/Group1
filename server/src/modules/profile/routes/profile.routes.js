@@ -8,6 +8,6 @@ router.use(verifyToken);
 // Profile endpoints
 router.get('/', ProfileController.getProfile);
 router.get('/overview', ProfileController.getProfileOverview);
-router.patch('/', ProfileController.updateProfile);
+router.put('/update', ProfileController.updateProfile);
 
 export default router;

@@ -4,7 +4,7 @@ import { validateProfileUpdate } from '../validators/profile.validator.js';
 
 export const ProfileService = {
     getProfile: async (userId) => {
-        const user = await AuthInterface.findUserById(userId);
+        const user = await AuthInterface.getUserById(userId);
         if (!user) {
             throw {
                 statusCode: 404,
@@ -18,7 +18,7 @@ export const ProfileService = {
     },
 
     getProfileOverview: async (userId) => {
-        const user = await AuthInterface.findUserById(userId);
+        const user = await AuthInterface.getUserById(userId);
         if (!user) {
             throw {
                 statusCode: 404,

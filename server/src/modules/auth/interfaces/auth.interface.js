@@ -41,7 +41,7 @@ export const AuthInterface = {
         return AuthRepository.updateUser(userId, updates);
     },
     checkProfileConflicts: async (userId, email, username) => {
-        return AuthRepository.checkConflicts(userId, email, username);
+        return AuthRepository.checkProfileConflicts(userId, email, username);
     },
 
     // Expose data for Admin module

@@ -46,7 +46,7 @@ export const AuthRepository = {
             updates.$set = { "auth.lockUntil": new Date(Date.now() + 60 * 1000) };
         }
 
-        return User.findByIdAndUpdate(user._id, updates, { new: true });
+        return User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' });
     },
 
     resetLoginAttempts: async (userId) => {
@@ -58,7 +58,7 @@ export const AuthRepository = {
                     "auth.lockUntil": null
                 }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
     },
 
@@ -71,7 +71,7 @@ export const AuthRepository = {
                     "auth.lockUntil": null
                 }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
     },
 
@@ -83,7 +83,7 @@ export const AuthRepository = {
                     "auth.lastLoginAt": new Date()
                 }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
     },
 
@@ -91,7 +91,7 @@ export const AuthRepository = {
         return User.findByIdAndUpdate(
             userId,
             { $set: { premiumExpiresAt } },
-            { new: true }
+            { returnDocument: 'after' }
         );
     },
 
@@ -99,7 +99,62 @@ export const AuthRepository = {
         return User.findByIdAndUpdate(
             userId,
             { $set: { isActive } },
-            { new: true }
+            { returnDocument: 'after' }
         );
+    },
+
+    updateUser: async (userId, updates) => {
+        return User.findByIdAndUpdate(
+            userId,
+            { $set: updates },
+            { returnDocument: 'after', runValidators: true }
+        ).select('-passwordHash'); // Exclude password from the returned document
+    },
+
+    checkProfileConflicts: async (userId, email, username) => {
+        const orConditions = [];
+        if (email) orConditions.push({ email });
+        if (username) orConditions.push({ username });
+
+        if (orConditions.length === 0) return null;
+
+        const conflict = await User.findOne({
+            _id: { $ne: userId }, // Don't match the user who is currently updating
+            $or: orConditions
+        });
+
+        if (conflict) {
+            if (email && conflict.email === email) {
+                return {
+                    statusCode: 409,
+                    error: "EMAIL_ALREADY_IN_USE",
+                    message: "Profile update failed. Email is already registered.",
+                    cause: "The provided email address is in use by another account.",
+                    valid_example: "Provide a different email address."
+                };
+            }
+            if (username && conflict.username === username) {
+                return {
+                    statusCode: 409,
+                    error: "USERNAME_ALREADY_TAKEN",
+                    message: "Profile update failed. Username is already taken.",
+                    cause: "The provided username is claimed by another player.",
+                    valid_example: "Provide a different, unique username."
+                };
+            }
+        }
+        return null; // No conflicts found
+    },
+
+    findUsersPaginated: async (filter, sort, skip, limit) => {
+        const users = await User.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .select('-passwordHash'); // Ensure passwords are never leaked to admin dashboard
+
+        const total = await User.countDocuments(filter);
+
+        return { users, total };
     }
 };

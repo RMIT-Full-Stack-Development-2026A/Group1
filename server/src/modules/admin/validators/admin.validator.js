@@ -9,7 +9,8 @@ export const validatePlayerQuery = (query) => {
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20)); // Limit at 100
     const skip = (page - 1) * limit;
 
-    const filter = {};
+    // Only select PLAYER role
+    const filter = { role: 'PLAYER' };
     
     // Status Filter
     if (query.status === 'ACTIVE') filter.isActive = true;

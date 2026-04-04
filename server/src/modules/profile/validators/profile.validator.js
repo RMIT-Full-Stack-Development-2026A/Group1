@@ -30,9 +30,8 @@ export const validateProfileUpdate = (data) => {
 
     // Check country
     if (country != undefined) {
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[$#@!%*?&])[A-Za-z\d$#@!%*?&]{8,}$/;
-        if (!passwordRegex.test(password)) {
-            return res.status(400).json({
+        if (typeof country !== 'string' || country.trim().length === 0) {
+            errors.push({
                 error: "INVALID_COUNTRY",
                 message: "Profile update failed. Password is not strong enough.",
                 cause: "Country must be provided as a valid, non-empty string.",

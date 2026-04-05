@@ -22,7 +22,7 @@ export const useAuthStore = create((set) => ({
             const userIdentity = response.user; // Extracted in authService
             console.log('[Auth] Login successful:', userIdentity);
 
-            set({ isAuthenticated: true, user: userIdentity, isLoading: false });
+            set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
             // Allow checkAuth to run again on next page/route to verify backend session
             hasInitializedAuth = false;
@@ -30,7 +30,7 @@ export const useAuthStore = create((set) => ({
             return response;
         } catch (error) {
             console.error('[Auth] Login failed:', error);
-            set({ error: error, isLoading: false });
+            set({ error: error, isLoading: false, isCheckingAuth: false });
             throw error;
         }
     },
@@ -45,7 +45,7 @@ export const useAuthStore = create((set) => ({
             const userIdentity = response.user; // Extracted in authService
             console.log('[Auth] Register successful:', userIdentity);
             
-            set({ isAuthenticated: true, user: userIdentity, isLoading: false });
+            set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
             // Allow checkAuth to run again on next page/route to verify backend session
             hasInitializedAuth = false;
@@ -53,7 +53,7 @@ export const useAuthStore = create((set) => ({
             return response;
         } catch (error) {
             console.error('[Auth] Register failed:', error);
-            set({ error: error, isLoading: false });
+            set({ error: error, isLoading: false, isCheckingAuth: false });
             throw error;
         }
     },
@@ -87,21 +87,46 @@ export const useAuthStore = create((set) => ({
         set({ isCheckingAuth: true, error: null });
         
         try {
-            const response = await authService.checkAuth();
+            const token = getStoredToken();
+            console.log('[Auth] checkAuth: token exists?', !!token);
+            
+            // If no token, skip the backend check (user is not logged in)
+            if (!token) {
+                console.log('[Auth] No token found, user not authenticated');
+                set({ isAuthenticated: false, user: null, isCheckingAuth: false });
+                return;
+            }
+            
+            // Only call backend if we have a token
+            // Add timeout to prevent indefinite hanging
+            const checkAuthPromise = authService.checkAuth();
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('checkAuth timeout')), 5000)
+            );
+            
+            const response = await Promise.race([checkAuthPromise, timeoutPromise]);
             
             // After backend verifies JWT is valid, extract user identity from JWT payload
+            const userIdentity = extractUserIdentity(token);
+            console.log('[Auth] checkAuth succeeded. User from JWT:', userIdentity);
+            set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
+            
+        } catch (error) {
+            console.debug('[Auth] checkAuth failed:', error.message);
+            
+            // If checkAuth fails but we have a valid token, treat user as authenticated
+            // (backend might be slow or unreachable, but token is still valid)
             const token = getStoredToken();
             if (token) {
                 const userIdentity = extractUserIdentity(token);
-                console.log('[Auth] checkAuth succeeded. User from JWT:', userIdentity);
-                set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
-            } else {
-                console.log('[Auth] checkAuth succeeded but no token found');
-                set({ isAuthenticated: false, user: null, isCheckingAuth: false });
+                if (userIdentity) {
+                    console.log('[Auth] Token exists and valid, authenticating user despite checkAuth failure');
+                    set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
+                    return;
+                }
             }
-        } catch (error) {
-            console.debug('[Auth] checkAuth failed (expected if no token):', error);
-            // Silently handle auth check failures (not logged in is normal state)
+            
+            // If no valid token or extraction failed, user is not authenticated
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
         }
     },

@@ -1,11 +1,15 @@
 // Route: /login
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
+import { useAuthStore } from "@/stores/AuthStore";
 import { useLogin } from "./hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
 
 export default function LoginPage() {
+    const navigate = useNavigate();
+    const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const {
         formData,
         handleInputChange,
@@ -20,6 +24,14 @@ export default function LoginPage() {
         handleGuestLogin,
         handleRegisterNav,
     } = useLogin();
+
+    // Redirect to lobby if already authenticated
+    useEffect(() => {
+        if (!isCheckingAuth && isAuthenticated) {
+            console.log('[Login] User already authenticated, redirecting to /lobby');
+            navigate("/lobby", { replace: true });
+        }
+    }, [isAuthenticated, isCheckingAuth, navigate]);
 
     return (
         <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">

@@ -1,6 +1,7 @@
 /**
  * Custom hook for lobby logic
  * Manages rooms, stats, and activity state
+ * Fetches data from real backend endpoints
  */
 
 import { useState, useEffect } from "react";
@@ -12,24 +13,47 @@ export const useLobby = () => {
     const [recentActivity, setRecentActivity] = useState([]);
     const [onlineCount, setOnlineCount] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Initialize lobby data
+    // Initialize lobby data from backend
     useEffect(() => {
         const initializeLobby = async () => {
             try {
                 setLoading(true);
-                // In production, these would be async API calls
-                const roomsData = LobbyService.getRooms();
-                const statsData = LobbyService.getPlayerStats();
-                const activityData = LobbyService.getRecentActivity();
-                const onlineData = LobbyService.getOnlineCount();
+                setError(null);
+                
+                console.log('[useLobby] Initializing lobby data...');
+                
+                // Fetch all data in parallel
+                const [roomsData, statsData, activityData] = await Promise.all([
+                    LobbyService.getRooms(),
+                    LobbyService.getPlayerStats(),
+                    LobbyService.getRecentActivity(),
+                ]);
 
-                setRooms(roomsData);
-                setPlayerStats(statsData);
-                setRecentActivity(activityData);
-                setOnlineCount(onlineData);
-            } catch (error) {
-                console.error("Failed to load lobby data:", error);
+                console.log('[useLobby] Data fetched:', {
+                    roomsData,
+                    statsData,
+                    activityData,
+                });
+
+                setRooms(roomsData || []);
+                setPlayerStats(statsData || null);
+                setRecentActivity(activityData || []);
+                setOnlineCount(LobbyService.getOnlineCount());
+                
+                console.log('[useLobby] Lobby initialized:', {
+                    roomsCount: (roomsData || []).length,
+                    stats: statsData,
+                    activityCount: (activityData || []).length,
+                });
+            } catch (err) {
+                console.error("[useLobby] Failed to load lobby data:", err);
+                setError(err.message || "Failed to load lobby data");
+                // Fallback to empty state - components should handle gracefully
+                setRooms([]);
+                setPlayerStats(null);
+                setRecentActivity([]);
             } finally {
                 setLoading(false);
             }
@@ -38,8 +62,31 @@ export const useLobby = () => {
         initializeLobby();
     }, []);
 
-    // Get available rooms
+    // Get available rooms (filter by status)
     const availableRooms = LobbyService.getAvailableRooms(rooms);
+
+    // Refresh lobby data manually
+    const refreshLobby = async () => {
+        try {
+            setLoading(true);
+            const [roomsData, statsData, activityData] = await Promise.all([
+                LobbyService.getRooms(),
+                LobbyService.getPlayerStats(),
+                LobbyService.getRecentActivity(),
+            ]);
+
+            setRooms(roomsData);
+            setPlayerStats(statsData);
+            setRecentActivity(activityData);
+            setOnlineCount(LobbyService.getOnlineCount());
+            setError(null);
+        } catch (err) {
+            console.error("[useLobby] Failed to refresh lobby:", err);
+            setError(err.message || "Failed to refresh lobby");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return {
         rooms,
@@ -48,5 +95,7 @@ export const useLobby = () => {
         onlineCount,
         availableRooms,
         loading,
+        error,
+        refreshLobby,
     };
 };

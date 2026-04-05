@@ -1,13 +1,18 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 // import Navigation from "@/components/Navigation";
-// import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/AuthStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 export default function Layout({ children }) {
-    // const { user, isAuthenticated } = useAuthStore();
+    const { checkAuth } = useAuthStore();
     const location = useLocation();
     const showScrollTop = useScrollToTop();
+
+    // Initialize auth check on app startup (runs only once globally)
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
 
     // Hide navigation on guest auth pages
     // const hideNavRoutes = ["/login", "/register", "/"];

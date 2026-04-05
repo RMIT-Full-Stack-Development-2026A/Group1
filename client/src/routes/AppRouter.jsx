@@ -39,18 +39,18 @@ export default function AppRouter() {
                 <Route path="/register" element={<RegisterPage />} />
 
                 {/* 2. Player Pages (Free & Premium) */}
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/play" element={<GameModeSelect />} />
-                <Route path="/lobby" element={<GameLobby />} />
-                <Route path="/game-customization" element={<GameCustomization />} />
-                <Route path="/play/:roomId" element={<GameBoard />} />
-                <Route path="/replay/:gameId" element={<MatchReplay />} />
-                <Route path="/subscription" element={<SubscriptionPage />} />
+                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                <Route path="/play" element={<ProtectedRoute><GameModeSelect /></ProtectedRoute>} />
+                <Route path="/lobby" element={<ProtectedRoute><GameLobby /></ProtectedRoute>} />
+                <Route path="/game-customization" element={<ProtectedRoute><GameCustomization /></ProtectedRoute>} />
+                <Route path="/play/:roomId" element={<ProtectedRoute><GameBoard /></ProtectedRoute>} />
+                <Route path="/replay/:gameId" element={<ProtectedRoute><MatchReplay /></ProtectedRoute>} />
+                <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
 
                 {/* 3. Admin Pages */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/players" element={<PlayerManagement />} />
-                <Route path="/admin/rooms" element={<GameRoomMonitor />} />
+                <Route path="/admin" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin/players" element={<ProtectedRoute allowedRoles={["ADMIN"]}><PlayerManagement /></ProtectedRoute>} />
+                <Route path="/admin/rooms" element={<ProtectedRoute allowedRoles={["ADMIN"]}><GameRoomMonitor /></ProtectedRoute>} />
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

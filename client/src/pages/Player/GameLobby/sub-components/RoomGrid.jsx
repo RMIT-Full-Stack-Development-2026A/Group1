@@ -2,19 +2,21 @@ import React from "react";
 import RoomCard from "./RoomCard";
 
 export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
-    const hasAvailableRooms = rooms.some((r) => r.status === "waiting");
+    // Ensure rooms is always an array
+    const roomList = Array.isArray(rooms) ? rooms : [];
+    const hasAvailableRooms = roomList.some((r) => r.status === "waiting");
 
     return (
         <>
             {/* Room Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
-                {rooms.map((room) => (
+                {roomList.map((room) => (
                     <RoomCard key={room.id} room={room} onJoin={onJoinRoom} />
                 ))}
             </div>
 
             {/* Empty State */}
-            {!hasAvailableRooms && (
+            {roomList.length === 0 && (
                 <div className="flex items-center justify-center py-12">
                     <div className="text-center">
                         <p className="font-mono text-[#879398] text-sm mb-4">

@@ -10,7 +10,7 @@ import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-compon
 export default function GameLobby() {
     const navigate = useNavigate();
     const { isLoggedIn, loading: authLoading } = useAuth();
-    const { rooms, playerStats, recentActivity, onlineCount, loading: lobbyLoading } = useLobby();
+    const { rooms, playerStats, recentActivity, onlineCount, loading: lobbyLoading, error: lobbyError } = useLobby();
 
     // Redirect to landing page if not logged in (but wait for auth check to complete)
     useEffect(() => {
@@ -42,7 +42,29 @@ export default function GameLobby() {
     if (authLoading || lobbyLoading) {
         return (
             <div className="bg-[#0d0d1a] text-[#e3e0f4] min-h-screen flex items-center justify-center">
-                <div className="font-mono text-[#4cc9f0]">Loading...</div>
+                <div className="font-mono text-[#4cc9f0]">Loading Lobby...</div>
+            </div>
+        );
+    }
+
+    // Show error if lobby data failed to load
+    if (lobbyError) {
+        return (
+            <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col">
+                <Navigation />
+                <main className="flex-grow flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="text-[#ffb4ab] mb-4">❌ Failed to load lobby</div>
+                        <div className="text-[#879398] text-sm mb-6">{lobbyError}</div>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="bg-[#4cc9f0] text-[#003543] px-6 py-2 font-bold hover:opacity-80"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </main>
+                <Footer />
             </div>
         );
     }

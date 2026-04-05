@@ -8,17 +8,17 @@ export const GameInterface = {
     //     return GameDTO.toGameDetail(session, userId);
     // },
 
-    // listUserGameSessions: async (userId, query) => {
-    //     const result = await GameService.listUserGameSessions(userId, query);
-    //     return GameDTO.toGameListResponse(result.items, result.pagination, userId);
-    // },
+    listUserGameSessions: async (userId, query) => {
+        const result = await GameService.listUserGameSessions(userId, query);
+        return GameDTO.toGameListResponse(result.items, result.pagination, userId);
+    },
 
-    // getGameSessionDetail: async (userId, gameId) => {
-    //     const session = await GameService.getGameSessionDetail(userId, gameId);
-    //     if (!session) return null;
+    getGameSessionDetail: async (userId, gameId) => {
+        const session = await GameService.getGameSessionDetail(userId, gameId);
+        if (!session) return null;
 
-    //     return GameDTO.toGameDetail(session, userId);
-    // },
+        return GameDTO.toGameDetail(session, userId);
+    },
 
     // Expose to Profile/Admin module
     getUserGameStats: async (userId) => {

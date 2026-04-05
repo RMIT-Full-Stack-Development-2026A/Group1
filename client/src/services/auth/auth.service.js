@@ -1,5 +1,5 @@
-import http from '../utils/httpHelper';
-import { API_ENDPOINTS } from '../config/apiConfig';
+import http from "../../utils/httpHelper";
+import { API_ENDPOINTS } from "../../config/apiConfig";
 
 export const authService = {
     // Call login API

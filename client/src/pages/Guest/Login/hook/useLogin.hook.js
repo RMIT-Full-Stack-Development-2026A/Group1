@@ -1,10 +1,6 @@
-/**
- * Custom hook for login page logic
- * Manages form state, validation, lockout mechanism, and navigation
- */
-
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/AuthStore";
 import { loginService } from "../service/login.service";
 
 export const useLogin = () => {
@@ -88,44 +84,74 @@ export const useLogin = () => {
             setMessage({ type: "", text: "" });
 
             try {
-                // Call login service
-                const response = await loginService.attemptLogin(formData);
-
-                // Check if successful
-                if (response.data && response.data.data) {
-                    setFailedAttempts(0);
-                    setIsLocked(false);
-                    setMessage({
-                        type: "success",
-                        text: "Login successful! Redirecting...",
-                    });
-                    // Redirect to game lobby after 2 seconds
-                    setTimeout(() => {
-                        navigate("/lobby");
-                    }, 2000);
+                // Create LoginRequest DTO for validation
+                const { LoginRequest } = await import("@/models/auth");
+                const loginRequest = new LoginRequest(formData);
+                const validation = loginRequest.validate();
+                if (!validation.valid) {
+                    throw new Error(validation.errors.join(", "));
                 }
+
+                // Call AuthStore.login() which updates auth state and saves JWT
+                const response = await useAuthStore.getState().login(formData);
+                console.log('[Login] Successful login response:', response);
+
+                // Show success message before redirect
+                setMessage({
+                    type: "success",
+                    text: "✓ Login successful! Redirecting to lobby...",
+                });
+
+                // Clear failed attempts and lockout
+                setFailedAttempts(0);
+                setIsLocked(false);
+
+                // Redirect to lobby after showing success message
+                setTimeout(() => {
+                    navigate("/lobby");
+                }, 1500);
+
             } catch (error) {
-                console.error("Login error:", error);
+                console.error("[Login] Login error:", error);
 
                 // Handle specific error codes
-                if (error.statusCode === 403) {
-                    // Account locked
+                if (error.response?.status === 403) {
+                    // Account locked by backend
                     setIsLocked(true);
                     setLockoutCountdown(60);
-                } else if (error.statusCode === 401) {
+                    setMessage({
+                        type: "error",
+                        text: "❌ Account locked due to too many failed attempts.",
+                    });
+                } else if (error.response?.status === 401) {
                     // Invalid credentials
-                    setFailedAttempts((prev) => prev + 1);
+                    const newAttempts = failedAttempts + 1;
+                    setFailedAttempts(newAttempts);
+                    
+                    if (newAttempts >= 5) {
+                        setIsLocked(true);
+                        setLockoutCountdown(60);
+                        setMessage({
+                            type: "error",
+                            text: "❌ Account locked after 5 failed attempts. Try again in 60s.",
+                        });
+                    } else {
+                        setMessage({
+                            type: "error",
+                            text: `❌ Invalid credentials. Attempts: ${newAttempts}/5`,
+                        });
+                    }
+                } else {
+                    setMessage({
+                        type: "error",
+                        text: error.message || "❌ Login failed. Please try again.",
+                    });
                 }
-
-                setMessage({
-                    type: "error",
-                    text: error.message || "Login failed. Please try again.",
-                });
             } finally {
                 setLoading(false);
             }
         },
-        [isLocked, formData, navigate]
+        [isLocked, failedAttempts, formData, navigate]
     );
 
     // Handle guest login

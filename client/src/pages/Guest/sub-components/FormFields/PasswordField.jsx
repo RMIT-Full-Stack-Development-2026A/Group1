@@ -100,11 +100,11 @@ const PasswordField = ({
                                 label="At least 9 characters"
                             />
                             <CriteriaCheckbox
-                                met={passwordValidation.hasLowercase}
+                                met={passwordValidation.hasLower}
                                 label="Contains lowercase letter (a-z)"
                             />
                             <CriteriaCheckbox
-                                met={passwordValidation.hasUppercase}
+                                met={passwordValidation.hasCapital}
                                 label="Contains uppercase letter (A-Z)"
                             />
                             <CriteriaCheckbox
@@ -112,7 +112,7 @@ const PasswordField = ({
                                 label="Contains number (0-9)"
                             />
                             <CriteriaCheckbox
-                                met={passwordValidation.hasSpecialChar}
+                                met={passwordValidation.hasSpecial}
                                 label="Contains special char (@$!%*?&)"
                             />
                         </div>

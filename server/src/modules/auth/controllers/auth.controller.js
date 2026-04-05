@@ -9,8 +9,9 @@ export const AuthController = {
             
         
             return res.status(201).json({ 
-                message: "User registered successfully", 
-                data: safeUser 
+                message: "User registered successfully",
+                data: safeUser,
+                token: result.token // Include JWT token in response for frontend
             });
         } catch (error) {
             // The custom validation error from the service
@@ -44,6 +45,7 @@ export const AuthController = {
             
             return res.status(200).json({
                 data: safeUser,
+                token: result.token, // Include JWT token in response for frontend
                 message: "Login successful"
             });
 

@@ -1,23 +1,20 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/stores/AuthStore";
 
 /**
  * Custom hook for authentication logic
  * Delegates to global AuthStore to avoid duplicate state
+ * Calls checkAuth only once when app starts
  * 
  * @returns {Object} { isLoggedIn, loading, logout, checkAuth }
  */
 export const useAuth = () => {
     const { isAuthenticated, isCheckingAuth, logout, checkAuth } = useAuthStore();
-    const hasCheckedAuth = useRef(false);
 
-    // Check auth on app startup (only once globally)
+    // Trigger initial auth check when app starts
     useEffect(() => {
-        if (!hasCheckedAuth.current) {
-            hasCheckedAuth.current = true;
-            checkAuth();
-        }
-    }, []); // Empty array - run only ONCE on app startup
+        checkAuth();
+    }, []); // Empty array - checkAuth() guards itself to run only once globally
 
     return {
         isLoggedIn: isAuthenticated,

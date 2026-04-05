@@ -4,7 +4,7 @@ import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput } from "../../../utils/validate.js";
 
 export const AuthService = {
-    registerUser: async (userData) => {
+    registerUser: async (userData, res) => {
         const validationErrors = validateRegisterInput(userData);
 
         // Show a error to the controller
@@ -26,7 +26,10 @@ export const AuthService = {
             country,
         });
 
-        return { user: newUser };
+        // Generate JWT token (JWS) with id and role
+        const token = generateTokenAndSetCookie(res, newUser._id, newUser.role);
+        
+        return { user: newUser, token };
     },
 
     loginUser: async (userData, res) => {
@@ -68,8 +71,9 @@ export const AuthService = {
         await AuthRepository.resetLoginAttempts(user);
         await AuthRepository.updateLastLogin(user._id);
 
-        generateTokenAndSetCookie(res, user._id, user.role); 
-        return { user };
+        // Generate JWT token (JWS) with only id and role - minimal identity info
+        const token = generateTokenAndSetCookie(res, user._id, user.role);
+        return { user, token };
     },
 
     logoutUser: async (res) => {

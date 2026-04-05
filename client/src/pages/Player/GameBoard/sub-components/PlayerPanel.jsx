@@ -25,22 +25,16 @@ const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty }) => {
                     isActive ? 'border-primary-cyan glow-cyan' : 'border-outline-variant'
                 }`}
             >
-                {/* Active turn badge */}
                 {isActive && (
-                    <div
-                        className={`absolute -top-3 ${isX ? 'left-4' : 'right-4'} bg-primary-cyan text-[#003543] px-2 py-0.5 text-[10px] font-bold uppercase font-headline`}
-                    >
-                        ACTIVE_TURN
+                    <div className={`absolute -top-3 ${isX ? 'left-4' : 'right-4'} bg-primary-cyan text-[#003543] px-2 py-0.5 text-[10px] font-bold uppercase font-headline`}>
+                        ACTIVE TURN
                     </div>
                 )}
 
-                {/* Avatar — lucide-react icon, NO EMOJI */}
                 {/* Design team: replace this icon with pixel avatar image if needed */}
                 <div className="w-28 h-28 border-2 border-outline-variant bg-[#1e1e2c] flex items-center justify-center relative">
-                    {isBot
-                        ? <Bot size={52} color="#879398" strokeWidth={1} />
-                        : <User size={52} color="#879398" strokeWidth={1} />
-                    }
+                    {isBot ? <Bot size={52} color="#879398" /> : <User size={52} color="#879398" />}
+                    
                     {difficulty && (
                         <div className="absolute bottom-0 right-0 bg-[#fad100] text-[#6d5a00] px-2 py-0.5 text-[8px] font-bold font-mono">
                             {difficulty}
@@ -48,13 +42,13 @@ const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty }) => {
                     )}
                 </div>
 
-                {/* Player name */}
+                {}
                 <p className="font-headline text-[10px] tracking-tighter uppercase"
                    style={{ color: isActive ? '#93e2ff' : '#879398' }}>
                     {playerName}
                 </p>
 
-                {/* Marker display — CSS only, NO EMOJI */}
+                {}
                 <div
                     className="font-headline text-5xl"
                     style={{ color: markerColor, textShadow: markerGlow }}

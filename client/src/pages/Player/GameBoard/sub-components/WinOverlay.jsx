@@ -4,11 +4,12 @@
  *   winnerData  { player: 'X'|'O', cells: [[r,c],...] } | null
  *   isDraw      boolean
  *   onRestart   () => void
+ *   onBackToLobby () => void
  */
-const WinOverlay = ({ winnerData, isDraw, onRestart }) => {
-    const title     = isDraw ? 'NO WINNER'              : `PLAYER ${winnerData?.player} WINS!`;
-    const badgeText = isDraw ? 'DRAW MATCH'             : 'CONGRATULATIONS';
-    const subtitle  = isDraw ? 'THE BOARD IS FULL'      : `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`;
+const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby}) => {
+    const title     = isDraw ? 'DRAW'                                   : `PLAYER ${winnerData?.player} WINS!`;
+    const badgeText = isDraw ? 'DRAW MATCH'                             : 'CONGRATULATIONS';
+    const subtitle  = isDraw ? 'YOU AND YOUR OPPONENT ARE EQUAL'        : `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`;
 
     return (
         <div className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center">
@@ -54,6 +55,7 @@ const WinOverlay = ({ winnerData, isDraw, onRestart }) => {
                         PLAY AGAIN
                     </button>
                     <button
+                        onClick={onBackToLobby}
                         className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-all"
                     >
                         BACK TO LOBBY

@@ -1,9 +1,19 @@
 import { useGame } from './hook/useGame.hook';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PlayerPanel from './sub-components/PlayerPanel';
 import BoardArea from './sub-components/BoardArea';
 import WinOverlay from './sub-components/WinOverlay';
 
 const GameBoard = () => {
+    // 'LOCAL' | 'ONLINE' | 'AI'
+    const location = useLocation();
+    const navigate = useNavigate();
+    const gameMode = location.state?.gameMode || 'LOCAL';
+
+    const matchTitle = gameMode === 'AI' ? 'VS AI — HARD' : gameMode === 'ONLINE' ? 'RANKED MATCH' : 'LOCAL MULTIPLAYER';
+    const isBotMatch = gameMode === 'AI';
+    const p2Name     = gameMode === 'AI' ? 'NEXUS-9' : gameMode === 'ONLINE' ? 'OPPONENT' : 'PLAYER_02';
+
     const {
         board,
         boardSize,
@@ -11,6 +21,7 @@ const GameBoard = () => {
         winnerData,
         isDraw,
         markerStyle,
+        isLocked,
         handleMove,
         resetGame,
         setBoardSize,
@@ -52,20 +63,28 @@ const GameBoard = () => {
                 <BoardArea
                     board={board}
                     boardSize={boardSize}
+                    matchTitle={matchTitle}
                     markerStyle={markerStyle}
                     winnerData={winnerData}
                     isDraw={isDraw}
+                    isLocked={isLocked}
                     onCellClick={handleMove}
                     onReset={resetGame}
                     onSizeChange={setBoardSize}
                     onMarkerChange={setMarkerStyle}
                 />
 
-                <PlayerPanel role="O" playerName="NEXUS-9" isBot={true} isActive={currentPlayer === 'O' && !gameOver} difficulty="HARD" />
+                <PlayerPanel 
+                role="O" 
+                playerName={p2Name} 
+                isBot={isBotMatch} 
+                isActive={currentPlayer === 'O' && !gameOver} 
+                difficulty={isBotMatch ? "HARD" : undefined} 
+                />
             </main>
 
             {gameOver && (
-                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} />
+                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate('/lobby')} />
             )}
 
             <footer className="fixed bottom-0 w-full py-2 px-6 flex justify-between bg-outline-variant border-t border-outline-variant z-50">

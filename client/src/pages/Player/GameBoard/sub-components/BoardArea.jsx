@@ -14,6 +14,7 @@ const MARKER_STYLES = [
  * Props:
  *   board         2D array
  *   boardSize     10 | 15
+ *   matchTitle    string
  *   markerStyle   string
  *   winnerData    { player, cells } | null
  *   isDraw        boolean
@@ -23,7 +24,7 @@ const MARKER_STYLES = [
  *   onMarkerChange (style: string) => void
  */
 const BoardArea = ({
-    board, boardSize, markerStyle,
+    board, boardSize, matchTitle, markerStyle,
     winnerData, isDraw,
     onCellClick, onReset, onSizeChange, onMarkerChange,
 }) => {
@@ -41,7 +42,7 @@ const BoardArea = ({
             {/* Board controls header */}
             <div className="flex flex-wrap justify-between items-center gap-3 bg-[#1e1e2c] p-4 border-b-2 border-[#93e2ff]">
                 <div>
-                    <h2 className="font-headline text-[10px] text-[#fad100] mb-1">LOCAL MATCH</h2>
+                    <h2 className="font-headline text-[10px] text-[#fad100] mb-1">{matchTitle}</h2>
                     <p className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">
                         MOVE: {String(moveCount).padStart(2, '0')}
                     </p>

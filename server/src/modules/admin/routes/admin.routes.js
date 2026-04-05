@@ -3,15 +3,15 @@ import { AdminController } from '../controllers/admin.controller.js';
 import { verifyToken } from '../../../middlewares/authMiddleware.js';
 import { authorizeMiddleware } from '../../../middlewares/roleMiddleware.js'; 
 
-const router = express.Router();
+const adminRoutes = express.Router();
 
 const requireAdmin = authorizeMiddleware(['ADMIN']); 
-router.use(verifyToken, requireAdmin)
+adminRoutes.use(verifyToken, requireAdmin)
 
-// Admin endpoint
-router.get('/players', AdminController.getPlayers);
-router.get('/player/:id', AdminController.getPlayerDetail);
-router.patch('/player/:id/deactivate', AdminController.deactivatePlayer);
-router.patch('/player/:id/reactivate', AdminController.reactivatePlayer);
+// Admin endpoints
+adminRoutes.get('/players', AdminController.getPlayers);
+adminRoutes.get('/player/:id', AdminController.getPlayerDetail);
+adminRoutes.patch('/player/:id/deactivate', AdminController.deactivatePlayer);
+adminRoutes.patch('/player/:id/reactivate', AdminController.reactivatePlayer);
 
-export default router;
+export default adminRoutes;

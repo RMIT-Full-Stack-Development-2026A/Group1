@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+export const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
 export const validateGameCreation = (payload) => {
     const errors = [];
 
@@ -8,7 +10,7 @@ export const validateGameCreation = (payload) => {
         return errors;
     }
 
-    // This enpoint not support ONLINE_MATCH 
+    // This endpoint not support ONLINE_MATCH 
     if (payload.gameType === 'ONLINE_MATCH') {
         errors.push("Cannot save 'ONLINE_MATCH' via this endpoint. Online matches are automatically saved by the server when the room closes.");
     }
@@ -47,16 +49,33 @@ export const validateGameCreation = (payload) => {
     return errors;
 };
 
-// Get games query validation
-export const validateGameQuery = (query) => {
-    const errors = [];
-    // place to implement search/filter validation here
-    return errors;
-};
+// 3. CỦA THẮNG PM: Logic phân trang, tìm kiếm và lọc cho API GET
+export const validateGameQuery = (userId, query) => {
+    const page = Math.max(1, parseInt(query.page) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
+    const skip = (page - 1) * limit;
 
-export const validateObjectId = (id) => {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return ["Invalid ID format."];
+    const filter = { 'participants.userId': userId }; // Force filtering by requesting user
+
+    if (query.gameType) filter.gameType = query.gameType;
+    if (query.status) filter.status = query.status;
+
+    if (query.q) {
+        filter.$or = [
+            { sessionNumber: { $regex: query.q, $options: 'i' } },
+            { 'participants.usernameSnapshot': { $regex: query.q, $options: 'i' } }
+        ];
     }
-    return [];
+
+    if (query.from || query.to) {
+        filter.endedAt = {};
+        if (query.from) filter.endedAt.$gte = new Date(query.from);
+        if (query.to) filter.endedAt.$lte = new Date(query.to);
+    }
+
+    const sort = query.sortBy === 'startedAt' 
+        ? { startedAt: query.sortOrder === 'asc' ? 1 : -1 } 
+        : { endedAt: query.sortOrder === 'asc' ? 1 : -1 }; // default sort by endedAt descending
+
+    return { filter, sort, pagination: { page, limit, skip } };
 };

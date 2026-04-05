@@ -96,8 +96,11 @@ export const GameService = {
         return;
     },
 
+    // For create online match session
     createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
-       // TODO: Implement by Thắng PM
-       return;
+        if (!roomClosurePayload.sessionNumber) {
+            roomClosurePayload.sessionNumber = `ONL-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+        }
+        return GameRepository.createSession(roomClosurePayload);
     }
 };

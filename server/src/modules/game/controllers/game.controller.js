@@ -21,6 +21,17 @@ export const GameController = {
             return next(error);
         }
     },
-    
-    // TODO: Other GET functions will be added by Thắng later
+
+    getGameDetail: async (req, res, next) => {
+        try {
+            const session = await GameService.getGameSessionDetail(req.user.id, req.params.id);
+            
+            return res.status(200).json({
+                data: GameDTO.toGameDetail(session, req.user.id),
+                message: "Game details fetched successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
+    }
 };

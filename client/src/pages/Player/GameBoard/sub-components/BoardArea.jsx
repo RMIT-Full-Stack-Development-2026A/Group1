@@ -36,7 +36,7 @@ const BoardArea = ({
     const selectClass = "bg-[#1e1e2c] border border-[#3d484d] text-[#e3e0f4] font-mono text-[10px] uppercase px-2 py-1 focus:outline-none focus:border-[#4cc9f0]";
 
     return (
-        <section className="flex-1 flex flex-col gap-3 max-w-[820px]">
+        <section className="flex-1 flex flex-col gap-3 max-w-205">
 
             {/* Board controls header */}
             <div className="flex flex-wrap justify-between items-center gap-3 bg-[#1e1e2c] p-4 border-b-2 border-[#93e2ff]">
@@ -93,7 +93,7 @@ const BoardArea = ({
 
             {/* Coordinate grid */}
             <div
-                className="bg-[#1a1a2e] p-3 border border-[#3d484d] grid z-[101]"
+                className="bg-surface-card p-3 border border-outline-variant grid z-101"
                 style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
             >
                 {/* Top labels */}

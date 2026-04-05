@@ -16,19 +16,19 @@ const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty }) => {
 
     return (
         <aside
-            className={`w-[220px] flex flex-col gap-4 self-start mt-8 transition-opacity duration-300 ${
+            className={`w-55 flex flex-col gap-4 self-start mt-8 transition-opacity duration-300 ${
                 isActive ? 'opacity-100' : 'opacity-50'
             }`}
         >
             <div
                 className={`bg-[#12121f] border-2 p-6 flex flex-col items-center gap-5 relative transition-all duration-300 ${
-                    isActive ? 'border-[#4cc9f0] glow-cyan' : 'border-[#3d484d]'
+                    isActive ? 'border-primary-cyan glow-cyan' : 'border-outline-variant'
                 }`}
             >
                 {/* Active turn badge */}
                 {isActive && (
                     <div
-                        className={`absolute -top-3 ${isX ? 'left-4' : 'right-4'} bg-[#4cc9f0] text-[#003543] px-2 py-0.5 text-[10px] font-bold uppercase font-headline`}
+                        className={`absolute -top-3 ${isX ? 'left-4' : 'right-4'} bg-primary-cyan text-[#003543] px-2 py-0.5 text-[10px] font-bold uppercase font-headline`}
                     >
                         ACTIVE_TURN
                     </div>
@@ -36,7 +36,7 @@ const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty }) => {
 
                 {/* Avatar — lucide-react icon, NO EMOJI */}
                 {/* Design team: replace this icon with pixel avatar image if needed */}
-                <div className="w-28 h-28 border-2 border-[#3d484d] bg-[#1e1e2c] flex items-center justify-center relative">
+                <div className="w-28 h-28 border-2 border-outline-variant bg-[#1e1e2c] flex items-center justify-center relative">
                     {isBot
                         ? <Bot size={52} color="#879398" strokeWidth={1} />
                         : <User size={52} color="#879398" strokeWidth={1} />

@@ -6,46 +6,46 @@ export const validateGameCreation = (payload) => {
     const errors = [];
 
     if (!payload || typeof payload !== 'object') {
-        errors.push("Request body is missing or invalid.");
+        errors.push({ field: "payload", error: "INVALID_BODY", cause: "Request body is missing or invalid." });
         return errors;
     }
 
     if (payload.gameType === 'ONLINE_MATCH') {
-        errors.push("Cannot save 'ONLINE_MATCH' via this endpoint. Online matches are automatically saved by the server when the room closes.");
+        errors.push({ field: "gameType", error: "INVALID_GAME_TYPE", cause: "Cannot save 'ONLINE_MATCH' via this endpoint." });
     }
 
     if (!['SINGLE_PLAYER', 'TWO_PLAYERS'].includes(payload.gameType)) {
-        errors.push("gameType must be 'SINGLE_PLAYER' or 'TWO_PLAYERS'.");
+        errors.push({ field: "gameType", error: "INVALID_GAME_TYPE", cause: "Must be 'SINGLE_PLAYER' or 'TWO_PLAYERS'." });
     }
-    
+
     // Check board size
     if (payload.boardSize && ![10, 15].includes(payload.boardSize)) {
-        errors.push("boardSize must be 10 or 15.");
+        errors.push({ field: "boardSize", error: "INVALID_BOARD_SIZE", cause: "Must be 10 or 15." });
     }
 
     if (!['FINISHED', 'DRAW', 'ABORTED'].includes(payload.status)) {
-        errors.push("status must be 'FINISHED', 'DRAW', or 'ABORTED'.");
+        errors.push({ field: "status", error: "INVALID_STATUS", cause: "Must be 'FINISHED', 'DRAW', or 'ABORTED'." });
     }
 
     if (payload.status === 'FINISHED') {
-        if (payload.winnerParticipantIndex !== 0 && payload.winnerParticipantIndex !== 1) {
-            errors.push("A finished match must have a valid winnerParticipantIndex (0 or 1).");
+       if (payload.winnerParticipantIndex !== 0 && payload.winnerParticipantIndex !== 1) {
+            errors.push({ field: "winnerParticipantIndex", error: "INVALID_WINNER", cause: "Must have a valid winnerParticipantIndex (0 or 1)." });
         }
         if (!Array.isArray(payload.winningLine) || payload.winningLine.length !== 5) {
-            errors.push("A finished match must include a winningLine array containing exactly 5 coordinates.");
+            errors.push({ field: "winningLine", error: "INVALID_WINNING_LINE", cause: "Finished match must include exactly 5 coordinates." });
         }
     }
 
     if (!Array.isArray(payload.participants) || payload.participants.length !== 2) {
-        errors.push("participants array must contain exactly 2 objects.");
+        errors.push({ field: "participants", error: "INVALID_PARTICIPANTS", cause: "Must contain exactly 2 objects." });
     }
 
     if (payload.firstTurnParticipantIndex !== 0 && payload.firstTurnParticipantIndex !== 1) {
-        errors.push("firstTurnParticipantIndex must be either 0 or 1.");
+        errors.push({ field: "firstTurnParticipantIndex", error: "INVALID_FIRST_TURN", cause: "Must be either 0 or 1." });
     }
 
     if (payload.moves && !Array.isArray(payload.moves)) {
-        errors.push("moves must be a valid array if provided.");
+        errors.push({ field: "moves", error: "INVALID_MOVES", cause: "Must be a valid array." });
     }
 
     return errors;

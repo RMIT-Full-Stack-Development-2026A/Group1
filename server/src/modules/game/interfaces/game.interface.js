@@ -3,10 +3,10 @@ import { GameRepository } from "../repositories/game.repository.js";
 
 // Interface exposes game-history and replay operations to other modules.
 export const GameInterface = {
-    // createLocalGameSession: async (userId, payload) => {
-    //     const session = await GameService.createLocalGameSession(userId, payload);
-    //     return GameDTO.toGameDetail(session, userId);
-    // },
+    createLocalGameSession: async (userId, payload) => {
+        const session = await GameService.createLocalGameSession(userId, payload);
+        return GameDTO.toGameDetail(session, userId);
+    },
 
     listUserGameSessions: async (userId, query) => {
         const result = await GameService.listUserGameSessions(userId, query);
@@ -34,10 +34,10 @@ export const GameInterface = {
             : [];
     },
 
-    // createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
-    //     const session = await GameService.createOnlineGameSessionFromRoom(roomClosurePayload);
-    //     return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);
-    // },
+    createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
+        const session = await GameService.createOnlineGameSessionFromRoom(roomClosurePayload);
+        return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);
+    },
 
     // Exposes to Admin module
     getTotalPlatformMatches: async () => {

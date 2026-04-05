@@ -3,17 +3,29 @@ import { validateGameCreation, validateGameQuery, validateObjectId } from '../va
 import crypto from 'crypto';
 
 export const GameService = {
-    // create Local Match
+    // Create Local Match
     createLocalGameSession: async (userId, payload) => {
         const validationErrors = validateGameCreation(payload);
         if (validationErrors.length > 0) {
             throw {
                 statusCode: 400,
                 error: "VALIDATION_ERROR",
-                message: "Invalid game session data provided.",
-                cause: "Payload failed validation rules.",
-                valid_example: "{ gameType: 'SINGLE_PLAYER', status: 'FINISHED', participants: [...] }",
+                message: "Failed to save game session. Invalid payload.",
+                cause: "One or more required fields for saving a local game are missing or malformed.",
+                valid_example: "Ensure participants array has 2 elements and moves are valid.",
                 details: validationErrors
+            };
+        }
+
+        // Ensure the user saving the game is actually one of the participants
+        const isUserParticipant = payload.participants.some(p => String(p.userId) === String(userId));
+        if (!isUserParticipant) {
+            throw {
+                statusCode: 403,
+                error: "FORBIDDEN",
+                message: "Cannot save game session.",
+                cause: "You can only save local or AI matches that you participated in.",
+                valid_example: "Ensure your authenticated user ID is in the participants array."
             };
         }
 
@@ -83,7 +95,7 @@ export const GameService = {
         return await GameRepository.createSession(sessionData);
     },
 
-    // get game list
+    // Get game list
     listUserGameSessions: async (userId, query) => {
         const { filter, sort, pagination } = validateGameQuery(userId, query);
         
@@ -92,7 +104,7 @@ export const GameService = {
         return { items, pagination: { total, page: pagination.page, limit: pagination.limit } };
     },
 
-    // get game detail 
+    // Get game detail 
     getGameSessionDetail: async (userId, gameId) => {
         if (!validateObjectId(gameId)) {
             throw {
@@ -115,6 +127,18 @@ export const GameService = {
             };
         }
 
+        // Prevents users from fetching random replays belonging to others
+        const isParticipant = session.participants.some(p => String(p.userId) === String(userId));
+        if (!isParticipant) {
+             throw {
+                statusCode: 403,
+                error: "FORBIDDEN",
+                message: "Access denied to this game session.",
+                cause: "You are not a participant of this match.",
+                valid_example: "You can only view your own match history."
+            };
+        }
+        
         return session;
     },
 

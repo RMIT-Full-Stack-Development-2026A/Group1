@@ -149,9 +149,9 @@ These APIs cover local play history, AI history, online match history, search/fi
 
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
-| POST | `/games` | Yes | Save a completed local / local-vs-local / AI game session | No |
-| GET | `/games` | Yes | List current user's game sessions with pagination, search, filter, and sort | No |
-| GET | `/games/:id` | Yes | Get one game session detail including replay payload | No |
+| POST | `/games` | Yes | Save a completed local / local-vs-local / AI game session | Yes |
+| GET | `/games` | Yes | List current user's game sessions with pagination, search, filter, and sort | Yes |
+| GET | `/games/:id` | Yes | Get one game session detail including replay payload | Yes |
 
 ### `POST /games`
 Use this endpoint for **non-online matches created on the frontend**:

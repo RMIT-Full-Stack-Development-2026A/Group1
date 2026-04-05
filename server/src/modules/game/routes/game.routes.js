@@ -6,7 +6,7 @@ const gameRoutes = express.Router();
 gameRoutes.use(verifyToken);
 
 // Game endponts
-
+gameRoutes.post('/', GameController.createLocalSession);
 gameRoutes.get('/', GameController.getGames);
 gameRoutes.get('/:id', GameController.getGameDetail);
 

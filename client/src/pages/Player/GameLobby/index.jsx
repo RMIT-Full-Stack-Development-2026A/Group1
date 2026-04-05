@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useLobby } from "./useLobby";
+import { useLobby } from "./hook/useLobby.hook.js";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-components";

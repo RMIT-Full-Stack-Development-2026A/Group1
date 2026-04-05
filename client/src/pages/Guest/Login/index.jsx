@@ -1,130 +1,25 @@
 // Route: /login
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { authService } from "@/services/authService";
-import { LoginRequest, LoginResponse } from "@/models/auth";
+import React from "react";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
+import { useLogin } from "./hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
 
 export default function LoginPage() {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    });
-
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: "", text: "" });
-    const [failedAttempts, setFailedAttempts] = useState(0);
-    const [isLocked, setIsLocked] = useState(false);
-    const [lockoutCountdown, setLockoutCountdown] = useState(0);
-
-    // Auto-lock when failedAttempts reaches 5
-    useEffect(() => {
-        if (failedAttempts === 5 && !isLocked) {
-            setIsLocked(true);
-            setLockoutCountdown(60);
-        }
-    }, [failedAttempts, isLocked]);
-
-    // Countdown timer for lockout
-    useEffect(() => {
-        let interval;
-        if (lockoutCountdown > 0) {
-            interval = setInterval(() => {
-                setLockoutCountdown((prev) => prev - 1);
-            }, 1000);
-        } else if (lockoutCountdown === 0 && isLocked) {
-            // Countdown finished, reset lockout
-            setIsLocked(false);
-            setFailedAttempts(0);
-            setMessage({ type: "", text: "" });
-        }
-        return () => clearInterval(interval);
-    }, [lockoutCountdown, isLocked]);
-
-    // Update error message with countdown
-    useEffect(() => {
-        if (isLocked && lockoutCountdown > 0) {
-            setMessage({
-                type: "error",
-                text: `Account locked due to too many failed attempts. Try again in ${lockoutCountdown}s.`,
-            });
-        }
-    }, [lockoutCountdown, isLocked]);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Create LoginRequest DTO from form data
-        const loginRequest = new LoginRequest(formData);
-
-        // Validate request
-        const validation = loginRequest.validate();
-        if (!validation.valid) {
-            setMessage({
-                type: "error",
-                text: validation.errors.join(", "),
-            });
-            return;
-        }
-
-        setLoading(true);
-        setMessage({ type: "", text: "" });
-
-        // Call real API service
-        authService.login(loginRequest.toJSON())
-            .then((response) => {
-                // Backend doesn't return token in body (it's in HttpOnly cookie)
-                // Just check if response has user data
-                if (response.data && response.data.data) {
-                    setFailedAttempts(0);
-                    setIsLocked(false);
-                    setMessage({
-                        type: "success",
-                        text: "Login successful! Redirecting...",
-                    });
-                    // Redirect to game lobby after 2 seconds
-                    setTimeout(() => {
-                        navigate("/lobby");
-                    }, 2000);
-                }
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error("Login error:", error);
-
-                // Handle specific error codes from backend
-                if (error.statusCode === 403) {
-                    // Account locked
-                    setIsLocked(true);
-                    setLockoutCountdown(60);
-                } else if (error.statusCode === 401) {
-                    // Invalid credentials
-                    setFailedAttempts((prev) => prev + 1);
-                }
-
-                setMessage({
-                    type: "error",
-                    text: error.message || "Login failed. Please try again.",
-                });
-                setLoading(false);
-            });
-    };
-
-    const handleGuestLogin = () => {
-        navigate("/play");
-    };
+    const {
+        formData,
+        handleInputChange,
+        showPassword,
+        toggleShowPassword,
+        loading,
+        message,
+        failedAttempts,
+        isLocked,
+        lockoutCountdown,
+        handleSubmit,
+        handleGuestLogin,
+        handleRegisterNav,
+    } = useLogin();
 
     return (
         <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">
@@ -210,7 +105,7 @@ export default function LoginPage() {
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                        onClick={toggleShowPassword}
                                         disabled={loading || isLocked}
                                         className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                             showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
@@ -263,7 +158,7 @@ export default function LoginPage() {
                     <p className="text-xs text-[#879398] font-medium tracking-wide">
                         No account?{" "}
                         <button
-                            onClick={() => navigate("/register")}
+                            onClick={handleRegisterNav}
                             className="text-[#4cc9f0] font-bold hover:drop-shadow-[0_0_8px_#4cc9f0] transition-all cursor-pointer"
                         >
                             REGISTER NOW

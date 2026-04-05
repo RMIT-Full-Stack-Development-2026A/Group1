@@ -1,24 +1,12 @@
 // Route: /register
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { authService } from "@/services/authService";
-import { RegisterRequest, RegisterResponse } from "@/models/auth";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
 import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/pages/Guest/sub-components/FormFields";
-import { useFormValidation } from "@/hooks/useFormValidation";
-import { useCountries } from "@/hooks/useCountries";
-import {
-    isEmailValid,
-    isUsernameValid,
-    isPasswordValid,
-    passwordsMatch,
-} from "@/utils/validationUtils";
+import { useRegister } from "./hook/useRegister.hook.js";
 
 export default function RegisterPage() {
-    const navigate = useNavigate();
-    const form = useFormValidation();
-    const { countries, loading, error } = useCountries();
+    const { form, countries, countriesLoading, countriesError, handleSubmit, handleLoginNav } = useRegister();
 
     // Criteria checkbox component
     const CriteriaCheckbox = ({ met, label }) => (
@@ -37,78 +25,6 @@ export default function RegisterPage() {
             <span className={met ? "text-[#5cb85c]" : "text-[#ffb4ab]"}>{label}</span>
         </div>
     );
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        
-        // Create RegisterRequest DTO from form data
-        const registerRequest = new RegisterRequest(form.formData);
-
-        const errors = [];
-
-        // Validate email using DTO validation
-        if (!isEmailValid(form.emailValidation)) {
-            errors.push("Email does not meet all requirements");
-        }
-
-        // Validate username using DTO validation
-        if (form.formData.username.length === 0 || !isUsernameValid(form.usernameValidation)) {
-            errors.push("Username must contain only letters, numbers, underscore, and hyphen");
-        }
-
-        // Validate password using DTO validation
-        if (!isPasswordValid(form.passwordValidation)) {
-            errors.push("Password does not meet all requirements");
-        }
-        
-        // Check password match
-        if (!passwordsMatch(form.formData.password, form.formData.confirmPassword)) {
-            errors.push("Passwords must match");
-        }
-
-        // If there are any errors, display them all
-        if (errors.length > 0) {
-            form.setMessage({
-                type: "error",
-                text: errors.join("\n"),
-            });
-            return;
-        }
-
-        form.setLoading(true);
-        form.setMessage({ type: "", text: "" });
-
-        // Call real API service
-        authService.register(registerRequest.toJSON())
-            .then((response) => {
-                form.setMessage({
-                    type: "success",
-                    text: "Account created! Redirecting to login...",
-                });
-                // Redirect to login after 2 seconds
-                setTimeout(() => {
-                    navigate("/login");
-                }, 2000);
-            })
-            .catch((error) => {
-                console.error("Register error:", error);
-                
-                // Handle backend validation errors
-                if (error.details && Array.isArray(error.details)) {
-                    const errorMessages = error.details.map(e => e.error).join(", ");
-                    form.setMessage({
-                        type: "error",
-                        text: errorMessages,
-                    });
-                } else {
-                    form.setMessage({
-                        type: "error",
-                        text: error.message || "Registration failed. Please try again.",
-                    });
-                }
-                form.setLoading(false);
-            });
-    };
 
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body flex flex-col">
@@ -188,11 +104,11 @@ export default function RegisterPage() {
                                 value={form.formData.country}
                                 onChange={form.handleInputChange}
                                 disabled={form.loading}
-                                loading={loading}
-                                error={error}
+                                loading={countriesLoading}
+                                error={countriesError}
                                 countries={countries}
                             />
-                            {error && (
+                            {countriesError && (
                                 <p className="text-[10px] text-[#ffb4ab]">
                                     Failed to load countries. Please try again.
                                 </p>
@@ -233,7 +149,7 @@ export default function RegisterPage() {
                     {/* Login Link */}
                     <div className="mt-8 pt-6 border-t border-[#3d484d] text-center">
                         <button
-                            onClick={() => navigate("/login")}
+                            onClick={handleLoginNav}
                             className="text-[10px] tracking-[0.2em] text-[#4cc9f0] hover:underline uppercase font-bold cursor-pointer"
                         >
                             Already have an account? LOGIN

@@ -1,11 +1,11 @@
 
-import { useNavigate } from "react-router";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
+import { useLanding } from "./hook/useLanding.hook.js";
 import { BoardVisualizer } from "./sub-components";
 
 export default function Landing() {
-    const navigate = useNavigate();
+    const { handlePlayNow, handleLogin } = useLanding();
 
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
@@ -65,13 +65,13 @@ export default function Landing() {
                     {/* Action Buttons */}
                     <div className="flex flex-col md:flex-row gap-6 mb-24">
                         <button
-                            onClick={() => navigate("/register")}
+                            onClick={handlePlayNow}
                             className="bg-[#4cc9f0] text-[#003543] px-10 py-5 font-headline text-xl flex items-center justify-center gap-4 border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#1e1e2c] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all hover:shadow-[0px_0px_8px_#4cc9f0]"
                         >
                             PLAY NOW
                         </button>
                         <button
-                            onClick={() => navigate("/login")}
+                            onClick={handleLogin}
                             className="border-2 border-[#3d484d] text-[#e3e0f4] px-10 py-5 font-headline text-xl active:translate-y-[1px] transition-all hover:shadow-[0px_0px_8px_#4cc9f0] hover:border-[#4cc9f0]"
                         >
                             LOGIN

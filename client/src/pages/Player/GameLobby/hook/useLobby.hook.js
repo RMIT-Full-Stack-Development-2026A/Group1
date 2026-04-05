@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { LobbyService } from "./lobby.service";
+import { LobbyService } from "../service/lobby.service";
 
 export const useLobby = () => {
     const [rooms, setRooms] = useState([]);

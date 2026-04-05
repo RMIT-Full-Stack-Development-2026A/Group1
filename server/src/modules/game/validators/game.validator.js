@@ -49,7 +49,6 @@ export const validateGameCreation = (payload) => {
     return errors;
 };
 
-// 3. CỦA THẮNG PM: Logic phân trang, tìm kiếm và lọc cho API GET
 export const validateGameQuery = (userId, query) => {
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));

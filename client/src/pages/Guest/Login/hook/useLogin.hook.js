@@ -105,11 +105,7 @@ export const useLogin = () => {
                 // Clear failed attempts and lockout
                 setFailedAttempts(0);
                 setIsLocked(false);
-
-                // Redirect to lobby after showing success message
-                setTimeout(() => {
-                    navigate("/lobby");
-                }, 1500);
+                // Redirect is handled by login page's useEffect when auth state updates
 
             } catch (error) {
                 console.error("[Login] Login error:", error);

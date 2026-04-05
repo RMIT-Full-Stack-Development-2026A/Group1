@@ -1,7 +1,7 @@
 // Route: /lobby
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/stores/AuthStore";
 import { useLobby } from "./hook/useLobby.hook.js";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -9,16 +9,16 @@ import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-compon
 
 export default function GameLobby() {
     const navigate = useNavigate();
-    const { isLoggedIn, loading: authLoading } = useAuth();
-    const { rooms, playerStats, recentActivity, onlineCount, loading: lobbyLoading, error: lobbyError } = useLobby();
+    const { isAuthenticated, isCheckingAuth } = useAuthStore();
+    const { rooms, playerStats, recentActivity, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData } = useLobby();
 
     // Redirect to landing page if not logged in (but wait for auth check to complete)
     useEffect(() => {
         // Only redirect after auth check is complete AND user is not logged in
-        if (!authLoading && !isLoggedIn) {
+        if (!isCheckingAuth && !isAuthenticated) {
             navigate("/", { replace: true }); // Use replace to avoid history buildup
         }
-    }, [isLoggedIn, authLoading, navigate]);
+    }, [isAuthenticated, isCheckingAuth, navigate]);
 
     const handleJoinRoom = (roomId) => {
         const room = rooms.find((r) => r.id === roomId);
@@ -39,7 +39,7 @@ export default function GameLobby() {
         }
     };
 
-    if (authLoading || lobbyLoading) {
+    if (isCheckingAuth || lobbyLoading) {
         return (
             <div className="bg-[#0d0d1a] text-[#e3e0f4] min-h-screen flex items-center justify-center">
                 <div className="font-mono text-[#4cc9f0]">Loading Lobby...</div>
@@ -91,6 +91,13 @@ export default function GameLobby() {
 
             {/* Navigation */}
             <Navigation />
+
+            {/* Mock Data Warning Banner */}
+            {usingMockData && !lobbyError && (
+                <div className="bg-[#fad100]/20 border-b border-[#fad100] text-[#fad100] px-6 py-3 text-center text-sm font-mono tracking-tight">
+                    ⚠️ DEMO MODE: Showing example data. Backend endpoints not yet implemented.
+                </div>
+            )}
 
             {/* Main Content */}
             <main className="grow flex flex-col md:flex-row p-6 gap-6 relative z-10 pt-20">

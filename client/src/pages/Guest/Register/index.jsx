@@ -1,24 +1,12 @@
 // Route: /register
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/stores/AuthStore";
 import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/pages/Guest/sub-components/FormFields";
 import { useRegister } from "./hook/useRegister.hook.js";
 
 export default function RegisterPage() {
-    const navigate = useNavigate();
-    const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { form, countries, countriesLoading, countriesError, handleSubmit, handleLoginNav } = useRegister();
-
-    // Redirect to lobby if already authenticated
-    useEffect(() => {
-        if (!isCheckingAuth && isAuthenticated) {
-            console.log('[Register] User already authenticated, redirecting to /lobby');
-            navigate("/lobby", { replace: true });
-        }
-    }, [isAuthenticated, isCheckingAuth, navigate]);
 
     // Criteria checkbox component
     const CriteriaCheckbox = ({ met, label }) => (

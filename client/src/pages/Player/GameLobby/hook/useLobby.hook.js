@@ -14,6 +14,7 @@ export const useLobby = () => {
     const [onlineCount, setOnlineCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [usingMockData, setUsingMockData] = useState(false);
 
     // Initialize lobby data from backend
     useEffect(() => {
@@ -21,6 +22,7 @@ export const useLobby = () => {
             try {
                 setLoading(true);
                 setError(null);
+                setUsingMockData(false);
                 
                 console.log('[useLobby] Initializing lobby data...');
                 
@@ -37,6 +39,11 @@ export const useLobby = () => {
                     activityData,
                 });
 
+                // Check if we're using mock data
+                const isMockData = roomsData === LobbyService._getMockRooms() || 
+                                   (Array.isArray(roomsData) && roomsData[0]?.roomNumber === 42);
+                setUsingMockData(isMockData);
+
                 setRooms(roomsData || []);
                 setPlayerStats(statsData || null);
                 setRecentActivity(activityData || []);
@@ -46,14 +53,15 @@ export const useLobby = () => {
                     roomsCount: (roomsData || []).length,
                     stats: statsData,
                     activityCount: (activityData || []).length,
+                    usingMock: isMockData,
                 });
             } catch (err) {
                 console.error("[useLobby] Failed to load lobby data:", err);
                 setError(err.message || "Failed to load lobby data");
-                // Fallback to empty state - components should handle gracefully
                 setRooms([]);
                 setPlayerStats(null);
                 setRecentActivity([]);
+                setUsingMockData(true);
             } finally {
                 setLoading(false);
             }
@@ -96,6 +104,7 @@ export const useLobby = () => {
         availableRooms,
         loading,
         error,
+        usingMockData,
         refreshLobby,
     };
 };

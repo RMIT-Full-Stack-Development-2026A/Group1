@@ -25,10 +25,10 @@ export default function LoginPage() {
         handleRegisterNav,
     } = useLogin();
 
-    // Redirect to lobby if already authenticated
+    // Redirect to lobby after successful login
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
-            console.log('[Login] User already authenticated, redirecting to /lobby');
+            console.log('[Login] User authenticated, redirecting to /lobby');
             navigate("/lobby", { replace: true });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);

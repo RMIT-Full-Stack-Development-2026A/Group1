@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { authService } from "@/services/authService";
+import { authService } from "@/services/auth/auth.service";
 
 /**
  * Custom hook for authentication logic

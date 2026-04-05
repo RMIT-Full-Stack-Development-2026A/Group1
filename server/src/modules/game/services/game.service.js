@@ -3,8 +3,8 @@ import { validateGameCreation, validateGameQuery, validateObjectId } from '../va
 import crypto from 'crypto';
 
 export const GameService = {
+    // create Local Match
     createLocalGameSession: async (userId, payload) => {
-        // Call validator to check payload structure and rules
         const validationErrors = validateGameCreation(payload);
         if (validationErrors.length > 0) {
             throw {
@@ -17,7 +17,6 @@ export const GameService = {
             };
         }
 
-        // Validate dates
         const sessionNumber = `GS-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
         
         const parseDateSafe = (dateString) => {
@@ -27,13 +26,11 @@ export const GameService = {
 
         const startedAt = parseDateSafe(payload.startedAt);
         const endedAt = parseDateSafe(payload.endedAt);
-        const durationMs = Math.max(0, endedAt.getTime() - startedAt.getTime()); // Ensure duration cannot be negative
+        const durationMs = Math.max(0, endedAt.getTime() - startedAt.getTime());
         
-        // Handle aborted match
         const moves = Array.isArray(payload.moves) ? payload.moves : [];
         const totalMoves = moves.length;
 
-        // Determine values based on game status
         let endedReason = null;
         let winnerParticipantIndex = null;
         let winningLine = [];
@@ -47,27 +44,23 @@ export const GameService = {
                 break;
             case 'DRAW':
                 endedReason = 'DRAW';
-                // Handle frontend input
                 winnerParticipantIndex = null;
                 winningLine = [];
                 break;
             case 'ABORTED':
                 endedReason = 'ABORT';
-                // The user calling the API (userId) is the one who aborted this Local/AI match
                 abortedByUserId = userId; 
                 winnerParticipantIndex = null;
                 winningLine = [];
                 break;
         }
 
-        // 4. Map clean data 100% (Layer 4 Shield: Anti Prototype Pollution)
         const sessionData = {
             sessionNumber,
-            sourceRoomId: null, // Local/AI games by default do not have a Room
+            sourceRoomId: null,
             gameType: payload.gameType,
             boardSize: payload.boardSize || 10,
             
-            // Smart handling: Theme not finalized yet, if FE sends then use it, otherwise let Mongo use default
             ...(payload.boardStyle && { boardStyle: payload.boardStyle }),
             ...(payload.markerStyle && { markerStyle: payload.markerStyle }),
 
@@ -87,16 +80,45 @@ export const GameService = {
             durationMs
         };
 
-        // 5. Call repository to save to database
         return await GameRepository.createSession(sessionData);
     },
 
-    getGameSessionDetail: async (userId, gameId) => {
-        // TODO: Implement by Thắng PM
-        return;
+    // get game list
+    listUserGameSessions: async (userId, query) => {
+        const { filter, sort, pagination } = validateGameQuery(userId, query);
+        
+        const { items, total } = await GameRepository.findPaginated(filter, sort, pagination.skip, pagination.limit);
+        
+        return { items, pagination: { total, page: pagination.page, limit: pagination.limit } };
     },
 
-    // For create online match session
+    // get game detail 
+    getGameSessionDetail: async (userId, gameId) => {
+        if (!validateObjectId(gameId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Invalid game ID.",
+                cause: "The requested ID is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        const session = await GameRepository.findById(gameId);
+        if (!session) {
+            throw {
+                statusCode: 404,
+                error: "GAME_NOT_FOUND",
+                message: "Game session not found.",
+                cause: `No game record exists matching the ID: ${gameId}.`,
+                valid_example: "Ensure the game ID is correct and belongs to a saved match."
+            };
+        }
+
+        return session;
+    },
+
+    // Create Game Online
     createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
         if (!roomClosurePayload.sessionNumber) {
             roomClosurePayload.sessionNumber = `ONL-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;

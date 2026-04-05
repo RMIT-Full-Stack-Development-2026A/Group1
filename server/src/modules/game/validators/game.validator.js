@@ -10,15 +10,19 @@ export const validateGameCreation = (payload) => {
         return errors;
     }
 
-    // This endpoint not support ONLINE_MATCH 
     if (payload.gameType === 'ONLINE_MATCH') {
         errors.push("Cannot save 'ONLINE_MATCH' via this endpoint. Online matches are automatically saved by the server when the room closes.");
     }
 
-    // Strict Enum Check
     if (!['SINGLE_PLAYER', 'TWO_PLAYERS'].includes(payload.gameType)) {
         errors.push("gameType must be 'SINGLE_PLAYER' or 'TWO_PLAYERS'.");
     }
+    
+    // Check board size
+    if (payload.boardSize && ![10, 15].includes(payload.boardSize)) {
+        errors.push("boardSize must be 10 or 15.");
+    }
+
     if (!['FINISHED', 'DRAW', 'ABORTED'].includes(payload.status)) {
         errors.push("status must be 'FINISHED', 'DRAW', or 'ABORTED'.");
     }
@@ -32,7 +36,6 @@ export const validateGameCreation = (payload) => {
         }
     }
 
-    // Check participants array
     if (!Array.isArray(payload.participants) || payload.participants.length !== 2) {
         errors.push("participants array must contain exactly 2 objects.");
     }
@@ -41,7 +44,6 @@ export const validateGameCreation = (payload) => {
         errors.push("firstTurnParticipantIndex must be either 0 or 1.");
     }
 
-    //  Check moves array if provided (for replay purposes)
     if (payload.moves && !Array.isArray(payload.moves)) {
         errors.push("moves must be a valid array if provided.");
     }

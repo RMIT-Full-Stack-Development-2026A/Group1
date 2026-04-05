@@ -37,9 +37,24 @@ class HttpHelper {
                 return response.data;
             },
             (error) => {
+                // Debug logging for non-expected errors
                 if (error.response && error.response.status === 401) {
-                    // Bắn một event toàn cục để AuthStore bắt được
-                    window.dispatchEvent(new Event('auth:unauthorized'));
+                    const isLogoutRequest = error.config.url.includes('/logout');
+                    const isCheckAuthRequest = error.config.url.includes('/check-auth');
+                    
+                    // Log 401 for check-auth and logout as expected behavior
+                    if (isCheckAuthRequest || isLogoutRequest) {
+                        console.debug(`[Auth] 401 ${isCheckAuthRequest ? 'check-auth' : 'logout'} - Expected (no token)`);
+                    } else {
+                        console.warn(`[API] 401 Unauthorized on ${error.config.method.toUpperCase()} ${error.config.url}`);
+                        window.dispatchEvent(new Event('auth:unauthorized'));
+                    }
+                } else if (error.response && error.response.status >= 400) {
+                    // Log other 4xx/5xx errors
+                    console.error(`[API] ${error.response.status} ${error.config.method.toUpperCase()} ${error.config.url}:`, error.response.data);
+                } else if (error.request) {
+                    // Network error
+                    console.error('[Network Error]:', error.message);
                 }
                 
                 const message = error.response?.data?.message || "An unexpected error occurred. Please try again.";

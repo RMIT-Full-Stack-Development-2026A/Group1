@@ -14,10 +14,12 @@ export const useAuthStore = create((set) => ({
         try {
             // Delegate the API call to the service layer
             const response = await authService.login(credentials);
+            console.log('[Auth] Login successful:', response.data);
 
             set({ isAuthenticated: true, user: response.data, isLoading: false });
             return response;
         } catch (error) {
+            console.error('[Auth] Login failed:', error);
             set({ error: error, isLoading: false });
             throw error;
         }
@@ -29,10 +31,12 @@ export const useAuthStore = create((set) => ({
         try {
             // Delegate the API call to the service layer
             const response = await authService.register(userData);
+            console.log('[Auth] Register successful:', response.data);
             
             set({ isAuthenticated: true, user: response.data, isLoading: false });
             return response;
         } catch (error) {
+            console.error('[Auth] Register failed:', error);
             set({ error: error, isLoading: false });
             throw error;
         }
@@ -43,8 +47,11 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             await authService.logout();
+            console.log('[Auth] Logout completed');
         } catch (error) {
-            console.error("Logout API failed:", error);
+            console.debug('[Auth] Logout API failed (expected if no token):', error);
+            // Silently ignore logout API errors (e.g., 401 when already logged out)
+            // The frontend state will be cleared regardless
         } finally {
             // Always clear state on the frontend regardless of API success/failure
             set({ isAuthenticated: false, user: null, isLoading: false });
@@ -56,10 +63,11 @@ export const useAuthStore = create((set) => ({
         set({ isCheckingAuth: true, error: null });
         try {
             const response = await authService.checkAuth();
+            console.log('[Auth] checkAuth succeeded:', response.data);
             set({ isAuthenticated: true, user: response.data, isCheckingAuth: false });
         } catch (error) {
-            console.log(error);
-            // If API returns 401 (no token/cookie), set unauthenticated state
+            console.debug('[Auth] checkAuth failed (expected if no token):', error);
+            // Silently handle auth check failures (not logged in is normal state)
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
         }
     },
@@ -71,5 +79,5 @@ export const useAuthStore = create((set) => ({
 // Listen for 401 unauthorized events dispatched from Axios interceptor
 window.addEventListener('auth:unauthorized', () => {
     useAuthStore.getState().logout();
-    window.location.href = '/login';
+    // Don't use window.location - let React Router handle redirects via ProtectedRoute
 });

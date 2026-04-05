@@ -12,10 +12,11 @@ export default function GameLobby() {
     const { isLoggedIn, loading: authLoading } = useAuth();
     const { rooms, playerStats, recentActivity, onlineCount, loading: lobbyLoading } = useLobby();
 
-    // Redirect to landing page if not logged in
+    // Redirect to landing page if not logged in (but wait for auth check to complete)
     useEffect(() => {
+        // Only redirect after auth check is complete AND user is not logged in
         if (!authLoading && !isLoggedIn) {
-            navigate("/");
+            navigate("/", { replace: true }); // Use replace to avoid history buildup
         }
     }, [isLoggedIn, authLoading, navigate]);
 

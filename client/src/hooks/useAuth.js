@@ -1,61 +1,27 @@
-import { useState, useEffect, useCallback } from "react";
-import { authService } from "@/services/auth/auth.service";
+import { useEffect, useRef } from "react";
+import { useAuthStore } from "@/stores/AuthStore";
 
 /**
  * Custom hook for authentication logic
- * Manages auth state and provides login/logout/checkAuth methods
+ * Delegates to global AuthStore to avoid duplicate state
  * 
  * @returns {Object} { isLoggedIn, loading, logout, checkAuth }
  */
 export const useAuth = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const { isAuthenticated, isCheckingAuth, logout, checkAuth } = useAuthStore();
+    const hasCheckedAuth = useRef(false);
 
-    // Check authentication status
-    const checkAuth = useCallback(async () => {
-        try {
-            const response = await authService.checkAuth();
-            if (response && response.data && response.data.data) {
-                setIsLoggedIn(true);
-                return true;
-            } else {
-                setIsLoggedIn(false);
-                return false;
-            }
-        } catch (error) {
-            // 401 is expected when user is not logged in - don't log it as an error
-            if (error.message && error.message.includes("No token provided")) {
-                setIsLoggedIn(false);
-                return false;
-            }
-            console.error("Auth check failed:", error);
-            setIsLoggedIn(false);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    // Check auth on component mount
+    // Check auth on app startup (only once globally)
     useEffect(() => {
-        checkAuth();
-    }, [checkAuth]);
-
-    // Logout handler
-    const logout = useCallback(async () => {
-        try {
-            await authService.logout();
-            setIsLoggedIn(false);
-            return true;
-        } catch (error) {
-            console.error("Logout failed:", error);
-            return false;
+        if (!hasCheckedAuth.current) {
+            hasCheckedAuth.current = true;
+            checkAuth();
         }
-    }, []);
+    }, []); // Empty array - run only ONCE on app startup
 
     return {
-        isLoggedIn,
-        loading,
+        isLoggedIn: isAuthenticated,
+        loading: isCheckingAuth,
         logout,
         checkAuth,
     };

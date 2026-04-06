@@ -6,7 +6,7 @@ Public hero page introducing the Tic Tac Toe game. Serves as entry point for new
 ## Route & Access
 - **Path**: `/`
 - **Access**: Public (guests & authenticated users)
-- **Redirect Handling**: Centralized in `Layout` component
+- **Redirect**: Authenticated users → `/lobby` (via useEffect on this page)
 
 ## Key Features
 - ✅ Hero section with game description
@@ -16,10 +16,10 @@ Public hero page introducing the Tic Tac Toe game. Serves as entry point for new
 - ✅ Navigation bar & footer
 
 ## State Management
-- **Store**: NOT used (no auth checks on this page)
+- **Store**: `useAuthStore` (access `isAuthenticated`, `isCheckingAuth` for redirect check only)
 - **Hook**: `useLanding()` handles navigation only
 - **Local State**: None
-- **Architecture**: Auth redirects handled at Layout level, not component level
+- **Architecture**: Auth redirect handled at component level via useEffect (check on mount)
 
 ## Key Components
 ```
@@ -36,12 +36,13 @@ Landing/
 |--------|------------|---------|
 | Click "Play Now" | → `/register` | `handlePlayNow()` |
 | Click "Login" (nav) | → `/login` | `handleLogin()` |
-| Already logged in | → `/lobby` | Layout.checkAuth() |
+| Already logged in on load | → `/lobby` | Landing component useEffect |
 
 ## User Flows
 1. **Fresh visitor**: Lands on `/` → sees hero → clicks "Play Now" → `/register`
 2. **Returning user (unauthenticated)**: Lands on `/` → sees hero → clicks "Login" → `/login`
-3. **Returning user (authenticated)**: Lands on `/` → Layout detects auth → redirects to `/lobby`
+3. **Returning user (authenticated)**: Lands on `/` → useEffect detects auth on mount → auto-redirects to `/lobby`
+4. **Still checking auth on load**: Users see landing page briefly while `isCheckingAuth=true`, then redirect once auth check completes
 
 ## API Calls
 - None
@@ -50,13 +51,14 @@ Landing/
 - None (static page)
 
 ## Implementation Notes
-✅ **Fixed**: Removed duplicate auth redirect (now handled by Layout.jsx)
-✅ **Simplified**: Pure navigation component, no state management
-✅ **Clean**: No unnecessary imports (removed useAuthStore)
+✅ **Updated**: Added auth redirect to `/lobby` for authenticated users (via page-level useEffect)
+✅ **Simplified**: Pure navigation component, no duplicate redirects
+✅ **Clean**: Uses useAuthStore for auth state check only (isAuthenticated, isCheckingAuth)
 
 ## Current Status
 - ✅ Fully implemented
-- ✅ Auth redirect working (via Layout)
-- ✅ Clean separation of concerns
-- ✅ No duplicate auth checks
+- ✅ Auth redirect to `/lobby` working for authenticated users
+- ✅ Guest navigation (Play Now, Login) functional
+- ✅ Responsive design & animations working
+- ✅ Clean component architecture
 

@@ -1,11 +1,23 @@
 
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation/index";
 import Footer from "@/components/Footer";
 import { useLanding } from "./hook/useLanding.hook.js";
 import { BoardVisualizer } from "./sub-components";
+import { useAuthStore } from "@/stores/AuthStore";
 
 export default function Landing() {
+    const navigate = useNavigate();
+    const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { handlePlayNow, handleLogin } = useLanding();
+
+    // Redirect authenticated users to lobby
+    useEffect(() => {
+        if (!isCheckingAuth && isAuthenticated) {
+            navigate("/lobby", { replace: true });
+        }
+    }, [isCheckingAuth, isAuthenticated, navigate]);
 
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">

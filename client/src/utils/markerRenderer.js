@@ -1,28 +1,29 @@
 /**
  * Marker Renderer Utility
  * Renders X and O with the selected marker variant styling
+ * Uses displayId (numeric 1-6) from CustomizationStore
  */
 
 import { getMarkerVariants } from "@/pages/Player/GameCustomization/service/customization.service";
 
 /**
- * Get marker variant by ID
- * @param {number} variantId - Marker variant ID (1-6)
+ * Get marker variant by displayId (numeric ID 1-6)
+ * @param {number} variantDisplayId - Marker variant display ID (1-6)
  * @returns {Object} Marker variant object
  */
-export const getMarkerVariant = (variantId) => {
+export const getMarkerVariant = (variantDisplayId) => {
     const variants = getMarkerVariants();
-    return variants.find((v) => v.id === variantId) || variants[2]; // Default to variant 3
+    return variants.find((v) => v.displayId === variantDisplayId) || variants[0]; // Default to first variant
 };
 
 /**
  * Render X marker with selected styling
- * @param {number} variantId - Marker variant ID
+ * @param {number} variantDisplayId - Marker variant display ID (1-6)
  * @param {string} className - Additional Tailwind classes
  * @returns {JSX.Element} Styled X element
  */
-export const renderXMarker = (variantId, className = "") => {
-    const variant = getMarkerVariant(variantId);
+export const renderXMarker = (variantDisplayId, className = "") => {
+    const variant = getMarkerVariant(variantDisplayId);
 
     if (variant.isSymbol) {
         return (
@@ -39,12 +40,12 @@ export const renderXMarker = (variantId, className = "") => {
 
 /**
  * Render O marker with selected styling
- * @param {number} variantId - Marker variant ID
+ * @param {number} variantDisplayId - Marker variant display ID (1-6)
  * @param {string} className - Additional Tailwind classes
  * @returns {JSX.Element} Styled O element
  */
-export const renderOMarker = (variantId, className = "") => {
-    const variant = getMarkerVariant(variantId);
+export const renderOMarker = (variantDisplayId, className = "") => {
+    const variant = getMarkerVariant(variantDisplayId);
 
     if (variant.isSymbol) {
         return (
@@ -61,14 +62,14 @@ export const renderOMarker = (variantId, className = "") => {
 
 /**
  * Render both X and O markers side by side (for preview)
- * @param {number} variantId - Marker variant ID
+ * @param {number} variantDisplayId - Marker variant display ID (1-6)
  * @returns {JSX.Element} Both markers
  */
-export const renderMarkerPair = (variantId) => {
+export const renderMarkerPair = (variantDisplayId) => {
     return (
         <div className="flex gap-4 items-center justify-center">
-            {renderXMarker(variantId, "text-4xl")}
-            {renderOMarker(variantId, "text-4xl")}
+            {renderXMarker(variantDisplayId, "text-4xl")}
+            {renderOMarker(variantDisplayId, "text-4xl")}
         </div>
     );
 };

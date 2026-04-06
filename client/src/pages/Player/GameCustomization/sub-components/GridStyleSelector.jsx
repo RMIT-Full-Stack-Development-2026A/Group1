@@ -17,15 +17,15 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                 {gridStyles.map((style) => (
                     <button
                         key={style.id}
-                        onClick={() => onSelect(style.id)}
+                        onClick={() => onSelect(style.displayId)}
                         className={`bg-[#12121f] border p-1 cursor-pointer transition-all ${
-                            selectedStyle === style.id
+                            selectedStyle === style.displayId
                                 ? "border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#343342]"
                                 : "border border-[#3d484d] hover:border-[#4cc9f0]"
                         }`}
                     >
                         <div className="w-full h-32 bg-slate-900 flex items-center justify-center relative overflow-hidden">
-                            {style.id === "classic" && (
+                            {style.displayId === "classic" && (
                                 <div
                                     className="absolute inset-0 opacity-20"
                                     style={{
@@ -35,7 +35,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                     }}
                                 ></div>
                             )}
-                            {style.id === "neon" && (
+                            {style.displayId === "neon" && (
                                 <div
                                     className="absolute inset-0 opacity-60"
                                     style={{
@@ -45,7 +45,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                     }}
                                 ></div>
                             )}
-                            {style.id === "block" && (
+                            {style.displayId === "block" && (
                                 <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-1 p-2">
                                     {Array(24)
                                         .fill(0)
@@ -59,7 +59,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                             )}
                             <span
                                 className={`text-[10px] font-bold z-10 ${
-                                    style.id === "neon"
+                                    style.displayId === "neon"
                                         ? "text-[#4cc9f0] drop-shadow-[0_0_5px_#4cc9f0]"
                                         : "text-[#bcc8ce]"
                                 }`}
@@ -69,7 +69,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                         </div>
                         <div
                             className={`p-2 text-center ${
-                                style.id === "neon"
+                                style.displayId === "neon"
                                     ? "bg-[#4cc9f0] text-[#003543]"
                                     : "bg-[#292937]"
                             }`}

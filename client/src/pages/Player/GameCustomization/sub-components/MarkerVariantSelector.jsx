@@ -16,15 +16,15 @@ export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
             <div className="bg-[#1e1e2c] border border-[#3d484d] p-6 grid grid-cols-3 md:grid-cols-6 gap-6">
                 {markerVariants.map((variant) => (
                     <button
-                        key={variant.id}
-                        onClick={() => onSelect(variant.id)}
+                        key={variant.displayId}
+                        onClick={() => onSelect(variant.displayId)}
                         className="flex flex-col items-center gap-2 group cursor-pointer transition-all"
                     >
                         <div
                             className={`flex gap-1 ${
                                 variant.skewed ? "italic skew-x-12" : ""
                             } ${
-                                selectedMarker === variant.id
+                                selectedMarker === variant.displayId
                                     ? "border-2 border-[#4cc9f0] p-2 -m-2"
                                     : ""
                             }`}
@@ -55,7 +55,7 @@ export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
                         </div>
                         <div
                             className={`h-1 w-full bg-[#4cc9f0] transition-opacity ${
-                                selectedMarker === variant.id
+                                selectedMarker === variant.displayId
                                     ? "opacity-100"
                                     : "opacity-0 group-hover:opacity-100"
                             }`}

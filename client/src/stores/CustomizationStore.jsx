@@ -2,14 +2,15 @@ import { create } from "zustand";
 
 /**
  * Game Customization Store
- * Stores the current game customization settings (board size, grid style, marker variant)
+ * Stores the current game customization settings using DISPLAY values (frontend format)
+ * These are transformed to backend format when creating rooms
  * Used across multiple pages: GameCustomization → GameBoard
  */
 export const useCustomizationStore = create((set) => ({
-    // State
-    boardSize: "10x10",
-    gridStyle: "neon",
-    markerVariant: 3,
+    // State - using display format (frontend)
+    boardSize: "10x10",        // Frontend format: "10x10" or "15x15"
+    gridStyle: "classic",      // Frontend format: "classic", "neon", or "block"
+    markerVariant: 3,          // Frontend format: numeric ID 1-6
 
     // Actions
     setBoardSize: (size) => set({ boardSize: size }),
@@ -17,18 +18,18 @@ export const useCustomizationStore = create((set) => ({
     setMarkerVariant: (variant) => set({ markerVariant: variant }),
 
     /**
-     * Set all customization options at once
+     * Set all customization options at once (display format)
      */
     setCustomization: (boardSize, gridStyle, markerVariant) =>
         set({ boardSize, gridStyle, markerVariant }),
 
     /**
-     * Reset to defaults
+     * Reset to defaults (display format)
      */
     resetCustomization: () =>
         set({
             boardSize: "10x10",
-            gridStyle: "neon",
+            gridStyle: "classic",
             markerVariant: 3,
         }),
 }));

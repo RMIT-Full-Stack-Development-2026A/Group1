@@ -4,7 +4,6 @@ import RoomCard from "./RoomCard";
 export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
     // Ensure rooms is always an array
     const roomList = Array.isArray(rooms) ? rooms : [];
-    const hasAvailableRooms = roomList.some((r) => r.status === "waiting");
 
     return (
         <>

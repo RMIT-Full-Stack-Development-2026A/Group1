@@ -57,8 +57,13 @@ class HttpHelper {
                     console.error('[Network Error]:', error.message);
                 }
                 
-                const message = error.response?.data?.message || "An unexpected error occurred. Please try again.";
-                return Promise.reject(message);
+                // Create error object with response structure preserved for frontend error handling
+                const apiError = new Error(error.response?.data?.message || "An unexpected error occurred. Please try again.");
+                apiError.response = error.response; // Preserve full response for downstream handlers
+                apiError.status = error.response?.status;
+                apiError.data = error.response?.data;
+                
+                return Promise.reject(apiError);
             }
         );
     }

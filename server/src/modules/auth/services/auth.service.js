@@ -59,12 +59,22 @@ export const AuthService = {
             throw error;
         }
 
+        // Lockout period has expired - reset attempts for this new attempt
+        if (user.lockUntil && user.lockUntil <= Date.now()) {
+            await AuthRepository.resetLoginAttempts(user);
+            user.loginAttempts = 0; // Update local user object for this attempt
+            user.lockUntil = null;
+        }
+
         const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
-            await AuthRepository.incrementLoginAttempts(user); 
+            const updatedUser = await AuthRepository.incrementLoginAttempts(user);
+            console.log('[Auth Service] Failed auth attempt - loginAttempts now:', updatedUser.loginAttempts);
+            
             const error = new Error("Invalid credentials");
             error.statusCode = 401;
-            error.errorCode = "INVALID_CREDENTIALS"; 
+            error.errorCode = "INVALID_CREDENTIALS";
+            error.loginAttempts = updatedUser.loginAttempts; // Send attempts count to frontend
             throw error;
         }
 

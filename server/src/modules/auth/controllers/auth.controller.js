@@ -60,10 +60,17 @@ export const AuthController = {
             
             if (error.statusCode === 401 || error.statusCode === 403) {
                 const errorCode = error.statusCode === 401 ? "UNAUTHORIZED" : "ACCOUNT_LOCKED";
-                return res.status(error.statusCode).json({
+                const response = {
                     error: errorCode,
                     message: error.message
-                });
+                };
+                
+                // Include loginAttempts if available (from 401 errors)
+                if (error.loginAttempts !== undefined) {
+                    response.loginAttempts = error.loginAttempts;
+                }
+                
+                return res.status(error.statusCode).json(response);
             }
 
             console.error("Login Error:", error);

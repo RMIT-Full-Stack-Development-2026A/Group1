@@ -6,12 +6,11 @@ Authentication page for existing users. Handles email/username & password login 
 ## Route & Access
 - **Path**: `/login`
 - **Access**: Public (guests & authenticated users)
-- **Redirect**: If already authenticated → `/lobby` (via useEffect on this page)
+- **Redirect**: If already authenticated → `/play` (Game Mode Select, via useEffect on this page)
 
 ## Key Features
-- ✅ Email/username input field (name: "identifier")
+- ✅ Email/username input field (name: "email")
 - ✅ Password input with visibility toggle
-- ✅ **NEW**: "Forgot Password?" link (placeholder for future feature)
 - ✅ Account lockout (5 failed attempts → 60s cooldown)
 - ✅ Error/success messages
 - ✅ Guest login option (redirects to `/play`)
@@ -38,7 +37,6 @@ Login/
 ├── hook/useLogin.hook.js (form logic, lockout, submission - no redirect)
 ├── service/login.service.js (validation logic)
 └── sub-components/
-    ├── LockoutWarning.jsx (shows warning at 3+ attempts)
     └── AuthMessage.jsx (error/success display)
 ```
 
@@ -46,7 +44,7 @@ Login/
 
 | Field | Type | Validation |
 |-------|------|-----------|
-| Username/Email | text | Required, non-empty (called "identifier" internally) |
+| Username/Email | text | Required, non-empty |
 | Password | password | Required, non-empty |
 
 ## API Endpoints
@@ -59,6 +57,14 @@ Login/
 - **Password**: Required, non-empty string
 - **DTO**: `LoginRequest` model validates input
 - **Backend**: Returns 401 for invalid credentials, 403 for locked account
+
+## Brute-Force Protection
+- **Lockout Trigger**: 5 failed login attempts
+- **Lockout Duration**: 60 seconds
+- **User Feedback**: Shows remaining attempts after each failure (e.g., "2 attempts remaining")
+- **Lock State**: Button disables and changes to red "ACCOUNT LOCKED" state
+- **Reset**: Attempt counter resets after successful login or when lockout period expires
+- **Backend Tracking**: Server tracks loginAttempts and lockUntil fields on user document
 
 ## Error Handling
 | Status | Action |

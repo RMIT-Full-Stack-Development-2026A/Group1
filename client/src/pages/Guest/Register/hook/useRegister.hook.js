@@ -57,7 +57,10 @@ export const useRegister = () => {
 
                 // Handle backend validation errors
                 if (error.details && Array.isArray(error.details)) {
-                    const errorMessages = error.details.join("\n");
+                    // Map error objects to user-facing messages (e.g., cause field)
+                    const errorMessages = error.details
+                        .map(detail => detail.cause || detail.error || detail.message || JSON.stringify(detail))
+                        .join("\n");
                     form.setMessage({
                         type: "error",
                         text: errorMessages,

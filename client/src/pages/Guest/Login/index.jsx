@@ -25,11 +25,11 @@ export default function LoginPage() {
         handleRegisterNav,
     } = useLogin();
 
-    // Redirect to lobby after successful login
+    // Redirect to game mode select after successful login
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
-            console.log('[Login] User authenticated, redirecting to /lobby');
-            navigate("/lobby", { replace: true });
+            console.log('[Login] User authenticated, redirecting to /play');
+            navigate("/play", { replace: true });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);
 
@@ -69,15 +69,6 @@ export default function LoginPage() {
                         <div className="h-[2px] w-full bg-[#4cc9f0] relative mb-8">
                             <div className="absolute top-0 right-0 w-12 h-[2px] bg-white"></div>
                         </div>
-
-                        {/* Warning Bar - Show only when approaching lockout (before it's locked) */}
-                        <LockoutWarning 
-                            failedAttempts={failedAttempts}
-                            isLocked={isLocked}
-                        />
-
-                        {/* Error/Success Message */}
-                        <AuthMessage message={message} />
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -133,15 +124,22 @@ export default function LoginPage() {
                                 type="submit"
                                 disabled={loading || isLocked}
                                 className={`w-full font-bold py-4 px-6 flex items-center justify-center gap-3 transition-all uppercase text-sm ${
-                                    loading || isLocked
+                                    isLocked
+                                        ? "bg-[#93000a] text-[#ffdad6] border-2 border-[#ffb4ab] cursor-not-allowed shadow-none"
+                                        : loading
                                         ? "bg-[#3d484d] text-[#879398] border-2 border-[#3d484d] cursor-not-allowed shadow-none"
                                         : "bg-[#4cc9f0] text-[#003543] border-2 border-[#4cc9f0] shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none"
                                 }`}
                             >
-                                <span>{loading ? "⏳" : "▶"}</span>
-                                {loading ? "LOGGING IN..." : "START GAME"}
+                                <span>{isLocked ? "🔒" : loading ? "⏳" : "▶"}</span>
+                                {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "START GAME"}
                             </button>
                         </form>
+
+                        {/* Error/Success Message - Below form */}
+                        <div className="mt-6">
+                            <AuthMessage message={message} />
+                        </div>
 
                         {/* Divider */}
                         <div className="relative my-8">
@@ -153,14 +151,18 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* Guest CTA */}
+                        {/* Guest CTA - Also disabled when locked */}
                         <button
                             onClick={handleGuestLogin}
                             disabled={loading || isLocked}
-                            className="w-full border border-[#3d484d] text-[#e3e0f4] hover:border-[#4cc9f0] hover:text-[#4cc9f0] transition-all py-3 px-6 text-xs font-bold flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`w-full py-3 px-6 text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                                isLocked
+                                    ? "border border-[#3d484d] text-[#879398] cursor-not-allowed opacity-50"
+                                    : "border border-[#3d484d] text-[#e3e0f4] hover:border-[#4cc9f0] hover:text-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed"
+                            }`}
                         >
                             <span>👤</span>
-                            CONTINUE AS GUEST
+                            {isLocked ? "CONTINUE AS GUEST (LOCKED)" : "CONTINUE AS GUEST"}
                         </button>
                     </div>
                 </div>

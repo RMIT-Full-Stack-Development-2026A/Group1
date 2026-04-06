@@ -94,7 +94,6 @@ export const useLogin = () => {
 
                 // Call AuthStore.login() which updates auth state and saves JWT
                 const response = await useAuthStore.getState().login(formData);
-                console.log('[Login] Successful login response:', response);
 
                 // Show success message before redirect
                 setMessage({
@@ -108,8 +107,6 @@ export const useLogin = () => {
                 // Redirect is handled by login page's useEffect when auth state updates
 
             } catch (error) {
-                console.error("[Login] Login error:", error);
-
                 // Handle specific error codes
                 if (error.response?.status === 403) {
                     // Account locked by backend
@@ -121,7 +118,10 @@ export const useLogin = () => {
                     });
                 } else if (error.response?.status === 401) {
                     // Invalid credentials
-                    const newAttempts = failedAttempts + 1;
+                    // Use backend attempt count if available, otherwise increment local
+                    const backendAttempts = error.response?.data?.loginAttempts;
+                    const newAttempts = backendAttempts !== undefined ? backendAttempts : failedAttempts + 1;
+                    
                     setFailedAttempts(newAttempts);
                     
                     if (newAttempts >= 5) {
@@ -129,12 +129,13 @@ export const useLogin = () => {
                         setLockoutCountdown(60);
                         setMessage({
                             type: "error",
-                            text: "❌ Account locked after 5 failed attempts. Try again in 60s.",
+                            text: "❌ ACCOUNT LOCKED: 5 failed attempts. Try again in 60 seconds.",
                         });
                     } else {
+                        const attemptsRemaining = 5 - newAttempts;
                         setMessage({
                             type: "error",
-                            text: `❌ Invalid credentials. Attempts: ${newAttempts}/5`,
+                            text: `❌ Invalid credentials. ${attemptsRemaining} attempt${attemptsRemaining !== 1 ? 's' : ''} remaining before lockout.`,
                         });
                     }
                 } else {
@@ -177,6 +178,7 @@ export const useLogin = () => {
         failedAttempts,
         isLocked,
         lockoutCountdown,
+        attemptsRemaining: Math.max(0, 5 - failedAttempts),
         
         // Handlers
         handleSubmit,

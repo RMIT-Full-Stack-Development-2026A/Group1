@@ -17,9 +17,15 @@ export const LobbyService = {
             // Fetch rooms with status filter for waiting/available rooms
             const rooms = await gameService.getRooms({ status: "WAITING" });
             
-            console.log('[Lobby Service] Fetched rooms from backend:', rooms);
+            // Normalize status to lowercase for UI consistency
+            const normalizedRooms = rooms.map(room => ({
+                ...room,
+                status: room.status?.toLowerCase() || 'waiting'
+            }));
             
-            return rooms;
+            console.log('[Lobby Service] Fetched rooms from backend:', normalizedRooms);
+            
+            return normalizedRooms;
         } catch (error) {
             console.error('[Lobby Service] Failed to fetch rooms:', error);
             // Return mock data as fallback while backend is being implemented

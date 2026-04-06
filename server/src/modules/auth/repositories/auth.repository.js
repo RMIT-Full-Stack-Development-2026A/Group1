@@ -27,7 +27,7 @@ export const AuthRepository = {
 
     resetLoginAttempts: async (user) => {
         return User.findByIdAndUpdate(user._id, {
-            $set: {loginAttempts: 0, lockUntil: 1}
+            $set: {loginAttempts: 0, lockUntil: null}
         }, { returnDocument: 'after' });
     },
 

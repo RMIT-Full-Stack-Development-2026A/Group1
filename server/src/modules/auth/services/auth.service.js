@@ -1,112 +1,154 @@
-import bcryptjs from 'bcryptjs';
+import bcryptjs from "bcryptjs";
 import { AuthRepository } from "../repositories/auth.repository.js";
 import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
-import { validateRegisterInput, validateLoginInput } from "../../../utils/validate.js";
+import { validateRegisterInput, validateLoginInput,  validateRegisterConflicts } from "../validators/auth.validator.js";
+import { RoomInterface } from "../../room/interfaces/room.interface.js";
 
+// Service contains auth business rules and throws standardized errors for errorMiddleware.
 export const AuthService = {
     registerUser: async (userData, res) => {
         const validationErrors = validateRegisterInput(userData);
-
-        // Show a error to the controller
         if (validationErrors.length > 0) {
-            const error = new Error("Invalid input provided.");
-            error.statusCode = 400; 
-            error.errorCode = "VALIDATION_ERROR"; 
-            error.details = validationErrors; 
-            throw error;
+            throw {
+                statusCode: 400,
+                error: "VALIDATION_ERROR",
+                message: "Invalid registration input provided.",
+                cause: "One or more registration fields failed validation.",
+                valid_example: "Provide a valid username, email, strong password, matching confirmPassword, and country.",
+                details: validationErrors
+            };
         }
-        
-        const { email, password, username, country } = userData;
-        const hashedPassword = await bcryptjs.hash(password, 10); 
+
+        const email = String(userData.email).trim().toLowerCase();
+        const username = String(userData.username).trim();
+        const password = String(userData.password);
+        const country = String(userData.country).trim();
+
+        await validateRegisterConflicts(email, username);
+
+        const passwordHash = await bcryptjs.hash(password, 10);
 
         const newUser = await AuthRepository.createUser({
             email,
             username,
-            password: hashedPassword,
-            country,
+            passwordHash,
+            country
         });
 
-        // Generate JWT token (JWS) with id and role
-        const token = generateTokenAndSetCookie(res, newUser._id, newUser.role);
-        
-        return { user: newUser, token };
+        return newUser;
     },
 
-    loginUser: async (userData, res) => {
-        const validationErrors = validateLoginInput(userData);
+    loginUser: async (loginData, res) => {
+        const validationErrors = validateLoginInput(loginData);
         if (validationErrors.length > 0) {
-            const error = new Error("Invalid input provided.");
-            error.statusCode = 400;
-            error.errorCode = "VALIDATION_ERROR";
-            error.details = validationErrors;
-            throw error;
+            throw {
+                statusCode: 400,
+                error: "VALIDATION_ERROR",
+                message: "Invalid login input provided.",
+                cause: "Identifier or password is missing or malformed.",
+                valid_example: "Provide identifier and password, for example { identifier: 'player@example.com', password: 'StrongP@ss1' }.",
+                details: validationErrors
+            };
         }
 
-        const { identifier, password } = userData;
+        const identifier = String(loginData.identifier).trim();
+        const password = String(loginData.password);
 
         const user = await AuthRepository.findByEmailOrUsername(identifier);
         if (!user) {
-            const error = new Error("Invalid credentials");
-            error.statusCode = 401;
-            error.errorCode = "INVALID_CREDENTIALS"; 
-            throw error;
+            throw {
+                statusCode: 401,
+                error: "INVALID_CREDENTIALS",
+                message: "Login failed. Invalid identifier or password.",
+                cause: "No account matches the provided credentials.",
+                valid_example: "Ensure your username/email and password are correct."
+            };
         }
 
-        if (user.lockUntil && user.lockUntil > Date.now()) {
-            const error = new Error("Account locked due to 5 failed attempts. Try again later after 60 seconds.");
-            error.statusCode = 403;
-            error.errorCode = "ACCOUNT_LOCKED";
-            throw error;
+        if (user.auth?.lockUntil && user.auth.lockUntil > new Date()) {
+            const secondsRemaining = Math.ceil((new Date(user.auth.lockUntil).getTime() - Date.now()) / 1000);
+            throw {
+                statusCode: 403,
+                error: "ACCOUNT_LOCKED",
+                message: "Login failed. Account is temporarily locked.",
+                cause: `Too many failed attempts. Try again in ${secondsRemaining} seconds.`,
+                valid_example: `Wait ${secondsRemaining} seconds before trying again.`
+            };
         }
 
-        // Lockout period has expired - reset attempts for this new attempt
-        if (user.lockUntil && user.lockUntil <= Date.now()) {
-            await AuthRepository.resetLoginAttempts(user);
-            user.loginAttempts = 0; // Update local user object for this attempt
-            user.lockUntil = null;
+        if (user.auth?.lockUntil && user.auth.lockUntil <= new Date()) {
+            await AuthRepository.clearExpiredLock(user._id);
+            user.auth.loginAttempts = 0;
+            user.auth.lockUntil = null;
         }
 
-        const isMatch = await bcryptjs.compare(password, user.password);
-        if (!isMatch) {
-            const updatedUser = await AuthRepository.incrementLoginAttempts(user);
-            console.log('[Auth Service] Failed auth attempt - loginAttempts now:', updatedUser.loginAttempts);
-            
-            const error = new Error("Invalid credentials");
-            error.statusCode = 401;
-            error.errorCode = "INVALID_CREDENTIALS";
-            error.loginAttempts = updatedUser.loginAttempts; // Send attempts count to frontend
-            throw error;
+        const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
+        if (!isPasswordCorrect) {
+            await AuthRepository.incrementLoginAttempts(user);
+            throw {
+                statusCode: 401,
+                error: "INVALID_CREDENTIALS",
+                message: "Login failed. Invalid identifier or password.",
+                cause: "The provided password does not match our records.",
+                valid_example: "Check for typos or reset your password if needed."
+            };
         }
 
-        await AuthRepository.resetLoginAttempts(user);
-        await AuthRepository.updateLastLogin(user._id);
+        if (!user.isActive) {
+            throw {
+                statusCode: 403,
+                error: "ACCOUNT_DEACTIVATED",
+                message: "Login failed. Your account has been deactivated.",
+                cause: "An administrator has disabled this account.",
+                valid_example: "Contact an administrator to request reactivation."
+            };
+        }
 
-        // Generate JWT token (JWS) with only id and role - minimal identity info
-        const token = generateTokenAndSetCookie(res, user._id, user.role);
-        return { user, token };
+        await Promise.all([
+            AuthRepository.resetLoginAttempts(user._id),
+            AuthRepository.updateLastLogin(user._id)
+        ]);
+
+        generateTokenAndSetCookie(res, user._id, user.role, user.isPremium);
+
+        const safeUser = await AuthRepository.findById(user._id);
+        return { user: safeUser };
     },
 
     logoutUser: async (res) => {
-        res.clearCookie("access_token");
-        return { success: true };
+        res.clearCookie("access_token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            path: "/"
+        });
     },
 
     checkAuthUser: async (userId) => {
         const user = await AuthRepository.findById(userId);
+
         if (!user) {
-            const error = new Error("User not found");
-            error.statusCode = 404;
-            error.errorCode = "USER_NOT_FOUND";
-            throw error;
+            throw {
+                statusCode: 404,
+                error: "USER_NOT_FOUND",
+                message: "Authentication check failed. User not found.",
+                cause: "The user id from the verified token does not exist in the database.",
+                valid_example: "Use a valid session token for an existing user account."
+            };
         }
 
         if (!user.isActive) {
-            const error = new Error("Account is deactivated");
-            error.statusCode = 403;
-            error.errorCode = "ACCOUNT_DEACTIVATED";
-            throw error;
-        };
+            throw {
+                statusCode: 403,
+                error: "ACCOUNT_DEACTIVATED",
+                message: "Authentication check failed. Account is deactivated.",
+                cause: "The user account is currently disabled and cannot access protected routes.",
+                valid_example: "Ask an administrator to reactivate the account before retrying."
+            };
+        }
 
-        return { user };
+        const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(userId);
+
+        return { user, activeRoom };
     }
 };

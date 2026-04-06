@@ -1,7 +1,14 @@
 import express from "express";
-import authRoutes from './modules/auth/routes/auth.routes.js';
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { generalRateLimit } from './middlewares/rateLimitMiddleware.js';
+import { errorMiddleware, notFoundHandler } from './middlewares/errorMiddleware.js';
+
+// inport module router
+import authRoutes from './modules/auth/routes/auth.routes.js';
+import adminRoutes from './modules/admin/routes/admin.routes.js';
+import profileRoutes from './modules/profile/routes/profile.routes.js';
+import gameRoutes from "./modules/game/routes/game.routes.js";
 
 const app = express();
 
@@ -11,9 +18,18 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 }));
-app.use(express.json({limit: '5mb'})); 
-app.use(cookieParser());
 
+app.use(cookieParser());
+app.use(express.json()); 
+app.use(generalRateLimit);
+
+// Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/games', gameRoutes);
+
+app.use(notFoundHandler);
+app.use(errorMiddleware);
 
 export default app;

@@ -1,8 +1,9 @@
+import { AuthRepository } from '../repositories/auth.repository.js';
+
 export const validateRegisterInput = (data) => {
     const { username, email, password, confirmPassword, country } = data;
     const errors = [];
 
-    // Check for missing fields
     if (!email || !password || !confirmPassword || !username || !country) {
         errors.push({
             field: "all",
@@ -10,7 +11,7 @@ export const validateRegisterInput = (data) => {
             cause: "One or more mandatory fields are empty.",
             example: "Provide email, username, password, confirmPassword, and country."
         });
-        return errors; // return if fields are missing to avoid unnecessary checks
+        return errors; 
     }
 
     if (password !== confirmPassword) {
@@ -53,6 +54,31 @@ export const validateRegisterInput = (data) => {
     }
 
     return errors;
+};
+
+export const validateRegisterConflicts = async (email, username) => {
+    const emailConflict = await AuthRepository.findByEmailOrUsername(email);
+    const usernameConflict = await AuthRepository.findByEmailOrUsername(username);
+    
+    if (emailConflict) {
+        throw {
+            status: 409,
+            error: "EMAIL_ALREADY_EXISTS",
+            message: "Registration failed. Email is already in use.",
+            cause: "The provided email address is already registered to another account.",
+            example: "new_player@example.com"
+        };
+    }
+
+    if (usernameConflict) {
+        throw {
+            status: 409,
+            error: "USERNAME_ALREADY_TAKEN",
+            message: "Registration failed. Username is already taken.",
+            cause: "The provided username is already claimed by another player.",
+            example: "Unique_Player_99"
+        };
+    }
 };
 
 export const validateLoginInput = (data) => {

@@ -1,15 +1,29 @@
-// DTO hide Password when returning user data to client
+// DTO helpers keep auth responses safe and consistent.
 export const AuthDTO = {
-    toUserResponse: (user) => {
-        return {
-            id: user._id,
-            email: user.email,
+    toUserResponse: (user) => ({
+        id: user.id || user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        country: user.country,
+        avatar: user.avatar,
+        isPremium: user.isPremium,
+        isActive: user.isActive,
+        createdAt: user.createdAt
+    }),
+
+    toCheckAuthResponse: (user, activeRoom = null) => ({
+        user: {
+            id: user.id || user._id,
             username: user.username,
+            email: user.email,
+            role: user.role,
             country: user.country,
             avatar: user.avatar,
-            role: user.role,
+            isPremium: user.isPremium,
             isActive: user.isActive,
-            isPremium: user.isPremium
-        };
-    }
+            createdAt: user.createdAt
+        },
+        activeRoom
+    })
 };

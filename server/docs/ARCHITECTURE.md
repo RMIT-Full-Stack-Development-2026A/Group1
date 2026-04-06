@@ -1,48 +1,528 @@
 # TicTacToang Backend Architecture
 
-This backend architecture strictly adheres to a Modular Monolith approach and an N-Tier layer hierarchy. Each module is strictly separated by bounded contexts, and internal layers enforce a strict directional dependency flow. 
+This backend architecture follows a **Modular Monolith** structure with a strict **N-Tier** dependency flow and a **socket-first online game flow**.
+
+It is aligned with the revised API contract, revised MongoDB models, the team policy, and the SRS requirements for authentication, profile management, game history/replay, premium subscription, wallet, admin monitoring, and real-time online TicTacToe gameplay.
+
+## 1. Architectural Principles
+
+### 1.1 Modular Monolith
+The backend is one deployable Node.js application, but internally split into bounded contexts. Each module owns its own business rules, DTOs, repositories, and model access.
+
+### 1.2 N-Tier Flow
+Inside each module, dependencies must flow in one direction only:
+
+```text
+Route / Socket Handler
+        ↓
+Controller / Gateway Handler
+        ↓
+Service
+        ↓
+Repository / Interface (module don't contain model)
+        ↓
+Model
+```
+
+Rules:
+- Routes and socket handlers never talk directly to models.
+- Services never bypass repositories.
+- Cross-module access must go through **interfaces**, never by importing another module's service directly.
+- DTOs are mandatory for shaping responses and hiding sensitive fields.
+
+### 1.3 API Strategy: HTTP for snapshot/persistence, WebSocket for live state
+To minimize API calls and match the SRS real-time requirements:
+
+- **HTTP** is used for authentication, profile, history, wallet, subscription, admin operations, initial room snapshots, and reconnect recovery.
+- **WebSocket** is used for room creation, room joining, room leaving, move submission, room updates, game state sync, and premium chat.
+
+This means the backend is intentionally **socket-first** for online multiplayer.
+
+## 2. High-Level Folder Structure
 
 ```text
 backend/
 ├── src/
-│   ├── config/                       # Global configuration files (e.g., Database, Environment). Organized separately as it does not follow the Tier structure.
-│   ├── middlewares/                  # Dedicated middleware layer to authorize users and prevent privilege escalation.
-│   │   ├── authMiddleware.js         # Validates JWS tokens.
-│   │   └── roleMiddleware.js         # Ensures Players cannot access Admin APIs.
-│   ├── utils/                        # Global utilities (e.g., error formatters, loggers) organized separately.
-│   ├── modules/                      # Applies Modular Monolith Architecture. Each module handles a specific business feature.
+│   ├── config/                            # Database, env, CORS, cookie, socket, and app-level config
+│   ├── middlewares/                       # Shared Express middlewares
+│   │   ├── authMiddleware.js              # Validates access_token cookie and sets req.user
+│   │   ├── roleMiddleware.js              # Enforces RBAC (PLAYER / ADMIN)
+│   │   ├── errorMiddleware.js             # Centralized error response formatter
+│   │   └── rateLimitMiddleware.js         # Shared request throttling where needed
+│   ├── utils/                             # Helpers, constants, mappers, validators, logger
+│   ├── sockets/                           # Socket.io bootstrap and namespace wiring
+│   │   ├── index.js                       # Socket server initialization
+│   │   ├── namespaces/
+│   │   │   └── game.namespace.js          # Registers /ws/game events
+│   │   ├── middleware/
+│   │   │   └── socketAuthMiddleware.js    # Authenticates socket user from cookie/JWT
+│   │   └── emitters/                      # Shared socket payload builders / broadcasters
+│   ├── modules/
+│   │   ├── auth/
+│   │   │   ├── routes/
+│   │   │   ├── controllers/
+│   │   │   ├── services/
+│   │   │   ├── repositories/
+│   │   │   ├── models/                    # OWNS User model
+│   │   │   ├── dtos/
+│   │   │   ├── validators/
+│   │   │   └── interfaces/                # Exposes user/session read operations to other modules
 │   │   │
-│   │   ├── auth/                     # Bounded context for identity and authentication (/api/v1/auth).
-│   │   │   ├── routes/               # Route Layer: Defines API endpoints.
-│   │   │   ├── controllers/          # Controller Layer: Handles incoming HTTP requests.
-│   │   │   ├── services/             # Service Layer: Contains business logic.
-│   │   │   ├── repositories/         # Repository Layer: Defines database query statements.
-│   │   │   ├── models/               # Model Layer: *OWNS* the `User.js` schema.
-│   │   │   ├── dtos/                 # DTO Layer: Filters sensitive data in responses.
-│   │   │   └── interfaces/           # Exposes external services (e.g., `userInterface.js`) so other modules do NOT call the Service Layer directly.
+│   │   ├── profile/
+│   │   │   ├── routes/
+│   │   │   ├── controllers/
+│   │   │   ├── services/
+│   │   │   ├── dtos/
+│   │   │   ├── validators/
+│   │   │   └── interfaces/                # Optional if FE-facing aggregate queries are reused elsewhere
 │   │   │
-│   │   ├── profile/                  # Bounded context for user profiles (/api/v1/profile). 
-│   │   │   └── (No Model Layer)      # Retrieves and updates user data by calling `auth/interfaces/user.interface.js`.
+│   │   ├── game/
+│   │   │   ├── routes/
+│   │   │   ├── controllers/
+│   │   │   ├── services/
+│   │   │   ├── repositories/
+│   │   │   ├── models/                    # OWNS GameSession model
+│   │   │   ├── dtos/
+│   │   │   ├── validators/
+│   │   │   └── interfaces/                # Exposes game persistence/statistics/history operations
 │   │   │
-│   │   ├── game/                     # Bounded context for past game history (/api/v1/game). 
-│   │   │   └── models/               # *OWNS* the `GameSession.js` schema.
+│   │   ├── room/
+│   │   │   ├── routes/                    # HTTP snapshot/recovery endpoints only
+│   │   │   ├── controllers/
+│   │   │   ├── socket-handlers/           # room:create, room:join, room:leave, game:move, chat:send
+│   │   │   ├── services/
+│   │   │   ├── repositories/
+│   │   │   ├── models/                    # OWNS GameRoom model
+│   │   │   ├── dtos/
+│   │   │   ├── validators/
+│   │   │   └── interfaces/                # Exposes room snapshot/admin operations
 │   │   │
-│   │   ├── room/                     # Bounded context for active multiplayer sessions (/api/v1/rooms). 
-│   │   │   └── models/               # *OWNS* the `GameRoom.js` schema.
+│   │   ├── wallet/
+│   │   │   ├── routes/
+│   │   │   ├── controllers/
+│   │   │   ├── services/
+│   │   │   ├── repositories/
+│   │   │   ├── models/                    # OWNS Transaction model
+│   │   │   ├── dtos/
+│   │   │   ├── validators/
+│   │   │   └── interfaces/                # Exposes wallet balance and transaction summary
 │   │   │
-│   │   ├── wallet/                   # Bounded context for fund deposits (/api/v1/wallet). 
-│   │   │   ├── models/               # *OWNS* the `Transaction.js` schema.
-│   │   │   └── interfaces/           # Exposes payment processing capabilities.
+│   │   ├── subscription/
+│   │   │   ├── routes/
+│   │   │   ├── controllers/
+│   │   │   ├── services/
+│   │   │   ├── dtos/
+│   │   │   ├── validators/
+│   │   │   └── interfaces/                # Exposes premium status helpers if needed
 │   │   │
-│   │   ├── subscription/             # Bounded context for premium status (/api/v1/subscription). 
-│   │   │   └── (No Model Layer)      # Processes subscriptions by calling `wallet/interfaces/transaction.interface.js` and `auth/interfaces/user.interface.js`.
-│   │   │
-│   │   └── admin/                    # Bounded context for monitoring and management (/api/v1/admin). 
-│   │       └── (No Model Layer)      # Interacts with users and rooms by calling the interfaces of the `auth` and `room` modules.
+│   │   └── admin/
+│   │       ├── routes/
+│   │       ├── controllers/
+│   │       ├── services/
+│   │       ├── repositories/              # Usually orchestration only
+│   │       ├── dtos/
+│   │       ├── validators/
+│   │       └── interfaces/                # Optional, mainly if admin data is reused elsewhere
 │   │
-│   ├── sockets/                      # WebSocket configurations for real-time game synchronization (/ws/game namespace).
-│   ├── app.js                        # Main Express application entry point.
-│   └── index.js                     # HTTP and WebSocket server initialization.
-|
-├── docs/                             # Documents
-└── package.json                      # Node.js dependencies.
+│   ├── app.js                             # Express app bootstrap
+│   └── index.js                           # HTTP + WebSocket server bootstrap
+├── docs/
+└── package.json
+```
+
+## 3. Module Responsibilities
+
+## 3.1 `auth` module
+**Owns:** `User` model and all login/session logic.
+
+### Responsibilities
+- Register new player accounts
+- Login using username/email + password
+- Hash and verify passwords
+- Enforce brute-force protection via `loginAttempts` and `lockUntil`
+- Write and clear `access_token` httpOnly cookie
+- Provide current authenticated session payload
+- Provide shared user lookups to other modules through interfaces
+
+### Public HTTP endpoints
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/check-auth`
+
+### Important design note
+`GET /auth/check-auth` should return:
+- current DTO-safe user object
+- `activeRoom` snapshot if the user is still attached to a live room
+
+## 3.2 `profile` module
+**Owns:** No standalone database model.
+
+This module is an **application orchestration layer** around current-user operations.
+
+### Responsibilities
+- Read current user's profile from `auth` interfaces
+- Update username, email, country, and password
+- Handle avatar upload flow
+- Build an aggregated profile overview response using:
+  - `auth` interface for user data
+  - `wallet` interface for balance summary
+  - `subscription` or `auth` premium-expiry info
+  - `game` interface for recent games and stats
+
+### Public HTTP endpoints
+- `GET /api/v1/profile`
+- `GET /api/v1/profile/overview`
+- `PUT /api/v1/profile`
+- `PATCH /api/v1/profile/password`
+- `POST /api/v1/profile/avatar`
+
+### Why this module has no own model
+The team policy defines one consistent user shape, and the data already belongs primarily to `auth`, `wallet`, and `game`. Therefore `profile` should aggregate instead of duplicating persistence.
+
+## 3.3 `game` module
+**Owns:** `GameSession` model.
+
+### Responsibilities
+- Persist finished local matches, local two-player matches, and AI matches via HTTP
+- Persist finished or aborted online matches when signaled by the `room` module
+- Provide paginated history with search/filter/sort
+- Return one-match replay payload in a single response
+- Produce aggregate stats for profile and admin dashboards
+
+### Public HTTP endpoints
+- `POST /api/v1/games`
+- `GET /api/v1/games`
+- `GET /api/v1/games/:id`
+
+### Architectural note
+`GET /games/:id` returns the replay payload directly. There is intentionally no separate `/moves` endpoint because replay should be fetched in one request.
+
+## 3.4 `room` module
+**Owns:** `GameRoom` model and the authoritative online match state.
+
+This is the most important change from the old design: **online room lifecycle is socket-first**.
+
+### Responsibilities
+- Maintain live room state for online multiplayer
+- Expose HTTP room snapshots for initial arena load and reconnect recovery
+- Handle socket events for room lifecycle and gameplay
+- Enforce move validity and current-turn rules on the server
+- Broadcast room and game state updates to connected clients
+- Trigger chat permission checks for premium-only chat
+- Persist online match result into `GameSession` when the room ends
+
+### Public HTTP endpoints
+- `GET /api/v1/rooms`
+- `GET /api/v1/rooms/:id`
+
+### Socket events handled here
+**Client → Server**
+- `room:create`
+- `room:join`
+- `room:leave`
+- `game:move`
+- `chat:send`
+
+**Server → Client**
+- `room:created`
+- `room:updated`
+- `room:removed`
+- `game:state`
+- `game:ended`
+- `chat:message`
+- `error`
+
+### Key room design rule
+HTTP never becomes the primary online gameplay channel. The frontend should:
+1. call `GET /rooms` once to render the arena snapshot
+2. subscribe to socket events for all subsequent updates
+3. call `GET /rooms/:id` only for reconnect/recovery if needed
+
+## 3.5 `wallet` module
+**Owns:** `Transaction` model.
+
+### Responsibilities
+- Maintain transaction audit trail
+- Process deposits
+- Return current wallet snapshot and recent transaction summary
+- Support transaction history pagination
+- Expose wallet summary data to `profile` and `subscription`
+
+### Public HTTP endpoints
+- `GET /api/v1/wallet`
+- `POST /api/v1/wallet/deposit`
+- `GET /api/v1/wallet/transactions`
+
+### Important design note
+The current balance is stored in `User.wallet.balance` for fast reads, while `Transaction` remains the immutable audit history.
+
+## 3.6 `subscription` module
+**Owns:** No standalone model. Uses `User` + `Transaction` data.
+
+### Responsibilities
+- Check current premium state from `premiumExpiresAt`
+- Purchase premium using wallet funds
+- Extend premium period
+- Create subscription transactions
+- Trigger confirmation email after successful purchase
+- Provide subscription history
+
+### Public HTTP endpoints
+- `GET /api/v1/subscription/status`
+- `POST /api/v1/subscription/subscribe`
+- `GET /api/v1/subscription/history`
+
+### Architectural note
+The source of truth for premium state is:
+- `User.premiumExpiresAt` for current status
+- `Transaction` records of type `SUBSCRIPTION` for audit/history
+
+## 3.7 `admin` module
+**Owns:** No standalone model. It orchestrates other modules.
+
+### Responsibilities
+- Provide aggregated dashboard metrics
+- Manage player account status
+- Monitor active rooms
+- Force close rooms
+- Read platform-wide metrics across users, games, transactions, and active rooms
+
+### Public HTTP endpoints
+- `GET /api/v1/admin/dashboard`
+- `GET /api/v1/admin/players`
+- `GET /api/v1/admin/players/:id`
+- `PATCH /api/v1/admin/players/:id/deactivate`
+- `PATCH /api/v1/admin/players/:id/reactivate`
+- `GET /api/v1/admin/rooms`
+- `GET /api/v1/admin/rooms/:id`
+- `DELETE /api/v1/admin/rooms/:id`
+
+### Architectural note
+`admin` must use interfaces from:
+- `auth` for player listing and account state
+- `room` for live room monitoring and force close
+- `game` for match metrics
+- `wallet` for revenue summaries if included in dashboard
+
+## 4. Data Ownership and Model Boundaries
+
+## 4.1 `User` model ownership
+Owned only by `auth`.
+
+### Main fields
+- identity: `username`, `email`, `country`, `role`
+- security: `passwordHash`, `auth.lastLoginAt`, `auth.loginAttempts`, `auth.lockUntil`
+- account state: `isActive`
+- premium state: `premiumExpiresAt` and derived `isPremium`
+- wallet snapshot: `wallet.balance`
+- media: `avatar`
+
+### Why this shape is better
+- avoids exposing plain `password`
+- keeps premium as a date-driven state instead of a stale boolean
+- supports fast wallet reads without losing transaction auditability
+
+
+## 4.2 `GameSession` model ownership
+Owned only by `game`.
+
+### Main fields
+- `sessionNumber`
+- `sourceRoomId` for online-match provenance
+- `gameType`
+- `boardSize`, `boardStyle`, `markerStyle`
+- `participants[2]`
+- `firstTurnParticipantIndex`
+- `winnerParticipantIndex`
+- `status`, `endedReason`, `abortedByUserId`
+- `winningLine`
+- `moves[]`
+- `totalMoves`
+- `startedAt`, `endedAt`, `durationMs`
+
+### Why this shape is better
+- one schema supports local, AI, and online matches consistently
+- one document contains replay-ready data
+- participant snapshots keep old history stable even after username changes
+- admin force-close and player abort remain auditable
+
+## 4.3 `GameRoom` model ownership
+Owned only by `room`.
+
+### Main fields
+- `roomNumber`
+- `boardSize`
+- `status` = `WAITING | READY | PLAYING | ABORTED | CLOSED`
+- `participants[]`
+- `currentTurnParticipantIndex`
+- `moves[]`
+- `moveCount`
+- `winningLine`
+- `lastMove`
+- `startedAt`, `endedAt`
+- `closedBy`
+
+### Why this shape is better
+- enough state for reconnect and live synchronization
+- server can broadcast authoritative state without reconstructing from scratch every time
+- avoids storing a full board matrix in MongoDB
+- online room can be converted into `GameSession` cleanly when completed
+
+## 4.4 `Transaction` model ownership
+Owned only by `wallet`.
+
+### Main fields
+- `userId`
+- `type` = `DEPOSIT | SUBSCRIPTION`
+- `provider`
+- `amount`, `currency`
+- `status`
+- `externalTransactionId`
+- `balanceBefore`, `balanceAfter`
+- `subscriptionPeriodStart`, `subscriptionPeriodEnd`
+- `metadata`
+
+### Why this shape is better
+- supports wallet and subscription audit with one model
+- enables payment-provider traceability
+- keeps premium history queryable without separate subscription table
+
+## 5. Socket-First Online Match Flow
+
+The online game flow is centered in the `room` module and delivered through `/ws/game`.
+
+## 5.1 Initial arena load
+1. FE calls `GET /api/v1/rooms`
+2. Backend returns the current room snapshot list
+3. FE opens socket connection and subscribes to `/ws/game`
+4. Further room updates arrive via `room:created`, `room:updated`, and `room:removed`
+
+## 5.2 Room creation
+1. Authenticated player emits `room:create` with `{ boardSize, marker }`
+2. Room service creates a `GameRoom` in `WAITING`
+3. Server emits `room:created` to creator and `room:updated`/`room:created` to arena listeners as needed
+
+## 5.3 Room joining
+1. Second player emits `room:join` with `{ roomId }`
+2. Room service validates capacity, account state, and room status
+3. Server updates room participants and broadcasts `room:updated`
+4. Once marks are resolved and match is ready, room transitions to `READY` or directly `PLAYING`
+
+## 5.4 Gameplay
+1. Current player emits `game:move` with `{ roomId, row, col }`
+2. Room service validates turn, coordinate, and room status
+3. Server appends move, updates `lastMove`, checks winner/draw
+4. Server emits `game:state`
+5. If match ends, server emits `game:ended`
+
+## 5.5 Abort / leave / force close
+- If a player leaves or aborts, room state is closed consistently and online session is persisted with abort reason.
+- If admin force closes room, room service records `closedBy = ADMIN` and signals the `game` interface to create a `GameSession` with `endedReason = ADMIN_FORCE_CLOSE` when appropriate.
+
+## 5.6 Premium chat
+1. Player emits `chat:send`
+2. Room service checks premium state through auth/session data
+3. If allowed, server broadcasts `chat:message`
+4. If not allowed, server emits socket `error`
+
+
+## 6. Cross-Module Interface Rules
+
+To keep module boundaries clean:
+
+- `profile` uses `auth`, `wallet`, `game`, and possibly `subscription` interfaces
+- `room` uses `auth` interface for user/session validation and `game` interface to persist finished online matches
+- `subscription` uses `auth` and `wallet` interfaces
+- `admin` uses `auth`, `room`, `game`, and `wallet` interfaces
+
+No module should directly import another module's service or model.
+
+
+## 7. DTO and Response Strategy
+
+The backend must obey the policy response contract everywhere.
+
+### Success
+```json
+{
+  "data": {},
+  "message": "..."
+}
+```
+
+### Failure
+```json
+{
+  "error": "ERROR_CODE",
+  "message": "Human readable message",
+  "cause": "Cause of error",
+  "valid_example": "Example of valid inputs"
+}
+```
+
+### DTO requirements
+- expose `id`, never `_id`
+- hide `passwordHash`
+- keep JSON keys camelCase
+- return ISO 8601 dates
+- never expose internal-only financial or security fields unless the endpoint explicitly requires them
+
+### Aggregated DTOs encouraged
+To reduce calls, the architecture explicitly supports:
+- `GET /auth/check-auth` returning `user + activeRoom`
+- `GET /profile/overview` returning profile + wallet + subscription + stats + recent games
+- `GET /games/:id` returning full replay payload
+- `GET /admin/dashboard` returning admin summary metrics
+
+## 8. Security and Middleware Placement
+
+### HTTP middleware
+- cookie parsing before auth middleware
+- `authMiddleware` reads `access_token`
+- `roleMiddleware` protects admin endpoints
+- centralized error middleware formats all failures to policy shape
+
+### Socket middleware
+- socket auth middleware validates the same auth session before joining `/ws/game`
+- socket handlers must reject inactive accounts
+- premium chat permission must be rechecked server-side, never trusted from FE
+
+### Additional security concerns
+- brute-force login protection using `auth.loginAttempts` and `auth.lockUntil`
+- avatar upload validation for file type and size
+- no stack trace leakage in production errors
+
+## 9. Performance and API Minimization Strategy
+
+This architecture is intentionally optimized to minimize frontend-server chatter.
+
+### Patterns used
+- aggregate endpoints for overview pages
+- socket push instead of room polling
+- replay payload returned in one query
+- balance snapshot on user record plus transaction audit log
+- indexed search fields for history and admin listing
+- room recovery via `activeRoom` in auth bootstrap and `/rooms/:id` when needed
+
+### Key outcome
+The frontend should not need to spam the server for:
+- room list refreshes
+- replay move lists
+- multiple profile widgets
+- multiple admin summary cards
+
+## 10. Recommended Implementation Notes
+
+- Keep WebSocket event names exactly as defined in policy: `namespace:action`
+- Keep HTTP route naming plural and consistent: `/games`, `/rooms`, `/players`
+- Keep `room` as the authoritative engine for online state, and `game` as the authoritative archive for completed sessions
+- Keep `profile`, `subscription`, and `admin` as orchestration-heavy modules rather than unnecessary model-owning modules
+
+## 11. Summary
+
+The backend architecture is built around three core ideas:
+
+1. **Strict module ownership** for models and business rules
+2. **Socket-first online multiplayer** with HTTP used only for snapshots and persistence
+3. **Aggregate response design** to reduce API calls and keep the frontend simple

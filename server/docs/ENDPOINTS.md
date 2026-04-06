@@ -1,98 +1,340 @@
 # TicTacToang Backend API Endpoints
 
-This document describes the REST API endpoints and WebSocket events used by the TicTacToang platform.
+This document defines the **recommended server contract** for TicTacToang so that it matches the SRS, respects the team policy, and minimizes unnecessary API calls by:
+
+- using **HTTP for authentication, profile, history, wallet, subscription, and admin actions**
+- using **WebSocket for live room lifecycle, gameplay, and in-game chat**
+- providing **aggregate/overview endpoints** for screens that would otherwise require multiple requests
 
 Base API URL: `/api/v1`
+
+## 0. Global API Conventions
+
+### Response shape
+All endpoints must return exactly one of the two allowed shapes:
+
+Success:
+
+```json
+{
+  "data": {},
+  "message": "..."
+}
+```
+
+Failure:
+
+```json
+{
+  "error": "ERROR_CODE",
+  "message": "Human readable message",
+  "cause": "Cause of error",
+  "valid_example": "Example of valid inputs"
+}
+```
+
+### Authentication
+- JWT/JWS is stored in **httpOnly cookie**: `access_token`
+- Frontend sends requests with `withCredentials: true`
+- `401` means FE must clear auth state and redirect to `/login`
+
+### Pagination
+List endpoints use:
+
+- `page=1`
+- `limit=20`
+
+List response shape:
+
+```json
+{
+  "data": {
+    "items": [],
+    "total": 0,
+    "page": 1,
+    "limit": 20
+  },
+  "message": "..."
+}
+```
+
+### Common query rules
+- Search query: `q`
+- Sort query: `sortBy`, `sortOrder`
+- Date range: `from`, `to`
+- `id` is always exposed as `id`, never `_id`
+- Dates are ISO 8601 strings
 
 ## 1. Authentication APIs
 Base Path: `/api/v1/auth`
 
-| Method | Endpoint           | Description                            |
-|--------|--------------------|----------------------------------------|
-| POST   | `/auth/register`   | Register a new player                  |
-| POST   | `/auth/login`      | Login with username/email and password |
-| POST   | `/auth/logout`     | Logout current user                    |
-| GET    | `/auth/check-auth` | Verify the user's current JWT token    |
+These APIs handle account creation, login, logout, and session bootstrap.
+
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| POST | `/auth/register` | No | Register a new player | Yes |
+| POST | `/auth/login` | No | Login with username/email and password | Yes |
+| POST | `/auth/logout` | Yes | Clear auth cookie and logout current user | Yes |
+| GET | `/auth/check-auth` | Yes | Validate session and return current session payload | Yes |
+
+### Notes
+- `POST /auth/login` must enforce brute-force protection (lock after 5 failed attempts within 60 seconds).
+- `GET /auth/check-auth` should return enough data for app bootstrap so FE does **not** need an immediate second API call after page refresh.
+
+Recommended payload for `GET /auth/check-auth`:
+
+```json
+{
+  "data": {
+    "user": {
+      "id": "...",
+      "username": "...",
+      "email": "...",
+      "role": "PLAYER",
+      "country": "VN",
+      "avatar": "...",
+      "isPremium": false,
+      "isActive": true,
+      "createdAt": "2026-03-21T14:30:00.000Z"
+    },
+    "activeRoom": null
+  },
+  "message": "Authenticated"
+}
+```
+
+`activeRoom` helps FE restore an unfinished online match without extra round-trips.
 
 ## 2. Profile APIs
 Base Path: `/api/v1/profile`
 
-| Method | Endpoint            | Description                                |
-|--------|---------------------|--------------------------------------------|
-| PUT    | `/profile`          | Update email, username, or country         |
-| PATCH  | `/profile/password` | Change user password                       |
-| POST   | `/profile/avatar`   | Upload profile avatar                      |
+These APIs manage user profile data and provide an optimized overview payload for the Profile page.
 
-## 3. Game Session APIs
-Base Path: `/api/v1/game`
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| GET | `/profile` | Yes | Get current user's base profile | Yes |
+| GET | `/profile/overview` | Yes | Get profile + subscription + wallet summary + recent game stats in one call | Yes |
+| PUT | `/profile/update` | Yes | Update username, email, or country | Yes |
+| PATCH | `/profile/password` | Yes | Change current user's password | No |
+| POST | `/profile/avatar` | Yes | Upload avatar image | No |
 
-| Method | Endpoint           | Description                                      |
-|--------|--------------------|--------------------------------------------------|
-| GET    | `/games`           | List user game sessions                          |
-| GET    | `/games/:id`       | Get game session details                         |
-| GET    | `/games/:id/moves` | Get move history                                 |
-| GET    | `/games/search`    | Search sessions by player name or session number |
+### Why `GET /profile/overview`
+This endpoint is intentionally aggregated so the Profile screen does **not** need to call `/profile`, `/wallet`, `/subscription/status`, and `/games` separately.
 
-## 4. Game Room APIs (Online Multiplayer)
+Recommended `GET /profile/overview` payload:
+
+```json
+{
+  "data": {
+    "user": { "id": "...", "username": "...", "email": "...", "role": "PLAYER", "country": "VN", "avatar": "...", "isPremium": true, "isActive": true, "createdAt": "..." },
+    "wallet": { "balance": 35 },
+    "subscription": { "isPremium": true, "premiumExpiresAt": "2026-06-01T00:00:00.000Z" },
+    "stats": {
+      "totalGames": 120,
+      "wins": 55,
+      "losses": 40,
+      "draws": 15,
+      "aborted": 10
+    },
+    "recentGames": []
+  },
+  "message": "Profile overview fetched successfully"
+}
+```
+
+## 3. Game History & Replay APIs
+Base Path: `/api/v1/games`
+
+These APIs cover local play history, AI history, online match history, search/filter/sort, and replay data.
+
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| POST | `/games` | Yes | Save a completed local / local-vs-local / AI game session | Yes |
+| GET | `/games` | Yes | List current user's game sessions with pagination, search, filter, and sort | Yes |
+| GET | `/games/:id` | Yes | Get one game session detail including replay payload | Yes |
+
+### `POST /games`
+Use this endpoint for **non-online matches created on the frontend**:
+- `SINGLE_PLAYER`
+- `TWO_PLAYERS`
+
+Online matches should be persisted automatically by the server when the room ends.
+
+### `GET /games` query params
+| Query | Type | Description |
+|---|---|---|
+| `page` | number | Page number |
+| `limit` | number | Page size |
+| `q` | string | Search by session number or opponent name |
+| `gameType` | string | `SINGLE_PLAYER`, `TWO_PLAYERS`, `ONLINE_MATCH` |
+| `result` | string | `WIN`, `LOSE`, `DRAW`, `ABORTED` (viewer perspective) |
+| `from` | ISO date | Start date filter |
+| `to` | ISO date | End date filter |
+| `sortBy` | string | Usually `createdAt` or `startTime` |
+| `sortOrder` | string | `asc` or `desc` |
+|
+
+### Why there is no `/games/:id/moves`
+Replay data should be returned by `GET /games/:id` so the replay page needs only **one request**.
+
+## 4. Room Snapshot APIs
 Base Path: `/api/v1/rooms`
 
-| Method | Endpoint              | Description                |
-|--------|-----------------------|----------------------------|
-| GET    | `/rooms`              | List all active game rooms |
-| POST   | `/rooms`              | Create new room            |
-| POST   | `/rooms/:roomId/join` | Join room                  |
-| GET    | `/rooms/:roomId`      | Get room information       |
-| DELETE | `/rooms/:roomId`      | Close game room            |
+Room creation/join/leave/gameplay happen through WebSocket. HTTP is used only for **initial snapshot** and **recovery/reconnect**.
 
-## 5. WebSocket Events (Real-Time Gameplay & Chat)
-Namespace/Endpoint: `/ws/game`
-[cite_start]Description: Real-time network play must synchronize game states over the network via web socket.
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| GET | `/rooms` | Yes | Get current arena snapshot (all joinable or active rooms) | No |
+| GET | `/rooms/:id` | Yes | Get one room snapshot for reconnect/recovery | No |
+|
 
-| Event Name      | Direction      | Description                                                    |
-|-----------------|----------------|----------------------------------------------------------------|
-| `join_room`     | Client -> Server | Player connects to the assigned game room                      |
-| `player_joined` | Server -> Client | Notifies the room creator that the second player has joined    |
-| `game_start`    | Server -> Client | Triggered when the second player chooses their mark            |
-| `make_move`     | Client -> Server | Player submits a board coordinate                  |
-| `state_update`  | Server -> Client | Broadcasts the updated board state and turn status             |
-| `game_abort`    | Client -> Server | Player aborts the game before completion                       |
-| `game_end`      | Server -> Client | Broadcasts the winner and triggers the end-game animation      |
-| `send_chat`     | Client -> Server | Premium user sends a chat message                              |
-| `receive_chat`  | Server -> Client | Broadcasts the chat message to players in the room             |
+### `GET /rooms` query params
+| Query | Type | Description |
+|---|---|---|
+| `status` | string | `WAITING`, `READY`, `PLAYING` |
+| `boardSize` | number | `10` or `15` |
+| `page` | number | Optional pagination for large arenas |
+| `limit` | number | Optional page size |
+|
 
-## 6. Premium Subscription APIs
-Base Path: `/api/v1/subscription`
-[cite_start]*Note: Successful subscription payments must trigger an automated email notification to the user[cite: 134].*
+### Why only snapshot APIs are HTTP
+To minimize API calls, the arena page should:
+1. call `GET /rooms` once for initial render
+2. subscribe to WebSocket room events for all updates thereafter
 
-| Method | Endpoint                  | Description           |
-|--------|---------------------------|-----------------------|
-| GET    | `/subscription/status`    | Get premium status    |
-| POST   | `/subscription/subscribe` | Purchase subscription |
-| GET    | `/subscription/history`   | Get payment history   |
-
-## 7. Wallet APIs
+## 5. Wallet APIs
 Base Path: `/api/v1/wallet`
 
-| Method | Endpoint               | Description                    |
-|--------|------------------------|--------------------------------|
-| GET    | `/wallet`              | Get wallet balance             |
-| POST   | `/wallet/deposit`      | Deposit funds                  |
-| GET    | `/wallet/transactions` | Get wallet transaction history |
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| GET | `/wallet` | Yes | Get current wallet balance and latest transaction summary | No |
+| POST | `/wallet/deposit` | Yes | Deposit funds into local wallet | No |
+| GET | `/wallet/transactions` | Yes | Get paginated transaction history | No |
 
-## 8. Admin APIs
+### `GET /wallet`
+Recommended response:
+
+```json
+{
+  "data": {
+    "balance": 50,
+    "recentTransactions": []
+  },
+  "message": "Wallet fetched successfully"
+}
+```
+
+This prevents a separate automatic call to `/wallet/transactions` on initial wallet screen load.
+
+## 6. Subscription APIs
+Base Path: `/api/v1/subscription`
+
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| GET | `/subscription/status` | Yes | Get premium status and expiry date | No |
+| POST | `/subscription/subscribe` | Yes | Purchase monthly premium using wallet balance | No |
+| GET | `/subscription/history` | Yes | Get subscription payment history | No |
+
+### Notes
+- A successful subscription purchase should update premium state and trigger confirmation email.
+- Subscription history may be implemented by filtering `Transaction` records with type `SUBSCRIPTION`.
+
+## 7. Admin APIs
 Base Path: `/api/v1/admin`
 
-### Player Management
-| Method | Endpoint                        | Description                                 |
-|--------|---------------------------------|---------------------------------------------|
-| GET    | `/admin/players`                | List all players                            |
-| GET    | `/admin/players/:id`            | Get player details                          |
-| PATCH  | `/admin/players/:id/deactivate` | Deactivate account (prevents future logins) |
-| PATCH  | `/admin/players/:id/reactivate` | Reactivate account                          |
+All endpoints require `ADMIN` role.
 
-### Game Room Monitoring
-| Method | Endpoint               | Description            |
-|--------|------------------------|------------------------|
-| GET    | `/admin/rooms`         | List active game rooms |
-| GET    | `/admin/rooms/:roomId` | Get room details       |
-| DELETE | `/admin/rooms/:roomId` | Force close room       |
+### 7.1 Dashboard
+| Method | Endpoint | Auth | Description | Implemented |
+|---|---|---:|---|---|
+| GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | No |
+
+Recommended dashboard data:
+- totalPlayers
+- activePlayers
+- premiumPlayers
+- activeRooms
+- totalMatches
+- totalRevenue
+
+This avoids multiple parallel admin summary calls.
+
+### 7.2 Player Management
+| Method | Endpoint | Auth | Description | Implememted
+|---|---|---:|---|---|
+| GET | `/admin/players` | Admin | List players with pagination and filters | Yes |
+| GET | `/admin/player/:id` | Admin | Get one player's admin detail | Yes |
+| PATCH | `/admin/player/:id/deactivate` | Admin | Deactivate account | Yes |
+| PATCH | `/admin/player/:id/reactivate` | Admin | Reactivate account | Yes |
+
+#### `GET /admin/players` query params
+| Query | Type | Description |
+|---|---|---|
+| `page` | number | Page number |
+| `limit` | number | Page size |
+| `q` | string | Search by username or email |
+| `status` | string | `ACTIVE` or `INACTIVE` |
+| `premium` | boolean | Filter by premium status |
+| `sortBy` | string | `createdAt`, `username`, `lastLoginAt` |
+| `sortOrder` | string | `asc` or `desc` |
+|
+
+### 7.3 Room Monitoring
+| Method | Endpoint | Auth | Description |
+|---|---|---:|---|
+| GET | `/admin/rooms` | Admin | List active/waiting rooms |
+| GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot |
+| DELETE | `/admin/rooms/:id` | Admin | Force close a room |
+
+## 8. WebSocket Contract
+Namespace/Endpoint: `/ws/game`
+
+The team policy already defines the event naming format as `namespace:action` and requires object payloads.
+
+### 8.1 Client → Server
+| Event | Payload | Description |
+|---|---|---|
+| `room:create` | `{ boardSize, marker }` | Create a room and choose host marker preference |
+| `room:join` | `{ roomId }` | Join an existing room |
+| `room:leave` | `{ roomId }` | Leave a room before or during match |
+| `game:move` | `{ roomId, row, col }` | Submit one move |
+| `chat:send` | `{ roomId, message }` | Send in-game chat message (premium only) |
+
+### 8.2 Server → Client
+| Event | Payload | Description |
+|---|---|---|
+| `room:created` | `{ room }` | Room successfully created |
+| `room:updated` | `{ room }` | Room snapshot updated (join, leave, ready, play, close) |
+| `room:removed` | `{ roomId }` | Room removed from arena |
+| `game:state` | `{ roomId, board, currentTurn, lastMove, moveCount, status }` | Authoritative game state update |
+| `game:ended` | `{ roomId, winner, winLine, result }` | Match ended |
+| `chat:message` | `{ roomId, sender, message, timestamp }` | New chat message |
+| `error` | `{ message }` | Generic socket error |
+
+### Recommended server behavior
+- When player 2 joins, broadcast `room:updated`
+- When player 2 chooses their mark and the match becomes ready, broadcast `room:updated`
+- When the first move is allowed, broadcast `game:state`
+- When a player aborts, emit `game:ended` with `result: "ABORTED"` and remove/close the room
+
+## 9. Screen-to-API Mapping (Optimized)
+
+### App bootstrap
+- `GET /auth/check-auth`
+- open WebSocket only after auth is confirmed
+
+### Profile page
+- `GET /profile/overview`
+- optional follow-up only when user opens full transaction/history screens
+
+### Arena page
+- `GET /rooms`
+- then rely on WebSocket updates
+
+### Replay page
+- `GET /games/:id`
+- no second call for moves
+
+### Admin home
+- `GET /admin/dashboard`
+- then specific tables only when the admin opens each section

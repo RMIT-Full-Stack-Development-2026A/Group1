@@ -5,14 +5,14 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 export default function Layout({ children }) {
-    const { checkAuth } = useAuthStore();
     const location = useLocation();
     const showScrollTop = useScrollToTop();
 
     // Initialize auth check on app startup (runs only once globally)
+    // Use empty dependency array - Zustand functions should not be in dependencies
     useEffect(() => {
-        checkAuth();
-    }, [checkAuth]);
+        useAuthStore.getState().checkAuth();
+    }, []);
 
     // Hide navigation on guest auth pages
     // const hideNavRoutes = ["/login", "/register", "/"];

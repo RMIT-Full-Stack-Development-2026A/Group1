@@ -39,39 +39,3 @@ body {
 }
 
 /* Custom CSS for Design System */
-.scanlines {
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none;
-}
-
-.pixel-grid {
-    background-image: radial-gradient(#3d484d 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-.glow-cyan {
-    box-shadow: 0 0 15px rgba(76, 201, 240, 0.4);
-}
-
-.glow-cyan.chunky-offset {
-    box-shadow: 0 0 15px rgba(76, 201, 240, 0.4), 4px 4px 0px #343342;
-}
-
-.chunky-offset {
-    box-shadow: 4px 4px 0px #343342;
-}
-
-.chunky-offset-active {
-    transition: all 0.1s;
-}
-
-.chunky-offset-active:active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px #343342;
-}
-
-.button-glow {
-    box-shadow: 4px 4px 0px #343342, 0 0 15px rgba(76, 201, 240, 0.4);
-}

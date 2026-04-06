@@ -7,9 +7,9 @@ export default function Navigation() {
     const { isLoggedIn, loading, logout } = useAuth();
 
     const handleLogoClick = () => {
-        // If logged in, go to lobby. Otherwise, go to landing page
+        // If logged in, go to game mode select. Otherwise, go to landing page
         if (isLoggedIn) {
-            navigate("/lobby");
+            navigate("/play");
         } else {
             navigate("/");
         }

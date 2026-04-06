@@ -49,7 +49,7 @@ export default function GameCustomization() {
             });
 
             // Navigate to game board with room ID
-            navigate(`/play/${roomData.roomId}`, { state: { room: roomData } });
+            navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
         } catch (error) {
             console.error("Failed to create room:", error);
             setLoading(false);

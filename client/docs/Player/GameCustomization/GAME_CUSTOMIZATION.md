@@ -133,28 +133,48 @@ const { markerVariant } = useCustomizationStore();
 
 ## Customization Options
 
+### Data Format Transformation
+The frontend uses **display format** (user-friendly) while the backend expects **enum format** (standardized).
+
+When CREATE ROOM is clicked, `transformToBackendFormat()` converts all values automatically:
+
+```javascript
+// Frontend (display format) → Backend (enum format)
+"10x10" → 10
+"15x15" → 15
+"classic" → "CLASSIC"
+"neon" → "NEON"
+"block" → "DARK"
+1 → "CLASSIC"
+2 → "GLOW"
+3 → "CLASSIC"
+4 → "PIXEL"
+5 → "STONE"
+6 → "MINIMAL"
+```
+
 ### Board Sizes
-| Size | ID | Subtitle | Use Case |
-|------|----|-----------|----|
-| 10x10 | 10x10 | STANDARD TERMINAL | Default, balanced gameplay |
-| 15x15 | 15x15 | EXTENDED MATRIX | Extended tactical depth |
+| Frontend Display | Backend Value | Subtitle |
+|------------------|---------------|----------|
+| 10x10 | 10 | STANDARD TERMINAL |
+| 15x15 | 15 | EXTENDED MATRIX |
 
 ### Grid Renderer Styles
-| Name | ID | Description |
-|------|-----|-----|
-| RETRO-VEC 1.0 | classic | Classic grid with thin lines, subtle styling |
-| CYBER-LITE HI-FI | neon | Bright neon blue grid with glowing effect |
-| SOLID-STATE 40 | block | Block/pixelated grid with discrete cells |
+| Display | Frontend | Backend | Description |
+|---------|----------|---------|-----|
+| RETRO-VEC 1.0 | classic | CLASSIC | Classic grid with thin lines, subtle styling |
+| CYBER-LITE HI-FI | neon | NEON | Bright neon blue grid with glowing effect |
+| SOLID-STATE 40 | block | DARK | Block/pixelated grid with discrete cells |
 
 ### Marker Variants
-| ID | X Color | O Color | Special |
-|----|---------|---------|---------|
-| 1 | Red | Cyan | Glowing effect |
-| 2 | Amber | Purple | Standard colors |
-| 3 | White | White | Skewed/italic style (DEFAULT) |
-| 4 | Lime | Pink | Vibrant neon |
-| 5 | Slate | Slate | Bordered style |
-| 6 | Cyan square | Cyan diamond | Symbolic (no letters) |
+| ID | Frontend | Backend | X Color | O Color | Note |
+|----|----------|---------|---------|---------|------|
+| 1 | 1 | CLASSIC | Red | Cyan | Glowing effect |
+| 2 | 2 | GLOW | Amber | Purple | Standard colors |
+| 3 | 3 | CLASSIC | White | White | Skewed/italic (DEFAULT) |
+| 4 | 4 | PIXEL | Lime | Pink | Vibrant neon |
+| 5 | 5 | STONE | Slate | Slate | Bordered style |
+| 6 | 6 | MINIMAL | Symbol | Symbol | Cyan shapes |
 
 ## User Flows
 | Action | Flow |
@@ -170,32 +190,42 @@ const { markerVariant } = useCustomizationStore();
 ## API Integration
 
 ### Service Layer (`customization.service.js`)
-The service layer handles all API communication and provides helper functions:
+The service layer handles all API communication with **automatic data transformation**:
 
-**Exported Functions:**
-- `getBoardSizes()` - Returns array of board size options
-- `getGridStyles()` - Returns array of grid style options  
-- `getMarkerVariants()` - Returns array of marker variant options
-- `createGameRoom(options)` - Creates a room with customization options
+**Key Functions:**
+- `getBoardSizes()` - Returns sizes with both display and backend formats
+- `getGridStyles()` - Returns styles with both `displayId` and backend `id`
+- `getMarkerVariants()` - Returns variants with both `displayId` and backend `id`
+- `transformToBackendFormat(selection)` - **NEW** - Converts frontend display format to backend enums
+- `createGameRoom(options)` - Creates room and transforms data automatically
 
-**Backend Endpoint** (pending implementation):
-- **Method**: POST `/rooms`
-- **Payload**: 
+**Automatic Transformation:**
+```javascript
+// Frontend selection (what user selects)
+{ boardSize: "10x10", gridStyle: "neon", markerVariant: 3 }
+
+// Transforms to backend format (sent to API)
+{ boardSize: 10, boardStyle: "NEON", markerStyle: "CLASSIC" }
+```
+
+**Backend Endpoint:**
+- **Method**: POST `/api/v1/rooms/`
+- **Payload (automatically transformed)**: 
   ```json
   {
-    "boardSize": "10x10" | "15x15",
-    "gridStyle": "classic" | "neon" | "block",
-    "markerVariant": 1-6
+    "boardSize": 10 | 15,
+    "boardStyle": "CLASSIC" | "NEON" | "DARK",
+    "markerStyle": "CLASSIC" | "GLOW" | "SKETCH" | "STONE" | "PIXEL" | "MINIMAL"
   }
   ```
-- **Response**: `{ roomId: string, boardSize: string, ... }`
-- **Current Status**: Using mock implementation with simulated response
+- **Response**: `{ roomId, boardSize, boardStyle, markerStyle, ... }`
+- **Current Status**: Mock implementation with automatic transformation
 
-**TODO - Backend Integration:**
-1. Implement POST `/rooms` endpoint
-2. Replace mock response with actual API call
-3. Handle error responses (409 conflict, 400 validation, etc.)
-4. Add authentication token to request header
+**Implementation Note:**
+- Transformation happens automatically in `createGameRoom()`
+- No manual mapping needed in components
+- Frontend stays clean and readable
+- Backend receives standard enum values
 
 ## Loading States
 1. **Auth checking**: Shows "Checking authentication..." overlay
@@ -229,23 +259,53 @@ Landing → Register → GameLobby → GameCustomization → GameBoard
 - ✅ Clean architecture with separation of concerns
 - ✅ Global CustomizationStore for persisting customization across pages
 - ✅ markerRenderer utility for rendering markers in GameBoard
-- ⏳ Backend room creation endpoint pending (`POST /rooms`)
-- ⏳ Test coverage pending
+- ✅ **Backend alignment implemented** - Dual-layer mapping system
+- ✅ **Automatic data transformation** - Frontend → Backend format conversion
+- ✅ Constants structured with both display and backend enum values
+- ⏳ Backend room creation endpoint pending (`POST /api/v1/rooms/`)
+- ⏳ GameLobby room grid integration (currently shows mock data)
 - ⏳ Error handling UI pending (toasts/alerts)
+- ⏳ Test coverage pending
 
 ## Default Selections
 - **Board Size**: 10x10 (STANDARD TERMINAL)
 - **Grid Style**: neon (CYBER-LITE HI-FI) - highlighted on load
 - **Marker Variant**: 3 (White skewed X/O) - highlighted on load
 
+## Architecture: Frontend ↔ Backend Alignment
+
+**How Data Transformation Works:**
+
+```
+User selects on UI (display format)
+  ↓
+Example: "10x10", "neon", 3
+  ↓
+CustomizationStore saves (display format)
+  ↓
+CREATE ROOM clicked
+  ↓
+transformToBackendFormat() converts
+  ↓
+Example: 10, "NEON", "CLASSIC"
+  ↓
+API call sends to backend (enum format)
+  ↓
+Backend receives and stores
+```
+
+**Why This Design:**
+- Frontend stays readable (user-friendly format)
+- Backend stays standardized (enum names)
+- Transformation is automatic (no manual mapping needed)
+- Easy to test (transformation logic isolated in service)
+
 ## Next Steps
-1. **Implement GameBoard component** — Use `useCustomizationStore()` + `markerRenderer` utility
+1. **Backend** - Implement `POST /api/v1/rooms/` endpoint to accept transformed data
+2. **GameLobby Integration** - Connect room creation → room listing
+3. **Implement GameBoard component** — Use `useCustomizationStore()` + `markerRenderer` utility
    - See [GameBoard Implementation Guide](../GameBoard/IMPLEMENTATION_GUIDE.md)
-2. Backend implements `POST /rooms` endpoint
-3. Update CREATE ROOM handler to send actual options to backend
-4. Extract roomId from response and navigate to `/play/:roomId`
-5. Add error toasts/alerts for API failures
-6. Add loading spinner/skeleton during room creation
-7. Test full flow: Customize → Create → Play with custom markers
-8. Add unit tests for service functions and hooks
-9. Add PropTypes validation to all components (if not already present)
+4. Error handling - Add toasts/alerts for API failures
+5. Testing - Full flow: Customize → Create → Appear in Lobby → Join → Play
+6. Unit tests for service functions, transformations, and hooks
+7. Add PropTypes validation to all components (if not already present)

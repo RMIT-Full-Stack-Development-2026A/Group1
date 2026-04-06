@@ -1,9 +1,23 @@
 
-import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation/index";
+import Footer from "@/components/Footer";
+import { useLanding } from "./hook/useLanding.hook.js";
+import { BoardVisualizer } from "./sub-components";
+import { useAuthStore } from "@/stores/AuthStore";
 
 export default function Landing() {
     const navigate = useNavigate();
+    const { isAuthenticated, isCheckingAuth } = useAuthStore();
+    const { handlePlayNow, handleLogin } = useLanding();
+
+    // Redirect authenticated users to lobby
+    useEffect(() => {
+        if (!isCheckingAuth && isAuthenticated) {
+            navigate("/lobby", { replace: true });
+        }
+    }, [isCheckingAuth, isAuthenticated, navigate]);
 
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
@@ -29,9 +43,9 @@ export default function Landing() {
                     <div className="w-full flex justify-between items-end mb-12 border-b border-[#3d484d] pb-2">
                         <div className="flex flex-col items-start">
                             <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter">
-                                System Status
+                                COSC2769|COSC2808
                             </span>
-                            <span className="text-xs text-[#fad100] font-headline">ONLINE // STABLE</span>
+                            <span className="text-xs text-[#fad100] font-headline">Fullstack Development</span>
                         </div>
                         <div className="flex gap-1">
                             <div className="w-2 h-2 bg-[#93e2ff]"></div>
@@ -40,9 +54,9 @@ export default function Landing() {
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter">
-                                Loc: Sector 7
+                                Group 1
                             </span>
-                            <span className="text-xs text-[#e3e0f4] font-headline">2070.04.12</span>
+                            <span className="text-xs text-[#e3e0f4] font-headline">Semester 2, 2026</span>
                         </div>
                     </div>
 
@@ -63,13 +77,13 @@ export default function Landing() {
                     {/* Action Buttons */}
                     <div className="flex flex-col md:flex-row gap-6 mb-24">
                         <button
-                            onClick={() => navigate("/register")}
+                            onClick={handlePlayNow}
                             className="bg-[#4cc9f0] text-[#003543] px-10 py-5 font-headline text-xl flex items-center justify-center gap-4 border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#1e1e2c] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all hover:shadow-[0px_0px_8px_#4cc9f0]"
                         >
                             PLAY NOW
                         </button>
                         <button
-                            onClick={() => navigate("/login")}
+                            onClick={handleLogin}
                             className="border-2 border-[#3d484d] text-[#e3e0f4] px-10 py-5 font-headline text-xl active:translate-y-[1px] transition-all hover:shadow-[0px_0px_8px_#4cc9f0] hover:border-[#4cc9f0]"
                         >
                             LOGIN
@@ -128,195 +142,15 @@ export default function Landing() {
                     </div>
 
                     {/* Board Visualization */}
-                    <div className="mt-24 w-full relative h-[400px] border border-[#3d484d] bg-[#1a1a28] overflow-hidden">
-                        <div className="absolute top-0 left-0 p-4 border-r border-b border-[#3d484d] font-headline text-[10px] text-[#3d484d]">
-                            VISUALIZER_v4.2
-                        </div>
-
-                        {/* Board Markers */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center pointer-events-none">
-                            <div className="relative w-[400px] h-[400px] grid grid-cols-10 grid-rows-10 gap-0 border border-[#3d484d]">
-                                {/* Row 1 */}
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 2 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 3 */}
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 4 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 5 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 6 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 7 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#4cc9f0] [text-shadow:0_0_10px_#4cc9f0]">O</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 8 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d] flex items-center justify-center text-2xl font-headline text-[#ffb4ab] [text-shadow:0_0_10px_#93000a]">X</div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 9 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                
-                                {/* Row 10 */}
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                                <div className="border border-[#3d484d]"></div>
-                            </div>
-                        </div>
-
-                        {/* Scanning Progress */}
-                        <div className="absolute bottom-4 right-4 text-right">
-                            <p className="text-[10px] font-headline text-[#93e2ff] opacity-50">SCANNING SECTOR...</p>
-                            <div className="w-32 h-1 bg-[#3d484d] mt-1">
-                                <div className="w-2/3 h-full bg-[#4cc9f0] shadow-[0_0_5px_#4cc9f0]"></div>
-                            </div>
-                        </div>
+                    <div className="mt-16 w-full">
+                        <BoardVisualizer />
                     </div>
                 </section>
 
-                {/* Stats Section */} {/* To Be Removed */}
-                <section className="w-full bg-[#1e1e2c] py-12 border-y border-[#3d484d]">
-                    <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">142K</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                Matches Played
-                            </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">9.8K</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                Active Pilots
-                            </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">24ms</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                Avg Latency
-                            </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="font-headline text-2xl text-[#fad100] mb-2">2070</span>
-                            <span className="text-[10px] font-headline uppercase tracking-widest text-[#bcc8ce]">
-                                System Year
-                            </span>
-                        </div>
-                    </div>
-                </section>
             </main>
 
             {/* Footer */}
-            <footer className="w-full py-4 px-6 flex justify-center items-center bg-[#0d0d1a] border-t border-[#3d484d]">
-                <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center gap-4 mb-2">
-                        <span className="text-[#4cc9f0] font-headline text-xs">TTT SYSTEM</span>
-                        <span className="w-px h-3 bg-[#3d484d]"></span>
-                        <span className="text-[#bcc8ce] font-mono text-[10px] uppercase tracking-tighter hover:text-[#e2e8f0] cursor-pointer">
-                            Security Protocol
-                        </span>
-                        <span className="text-[#bcc8ce] font-mono text-[10px] uppercase tracking-tighter hover:text-[#e2e8f0] cursor-pointer">
-                            User Agreement
-                        </span>
-                    </div>
-                    <p className="font-mono text-[10px] uppercase tracking-tighter text-[#3d484d]">
-                        © 2070 NEON-GRID ARCADE SYSTEMS. ALL RIGHTS RESERVED.
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

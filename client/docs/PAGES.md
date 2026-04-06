@@ -29,6 +29,15 @@ Accessible only after login.
 | Match Replay | `/replay/:gameId` | Replay past matches with move controls (pause, forward, backward, resume) | **Premium Only** |
 | Subscription | `/subscription` | Wallet management and premium subscription                                | Free (to upgrade) |
 
+## TODO - Future Implementation
+
+These pages are designed but not yet implemented:
+
+| Page | Route | Description                                                               | Status |
+|-----|------|---------------------------------------------------------------------------|--------|
+| Single Player | `/play/single-player` | Play against AI with 3 difficulty levels                                 | 🟡 TODO |
+| Local Arena | `/play/local-arena` | Local multiplayer on the same machine (2 players)                         | 🟡 TODO |
+
 # 3. Admin Pages
 
 Accessible only by users with the **ADMIN role**.
@@ -39,7 +48,22 @@ Accessible only by users with the **ADMIN role**.
 | Player Management | `/admin/players` | View and manage all player accounts |
 | Game Room Monitor | `/admin/rooms` | Monitor and control online game rooms |
 
-```text
+---
+
+## TODO - Future Implementation
+
+These pages are designed and configured in GameModeSelect but not yet implemented:
+
+| Page | Route | Description | Status |
+|-----|------|-------------|--------|
+| Single Player | `/play/single-player` | Play against AI with 3 difficulty levels | 🟡 TODO |
+| Local Arena | `/play/local-arena` | Local multiplayer on the same machine (2 players) | 🟡 TODO |
+
+**Note**: These routes are configured in `GameModeSelect` service but not yet routed in `AppRouter.jsx`. Implementation needed when these features are prioritized.
+
+---
+
+
 │   ├── pages/                        # Page Layer Hierarchy (Assembles components based on PAGES.md)
 │   │   │
 │   │   ├── Guest/                    # Accessible without authentication

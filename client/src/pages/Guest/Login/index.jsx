@@ -1,127 +1,40 @@
 // Route: /login
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockAuthService } from "@/services/mockAuthService";
 import Navigation from "@/components/Navigation/index";
+import Footer from "@/components/Footer";
+import { useAuthStore } from "@/stores/AuthStore";
+import { useLogin } from "./hook/useLogin.hook.js";
+import { LockoutWarning, AuthMessage } from "./sub-components";
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    });
+    const { isAuthenticated, isCheckingAuth } = useAuthStore();
+    const {
+        formData,
+        handleInputChange,
+        showPassword,
+        toggleShowPassword,
+        loading,
+        message,
+        failedAttempts,
+        isLocked,
+        lockoutCountdown,
+        handleSubmit,
+        handleGuestLogin,
+        handleRegisterNav,
+    } = useLogin();
 
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState({ type: "", text: "" });
-    const [failedAttempts, setFailedAttempts] = useState(0);
-    const [isLocked, setIsLocked] = useState(false);
-    const [lockoutCountdown, setLockoutCountdown] = useState(0);
-
-    // Auto-lock when failedAttempts reaches 5
+    // Redirect to game mode select after successful login
     useEffect(() => {
-        if (failedAttempts === 5 && !isLocked) {
-            setIsLocked(true);
-            setLockoutCountdown(60);
+        if (!isCheckingAuth && isAuthenticated) {
+            console.log('[Login] User authenticated, redirecting to /play');
+            navigate("/play", { replace: true });
         }
-    }, [failedAttempts, isLocked]);
-
-    // Countdown timer for lockout
-    useEffect(() => {
-        let interval;
-        if (lockoutCountdown > 0) {
-            interval = setInterval(() => {
-                setLockoutCountdown((prev) => prev - 1);
-            }, 1000);
-        } else if (lockoutCountdown === 0 && isLocked) {
-            // Countdown finished, reset lockout
-            setIsLocked(false);
-            setFailedAttempts(0);
-            setMessage({ type: "", text: "" });
-        }
-        return () => clearInterval(interval);
-    }, [lockoutCountdown, isLocked]);
-
-    // Update error message with countdown
-    useEffect(() => {
-        if (isLocked && lockoutCountdown > 0) {
-            setMessage({
-                type: "error",
-                text: `Account locked due to too many failed attempts. Try again in ${lockoutCountdown}s.`,
-            });
-        }
-    }, [lockoutCountdown, isLocked]);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (!formData.email || !formData.password) {
-            setMessage({
-                type: "error",
-                text: "Please enter email and password",
-            });
-            return;
-        }
-
-        // Check if account is locked
-        if (mockAuthService.isAccountLockedForEmail(formData.email)) {
-            setIsLocked(true);
-            setLockoutCountdown(60);
-            // Message will be set by the countdown useEffect
-            return;
-        }
-
-        setLoading(true);
-        setMessage({ type: "", text: "" });
-
-        // Simulate API call delay
-        setTimeout(() => {
-            const result = mockAuthService.login(formData.email, formData.password);
-
-            if (result.success) {
-                setFailedAttempts(0);
-                setIsLocked(false);
-                setMessage({
-                    type: "success",
-                    text: "Login successful! Redirecting...",
-                });
-                // Redirect to profile after 2 seconds
-                setTimeout(() => {
-                    navigate("/profile");
-                }, 2000);
-            } else {
-                const attemptsRemaining = result.attemptsRemaining || 0;
-                const currentFailures = 5 - attemptsRemaining;
-                setFailedAttempts(currentFailures);
-
-                if (result.isLocked) {
-                    setIsLocked(true);
-                    setLockoutCountdown(60);
-                }
-
-                setMessage({
-                    type: "error",
-                    text: result.message || "Login failed",
-                });
-            }
-            setLoading(false);
-        }, 500);
-    };
-
-    const handleGuestLogin = () => {
-        navigate("/play");
-    };
+    }, [isAuthenticated, isCheckingAuth, navigate]);
 
     return (
-        <div className="bg-[#0d0d1a] text-[#e3e0f4] min-h-screen flex flex-col overflow-x-hidden">
+        <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">
             {/* Background Layers */}
             <div
                 className="fixed inset-0 opacity-20 pointer-events-none"
@@ -145,43 +58,23 @@ export default function LoginPage() {
             {/* Main Content */}
             <main className="flex-grow flex flex-col items-center justify-center pt-24 pb-12 px-4 z-10">
                 {/* Login Card */}
-                <div className="w-full max-w-[420px] bg-[#1a1a2e] border border-[#2a2a4e] flex flex-col shadow-2xl">
+                <div className="w-full max-w-[480px] bg-[#1a1a2e] border border-[#2a2a4e] flex flex-col shadow-[4px_4px_0px_0px_#343342]">
                     {/* Card Header Bar */}
-                    <div className="h-1.5 w-full bg-[#4cc9f0]"></div>
+                    <div className="h-1 w-full bg-[#4cc9f0]"></div>
 
                     <div className="p-8">
-                        <h1 className="font-headline text-xl text-[#4cc9f0] mb-8 drop-shadow-[0_0_8px_#4cc9f0] tracking-tighter text-center">
-                            PLAYER LOGIN
+                        <h1 className="font-headline text-lg text-[#e3e0f4] mb-3 tracking-tighter text-center uppercase">
+                            LOGIN
                         </h1>
-
-                        {/* Warning Bar - Show only when approaching lockout (before it's locked) */}
-                        {failedAttempts >= 2 && !isLocked && (
-                            <div className="bg-[#93000a] border-l-4 border-[#ffb4ab] text-[#ffdad6] p-3 mb-8 flex items-center gap-3 text-[10px] font-bold">
-                                <span>🔒</span>
-                                <span>
-                                    WARNING: {5 - failedAttempts} ATTEMPTS REMAINING BEFORE LOCKOUT
-                                </span>
-                            </div>
-                        )}
-
-                        {/* Error/Success Message */}
-                        {message.text && (
-                            <div
-                                className={`p-4 text-sm text-center rounded-none border-2 font-bold uppercase mb-6 ${
-                                    message.type === "success"
-                                        ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"
-                                        : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab]"
-                                }`}
-                            >
-                                {message.text}
-                            </div>
-                        )}
+                        <div className="h-[2px] w-full bg-[#4cc9f0] relative mb-8">
+                            <div className="absolute top-0 right-0 w-12 h-[2px] bg-white"></div>
+                        </div>
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Email/Username */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-[#879398] tracking-wider block">
+                                <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                     USERNAME OR EMAIL
                                 </label>
                                 <input
@@ -191,22 +84,16 @@ export default function LoginPage() {
                                     onChange={handleInputChange}
                                     placeholder="USER_ID_70"
                                     disabled={loading || isLocked}
-                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-mono text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>
 
                             {/* Password */}
                             <div className="space-y-2">
                                 <div className="flex justify-between items-end">
-                                    <label className="text-[10px] font-bold text-[#879398] tracking-wider block">
+                                    <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                         PASSWORD
                                     </label>
-                                    <button
-                                        type="button"
-                                        className="text-[10px] text-[#3d484d] hover:text-[#4cc9f0] transition-colors cursor-pointer"
-                                    >
-                                        Forgot password?
-                                    </button>
                                 </div>
 
                                 <div className="relative">
@@ -217,11 +104,11 @@ export default function LoginPage() {
                                         onChange={handleInputChange}
                                         placeholder="••••••••"
                                         disabled={loading || isLocked}
-                                        className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-mono text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed pr-10"
+                                        className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed pr-10"
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                        onClick={toggleShowPassword}
                                         disabled={loading || isLocked}
                                         className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                             showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
@@ -237,15 +124,22 @@ export default function LoginPage() {
                                 type="submit"
                                 disabled={loading || isLocked}
                                 className={`w-full font-bold py-4 px-6 flex items-center justify-center gap-3 transition-all uppercase text-sm ${
-                                    loading || isLocked
+                                    isLocked
+                                        ? "bg-[#93000a] text-[#ffdad6] border-2 border-[#ffb4ab] cursor-not-allowed shadow-none"
+                                        : loading
                                         ? "bg-[#3d484d] text-[#879398] border-2 border-[#3d484d] cursor-not-allowed shadow-none"
                                         : "bg-[#4cc9f0] text-[#003543] border-2 border-[#4cc9f0] shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none"
                                 }`}
                             >
-                                <span>{loading ? "⏳" : "▶"}</span>
-                                {loading ? "LOGGING IN..." : "START GAME"}
+                                <span>{isLocked ? "🔒" : loading ? "⏳" : "▶"}</span>
+                                {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "START GAME"}
                             </button>
                         </form>
+
+                        {/* Error/Success Message - Below form */}
+                        <div className="mt-6">
+                            <AuthMessage message={message} />
+                        </div>
 
                         {/* Divider */}
                         <div className="relative my-8">
@@ -257,14 +151,18 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* Guest CTA */}
+                        {/* Guest CTA - Also disabled when locked */}
                         <button
                             onClick={handleGuestLogin}
                             disabled={loading || isLocked}
-                            className="w-full border border-[#3d484d] text-[#e3e0f4] hover:border-[#4cc9f0] hover:text-[#4cc9f0] transition-all py-3 px-6 text-xs font-bold flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`w-full py-3 px-6 text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                                isLocked
+                                    ? "border border-[#3d484d] text-[#879398] cursor-not-allowed opacity-50"
+                                    : "border border-[#3d484d] text-[#e3e0f4] hover:border-[#4cc9f0] hover:text-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed"
+                            }`}
                         >
                             <span>👤</span>
-                            CONTINUE AS GUEST
+                            {isLocked ? "CONTINUE AS GUEST (LOCKED)" : "CONTINUE AS GUEST"}
                         </button>
                     </div>
                 </div>
@@ -274,7 +172,7 @@ export default function LoginPage() {
                     <p className="text-xs text-[#879398] font-medium tracking-wide">
                         No account?{" "}
                         <button
-                            onClick={() => navigate("/register")}
+                            onClick={handleRegisterNav}
                             className="text-[#4cc9f0] font-bold hover:drop-shadow-[0_0_8px_#4cc9f0] transition-all cursor-pointer"
                         >
                             REGISTER NOW
@@ -284,16 +182,7 @@ export default function LoginPage() {
             </main>
 
             {/* Footer */}
-            <footer className="w-full border-t-2 border-[#3d484d] mt-auto bg-[#0d0d1a] flex flex-col md:flex-row justify-between items-center px-6 py-4">
-                <div className="font-mono text-[10px] uppercase tracking-tighter text-slate-500">
-                    © 2070 TICTACTOANG TERMINAL. ALL RIGHTS RESERVED.
-                </div>
-                <div className="flex gap-6 mt-4 md:mt-0 font-mono text-[10px] uppercase tracking-tighter">
-                    <span className="text-[#fad100]">SYSTEM: ONLINE</span>
-                    <span className="text-slate-500">LATENCY: 12MS</span>
-                    <span className="text-slate-500">v4.0.2</span>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

@@ -218,7 +218,7 @@ const moveSchema = new mongoose.Schema({
   coordinate: {
     type: String, // Human-friendly algebraic notation
     required: true // Useful for replay UI and readable records
-    match: /^[A-O](?:[1:9]|1[0-5])$/
+    match: /^[A-O](?:[1-9]|1[0-5])$/
   },
   placedAt: {
     type: Date, // When this move was made

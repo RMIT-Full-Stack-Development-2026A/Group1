@@ -2,12 +2,12 @@ import express from 'express';
 import { ProfileController } from '../controllers/profile.controller.js';
 import { verifyToken } from '../../../middlewares/authMiddleware.js'; 
 
-const router = express.Router();
-router.use(verifyToken);
+const profileRoutes = express.Router();
+profileRoutes.use(verifyToken);
 
 // Profile endpoints
-router.get('/', ProfileController.getProfile);
-router.get('/overview', ProfileController.getProfileOverview);
-router.put('/update', ProfileController.updateProfile);
+profileRoutes.get('/', ProfileController.getProfile);
+profileRoutes.get('/overview', ProfileController.getProfileOverview);
+profileRoutes.put('/update', ProfileController.updateProfile);
 
-export default router;
+export default profileRoutes;

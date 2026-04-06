@@ -2,9 +2,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
+/* Cấu hình Theme của Tailwind v4 thay cho tailwind.config.js */
+@theme {
+  --color-deep-bg: #0d0d1a;
+  --color-surface-card: #1a1a2e;
+  --color-primary-cyan: #4cc9f0;
+  --color-danger-red: #e63946;
+  --color-win-amber: #f4a261;
+  --color-premium-gold: #ffd60a;
+  --color-outline-variant: #3d484d;
+
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-headline: "Press Start 2P", cursive;
+  --font-body: "Space Grotesk", sans-serif;
+}
+
 html, body, #root {
-    background-color: #0d0d1a;
+    background-color: var(--color-deep-bg);
     color: #e3e0f4;
+    overflow-x: hidden;
 }
 
 body {
@@ -38,4 +54,19 @@ body {
     direction: ltr;
 }
 
-/* Custom CSS for Design System */
+/* Hiệu ứng sọc màn hình CRT dùng chung */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.2)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.4;
+}

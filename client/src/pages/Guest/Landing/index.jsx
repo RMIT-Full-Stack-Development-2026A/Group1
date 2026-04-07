@@ -37,7 +37,7 @@ export default function Landing() {
                     {/* HUD Header */}
                     <div className="w-full flex justify-between items-end mb-12 border-b border-[#3d484d] pb-2">
                         <div className="flex flex-col items-start">
-                            <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter">
+                            <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter my-1 mb-1">
                                 COSC2769|COSC2808
                             </span>
                             <span className="text-xs text-[#fad100] font-headline">Fullstack Development</span>
@@ -48,7 +48,7 @@ export default function Landing() {
                             <div className="w-2 h-2 bg-[#3d484d]"></div>
                         </div>
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter">
+                            <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter my-1">
                                 Group 1
                             </span>
                             <span className="text-xs text-[#e3e0f4] font-headline">Semester 2, 2026</span>

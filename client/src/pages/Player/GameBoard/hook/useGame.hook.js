@@ -4,10 +4,10 @@ import { gameService } from '../service/game.service';
 
 const DEFAULT_SIZE = 10;
 
-// Helper: Khởi tạo mảng 2 chiều độc lập (Fix lỗi Array Reference)
+// Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));
 
-// Helper: Chuyển đổi tọa độ (VD: 0,0 -> A1)
+// Helper: convert coordinate (e.g., (0,0) -> A0)
 const toAlgebraic = (r, c) => `${String.fromCharCode(65 + c)}${r + 1}`;
 
 export const useGame = (gameMode = 'LOCAL') => {
@@ -28,7 +28,7 @@ export const useGame = (gameMode = 'LOCAL') => {
     // only allow changing board size when no active game
     const setBoardSize = useCallback((size) => {
         const activeGame = moveHistory.length > 0 && !winnerData && !isDraw;
-        if (activeGame) return; // Khóa chức năng đổi size khi đang chơi dở
+        if (activeGame) return; // Lock changing size when game is playing
         
         setBoardSizeState(size);
         setBoard(initBoard(size));

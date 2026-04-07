@@ -55,7 +55,20 @@ export const AuthService = {
         const password = String(loginData.password);
 
         const user = await AuthRepository.findByEmailOrUsername(identifier);
-        if (!user) {
+        const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
+
+         if (!user.isActive) {
+            throw {
+                statusCode: 403,
+                error: "ACCOUNT_DEACTIVATED",
+                message: "Login failed. Your account has been deactivated.",
+                cause: "An administrator has disabled this account.",
+                valid_example: "Contact an administrator to request reactivation."
+            };
+        }
+
+        if ((!user || !isPasswordCorrect)) {
+            await AuthRepository.incrementLoginAttempts(user);
             throw {
                 statusCode: 401,
                 error: "INVALID_CREDENTIALS",
@@ -80,28 +93,6 @@ export const AuthService = {
             await AuthRepository.clearExpiredLock(user._id);
             user.auth.loginAttempts = 0;
             user.auth.lockUntil = null;
-        }
-
-        const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
-        if (!isPasswordCorrect) {
-            await AuthRepository.incrementLoginAttempts(user);
-            throw {
-                statusCode: 401,
-                error: "INVALID_CREDENTIALS",
-                message: "Login failed. Invalid identifier or password.",
-                cause: "The provided password does not match our records.",
-                valid_example: "Check for typos or reset your password if needed."
-            };
-        }
-
-        if (!user.isActive) {
-            throw {
-                statusCode: 403,
-                error: "ACCOUNT_DEACTIVATED",
-                message: "Login failed. Your account has been deactivated.",
-                cause: "An administrator has disabled this account.",
-                valid_example: "Contact an administrator to request reactivation."
-            };
         }
 
         await Promise.all([

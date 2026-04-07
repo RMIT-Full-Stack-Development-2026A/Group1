@@ -23,12 +23,12 @@ export const validateRegisterInput = (data) => {
         });
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_-]{9,}$/; 
+    const usernameRegex = /^[a-zA-Z0-9_-]{6,}$/; 
     if (!usernameRegex.test(username)) {
         errors.push({
             field: "username",
             error: "INVALID_USERNAME",
-            cause: "Must be greater than 8 characters and contain only letters, numbers, hyphens, or underscores.",
+            cause: "Must be greater than 5 characters and contain only letters, numbers, hyphens, or underscores.",
             example: "TicTacMaster_99"
         });
     }
@@ -43,12 +43,12 @@ export const validateRegisterInput = (data) => {
         });
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
         errors.push({
             field: "password",
             error: "WEAK_PASSWORD",
-            cause: "Must be > 8 characters, include 1 uppercase, 1 lowercase, 1 number, and 1 special char.",
+            cause: "Must be >= 8 characters, include 1 uppercase, 1 lowercase, 1 number, and 1 special char.",
             example: "StrongP@ssw0rd!"
         });
     }

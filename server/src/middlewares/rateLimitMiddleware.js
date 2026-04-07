@@ -11,20 +11,6 @@ const createRateLimitHandler = ({ error, message, cause, valid_example }) => {
     };
 };
 
-export const authRateLimit = rateLimit({
-    windowMs: 60 * 1000,
-    max: 5,
-    standardHeaders: true,
-    legacyHeaders: false,
-    skipSuccessfulRequests: true,
-    handler: createRateLimitHandler({
-        error: "RATE_LIMIT_EXCEEDED",
-        message: "Too many authentication attempts. Please try again later.",
-        cause: "More than 5 failed authentication requests were sent within 60 seconds from this client.",
-        valid_example: "Wait 60 seconds before trying to log in again with valid credentials."
-    })
-});
-
 export const generalRateLimit = rateLimit({
     windowMs: 60 * 1000,
     max: 100,

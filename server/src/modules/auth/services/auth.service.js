@@ -55,7 +55,7 @@ export const AuthService = {
         const password = String(loginData.password);
 
         const user = await AuthRepository.findByEmailOrUsername(identifier);
-        const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
+        const isPasswordCorrect = user ? await bcryptjs.compare(password, user.passwordHash) : false;
 
         // Check if account exists and active
         if (user && !user.isActive) {

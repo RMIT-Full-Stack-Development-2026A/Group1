@@ -1,8 +1,6 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation/index";
-import Footer from "@/components/Footer";
 import { useLanding } from "./hook/useLanding.hook.js";
 import { BoardVisualizer } from "./sub-components";
 import { useAuthStore } from "@/stores/AuthStore";
@@ -21,9 +19,6 @@ export default function Landing() {
 
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
-            {/* Top Navigation */}
-            <Navigation />
-
             {/* Main Content */}
             <main className="relative min-h-screen flex flex-col items-center">
                 {/* Background Textures */}
@@ -38,7 +33,7 @@ export default function Landing() {
                 }}></div>
 
                 {/* Hero Section */}
-                <section className="relative z-20 w-full max-w-7xl mx-auto px-6 pt-24 pb-32 flex flex-col items-center text-center">
+                <section className="relative z-20 w-full max-w-7xl mx-auto px-6 pb-32 flex flex-col items-center text-center">
                     {/* HUD Header */}
                     <div className="w-full flex justify-between items-end mb-12 border-b border-[#3d484d] pb-2">
                         <div className="flex flex-col items-start">
@@ -148,9 +143,6 @@ export default function Landing() {
                 </section>
 
             </main>
-
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

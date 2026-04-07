@@ -87,17 +87,10 @@ export const useAuthStore = create((set) => ({
         set({ isCheckingAuth: true, error: null });
         
         try {
-            const token = getStoredToken();
-            console.log('[Auth] checkAuth: token exists?', !!token);
+            // Always try to verify session with backend
+            // Browser automatically sends httpOnly cookie with the request
+            console.log('[Auth] checkAuth: attempting to verify session with backend');
             
-            // If no token, skip the backend check (user is not logged in)
-            if (!token) {
-                console.log('[Auth] No token found, user not authenticated');
-                set({ isAuthenticated: false, user: null, isCheckingAuth: false });
-                return;
-            }
-            
-            // Only call backend if we have a token
             // Add timeout to prevent indefinite hanging
             const checkAuthPromise = authService.checkAuth();
             const timeoutPromise = new Promise((_, reject) => 
@@ -106,27 +99,27 @@ export const useAuthStore = create((set) => ({
             
             const response = await Promise.race([checkAuthPromise, timeoutPromise]);
             
-            // After backend verifies JWT is valid, extract user identity from JWT payload
-            const userIdentity = extractUserIdentity(token);
-            console.log('[Auth] checkAuth succeeded. User from JWT:', userIdentity);
+            // Use user data from backend response
+            const userIdentity = response.data ? {
+                id: response.data.id || response.data.userId,
+                userId: response.data.userId,
+                email: response.data.email,
+                username: response.data.username,
+                role: response.data.role || 'PLAYER',
+                isPremium: response.data.isPremium || false,
+                avatar: response.data.avatar,
+                country: response.data.country,
+            } : null;
+            
+            console.log('[Auth] checkAuth succeeded. User from backend:', userIdentity);
             set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
             
         } catch (error) {
             console.debug('[Auth] checkAuth failed:', error.message);
             
-            // If checkAuth fails but we have a valid token, treat user as authenticated
-            // (backend might be slow or unreachable, but token is still valid)
-            const token = getStoredToken();
-            if (token) {
-                const userIdentity = extractUserIdentity(token);
-                if (userIdentity) {
-                    console.log('[Auth] Token exists and valid, authenticating user despite checkAuth failure');
-                    set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
-                    return;
-                }
-            }
-            
-            // If no valid token or extraction failed, user is not authenticated
+            // If checkAuth fails, user is not authenticated
+            // (no valid cookie or session expired)
+            console.log('[Auth] No valid session, user not authenticated');
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
         }
     },

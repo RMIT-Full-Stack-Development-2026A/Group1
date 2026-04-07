@@ -9,16 +9,8 @@ export const authService = {
         
         console.log('[Auth Service] Login response:', response);
         
-        // Backend response: { data: userInfo, token: jwt, message: "..." }
-        // Extract JWT token from response and save to localStorage
-        const token = response.token;
-        console.log('[Auth Service] Extracted token from response:', !!token);
-        
-        if (token) {
-            saveToken(token);
-            console.log('[JWT] Token saved to localStorage');
-        }
-        
+        // Backend response: { data: userInfo, message: "..." }
+        // Token is stored in httpOnly cookie by server (sent automatically with requests)
         // Extract user identity from response.data (full user info from backend)
         const userIdentity = response.data ? {
             id: response.data.id,
@@ -45,16 +37,8 @@ export const authService = {
         
         console.log('[Auth Service] Register response:', response);
         
-        // Backend response: { data: userInfo, token: jwt, message: "..." }
-        // Extract JWT token from response and save to localStorage
-        const token = response.token;
-        console.log('[Auth Service] Extracted token from response:', !!token);
-        
-        if (token) {
-            saveToken(token);
-            console.log('[JWT] Token saved to localStorage');
-        }
-        
+        // Backend response: { data: userInfo, message: "..." }
+        // Token is stored in httpOnly cookie by server
         // Extract user identity from response.data (full user info from backend)
         const userIdentity = response.data ? {
             id: response.data.id,
@@ -78,8 +62,8 @@ export const authService = {
     logout: async () => {
         const response = await http.post(API_ENDPOINTS.AUTH.LOGOUT);
         
-        // Clear JWT token from localStorage
-        clearToken();
+        // Token is cleared by server (httpOnly cookie is removed)
+        console.log('[Auth Service] Logout completed');
         
         return response;
     },

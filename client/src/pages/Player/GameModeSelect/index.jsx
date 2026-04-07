@@ -5,8 +5,6 @@
  */
 
 import React from 'react';
-import Navigation from '../../../components/Navigation';
-import Footer from '../../../components/Footer';
 import { useGameModeSelect } from './hook/useGameModeSelect.hook';
 import './styles.css';
 import GameModeCard from './sub-components/GameModeCard';
@@ -16,15 +14,12 @@ const GameModeSelect = () => {
 
   return (
     <div className="bg-surface-container-lowest text-on-surface font-body overflow-hidden min-h-screen w-full select-none">
-      {/* Navigation */}
-      <Navigation />
-
       {/* Visual Texture Layers */}
       <div className="fixed inset-0 pixel-grid opacity-20 pointer-events-none"></div>
       <div className="fixed inset-0 scanlines opacity-30 pointer-events-none z-50"></div>
 
       {/* Main Content */}
-      <main className="pt-24 pb-20 px-12 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <main className="pb-20 px-12 flex flex-col items-center justify-center min-h-screen relative z-10">
         {/* Page Header */}
         <header className="mb-16 text-center">
           <h1 className="font-headline text-4xl text-primary-container drop-shadow-[0_0_12px_rgba(76,201,240,0.6)] mb-2">
@@ -39,9 +34,6 @@ const GameModeSelect = () => {
           ))}
         </div>
       </main>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

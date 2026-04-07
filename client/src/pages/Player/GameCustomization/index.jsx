@@ -5,8 +5,6 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { useCustomizationStore } from "@/stores/CustomizationStore";
 import { useGameCustomization } from "./hook/useGameCustomization.hook";
 import { createGameRoom } from "./service/customization.service";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import {
     BoardSizeSelector,
     GridStyleSelector,
@@ -89,11 +87,8 @@ export default function GameCustomization() {
                 }}
             ></div>
 
-            {/* Navigation */}
-            <Navigation />
-
             {/* Main Content */}
-            <main className="flex-grow pt-24 pb-20 px-6 flex flex-col items-center justify-start overflow-y-auto relative z-10">
+            <main className="flex-grow pt-15 pb-20 px-6 flex flex-col items-center justify-start overflow-y-auto relative z-10">
                 <div className="max-w-4xl w-full space-y-12">
                     {/* Header Section */}
                     <div className="text-center space-y-2">
@@ -131,9 +126,6 @@ export default function GameCustomization() {
                     </div>
                 </div>
             </main>
-
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

@@ -7,9 +7,7 @@ export const gameService = {
     saveGameResult: async (resultData) => {
         try {
             
-             // TODO: Change to real API to save result
-            const endpoint = '/game/save-result'; 
-            // TODO: Change to real API to save result
+            const endpoint = API_ENDPOINTS.GAME.LIST; 
             
             const response = await http.post(endpoint, resultData);
             return response;

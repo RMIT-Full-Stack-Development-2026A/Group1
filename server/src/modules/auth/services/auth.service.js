@@ -57,7 +57,8 @@ export const AuthService = {
         const user = await AuthRepository.findByEmailOrUsername(identifier);
         const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
 
-         if (!user.isActive) {
+        // Check if account exists and active
+        if (user && !user.isActive) {
             throw {
                 statusCode: 403,
                 error: "ACCOUNT_DEACTIVATED",
@@ -67,8 +68,20 @@ export const AuthService = {
             };
         }
 
-        if ((!user || !isPasswordCorrect)) {
-            await AuthRepository.incrementLoginAttempts(user);
+        if  (!user || !isPasswordCorrect) {
+            const updatedUser = user ? await AuthRepository.incrementLoginAttempts(user) : null;
+
+            //  Check lock after increment
+            if (updatedUser?.auth?.lockUntil && updatedUser.auth.lockUntil > new Date()) {
+                const secondsRemaining = Math.ceil((new Date(updatedUser.auth.lockUntil).getTime() - Date.now()) / 1000);
+                throw {
+                    statusCode: 403,
+                    error: "ACCOUNT_LOCKED",
+                    message: "Login failed. Account is temporarily locked.",
+                    cause: `Too many failed attempts. Try again in ${secondsRemaining} seconds.`,
+                    valid_example: `Wait ${secondsRemaining} seconds before trying again.`
+                };
+            }
             throw {
                 statusCode: 401,
                 error: "INVALID_CREDENTIALS",

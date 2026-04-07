@@ -1,8 +1,6 @@
 // Route: /login
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation/index";
-import Footer from "@/components/Footer";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useLogin } from "./hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
@@ -52,11 +50,8 @@ export default function LoginPage() {
                 }}
             ></div>
 
-            {/* Top Navigation */}
-            <Navigation />
-
-            {/* Main Content */}
-            <main className="flex-grow flex flex-col items-center justify-center pt-24 pb-12 px-4 z-10">
+            {/* Content Section */}
+            <section className="flex-grow flex-col flex items-center justify-center pb-8 px-4 z-10">
                 {/* Login Card */}
                 <div className="w-full max-w-[480px] bg-[#1a1a2e] border border-[#2a2a4e] flex flex-col shadow-[4px_4px_0px_0px_#343342]">
                     {/* Card Header Bar */}
@@ -179,10 +174,7 @@ export default function LoginPage() {
                         </button>
                     </p>
                 </div>
-            </main>
-
-            {/* Footer */}
-            <Footer />
+            </section>
         </div>
     );
 }

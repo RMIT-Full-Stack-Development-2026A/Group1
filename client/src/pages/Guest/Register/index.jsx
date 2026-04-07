@@ -1,7 +1,5 @@
 // Route: /register
 import React from "react";
-import Navigation from "@/components/Navigation/index";
-import Footer from "@/components/Footer";
 import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/pages/Guest/sub-components/FormFields";
 import { useRegister } from "./hook/useRegister.hook.js";
 
@@ -28,11 +26,8 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body flex flex-col">
-            {/* Top Navigation */}
-            <Navigation />
-
             {/* Main Content */}
-            <main className="flex-grow flex items-center justify-center pt-24 pb-12 px-4">
+            <main className="flex-grow flex items-center justify-center pt-5 pb-12 px-4">
                 <div className="w-full max-w-[480px] bg-[#1a1a2e] border border-[#2a2a4e] p-8 shadow-[4px_4px_0px_0px_#343342] relative">
                     {/* Terminal Header Decoration */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-[#4cc9f0]"></div>
@@ -157,9 +152,6 @@ export default function RegisterPage() {
                     </div>
                 </div>
             </main>
-
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

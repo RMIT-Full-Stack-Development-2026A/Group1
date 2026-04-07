@@ -37,7 +37,6 @@ export default function AppRouter() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/play" element={<GameBoard />} />
 
                 {/* 2. Player Pages (Free & Premium) */}
                 <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

@@ -3,8 +3,6 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useLobby } from "./hook/useLobby.hook.js";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-components";
 
 export default function GameLobby() {
@@ -51,7 +49,6 @@ export default function GameLobby() {
     if (lobbyError) {
         return (
             <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col">
-                <Navigation />
                 <main className="flex-grow flex items-center justify-center">
                     <div className="text-center">
                         <div className="text-[#ffb4ab] mb-4">❌ Failed to load lobby</div>
@@ -64,7 +61,6 @@ export default function GameLobby() {
                         </button>
                     </div>
                 </main>
-                <Footer />
             </div>
         );
     }
@@ -89,8 +85,6 @@ export default function GameLobby() {
                 }}
             ></div>
 
-            {/* Navigation */}
-            <Navigation />
 
             {/* Mock Data Warning Banner */}
             {usingMockData && !lobbyError && (
@@ -100,7 +94,7 @@ export default function GameLobby() {
             )}
 
             {/* Main Content */}
-            <main className="grow flex flex-col md:flex-row p-6 gap-6 relative z-10 pt-20">
+            <main className="grow flex flex-col md:flex-row p-6 gap-6 relative z-10">
                 {/* Left Sidebar: Player Stats */}
                 <aside className="w-full md:w-80 flex flex-col gap-6">
                     {playerStats && <PlayerStats stats={playerStats} />}
@@ -124,9 +118,6 @@ export default function GameLobby() {
                     />
                 </section>
             </main>
-
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

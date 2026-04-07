@@ -55,26 +55,23 @@ export const AuthService = {
         const password = String(loginData.password);
 
         const user = await AuthRepository.findByEmailOrUsername(identifier);
-        const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
-
-         if (!user.isActive) {
-            throw {
-                statusCode: 403,
-                error: "ACCOUNT_DEACTIVATED",
-                message: "Login failed. Your account has been deactivated.",
-                cause: "An administrator has disabled this account.",
-                valid_example: "Contact an administrator to request reactivation."
-            };
-        }
-
-        if ((!user || !isPasswordCorrect)) {
-            await AuthRepository.incrementLoginAttempts(user);
+        if (!user) {
             throw {
                 statusCode: 401,
                 error: "INVALID_CREDENTIALS",
                 message: "Login failed. Invalid identifier or password.",
                 cause: "No account matches the provided credentials.",
                 valid_example: "Ensure your username/email and password are correct."
+            };
+        }
+
+        if (!user.isActive) {
+            throw {
+                statusCode: 403,
+                error: "ACCOUNT_DEACTIVATED",
+                message: "Login failed. Your account has been deactivated.",
+                cause: "An administrator has disabled this account.",
+                valid_example: "Contact an administrator to request reactivation."
             };
         }
 
@@ -93,6 +90,42 @@ export const AuthService = {
             await AuthRepository.clearExpiredLock(user._id);
             user.auth.loginAttempts = 0;
             user.auth.lockUntil = null;
+        }
+
+        const isPasswordCorrect = await bcryptjs.compare(password, user.passwordHash);
+        if (!isPasswordCorrect) {
+            const updatedUser = await AuthRepository.incrementLoginAttempts(user);
+            const lockUntil = updatedUser.auth?.lockUntil;
+            const loginAttempts = updatedUser.auth?.loginAttempts ?? 0;
+
+            if (lockUntil && lockUntil > new Date()) {
+                const secondsRemaining = Math.ceil((new Date(lockUntil).getTime() - Date.now()) / 1000);
+                throw {
+                    statusCode: 403,
+                    error: "ACCOUNT_LOCKED",
+                    message: "Login failed. Account is temporarily locked.",
+                    cause: `Too many failed attempts. Try again in ${secondsRemaining} seconds.`,
+                    valid_example: `Wait ${secondsRemaining} seconds before trying again.`
+                };
+            }
+
+            if (loginAttempts >= 5) {
+                throw {
+                    statusCode: 403,
+                    error: "ACCOUNT_LOCKED",
+                    message: "Login failed. Account is temporarily locked.",
+                    cause: "Too many failed attempts. Try again later.",
+                    valid_example: "Wait 60 seconds before trying again."
+                };
+            }
+
+            throw {
+                statusCode: 401,
+                error: "INVALID_CREDENTIALS",
+                message: "Login failed. Invalid identifier or password.",
+                cause: "No account matches the provided credentials.",
+                valid_example: "Ensure your username/email and password are correct."
+            };
         }
 
         await Promise.all([

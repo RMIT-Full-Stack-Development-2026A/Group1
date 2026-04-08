@@ -25,7 +25,7 @@ This document contains the detailed specifications (Payloads, Data Types, and Va
 | `startedAt` | Date | **Yes** | Match start time (ISO 8601 String). e.g., `"2026-04-05T10:00:00.000Z"` |
 | `endedAt` | Date | **Yes** | Match end or abort time (ISO 8601 String). |
 | `firstTurnParticipantIndex`| Number | **Yes** | `0` or `1` (Indicates which participant index went first) |
-| `participants` | Array | **Yes** | Must contain **exactly 2 objects**. (See [Participant Object](#participant-object-inside-participants-array) below) |
+| `participants` | Array | **Yes** | Must contain **exactly 2 objects**. (See [Participant Object] below) |
 
 **Conditionally Required Fields:**
 | Field | Type | Required Condition | Description |

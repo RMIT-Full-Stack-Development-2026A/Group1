@@ -23,12 +23,6 @@ export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin }) 
                 >
                     ➕ CREATE ROOM
                 </button>
-                <button
-                    onClick={onQuickJoin}
-                    className="border-2 border-[#2a2a4e] text-[#e3e0f4] font-mono font-bold px-6 py-3 shadow-[4px_4px_0px_0px_#343342] hover:border-[#4cc9f0] hover:text-[#4cc9f0] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase tracking-tighter text-sm flex items-center gap-2"
-                >
-                    ⚡ QUICK JOIN
-                </button>
             </div>
         </div>
     );

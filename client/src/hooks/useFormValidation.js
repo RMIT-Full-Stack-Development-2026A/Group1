@@ -83,6 +83,12 @@ export const useFormValidation = (initialData = {}) => {
     // Main input change handler
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        // Clear error messages when user starts typing
+        if (message.type === "error") {
+            setMessage({ type: "", text: "" });
+        }
+
         setFormData((prev) => ({
             ...prev,
             [name]: value,

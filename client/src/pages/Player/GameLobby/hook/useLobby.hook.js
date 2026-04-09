@@ -47,7 +47,7 @@ export const useLobby = () => {
                 setRooms(roomsData || []);
                 setPlayerStats(statsData || null);
                 setRecentActivity(activityData || []);
-                setOnlineCount(LobbyService.getOnlineCount());
+                setOnlineCount(LobbyService.getOnlineCount(roomsData || []));
                 
                 console.log('[useLobby] Lobby initialized:', {
                     roomsCount: (roomsData || []).length,
@@ -86,7 +86,7 @@ export const useLobby = () => {
             setRooms(roomsData);
             setPlayerStats(statsData);
             setRecentActivity(activityData);
-            setOnlineCount(LobbyService.getOnlineCount());
+            setOnlineCount(LobbyService.getOnlineCount(roomsData));
             setError(null);
         } catch (err) {
             console.error("[useLobby] Failed to refresh lobby:", err);

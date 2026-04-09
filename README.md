@@ -7,7 +7,7 @@ TicTacToang is a high-performance, modern web platform designed to bring the cla
 * **Backend:** MEN Stack (MongoDB, ExpressJS, NodeJS).
 * **Architecture:** N-Tier Layer-based Hierarchy (Route, Controller, Service, Repository, Model).
 
-## 🚀 Setup & Installation
+## Setup & Installation
 
 This project is separated into two main directories: `client` (frontend) and `server` (backend). You will need to run both concurrently.
 

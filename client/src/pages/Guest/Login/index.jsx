@@ -118,7 +118,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || isLocked}
-                                className={`w-full font-bold py-4 px-6 flex items-center justify-center gap-3 transition-all uppercase text-sm ${
+                                className={`w-full font-bold font-headline py-4 px-6 flex items-center justify-center gap-3 transition-all uppercase text-sm ${
                                     isLocked
                                         ? "bg-[#93000a] text-[#ffdad6] border-2 border-[#ffb4ab] cursor-not-allowed shadow-none"
                                         : loading
@@ -127,7 +127,7 @@ export default function LoginPage() {
                                 }`}
                             >
                                 <span>{isLocked ? "🔒" : loading ? "⏳" : "▶"}</span>
-                                {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "START GAME"}
+                                {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "LOGIN"}
                             </button>
                         </form>
 
@@ -135,30 +135,6 @@ export default function LoginPage() {
                         <div className="mt-6">
                             <AuthMessage message={message} />
                         </div>
-
-                        {/* Divider */}
-                        <div className="relative my-8">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-[#3d484d]/30"></div>
-                            </div>
-                            <div className="relative flex justify-center text-[10px]">
-                                <span className="bg-[#1a1a2e] px-2 text-[#3d484d] font-bold">OR</span>
-                            </div>
-                        </div>
-
-                        {/* Guest CTA - Also disabled when locked */}
-                        <button
-                            onClick={handleGuestLogin}
-                            disabled={loading || isLocked}
-                            className={`w-full py-3 px-6 text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                                isLocked
-                                    ? "border border-[#3d484d] text-[#879398] cursor-not-allowed opacity-50"
-                                    : "border border-[#3d484d] text-[#e3e0f4] hover:border-[#4cc9f0] hover:text-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed"
-                            }`}
-                        >
-                            <span>👤</span>
-                            {isLocked ? "CONTINUE AS GUEST (LOCKED)" : "CONTINUE AS GUEST"}
-                        </button>
                     </div>
                 </div>
 

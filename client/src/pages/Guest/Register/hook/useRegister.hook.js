@@ -3,7 +3,7 @@
  * Manages form validation, submission, and navigation
  */
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useFormValidation } from "@/hooks/useFormValidation";
@@ -35,6 +35,7 @@ export const useRegister = () => {
                     form.setMessage({
                         type: "error",
                         text: validation.errors.join("\n"),
+                        autoClose: true,
                     });
                     form.setLoading(false);
                     return;
@@ -45,7 +46,7 @@ export const useRegister = () => {
 
                 form.setMessage({
                     type: "success",
-                    text: "✓ Account created! Redirecting to lobby...",
+                    text: "Account created! Redirecting to lobby...",
                 });
 
                 // Redirect to lobby after showing success message
@@ -69,6 +70,7 @@ export const useRegister = () => {
                     form.setMessage({
                         type: "error",
                         text: error.message || "Registration failed. Please try again.",
+                        autoClose: true,
                     });
                 }
             } finally {
@@ -77,6 +79,16 @@ export const useRegister = () => {
         },
         [form, navigate]
     );
+
+    // Auto-clear error messages after 4 seconds
+    useEffect(() => {
+        if (form.message.text && form.message.type === "error" && form.message.autoClose) {
+            const timer = setTimeout(() => {
+                form.setMessage({ type: "", text: "" });
+            }, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [form.message.text, form.message.type, form.message.autoClose, form]);
 
     // Handle navigation to login
     const handleLoginNav = useCallback(() => {

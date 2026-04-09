@@ -51,7 +51,7 @@ export const useLogin = () => {
         if (isLocked && lockoutCountdown > 0) {
             setMessage({
                 type: "error",
-                text: `Account locked due to too many failed attempts. Try again in ${lockoutCountdown}s.`,
+                text: `Account locked due to too many failed attempts. Try again in ${lockoutCountdown} seconds.`,
             });
         }
     }, [lockoutCountdown, isLocked]);
@@ -95,10 +95,15 @@ export const useLogin = () => {
                 // Call AuthStore.login() which updates auth state and saves JWT
                 const response = await useAuthStore.getState().login(formData);
 
+                // TODO: Backend needs to implement /auth/clear-failed-attempts endpoint
+                // Uncomment the following code once backend endpoint is ready:
+                // const { authService } = await import("@/services/auth/auth.service");
+                // await authService.clearFailedAttempts();
+
                 // Show success message before redirect
                 setMessage({
                     type: "success",
-                    text: "✓ Login successful! Redirecting to lobby...",
+                    text: "Login successful! Redirecting to lobby...",
                 });
 
                 // Clear failed attempts and lockout
@@ -114,7 +119,7 @@ export const useLogin = () => {
                     setLockoutCountdown(60);
                     setMessage({
                         type: "error",
-                        text: "❌ Account locked due to too many failed attempts.",
+                        text: "Account locked due to too many failed attempts.",
                     });
                 } else if (error.response?.status === 401) {
                     // Invalid credentials
@@ -129,19 +134,19 @@ export const useLogin = () => {
                         setLockoutCountdown(60);
                         setMessage({
                             type: "error",
-                            text: "❌ ACCOUNT LOCKED: 5 failed attempts. Try again in 60 seconds.",
+                            text: "ACCOUNT LOCKED: 5 failed attempts. Try again in 60 seconds.",
                         });
                     } else {
                         const attemptsRemaining = 5 - newAttempts;
                         setMessage({
                             type: "error",
-                            text: `❌ Invalid credentials. ${attemptsRemaining} attempt${attemptsRemaining !== 1 ? 's' : ''} remaining before lockout.`,
+                            text: `Invalid credentials. ${attemptsRemaining} attempt${attemptsRemaining !== 1 ? 's' : ''} remaining before lockout.`,
                         });
                     }
                 } else {
                     setMessage({
                         type: "error",
-                        text: error.message || "❌ Login failed. Please try again.",
+                        text: error.message || "Login failed. Please try again.",
                     });
                 }
             } finally {

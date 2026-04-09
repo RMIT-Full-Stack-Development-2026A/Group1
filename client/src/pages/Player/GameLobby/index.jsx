@@ -3,12 +3,12 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useLobby } from "./hook/useLobby.hook.js";
-import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-components";
+import { LobbyHeader, RoomGrid } from "./sub-components";
 
 export default function GameLobby() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
-    const { rooms, playerStats, recentActivity, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData } = useLobby();
+    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData } = useLobby();
 
     // Redirect to landing page if not logged in (but wait for auth check to complete)
     useEffect(() => {
@@ -51,7 +51,7 @@ export default function GameLobby() {
             <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col">
                 <main className="flex-grow flex items-center justify-center">
                     <div className="text-center">
-                        <div className="text-[#ffb4ab] mb-4">❌ Failed to load lobby</div>
+                        <div className="text-[#ffb4ab] mb-4">Failed to load lobby</div>
                         <div className="text-[#879398] text-sm mb-6">{lobbyError}</div>
                         <button
                             onClick={() => window.location.reload()}
@@ -89,34 +89,25 @@ export default function GameLobby() {
             {/* Mock Data Warning Banner */}
             {usingMockData && !lobbyError && (
                 <div className="bg-[#fad100]/20 border-b border-[#fad100] text-[#fad100] px-6 py-3 text-center text-sm font-mono tracking-tight">
-                    ⚠️ DEMO MODE: Showing example data. Backend endpoints not yet implemented.
+                    DEMO MODE: Showing example data. Backend endpoints not yet implemented.
                 </div>
             )}
 
             {/* Main Content */}
-            <main className="grow flex flex-col md:flex-row p-6 gap-6 relative z-10">
-                {/* Left Sidebar: Player Stats */}
-                <aside className="w-full md:w-80 flex flex-col gap-6">
-                    {playerStats && <PlayerStats stats={playerStats} />}
-                    {recentActivity && <RecentActivity activities={recentActivity} />}
-                </aside>
+            <main className="grow flex flex-col p-6 relative z-10">
+                {/* Header with Controls */}
+                <LobbyHeader
+                    onlineCount={onlineCount}
+                    onCreateRoom={handleCreateRoom}
+                    onQuickJoin={handleQuickJoin}
+                />
 
-                {/* Main Content Area */}
-                <section className="grow flex flex-col gap-8">
-                    {/* Header with Controls */}
-                    <LobbyHeader
-                        onlineCount={onlineCount}
-                        onCreateRoom={handleCreateRoom}
-                        onQuickJoin={handleQuickJoin}
-                    />
-
-                    {/* Room Grid */}
-                    <RoomGrid
-                        rooms={rooms}
-                        onJoinRoom={handleJoinRoom}
-                        onCreateRoom={handleCreateRoom}
-                    />
-                </section>
+                {/* Room Grid */}
+                <RoomGrid
+                    rooms={rooms}
+                    onJoinRoom={handleJoinRoom}
+                    onCreateRoom={handleCreateRoom}
+                />
             </main>
         </div>
     );

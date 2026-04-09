@@ -114,11 +114,11 @@ export const LobbyService = {
 
     /**
      * Get online player count
-     * TODO: Implement via real-time update or dedicated endpoint
+     * Counts the total number of rooms available from the backend
      */
-    getOnlineCount: () => {
-        // Placeholder - would need WebSocket or dedicated endpoint
-        return Math.floor(Math.random() * 100) + 10;
+    getOnlineCount: (rooms = []) => {
+        // Return the count of rooms from the backend
+        return Array.isArray(rooms) ? rooms.length : 0;
     },
 
     // ===== MOCK DATA (Fallback) =====

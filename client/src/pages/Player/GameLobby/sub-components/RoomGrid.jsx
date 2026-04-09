@@ -6,7 +6,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
     const roomList = Array.isArray(rooms) ? rooms : [];
 
     return (
-        <>
+        <div className="flex flex-col w-full h-full">
             {/* Room Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
                 {roomList.map((room) => (
@@ -14,22 +14,16 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
                 ))}
             </div>
 
-            {/* Empty State */}
+            {/* Empty State - Centered */}
             {roomList.length === 0 && (
-                <div className="flex items-center justify-center py-12">
+                <div className="flex-grow flex items-center justify-center pt-64">
                     <div className="text-center">
-                        <p className="font-mono text-[#879398] text-sm mb-4">
+                        <p className="font-mono text-[#879398] text-sm">
                             NO AVAILABLE ROOMS RIGHT NOW
                         </p>
-                        <button
-                            onClick={onCreateRoom}
-                            className="bg-[#4cc9f0] text-[#003543] font-mono font-bold px-6 py-2 text-sm uppercase tracking-tighter"
-                        >
-                            START YOUR OWN ROOM
-                        </button>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }

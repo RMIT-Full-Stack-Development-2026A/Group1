@@ -133,7 +133,7 @@ export default function RegisterPage() {
                             className={`mt-6 p-4 text-sm text-center rounded-none border-2 font-bold uppercase ${
                                 form.message.type === "success"
                                     ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"
-                                    : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab]"
+                                    : "bg-[#3f2a2a] border-[#ffb4ab] text-[#ffb4ab] animate-fadeOut"
                             }`}
                             style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                         >

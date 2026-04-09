@@ -97,7 +97,7 @@ const PasswordField = ({
                         <div className="space-y-1">
                             <CriteriaCheckbox
                                 met={passwordValidation.hasLength}
-                                label="At least 9 characters"
+                                label="At least 8 characters"
                             />
                             <CriteriaCheckbox
                                 met={passwordValidation.hasLower}

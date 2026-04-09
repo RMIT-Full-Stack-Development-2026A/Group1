@@ -59,7 +59,7 @@ export const useFormValidation = (initialData = {}) => {
     // Validation handlers
     const calculatePasswordStrength = (password) => {
         let strength = 0;
-        if (password.length >= 9) strength++; // Backend requires 9+
+        if (password.length >= 8) strength++; // Minimum 8 chars
         if (/[a-z]/.test(password)) strength++; // Must have lowercase
         if (/[A-Z]/.test(password)) strength++;
         if (/[0-9]/.test(password)) strength++;

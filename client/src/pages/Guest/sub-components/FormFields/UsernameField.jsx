@@ -34,7 +34,7 @@ const UsernameField = ({
                     <div className="space-y-1">
                         <CriteriaCheckbox
                             met={usernameValidation.validLength}
-                            label="At least 9 characters"
+                            label="At least 6 characters"
                         />
                         <CriteriaCheckbox
                             met={usernameValidation.validChars}

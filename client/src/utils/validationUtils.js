@@ -32,7 +32,7 @@ export const validateEmail = (email) => {
  */
 export const validateUsername = (username) => {
     const validChars = /^[a-zA-Z0-9_-]*$/.test(username);
-    const validLength = username.length >= 9; // Backend requires 9+ chars
+    const validLength = username.length >= 6; // Minimum 6 chars
     return { validChars, validLength };
 };
 
@@ -44,11 +44,11 @@ export const validateUsername = (username) => {
  */
 export const validatePassword = (password) => {
     return {
-        hasLength: password.length >= 9, // Backend requires 9+ chars
-        hasLower: /[a-z]/.test(password), // Backend requires lowercase
-        hasNumber: /[0-9]/.test(password), // Backend requires digit
-        hasSpecial: /[@$!%*?&]/.test(password), // Backend requires these specific special chars
-        hasCapital: /[A-Z]/.test(password), // Backend requires uppercase
+        hasLength: password.length >= 8, // Minimum 8 chars
+        hasLower: /[a-z]/.test(password), // Must have lowercase
+        hasNumber: /[0-9]/.test(password), // Must have digit
+        hasSpecial: /[@$!%*?&]/.test(password), // Must have these specific special chars
+        hasCapital: /[A-Z]/.test(password), // Must have uppercase
     };
 };
 

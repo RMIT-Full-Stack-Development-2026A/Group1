@@ -1,5 +1,3 @@
-import { RoomDTO } from "../../room/dtos/room.dto.js";
-
 // DTO helpers for admin dashboard, player management, and room monitoring responses.
 const toAdminPlayerItem = (user) => ({
     id: user.id || user._id,
@@ -40,14 +38,4 @@ export const AdminDTO = {
         ...extra
     }),
 
-    toRoomItem: (room) => RoomDTO.toRoomSummary(room),
-
-    toRoomList: (rooms, pagination) => ({
-        items: Array.isArray(rooms) ? rooms.map((room) => RoomDTO.toRoomSummary(room)) : [],
-        total: pagination?.total ?? 0,
-        page: pagination?.page ?? 1,
-        limit: pagination?.limit ?? 20
-    }),
-
-    toRoomDetail: (room) => RoomDTO.toRoomDetail(room)
 };

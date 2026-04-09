@@ -25,7 +25,7 @@ const MARKER_STYLES = [
  */
 const BoardArea = ({
     board, boardSize, matchTitle, markerStyle,
-    winnerData, isDraw,
+    winnerData, isDraw, isLocked,
     onCellClick, onReset, onSizeChange, onMarkerChange,
 }) => {
     const gameOver = !!winnerData || isDraw;
@@ -124,7 +124,9 @@ const BoardArea = ({
                                 markerStyle={markerStyle}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
                                 onClick={() => onCellClick(rowIndex, colIndex)}
-                                disabled={cellValue !== null || gameOver}
+                                
+                                // UPDATED: Add isLocked to disable condition
+                                disabled={cellValue !== null || gameOver || isLocked} 
                             />
                         ))
                     )}

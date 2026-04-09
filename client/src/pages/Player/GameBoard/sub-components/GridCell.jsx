@@ -55,11 +55,11 @@ const renderMarker = (value, markerStyle) => {
 /**
  * GridCell — pure presentational cell.
  * Props:
- *   value        null | 'X' | 'O'
- *   markerStyle  string
- *   isWinCell    boolean
- *   onClick      () => void
- *   disabled     boolean
+ * value        null | 'X' | 'O'
+ * markerStyle  string
+ * isWinCell    boolean
+ * onClick      () => void
+ * disabled     boolean
  */
 const GridCell = ({ value, markerStyle, isWinCell, onClick, disabled }) => (
     <div
@@ -67,9 +67,13 @@ const GridCell = ({ value, markerStyle, isWinCell, onClick, disabled }) => (
             'aspect-square border-r border-b border-[#2a2a4e]',
             'flex items-center justify-center transition-all duration-100',
             isWinCell ? 'bg-[#fad100]/20' : '',
-            disabled && !value ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-[#292937] active:bg-[#343342]',
+            
+            // UPDATED: Use the 'disabled' prop to control cursor styling
+            disabled ? 'cursor-not-allowed opacity-80' : 'cursor-pointer hover:bg-[#292937] active:bg-[#343342]',
         ].join(' ')}
         style={isWinCell ? { boxShadow: 'inset 0 0 8px rgba(250,209,0,0.25)' } : {}}
+        
+        // UPDATED: Prevent the onClick event from firing if the cell is disabled
         onClick={disabled ? undefined : onClick}
     >
         {renderMarker(value, markerStyle)}

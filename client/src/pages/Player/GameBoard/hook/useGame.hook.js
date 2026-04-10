@@ -1,31 +1,35 @@
-import { useState, useCallback, useEffect} from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { checkWin, checkDraw } from './gameLogic';
 import { gameService } from '../service/game.service';
-
-const DEFAULT_SIZE = 10;
 
 // Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));
 
-// Helper: convert coordinate (e.g., (0,0) -> A0)
+// Helper: convert coordinate (e.g., (0,0) -> A1)
 const toAlgebraic = (r, c) => `${String.fromCharCode(65 + c)}${r + 1}`;
 
-export const useGame = (gameMode = 'LOCAL') => {
-    const [boardSize, setBoardSizeState]    = useState(DEFAULT_SIZE);
-    const [isLocked, setIsLocked]          = useState(false);
-    // use lazy intialization for board to avoid unnecessary computation on every render, 
-    // this is how it works: 
-    // initBoard(DEFAULT_SIZE) is only called once during the initial render, 
-    // and its result is used as the initial state for board. 
-    // Subsequent renders will not call initBoard again, thus improving performance.
-    const [board, setBoard]                 = useState(() => initBoard(DEFAULT_SIZE));
-    const [currentPlayer, setCurrentPlayer] = useState('X');
-    const [winnerData, setWinnerData]       = useState(null);
-    const [isDraw, setIsDraw]               = useState(false);
-    const [moveHistory, setMoveHistory]     = useState([]);
-    const [markerStyle, setMarkerStyle]     = useState('default');
+// Hook gets playersInfo array and initialBoardSize from the UI layer
+export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoardSize = 10) => {
 
-    // only allow changing board size when no active game
+    // Initialize with the dynamic size provided by CustomizationStore
+    const [boardSize, setBoardSizeState] = useState(initialBoardSize);
+    const [isLocked, setIsLocked] = useState(false);
+    
+    // Lazy initialization for board performance using initialBoardSize
+    const [board, setBoard] = useState(() => initBoard(initialBoardSize));
+    const [currentPlayer, setCurrentPlayer] = useState('X');
+    const [winnerData, setWinnerData] = useState(null);
+    const [isDraw, setIsDraw] = useState(false);
+    const [moveHistory, setMoveHistory] = useState([]);
+    
+    // Removed markerStyle state since CustomizationStore handles UI logic now
+
+    // Tracking turns and time for Backend Payload
+    const [participantIndex, setParticipantIndex] = useState(0);
+    const [firstTurnIndex, setFirstTurnIndex] = useState(0); // Track who goes first (default 0)
+    const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
+
+    // Only allow changing board size when no active game
     const setBoardSize = useCallback((size) => {
         const activeGame = moveHistory.length > 0 && !winnerData && !isDraw;
         if (activeGame) return; // Lock changing size when game is playing
@@ -36,36 +40,60 @@ export const useGame = (gameMode = 'LOCAL') => {
         setWinnerData(null);
         setIsDraw(false);
         setMoveHistory([]);
-    }, [moveHistory.length, winnerData, isDraw]); 
+        setParticipantIndex(firstTurnIndex);
+        setStartedAt(new Date().toISOString()); // Reset start time
+    }, [moveHistory.length, winnerData, isDraw, firstTurnIndex]); 
 
-    // handlemove upgrade
+    // Handle move upgraded with exact BE Schema
     const handleMove = useCallback(async (row, col) => {
         // Ignore click if cell is occupied or game is already over
-        
         if (isLocked || board[row][col] !== null || winnerData || isDraw) return;
 
-        // copy board state to trigger re-render, also update move history for API call
+        // Copy board state to trigger re-render
         const newBoard = board.map(r => [...r]);
         newBoard[row][col] = currentPlayer;
         setBoard(newBoard);
 
         const timestamp = new Date().toISOString();
-        const updatedHistory = [
-            ...moveHistory,
-            { playerName: currentPlayer, coordinate: toAlgebraic(row, col), timestamp },
-        ];
+        
+        // 1. Format new move matching BE payload
+        const newMove = {
+            moveNumber: moveHistory.length + 1,
+            byParticipantIndex: participantIndex,
+            row: row,
+            col: col,
+            coordinate: toAlgebraic(row, col)
+        };
+        
+        const updatedHistory = [...moveHistory, newMove];
         setMoveHistory(updatedHistory);
 
-        // checkwin upgradeed with API call to save result
+        // Check win
         const winningCells = checkWin(newBoard, row, col, currentPlayer);
+        
         if (winningCells) {
             setWinnerData({ player: currentPlayer, cells: winningCells });
-            // call API to save match result, but don't block UI if it fails
+            
+            // 2. Format winning line matching BE payload
+            const formattedWinningLine = winningCells.map(([r, c]) => ({
+                row: r,
+                col: c,
+                coordinate: toAlgebraic(r, c)
+            }));
+
+            // Call API to save match result
             try {
                 await gameService.saveGameResult({
-                    result: currentPlayer === 'X' ? 'PLAYER1_WIN' : 'PLAYER2_WIN',
-                    endTime: timestamp,
-                    moves: updatedHistory,
+                    gameType: gameMode,
+                    status: "FINISHED",
+                    boardSize: boardSize,
+                    firstTurnParticipantIndex: firstTurnIndex,
+                    winnerParticipantIndex: participantIndex, // The one who just moved is the winner
+                    startedAt: startedAt,
+                    endedAt: timestamp,
+                    participants: playersInfo, 
+                    winningLine: formattedWinningLine,
+                    moves: updatedHistory
                 });
             } catch (error) {
                 console.error("Save match result failed, but UI can proceed:", error);
@@ -73,48 +101,52 @@ export const useGame = (gameMode = 'LOCAL') => {
             return;
         }
 
-        // draw check
+        // Check draw
         if (checkDraw(newBoard)) {
             setIsDraw(true);
             try {
-                await gameService.saveGameResult({ result: 'DRAW', endTime: timestamp, moves: updatedHistory });
+                await gameService.saveGameResult({ 
+                    gameType: gameMode,
+                    status: "DRAW",
+                    boardSize: boardSize,
+                    firstTurnParticipantIndex: firstTurnIndex,
+                    winnerParticipantIndex: null, // No winner in draw
+                    startedAt: startedAt,
+                    endedAt: timestamp,
+                    participants: playersInfo,
+                    winningLine: [],
+                    moves: updatedHistory
+                });
             } catch (error) {
                 console.error("Save match result failed:", error);
             }
             return;
         }
 
-        // switch player
+        // Switch player
         setCurrentPlayer(prev => prev === 'X' ? 'O' : 'X');
-    }, [board, currentPlayer, winnerData, isDraw, moveHistory, isLocked]);
+        setParticipantIndex(1 - participantIndex);
+    }, [board, currentPlayer, winnerData, isDraw, moveHistory, isLocked, gameMode, boardSize, participantIndex, firstTurnIndex, startedAt, playersInfo]);
 
-    // Handle AI move or wait for opponent move in online mode 
+    // Handle AI move or wait for opponent move in online mode
     useEffect(() => {
-        if (winnerData || isDraw) return; // Game over thì thôi
+        if (winnerData || isDraw) return; 
 
         const processAutoMove = async () => {
-            // NẾU LÀ ĐÁNH VỚI MÁY VÀ ĐẾN LƯỢT MÁY (O)
-            if (gameMode === 'AI' && currentPlayer === 'O') {
-                setIsLocked(true); // 1. Khóa bàn cờ lại, không cho Player X bấm loạn
+            // SINGLE_PLAYER bot logic
+            if (gameMode === 'SINGLE_PLAYER' && currentPlayer === 'O') {
+                setIsLocked(true); 
                 
-                // TODO for Minz:
-                // 1. Call function handleAIMove(board, boardSize) here
-                // 2. Wait for it to return the best move [bestRow, bestCol]
-                // 3. Update the board accordingly, similar to handleMove
+                // TODO for Minz: Add AI Logic here
                 
-                // for example
-                // await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                setIsLocked(false); // AI finish, unlock for Player X
+                setIsLocked(false); 
             }
-            
-            // NẾU LÀ ĐÁNH ONLINE VÀ ĐẾN LƯỢT ĐỐI THỦ (O)
-            else if (gameMode === 'ONLINE' && currentPlayer === 'O') {
-                setIsLocked(true); // Khóa bàn cờ chờ dữ liệu từ Socket.io
-                // TODO for Minz: Lắng nghe socket.on('opponent_move') ở đây
+            // ONLINE_MATCH logic
+            else if (gameMode === 'ONLINE_MATCH' && currentPlayer === 'O') {
+                setIsLocked(true); 
+                // Listen to socket.io here
             }
-            
-            // NẾU ĐÁNH LOCAL THÌ KHÔNG KHÓA GÌ CẢ
+            // Local match - no lock needed
             else {
                 setIsLocked(false);
             }
@@ -129,7 +161,9 @@ export const useGame = (gameMode = 'LOCAL') => {
         setWinnerData(null);
         setIsDraw(false);
         setMoveHistory([]);
-    }, [boardSize]);
+        setParticipantIndex(firstTurnIndex);
+        setStartedAt(new Date().toISOString()); // Reset start time for the new match
+    }, [boardSize, firstTurnIndex]);
 
     return {
         board,
@@ -137,10 +171,10 @@ export const useGame = (gameMode = 'LOCAL') => {
         currentPlayer,
         winnerData,
         isDraw,
-        markerStyle,
+        isLocked,
         handleMove,
         resetGame,
         setBoardSize,
-        setMarkerStyle,
+        // Removed setMarkerStyle from return
     };
 };

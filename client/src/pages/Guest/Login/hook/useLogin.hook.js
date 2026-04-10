@@ -85,7 +85,7 @@ export const useLogin = () => {
 
             try {
                 // Create LoginRequest DTO for validation
-                const { LoginRequest } = await import("@/models/auth");
+                const { LoginRequest } = await import("@/pages/Guest/Login/model/auth.js");
                 const loginRequest = new LoginRequest(formData);
                 const validation = loginRequest.validate();
                 if (!validation.valid) {

@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useLogin } from "./hook/useLogin.hook.js";
+import { useLogin } from "@/pages/Guest/Login/hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
 
 export default function LoginPage() {

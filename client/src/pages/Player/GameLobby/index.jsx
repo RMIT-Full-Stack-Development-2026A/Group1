@@ -2,8 +2,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useLobby } from "./hook/useLobby.hook.js";
-import { LobbyHeader, RoomGrid } from "./sub-components";
+import { useLobby } from "@/pages/Player/GameLobby/hook/useLobby.hook.js";
+import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-components";
 
 export default function GameLobby() {
     const navigate = useNavigate();

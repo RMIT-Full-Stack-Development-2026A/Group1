@@ -38,7 +38,7 @@ export default function Navigation() {
                 {!loading && isLoggedIn ? (
                     <button
                         onClick={handleLogout}
-                        className="font-mono uppercase tracking-widest text-xs bg-[#ffb4ab] text-[#690005] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#ffb4ab] transition-all"
+                        className="font-mono uppercase tracking-widest text-xs bg-[#ffb4ab] cursor-pointer text-[#690005] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#ffb4ab] transition-all"
                     >
                         LOGOUT
                     </button>

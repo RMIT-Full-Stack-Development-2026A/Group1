@@ -6,11 +6,14 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../../stores/AuthStore';
+import { useModeStore } from '../../../../stores/ModeStore'; 
 import { getGameModes, getGameModeRoute } from '../service/gameModeSelect.service';
 
 export const useGameModeSelect = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  
+  const { setGameMode, setAiDifficulty } = useModeStore();
 
   /**
    * Redirect to login if not authenticated
@@ -26,6 +29,13 @@ export const useGameModeSelect = () => {
    * @param {string} modeId - ID of the selected game mode
    */
   const handleSelectMode = (modeId) => {
+    
+    setGameMode(modeId);
+    
+    if (modeId === 'SINGLE_PLAYER' && setAiDifficulty) {
+        setAiDifficulty('EASY');
+    }
+
     const route = getGameModeRoute(modeId);
     if (route) {
       navigate(route);

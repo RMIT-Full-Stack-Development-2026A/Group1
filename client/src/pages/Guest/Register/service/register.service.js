@@ -2,9 +2,9 @@
  * Register Service
  * Handles registration-related API calls and DTO creation
  */
-
+    
 import { authService } from "@/services/auth/auth.service";
-import { RegisterRequest } from "@/models/auth";
+import { RegisterRequest } from "@/pages/Guest/Login/model/auth";
 import {
     isEmailValid,
     isUsernameValid,

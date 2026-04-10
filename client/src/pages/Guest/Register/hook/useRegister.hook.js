@@ -6,8 +6,8 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useFormValidation } from "@/hooks/useFormValidation";
-import { useCountries } from "@/hooks/useCountries";
+import { useFormValidation } from "@/pages/Guest/Register/hook/useFormValidation";
+import { useCountries } from "@/pages/Guest/Register/hook/useCountries";
 import { registerService } from "../service/register.service";
 
 export const useRegister = () => {

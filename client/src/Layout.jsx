@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/reusable/Navigation";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import Footer from "@/components/reusable/Footer";
+
 
 export default function Layout({ children }) {
     const location = useLocation();

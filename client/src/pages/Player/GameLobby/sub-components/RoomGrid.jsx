@@ -20,13 +20,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
                     <div className="text-center">
                         <p className="font-mono text-[#879398] text-sm">
                             NO AVAILABLE ROOMS RIGHT NOW
-                        </p>
-                        <button
-                            onClick={onCreateRoom}
-                            className="bg-[#4cc9f0] text-[#003543] font-mono cursor-pointer font-bold px-6 py-2 text-sm uppercase tracking-tighter"
-                        >
-                            START YOUR OWN ROOM
-                        </button>
+                        </p>                  
                     </div>
                 </div>
             )}

@@ -4,7 +4,7 @@
  */
 
 import { authService } from "@/services/auth/auth.service";
-import { LoginRequest } from "@/models/auth";
+import { LoginRequest } from "@/pages/Guest/Login/model/auth.js";
 
 export const loginService = {
     /**

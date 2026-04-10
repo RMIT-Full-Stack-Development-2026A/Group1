@@ -1,10 +1,10 @@
 // Route: /login
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation/index";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/reusable/Navigation";
+import Footer from "@/components/reusable/Footer";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useLogin } from "./hook/useLogin.hook.js";
+import { useLogin } from "@/pages/Guest/Login/hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
 
 export default function LoginPage() {

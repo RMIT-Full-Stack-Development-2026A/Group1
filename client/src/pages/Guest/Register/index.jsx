@@ -1,7 +1,7 @@
 // Route: /register
 import React from "react";
-import Navigation from "@/components/Navigation/index";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/reusable/Navigation";
+import Footer from "@/components/reusable/Footer";
 import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/pages/Guest/sub-components/FormFields";
 import { useRegister } from "./hook/useRegister.hook.js";
 

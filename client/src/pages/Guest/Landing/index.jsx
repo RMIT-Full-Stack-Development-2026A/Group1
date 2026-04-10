@@ -1,8 +1,8 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation/index";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/reusable/Navigation";
+import Footer from "@/components/reusable/Footer";
 import { useLanding } from "./hook/useLanding.hook.js";
 import { BoardVisualizer } from "./sub-components";
 import { useAuthStore } from "@/stores/AuthStore";

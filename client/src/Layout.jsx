@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-// import Navigation from "@/components/Navigation";
+// import Navigation from "@/components/reusable/Navigation";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 

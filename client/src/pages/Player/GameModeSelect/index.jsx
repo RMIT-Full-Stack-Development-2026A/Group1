@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import Navigation from '../../../components/Navigation';
-import Footer from '../../../components/Footer';
+import Navigation from '@/components/reusable/Navigation';
+import Footer from '@/components/reusable/Footer';
 import { useGameModeSelect } from './hook/useGameModeSelect.hook';
 import './styles.css';
 import GameModeCard from './sub-components/GameModeCard';

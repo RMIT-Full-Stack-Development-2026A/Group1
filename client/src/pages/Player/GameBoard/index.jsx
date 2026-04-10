@@ -17,7 +17,7 @@ const GameBoard = () => {
     const navigate = useNavigate();
     
     // 1. RÚT DỮ LIỆU TỪ ZUSTAND STORES
-    const { user } = useAuthStore(); 
+    const { user, isCheckingAuth } = useAuthStore(); 
     const { gameMode, aiDifficulty } = useModeStore();
     const { boardSize: displaySize, markerVariant, setMarkerVariant } = useCustomizationStore();
 
@@ -83,6 +83,10 @@ const GameBoard = () => {
         setMarkerVariant(newVariant || 1);
     };
 
+    if (isCheckingAuth) {
+        return <div className="h-screen bg-deep-bg flex items-center justify-center font-headline text-primary-cyan">AUTHENTICATING...</div>;
+    }
+
     return (
         <div className="flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden h-screen w-screen relative">
             <ScanLines />
@@ -111,10 +115,10 @@ const GameBoard = () => {
                 />
 
                 <BoardArea
+                    markerVariant={markerVariant}
                     board={board}
                     boardSize={boardSize} // Truyền boardSize từ Hook
                     matchTitle={matchTitle}
-                    markerStyle={activeMarkerStyle} // Truyền markerStyle đã được phiên dịch
                     winnerData={winnerData}
                     isDraw={isDraw}
                     isLocked={isLocked}

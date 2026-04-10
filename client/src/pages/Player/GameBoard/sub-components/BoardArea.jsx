@@ -9,23 +9,8 @@ const MARKER_STYLES = [
     { value: 'custom_1', label: 'Custom 1' },
 ];
 
-/**
- * BoardArea — center section.
- * Contains: board controls header + coordinate grid.
- * Props:
- *   board         2D array
- *   boardSize     10 | 15
- *   matchTitle    string
- *   markerStyle   string
- *   winnerData    { player, cells } | null
- *   isDraw        boolean
- *   onCellClick   (row, col) => void
- *   onReset       () => void
- *   onSizeChange  (size: number) => void
- *   onMarkerChange (style: string) => void
- */
 const BoardArea = ({
-    board, boardSize, matchTitle, markerStyle,
+    board, boardSize, matchTitle, markerVariant,
     winnerData, isDraw, isLocked,
     onCellClick, onReset, onSizeChange, onMarkerChange,
 }) => {
@@ -69,7 +54,7 @@ const BoardArea = ({
                             <GridCell
                                 key={`${rowIndex}-${colIndex}`}
                                 value={cellValue}
-                                markerStyle={markerStyle}
+                                markerVariant={markerVariant}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
                                 onClick={() => onCellClick(rowIndex, colIndex)}
                                 

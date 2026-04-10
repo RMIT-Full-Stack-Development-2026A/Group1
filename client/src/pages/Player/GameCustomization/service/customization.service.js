@@ -19,12 +19,58 @@ const GRID_STYLES = [
 
 // Maps frontend numeric IDs to backend enum names
 const MARKER_VARIANTS = [
-    { id: "CLASSIC", displayId: 1, xColor: "text-red-500", oColor: "text-cyan-400", xGlow: "drop-shadow-[0_0_4px_red]", oGlow: "drop-shadow-[0_0_4px_cyan]" },
-    { id: "GLOW", displayId: 2, xColor: "text-amber-400", oColor: "text-purple-500", xGlow: "", oGlow: "" },
-    { id: "CLASSIC", displayId: 3, xColor: "text-white", oColor: "text-white", xGlow: "", oGlow: "", isActive: true },
-    { id: "PIXEL", displayId: 4, xColor: "text-lime-400", oColor: "text-pink-500", xGlow: "", oGlow: "" },
-    { id: "STONE", displayId: 5, xColor: "text-slate-200", oColor: "text-slate-200", xGlow: "", oGlow: "", bordered: true },
-    { id: "MINIMAL", displayId: 6, xColor: "", oColor: "", xGlow: "", oGlow: "", isSymbol: true },
+    { 
+        id: "CLASSIC", 
+        displayId: 1, 
+        xColor: "text-red-500", 
+        oColor: "text-cyan-400", 
+        xGlow: "drop-shadow-[0_0_6px_red] drop-shadow-[0_0_14px_red] drop-shadow-[0_0_24px_red]", 
+        oGlow: "drop-shadow-[0_0_6px_cyan] drop-shadow-[0_0_14px_cyan] drop-shadow-[0_0_24px_cyan]" 
+    },
+    { 
+        id: "GLOW", 
+        displayId: 2, 
+        xColor: "text-amber-400", 
+        oColor: "text-purple-500", 
+        xGlow: "drop-shadow-[0_0_8px_#fbbf24] drop-shadow-[0_0_18px_#fbbf24] drop-shadow-[0_0_30px_#fbbf24]", 
+        oGlow: "drop-shadow-[0_0_8px_#a855f7] drop-shadow-[0_0_18px_#a855f7] drop-shadow-[0_0_30px_#a855f7]" 
+    },
+    { 
+    id: "ELEMENTAL", 
+    displayId: 8, 
+    xColor: "text-orange-500", 
+    oColor: "text-blue-400", 
+    // X tỏa nhiệt (Lửa đỏ cam)
+    xGlow: "drop-shadow-[0_0_10px_#f97316] drop-shadow-[0_0_20px_#ef4444]", 
+    // O tỏa hơi lạnh (Băng xanh dương)
+    oGlow: "drop-shadow-[0_0_10px_#60a5fa] drop-shadow-[0_0_20px_#3b82f6]" 
+    },
+    { 
+        id: "PIXEL", 
+        displayId: 4, 
+        xColor: "text-lime-400", 
+        oColor: "text-pink-500", 
+        xGlow: "drop-shadow-[0_0_6px_#84cc16] drop-shadow-[0_0_12px_#84cc16] drop-shadow-[0_0_20px_#84cc16]", 
+        oGlow: "drop-shadow-[0_0_6px_#ec4899] drop-shadow-[0_0_12px_#ec4899] drop-shadow-[0_0_20px_#ec4899]" 
+    },
+    { 
+        id: "STONE", 
+        displayId: 6, 
+        xColor: "text-slate-200", 
+        oColor: "text-slate-200", 
+        xGlow: "drop-shadow-[0_0_4px_#e2e8f0] drop-shadow-[0_0_10px_#e2e8f0]", 
+        oGlow: "drop-shadow-[0_0_4px_#e2e8f0] drop-shadow-[0_0_10px_#e2e8f0]", 
+        bordered: true 
+    },
+    { 
+    id: "MATRIX", 
+    displayId: 7, 
+    xColor: "text-emerald-400", 
+    oColor: "text-emerald-400", 
+    xGlow: "drop-shadow-[0_0_8px_#10b981] drop-shadow-[0_0_15px_#10b981]", 
+    oGlow: "drop-shadow-[0_0_8px_#10b981] drop-shadow-[0_0_15px_#10b981]",
+    animation: "animate-pulse" // Tailwind class cho nhấp nháy
+    },
 ];
 
 /**

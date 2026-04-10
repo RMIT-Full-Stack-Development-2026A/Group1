@@ -6,7 +6,6 @@ import { useCustomizationStore } from "@/stores/CustomizationStore";
 import { useGameCustomization } from "./hook/useGameCustomization.hook";
 import { createGameRoom } from "./service/customization.service";
 import Navigation from "@/components/reusable/Navigation";
-import Footer from "@/components/reusable/Footer";
 import {
     BoardSizeSelector,
     GridStyleSelector,
@@ -133,7 +132,6 @@ export default function GameCustomization() {
             </main>
 
             {/* Footer */}
-            <Footer />
         </div>
     );
 }

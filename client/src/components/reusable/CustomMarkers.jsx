@@ -2,7 +2,7 @@ import React from 'react';
 
 export const MarkerX = ({ variantData, className }) => {
     // Kẹp thêm màu và glow vào class chung
-    const combinedClass = `${variantData?.xColor || ''} ${variantData?.xGlow || ''} ${className}`;
+    const combinedClass = `${variantData?.xColor || ''} ${variantData?.xGlow || ''} ${variantData?.animation || ''} ${className}`;
 
     if (variantData?.id === "PIXEL" || variantData?.id === "MINIMAL") {
         return (

@@ -18,7 +18,7 @@ export default function BoardSizeSelector({ selectedSize, onSelect }) {
                     <button
                         key={size.id}
                         onClick={() => onSelect(size.displayId)}
-                        className={`bg-[#1e1e2c] border p-6 flex flex-col items-center justify-center transition-all ${
+                        className={`bg-[#1e1e2c] border p-6 flex flex-col items-center cursor-pointer justify-center transition-all ${
                             selectedSize === size.displayId
                                 ? "border-[#4cc9f0] shadow-[2px_2px_0px_#343342] hover:shadow-[0px_0px_8px_#4cc9f0]"
                                 : "border-[#3d484d] shadow-[2px_2px_0px_#343342] hover:border-[#4cc9f0]"

@@ -23,7 +23,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
                         </p>
                         <button
                             onClick={onCreateRoom}
-                            className="bg-[#4cc9f0] text-[#003543] font-mono font-bold px-6 py-2 text-sm uppercase tracking-tighter"
+                            className="bg-[#4cc9f0] text-[#003543] font-mono cursor-pointer font-bold px-6 py-2 text-sm uppercase tracking-tighter"
                         >
                             START YOUR OWN ROOM
                         </button>

@@ -36,14 +36,12 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_8px_#a855f7] drop-shadow-[0_0_18px_#a855f7] drop-shadow-[0_0_30px_#a855f7]" 
     },
     { 
-    id: "ELEMENTAL", 
-    displayId: 8, 
-    xColor: "text-orange-500", 
-    oColor: "text-blue-400", 
-    // X tỏa nhiệt (Lửa đỏ cam)
-    xGlow: "drop-shadow-[0_0_10px_#f97316] drop-shadow-[0_0_20px_#ef4444]", 
-    // O tỏa hơi lạnh (Băng xanh dương)
-    oGlow: "drop-shadow-[0_0_10px_#60a5fa] drop-shadow-[0_0_20px_#3b82f6]" 
+        id: "ELEMENTAL", 
+        displayId: 3, 
+        xColor: "text-orange-500", 
+        oColor: "text-blue-400", 
+        xGlow: "drop-shadow-[0_0_10px_#f97316] drop-shadow-[0_0_20px_#ef4444]", 
+        oGlow: "drop-shadow-[0_0_10px_#60a5fa] drop-shadow-[0_0_20px_#3b82f6]" 
     },
     { 
         id: "PIXEL", 
@@ -55,7 +53,7 @@ const MARKER_VARIANTS = [
     },
     { 
         id: "STONE", 
-        displayId: 6, 
+        displayId: 5, 
         xColor: "text-slate-200", 
         oColor: "text-slate-200", 
         xGlow: "drop-shadow-[0_0_4px_#e2e8f0] drop-shadow-[0_0_10px_#e2e8f0]", 
@@ -63,13 +61,13 @@ const MARKER_VARIANTS = [
         bordered: true 
     },
     { 
-    id: "MATRIX", 
-    displayId: 7, 
-    xColor: "text-emerald-400", 
-    oColor: "text-emerald-400", 
-    xGlow: "drop-shadow-[0_0_8px_#10b981] drop-shadow-[0_0_15px_#10b981]", 
-    oGlow: "drop-shadow-[0_0_8px_#10b981] drop-shadow-[0_0_15px_#10b981]",
-    animation: "animate-pulse" // Tailwind class cho nhấp nháy
+        id: "MATRIX", 
+        displayId: 6, 
+        xColor: "text-emerald-400", 
+        oColor: "text-emerald-400", 
+        xGlow: "drop-shadow-[0_0_8px_#10b981] drop-shadow-[0_0_15px_#10b981]", 
+        oGlow: "drop-shadow-[0_0_8px_#10b981] drop-shadow-[0_0_15px_#10b981]",
+        animation: "animate-pulse" 
     },
 ];
 

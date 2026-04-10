@@ -17,7 +17,7 @@ export const GAME_MODES = [
     route: '/play/single-player',
     badge: null,
     glowEffect: false,
-    status: 'TODO', // ← Not yet implemented
+    status: 'TODO',
   },
   {
     id: 'local-arena',

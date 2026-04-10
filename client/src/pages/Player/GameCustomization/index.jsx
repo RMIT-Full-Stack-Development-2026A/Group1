@@ -130,8 +130,6 @@ export default function GameCustomization() {
                     </div>
                 </div>
             </main>
-
-            {/* Footer */}
         </div>
     );
 }

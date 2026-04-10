@@ -124,9 +124,6 @@ export default function GameLobby() {
                     />
                 </section>
             </main>
-
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

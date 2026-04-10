@@ -5,8 +5,10 @@ import { useMemo } from 'react';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useModeStore } from '@/stores/ModeStore'; 
 import { useCustomizationStore } from '@/stores/CustomizationStore'; 
-
 import { useGame } from './hook/useGame.hook';
+import Navigation from '@/components/reusable/Navigation';
+import Footer from '@/components/reusable/Footer';
+import ScanLines from '@/components/reusable/ScanLines';
 import PlayerPanel from './sub-components/PlayerPanel';
 import BoardArea from './sub-components/BoardArea';
 import WinOverlay from './sub-components/WinOverlay';
@@ -82,7 +84,8 @@ const GameBoard = () => {
     };
 
     return (
-        <div className="bg-deep-bg text-[#e3e0f4] overflow-hidden h-screen w-screen relative">
+        <div className="flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden h-screen w-screen relative">
+            <ScanLines />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&display=swap');
                 .font-headline { font-family: 'Press Start 2P', cursive; }
@@ -97,18 +100,9 @@ const GameBoard = () => {
             <div className="fixed inset-0 scanlines z-100" />
             <div className="fixed inset-0 pixel-grid z-99" />
 
-            <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#12121f] border-b-2 border-outline-variant">
-                <span className="text-xl font-black text-primary-cyan font-headline tracking-tighter"
-                      style={{ textShadow: '0 0 8px #4cc9f0' }}>
-                    TICTACTOANG
-                </span>
-                <nav className="hidden md:flex gap-8">
-                    <span className="font-mono uppercase tracking-widest text-sm text-primary-cyan border-b-2 border-primary-cyan pb-1 cursor-pointer">ARCADE</span>
-                    <span className="font-mono uppercase tracking-widest text-sm text-outline-variant hover:text-primary-cyan cursor-pointer transition-colors">LEADERBOARD</span>
-                </nav>
-            </header>
+            <Navigation />
 
-            <main className="pt-16 pb-8 h-full flex px-6 gap-6 items-center justify-center font-mono">
+            <main className="mx-auto w-fit pt-16 flex-1 overflow-hidden flex px-6 gap-6 items-center justify-center font-mono">
                 <PlayerPanel 
                     role="X" 
                     playerName={playersInfo[0].usernameSnapshot} 
@@ -143,10 +137,7 @@ const GameBoard = () => {
                 <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate('/lobby')} />
             )}
 
-            <footer className="fixed bottom-0 w-full py-2 px-6 flex justify-between bg-outline-variant border-t border-outline-variant z-50">
-                <span className="font-mono text-[10px] uppercase text-primary-cyan">© 2076 TICTACTOANG SYSTEMS.</span>
-                <span className="font-mono text-[10px] uppercase text-primary-cyan">CORE_TEMP: OPTIMAL</span>
-            </footer>
+            <Footer />
         </div>
     );
 };

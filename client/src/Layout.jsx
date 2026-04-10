@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 // import Navigation from "@/components/reusable/Navigation";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import Footer from "@/components/reusable/Footer";
+
 
 export default function Layout({ children }) {
     const location = useLocation();
@@ -42,22 +44,7 @@ export default function Layout({ children }) {
                     
                 </button>
             )}
-            <footer className="fixed bottom-0 w-full z-40 flex justify-between items-center px-4 py-2 bg-deep-bg border-t border-outline-variant">
-                <div className="flex items-center gap-4">
-                    <span className="text-[10px] tracking-tight text-primary-cyan uppercase">
-                        LATENCY: 14MS 
-                    </span>
-                    <span className="hidden md:inline text-[10px] text-outline-variant uppercase">
-                        LOC: SECTOR_7G
-                    </span>
-                </div>
-                <div className="flex gap-4">
-                   <span className="text-[10px] tracking-tight text-primary-cyan flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                      SYSTEM_STATUS: NOMINAL
-                   </span>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

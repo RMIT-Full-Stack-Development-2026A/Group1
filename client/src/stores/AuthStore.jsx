@@ -104,7 +104,7 @@ export const useAuthStore = create((set) => ({
                 id: response.data.id || response.data.userId,
                 userId: response.data.userId,
                 email: response.data.email,
-                username: response.data.username,
+                username: response.data.user?.username || response.data.username,
                 role: response.data.role || 'PLAYER',
                 isPremium: response.data.isPremium || false,
                 avatar: response.data.avatar,

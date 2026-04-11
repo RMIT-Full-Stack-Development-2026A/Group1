@@ -2,8 +2,8 @@ import { create } from "zustand";
 
 export const useModeStore = create((set) => ({
     // State
-    gameMode: "TWO_PLAYERS", // "SINGLE_PLAYER", "TWO_PLAYERS", "ONLINE_MATCH"
-    aiDifficulty: "EASY",    // "EASY", "MEDIUM", "HARD"
+    gameMode: "SINGLE_PLAYER", // "SINGLE_PLAYER", "TWO_PLAYERS", "ONLINE_MATCH"
+    aiDifficulty: "MEDIUM",    // "EASY", "MEDIUM", "HARD"
 
     // Actions
     setGameMode: (mode) => set({ gameMode: mode }),

@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { checkWin, checkDraw } from './gameLogic';
 import { gameService } from '../service/game.service';
+import { getBestAIMove } from '../../../../utils/ai';
+import { useModeStore } from '../../../../stores/ModeStore';
 
 // Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));
@@ -21,13 +23,24 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
     const [winnerData, setWinnerData] = useState(null);
     const [isDraw, setIsDraw] = useState(false);
     const [moveHistory, setMoveHistory] = useState([]);
-    
-    // Removed markerStyle state since CustomizationStore handles UI logic now
 
     // Tracking turns and time for Backend Payload
     const [participantIndex, setParticipantIndex] = useState(0);
     const [firstTurnIndex, setFirstTurnIndex] = useState(0); // Track who goes first (default 0)
     const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
+
+    const { aiDifficulty } = useModeStore();
+
+    // ==========================================
+    // DEBUG STATION 1: Check inputs on every render
+    // ==========================================
+    console.log("--- [DEBUG: Hook Render] ---");
+    console.log("1. Game Mode:", gameMode);
+    console.log("2. AI Difficulty:", aiDifficulty);
+    console.log("3. Player 1 Info:", playersInfo[0]);
+    console.log("4. Player 2 Info:", playersInfo[1]);
+    console.log("5. Current Player Turn:", currentPlayer);
+    console.log("----------------------------");
 
     // Only allow changing board size when no active game
     const setBoardSize = useCallback((size) => {
@@ -47,7 +60,12 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
     // Handle move upgraded with exact BE Schema
     const handleMove = useCallback(async (row, col) => {
         // Ignore click if cell is occupied or game is already over
-        if (isLocked || board[row][col] !== null || winnerData || isDraw) return;
+        if (isLocked || board[row][col] !== null || winnerData || isDraw) {
+            console.log("[DEBUG] Move rejected. Locked:", isLocked, "Cell Full:", board[row][col] !== null);
+            return;
+        }
+
+        console.log(`[DEBUG] Executing Move -> Player: ${currentPlayer}, Row: ${row}, Col: ${col}`);
 
         // Copy board state to trigger re-render
         const newBoard = board.map(r => [...r]);
@@ -135,11 +153,28 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         const processAutoMove = async () => {
             // SINGLE_PLAYER bot logic
             if (gameMode === 'SINGLE_PLAYER' && currentPlayer === 'O') {
-                setIsLocked(true); 
+                console.log("[DEBUG] Bot is waking up! Triggering AI calculation...");
                 
-                // TODO for Minz: Add AI Logic here
+                setIsLocked(true); // Lock UI while Bot is playing
                 
-                setIsLocked(false); 
+                // 1. Extract data from global stores and info of AI
+                const botPlayer = playersInfo.find(p => p.role === 'AI');
+                console.log("[DEBUG] Found Bot Player Info:", botPlayer);
+
+                // 2. Create a small delay to simulate AI thinking like human
+                setTimeout(() => {
+                    console.log("[DEBUG] Calculating best move for board with difficulty:", aiDifficulty);
+                    
+                    // 3. Call getBestAIMove to take the coordinate that AI will go
+                    const [bestRow, bestCol] = getBestAIMove(board, aiDifficulty, 'O');
+                    console.log(`[DEBUG] Bot calculated move: [${bestRow}, ${bestCol}]`);
+                    
+                    // 4. Let bot play
+                    handleMove(bestRow, bestCol);
+                    
+                    // 5. Unlock UI
+                    setIsLocked(false); 
+                }, 1300); // 600ms delay
             }
             // ONLINE_MATCH logic
             else if (gameMode === 'ONLINE_MATCH' && currentPlayer === 'O') {
@@ -153,7 +188,8 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         };
 
         processAutoMove();
-    }, [currentPlayer, gameMode, winnerData, isDraw]);
+    
+    }, [currentPlayer, gameMode, winnerData, isDraw, board, handleMove, aiDifficulty, playersInfo]); 
 
     const resetGame = useCallback(() => {
         setBoard(initBoard(boardSize));
@@ -175,6 +211,5 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         handleMove,
         resetGame,
         setBoardSize,
-        // Removed setMarkerStyle from return
     };
 };

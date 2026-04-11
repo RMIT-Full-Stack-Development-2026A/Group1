@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 
-// Nhập 3 Store chứa dữ liệu (Lưu ý: Bạn tự chỉnh lại đường dẫn import cho đúng thư mục dự án nhé)
+// Stores
 import { useAuthStore } from '@/stores/AuthStore';
 import { useModeStore } from '@/stores/ModeStore'; 
 import { useCustomizationStore } from '@/stores/CustomizationStore'; 
+
 import { useGame } from './hook/useGame.hook';
+
 import Navigation from '@/components/reusable/Navigation';
 import Footer from '@/components/reusable/Footer';
 import ScanLines from '@/components/reusable/ScanLines';
@@ -15,28 +17,25 @@ import WinOverlay from './sub-components/WinOverlay';
 
 const GameBoard = () => {
     const navigate = useNavigate();
-    
-    // 1. RÚT DỮ LIỆU TỪ ZUSTAND STORES
+
     const { user, isCheckingAuth } = useAuthStore(); 
     const { gameMode, aiDifficulty } = useModeStore();
     const { boardSize: displaySize, markerVariant, setMarkerVariant } = useCustomizationStore();
 
-    // 2. PHIÊN DỊCH DỮ LIỆU (Frontend -> Backend/Hook format)
-    // Biến chuỗi "10x10" hoặc "15x15" từ store thành số nguyên 10 hoặc 15
+    // Convert the string "10x10" or "15x15" from the store into an integer of 10 or 15.
     const initialBoardSize = useMemo(() => {
         return parseInt(displaySize.split('x')[0], 10) || 10;
     }, [displaySize]);
 
-    // Map số markerVariant (1, 2, 3...) thành chuỗi (default, custom_1...) để component BoardArea hiểu
+    // Map the markerVariant number (1, 2, 3...) to a string (default, custom_1...) so that the BoardArea component understands it.
     const activeMarkerStyle = markerVariant === 1 ? 'default' : `custom_${markerVariant}`;
 
-    // 3. THIẾT LẬP TIÊU ĐỀ & TÊN NGƯỜI CHƠI
-    // Lưu ý: Đổi điều kiện gameMode thành 'SINGLE_PLAYER' để khớp với biến chuẩn của Store/Backend
+    // Set title and player name
     const matchTitle = gameMode === 'SINGLE_PLAYER' ? `VS AI — ${aiDifficulty}` : gameMode === 'ONLINE_MATCH' ? 'RANKED MATCH' : 'LOCAL MULTIPLAYER';
     const isBotMatch = gameMode === 'SINGLE_PLAYER';
     const p2Name = isBotMatch ? 'NEXUS-9' : gameMode === 'ONLINE_MATCH' ? 'OPPONENT' : 'PLAYER_02';
 
-    // 4. XÂY DỰNG PLAYERS INFO CHO BACKEND
+    // Build player infor
     const playersInfo = useMemo(() => {
         const player1 = {
             userId: user?._id || user?.id || null, 
@@ -60,25 +59,24 @@ const GameBoard = () => {
         return [player1, player2];
     }, [user, gameMode, isBotMatch, p2Name, aiDifficulty]);
 
-    // 5. GỌI HOOK GAME
-    // Truyền thêm initialBoardSize vào vị trí thứ 3
+    // Call hook useGame
     const {
         board,
-        boardSize, // Lấy boardSize hiện tại từ Hook (vì hook có cơ chế khóa đổi size khi đang chơi)
+        boardSize,
         currentPlayer,
         winnerData,
         isDraw,
         isLocked, 
         handleMove,
         resetGame,
-        setBoardSize, // Hàm đổi size an toàn của Hook
+        setBoardSize,
     } = useGame(gameMode, playersInfo, initialBoardSize);
 
     const gameOver = !!winnerData || isDraw;
 
-    // 6. XỬ LÝ SỰ KIỆN TỪ DROPDOWN TRONG BOARD AREA
+    // Handling dropdown events in the board area
     const handleMarkerChange = (val) => {
-        // Dịch ngược từ 'default' hoặc 'custom_1' về số nguyên để lưu lại vào Store
+        // Convert 'default' or 'custom_1' back to an integer to save to the Store.
         const newVariant = val === 'default' ? 1 : parseInt(val.replace('custom_', ''), 10);
         setMarkerVariant(newVariant || 1);
     };
@@ -117,15 +115,15 @@ const GameBoard = () => {
                 <BoardArea
                     markerVariant={markerVariant}
                     board={board}
-                    boardSize={boardSize} // Truyền boardSize từ Hook
+                    boardSize={boardSize} 
                     matchTitle={matchTitle}
                     winnerData={winnerData}
                     isDraw={isDraw}
                     isLocked={isLocked}
                     onCellClick={handleMove}
                     onReset={resetGame}
-                    onSizeChange={setBoardSize} // Vẫn xài hàm đổi size của Hook để đảm bảo an toàn trận đấu
-                    onMarkerChange={handleMarkerChange} // Xài hàm custom gọi lên Store
+                    onSizeChange={setBoardSize} 
+                    onMarkerChange={handleMarkerChange}
                 />
 
                 <PlayerPanel 

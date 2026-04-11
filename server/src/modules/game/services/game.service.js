@@ -1,6 +1,7 @@
-import { GameRepository } from '../repositories/game.repository.js';
-import { validateGameCreation, validateGameQuery, validateObjectId } from '../validators/game.validator.js';
 import crypto from 'crypto';
+import { GameRepository } from '../repositories/game.repository.js';
+import { GameDTO } from '../dtos/game.dto.js';
+import { validateGameCreation, validateGameQuery, validateObjectId } from '../validators/game.validator.js';
 
 export const GameService = {
     // Create Local Match
@@ -92,7 +93,8 @@ export const GameService = {
             durationMs
         };
 
-        return await GameRepository.createSession(sessionData);
+        const savedSession = await GameRepository.createSession(sessionData);
+        return GameDTO.toGameDetail(savedSession, userId);
     },
 
     // Get game list
@@ -101,7 +103,7 @@ export const GameService = {
         
         const { items, total } = await GameRepository.findPaginated(filter, sort, pagination.skip, pagination.limit);
         
-        return { items, pagination: { total, page: pagination.page, limit: pagination.limit } };
+        return GameDTO.toGameListResponse(items, { total, page: pagination.page, limit: pagination.limit }, userId);
     },
 
     // Get game detail 
@@ -139,14 +141,31 @@ export const GameService = {
             };
         }
         
-        return session;
+        return GameDTO.toGameDetail(session, userId);
     },
 
-    // Create Game Online
+    // Interface/Cross-Module Methods
+    getUserGameStats: async (userId) => {
+        const stats = await GameRepository.calculateUserStats(userId);
+        return GameDTO.toStatsSummary(stats);
+    },
+
+    getRecentGames: async (userId, limit = 5) => {
+        const sessions = await GameRepository.findRecentGamesByUser(userId, limit);
+        return Array.isArray(sessions)
+            ? sessions.map((session) => GameDTO.toGameListItem(session, userId))
+            : [];
+    },
+
     createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
         if (!roomClosurePayload.sessionNumber) {
             roomClosurePayload.sessionNumber = `ONL-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
         }
-        return GameRepository.createSession(roomClosurePayload);
+        const session = await GameRepository.createSession(roomClosurePayload);
+        return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);
+    },
+
+    getTotalPlatformMatches: async () => {
+         return GameRepository.countTotalMatches();
     }
 };

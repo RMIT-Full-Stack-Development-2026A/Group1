@@ -73,8 +73,7 @@ backend/
 │   │   │   ├── controllers/
 │   │   │   ├── services/
 │   │   │   ├── dtos/
-│   │   │   ├── validators/
-│   │   │   └── interfaces/                # Optional if FE-facing aggregate queries are reused elsewhere
+│   │   │   └── validators/                # Optional if FE-facing aggregate queries are reused elsewhere
 │   │   │
 │   │   ├── game/
 │   │   │   ├── routes/
@@ -112,17 +111,14 @@ backend/
 │   │   │   ├── controllers/
 │   │   │   ├── services/
 │   │   │   ├── dtos/
-│   │   │   ├── validators/
-│   │   │   └── interfaces/                # Exposes premium status helpers if needed
+│   │   │   └── validators/               
 │   │   │
 │   │   └── admin/
 │   │       ├── routes/
 │   │       ├── controllers/
 │   │       ├── services/
-│   │       ├── repositories/              # Usually orchestration only
 │   │       ├── dtos/
-│   │       ├── validators/
-│   │       └── interfaces/                # Optional, mainly if admin data is reused elsewhere
+│   │       └── validators/                
 │   │
 │   ├── app.js                             # Express app bootstrap
 │   └── index.js                           # HTTP + WebSocket server bootstrap

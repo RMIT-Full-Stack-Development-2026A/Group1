@@ -4,7 +4,7 @@
  * Connects to real backend endpoints for game/room data
  */
 
-import { gameService } from "@/services/game/game.service";
+import { gameLobbyService } from "./gameLobby.service";
 
 export const LobbyService = {
     /**
@@ -15,7 +15,7 @@ export const LobbyService = {
     getRooms: async () => {
         try {
             // Fetch rooms with status filter for waiting/available rooms
-            const rooms = await gameService.getRooms({ status: "WAITING" });
+            const rooms = await gameLobbyService.getRooms({ status: "WAITING" });
             
             // Normalize status to lowercase for UI consistency
             const normalizedRooms = rooms.map(room => ({
@@ -55,7 +55,7 @@ export const LobbyService = {
     getRecentActivity: async () => {
         try {
             // Fetch recent games and convert to activity format
-            const games = await gameService.getGames({ 
+            const games = await gameLobbyService.getGames({ 
                 limit: 10,
                 sortBy: 'createdAt',
                 sortOrder: 'desc'

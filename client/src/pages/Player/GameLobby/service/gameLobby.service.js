@@ -1,12 +1,12 @@
 /**
- * Game Service
- * Handles all game-related API calls
+ * Game Lobby Service
+ * Handles all game lobby and room-related API calls
  */
 
 import http from "@/utils/httpHelper";
 import { API_ENDPOINTS } from "@/config/apiConfig";
 
-export const gameService = {
+export const gameLobbyService = {
     /**
      * Get list of game sessions (game history)
      * @param {Object} options - { page, limit, gameType, result, q, sortBy, sortOrder }
@@ -27,7 +27,7 @@ export const gameService = {
 
             const response = await http.get(API_ENDPOINTS.GAME.LIST, params);
             
-            console.log('[Game Service] Fetched games:', response);
+            console.log('[Game Lobby Service] Fetched games:', response);
             
             return response.data || {
                 items: [],
@@ -36,7 +36,7 @@ export const gameService = {
                 limit: 20,
             };
         } catch (error) {
-            console.error('[Game Service] Failed to fetch games:', error);
+            console.error('[Game Lobby Service] Failed to fetch games:', error);
             throw error;
         }
     },
@@ -50,11 +50,11 @@ export const gameService = {
         try {
             const response = await http.get(API_ENDPOINTS.GAME.DETAILS(gameId));
             
-            console.log('[Game Service] Fetched game detail:', response);
+            console.log('[Game Lobby Service] Fetched game detail:', response);
             
             return response.data;
         } catch (error) {
-            console.error('[Game Service] Failed to fetch game detail:', error);
+            console.error('[Game Lobby Service] Failed to fetch game detail:', error);
             throw error;
         }
     },
@@ -68,11 +68,11 @@ export const gameService = {
         try {
             const response = await http.post(API_ENDPOINTS.GAME.LIST, gameData);
             
-            console.log('[Game Service] Created local game:', response);
+            console.log('[Game Lobby Service] Created local game:', response);
             
             return response.data;
         } catch (error) {
-            console.error('[Game Service] Failed to create local game:', error);
+            console.error('[Game Lobby Service] Failed to create local game:', error);
             throw error;
         }
     },
@@ -93,11 +93,11 @@ export const gameService = {
 
             const response = await http.get(API_ENDPOINTS.ROOM.LIST, params);
             
-            console.log('[Game Service] Fetched rooms:', response);
+            console.log('[Game Lobby Service] Fetched rooms:', response);
             
             return response.data?.items || [];
         } catch (error) {
-            console.error('[Game Service] Failed to fetch rooms:', error);
+            console.error('[Game Lobby Service] Failed to fetch rooms:', error);
             // Return empty array as fallback for now (rooms endpoint not yet implemented)
             return [];
         }
@@ -112,11 +112,11 @@ export const gameService = {
         try {
             const response = await http.get(API_ENDPOINTS.ROOM.DETAILS(roomId));
             
-            console.log('[Game Service] Fetched room detail:', response);
+            console.log('[Game Lobby Service] Fetched room detail:', response);
             
             return response.data;
         } catch (error) {
-            console.error('[Game Service] Failed to fetch room detail:', error);
+            console.error('[Game Lobby Service] Failed to fetch room detail:', error);
             throw error;
         }
     },
@@ -130,11 +130,11 @@ export const gameService = {
         try {
             const response = await http.post(API_ENDPOINTS.ROOM.JOIN(roomId));
             
-            console.log('[Game Service] Joined room:', response);
+            console.log('[Game Lobby Service] Joined room:', response);
             
             return response.data;
         } catch (error) {
-            console.error('[Game Service] Failed to join room:', error);
+            console.error('[Game Lobby Service] Failed to join room:', error);
             throw error;
         }
     },
@@ -148,11 +148,11 @@ export const gameService = {
         try {
             const response = await http.post(API_ENDPOINTS.ROOM.CREATE, roomData);
             
-            console.log('[Game Service] Created room:', response);
+            console.log('[Game Lobby Service] Created room:', response);
             
             return response.data;
         } catch (error) {
-            console.error('[Game Service] Failed to create room:', error);
+            console.error('[Game Lobby Service] Failed to create room:', error);
             throw error;
         }
     },

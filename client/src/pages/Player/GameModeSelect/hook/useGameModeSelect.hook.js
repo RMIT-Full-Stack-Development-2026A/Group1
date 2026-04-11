@@ -30,6 +30,10 @@ export const useGameModeSelect = () => {
    */
   const handleSelectMode = (modeId) => {
     setGameMode(modeId);
+    
+    if (modeId === 'SINGLE_PLAYER' && setAiDifficulty) {
+        setAiDifficulty('HARD');
+    }
 
     const route = getGameModeRoute(modeId);
     if (route) {

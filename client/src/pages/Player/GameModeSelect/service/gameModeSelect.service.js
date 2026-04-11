@@ -5,7 +5,7 @@
 
 export const GAME_MODES = [
   {
-    id: 'single-player',
+    id: 'SINGLE_PLAYER',
     title: 'SINGLE PLAYER',
     description: 'Battle the AI across 3 difficulty levels.',
     icon: 'smart_toy',
@@ -20,7 +20,7 @@ export const GAME_MODES = [
     status: 'TODO',
   },
   {
-    id: 'local-arena',
+    id: 'TWO_PLAYER',
     title: 'LOCAL ARENA',
     description: 'Challenge a friend on the same machine.',
     icon: 'videogame_asset',
@@ -35,7 +35,7 @@ export const GAME_MODES = [
     status: 'TODO', // ← Not yet implemented
   },
   {
-    id: 'online-lobby',
+    id: 'ONLINE_MATCH',
     title: 'ONLINE LOBBY',
     description: 'Enter the global network and climb the rankings.',
     icon: 'public',

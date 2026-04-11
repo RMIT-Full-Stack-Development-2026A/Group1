@@ -1,8 +1,9 @@
 // import { getEasyMove } from './ai.easy'; 
+import { getEasyMove } from './ai.easy';
 import { getMediumMove } from './ai.medium';
 
 const AI_STRATEGIES = {
-    // EASY: getEasyMove, 
+    EASY: getEasyMove,
     MEDIUM: getMediumMove,
     // HARD: getHardMove,
 };

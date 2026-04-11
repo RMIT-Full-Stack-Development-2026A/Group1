@@ -6,6 +6,9 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { useModeStore } from '@/stores/ModeStore'; 
 import { useCustomizationStore } from '@/stores/CustomizationStore'; 
 
+// Services
+import { getDifficultyLevels } from '@/pages/Player/GameCustomization/service/customization.service';
+
 import { useGame } from './hook/useGame.hook';
 
 import Navigation from '@/components/reusable/Navigation';
@@ -33,7 +36,15 @@ const GameBoard = () => {
     // Set title and player name
     const matchTitle = gameMode === 'SINGLE_PLAYER' ? `VS AI — ${aiDifficulty}` : gameMode === 'ONLINE_MATCH' ? 'RANKED MATCH' : 'LOCAL MULTIPLAYER';
     const isBotMatch = gameMode === 'SINGLE_PLAYER';
-    const p2Name = isBotMatch ? 'NEXUS-9' : gameMode === 'ONLINE_MATCH' ? 'OPPONENT' : 'PLAYER_02';
+    
+    // Get AI name from difficulty level
+    const getAIName = (difficulty) => {
+        const difficulties = getDifficultyLevels();
+        const difficultyObj = difficulties.find(d => d.id === difficulty);
+        return difficultyObj ? difficultyObj.aiName : 'NEXUS-9';
+    };
+    
+    const p2Name = isBotMatch ? getAIName(aiDifficulty) : gameMode === 'ONLINE_MATCH' ? 'OPPONENT' : 'PLAYER_02';
 
     // Build player infor
     const playersInfo = useMemo(() => {

@@ -118,7 +118,7 @@ export const transformToBackendFormat = (selection) => {
 /**
  * Create a game room with customization options
  * Transforms frontend values to backend API format
- * @param {Object} options - Frontend customization { boardSize, gridStyle, markerVariant }
+ * @param {Object} options - Frontend customization { boardSize, gridStyle, markerVariant, aiDifficulty }
  * @returns {Promise<Object>} Room creation response with roomId
  */
 export const createGameRoom = async (options) => {
@@ -150,4 +150,54 @@ export const createGameRoom = async (options) => {
         console.error("Room creation error:", error);
         throw error;
     }
+};
+
+/**
+ * Get all available AI difficulty levels for single player mode
+ * @returns {Array} Array of difficulty objects with AI info
+ */
+export const getDifficultyLevels = () => {
+    return [
+        {
+            id: 'EASY',
+            level: 'EASY',
+            aiName: 'Jeremy',
+            badgeColor: 'cyan-400',
+            badgeColorHex: '#22d3ee',
+            description: 'A novice AI that makes random decisions adjacent to your moves. Perfect for learning the game.',
+            behaviors: [
+                'Random selection from adjacent empty cells',
+                'No defensive strategy',
+                'Ideal for beginners'
+            ]
+        },
+        {
+            id: 'MEDIUM',
+            level: 'MEDIUM',
+            aiName: 'Bot',
+            badgeColor: 'yellow-400',
+            badgeColorHex: '#facc15',
+            description: 'A tactical AI focused on defense. Blocks your winning patterns and prevents threats.',
+            behaviors: [
+                'Prevents 5-mark lines',
+                'Blocks 4-mark opened lines',
+                'Counters fork formations',
+                'Challenging opponents'
+            ]
+        },
+        {
+            id: 'HARD',
+            level: 'HARD',
+            aiName: 'Neural',
+            badgeColor: 'red-500',
+            badgeColorHex: '#ef4444',
+            description: 'An advanced AI with both defensive and offensive play. Completes its own patterns when possible.',
+            behaviors: [
+                'All defensive tactics (MEDIUM)',
+                'Aggressive pattern completion',
+                'Strategic offensive play',
+                'Expert difficulty'
+            ]
+        }
+    ];
 };

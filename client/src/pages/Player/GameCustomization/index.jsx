@@ -3,12 +3,14 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useCustomizationStore } from "@/stores/CustomizationStore";
+import { useModeStore } from "@/stores/ModeStore";
 import { useGameCustomization } from "./hook/useGameCustomization.hook";
 import { createGameRoom } from "./service/customization.service";
 import {
     BoardSizeSelector,
     GridStyleSelector,
     MarkerVariantSelector,
+    DifficultySelector,
     ActionButtons,
 } from "./sub-components";
 
@@ -16,6 +18,7 @@ export default function GameCustomization() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setCustomization } = useCustomizationStore();
+    const { gameMode, setAiDifficulty } = useModeStore();
     const {
         selectedBoardSize,
         setSelectedBoardSize,
@@ -23,6 +26,8 @@ export default function GameCustomization() {
         setSelectedStyle,
         selectedMarker,
         setSelectedMarker,
+        selectedDifficulty,
+        setSelectedDifficulty,
         loading,
         setLoading,
     } = useGameCustomization();
@@ -40,11 +45,21 @@ export default function GameCustomization() {
             // Save customization to global store (accessible from GameBoard)
             setCustomization(selectedBoardSize, selectedStyle, selectedMarker);
 
-            const roomData = await createGameRoom({
+            // Prepare room data payload
+            const roomPayload = {
                 boardSize: selectedBoardSize,
                 gridStyle: selectedStyle,
                 markerVariant: selectedMarker,
-            });
+            };
+
+            // Add AI difficulty for single player mode
+            if (gameMode === 'SINGLE_PLAYER') {
+                roomPayload.aiDifficulty = selectedDifficulty;
+                roomPayload.opponentType = 'AI';
+                setAiDifficulty(selectedDifficulty);
+            }
+
+            const roomData = await createGameRoom(roomPayload);
 
             // Navigate to game board with room ID
             navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
@@ -116,6 +131,14 @@ export default function GameCustomization() {
                             selectedMarker={selectedMarker}
                             onSelect={setSelectedMarker}
                         />
+
+                        {/* Section 4: AI Difficulty (Only for Single Player) */}
+                        {gameMode === 'SINGLE_PLAYER' && (
+                            <DifficultySelector
+                                selectedDifficulty={selectedDifficulty}
+                                onSelect={setSelectedDifficulty}
+                            />
+                        )}
 
                         {/* Action Buttons */}
                         <ActionButtons

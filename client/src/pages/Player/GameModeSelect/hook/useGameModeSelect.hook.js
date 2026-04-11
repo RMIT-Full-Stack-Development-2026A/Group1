@@ -13,7 +13,7 @@ export const useGameModeSelect = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   
-  const { setGameMode, setAiDifficulty } = useModeStore();
+  const { setGameMode } = useModeStore();
 
   /**
    * Redirect to login if not authenticated
@@ -29,12 +29,7 @@ export const useGameModeSelect = () => {
    * @param {string} modeId - ID of the selected game mode
    */
   const handleSelectMode = (modeId) => {
-    
     setGameMode(modeId);
-    
-    if (modeId === 'SINGLE_PLAYER' && setAiDifficulty) {
-        setAiDifficulty('EASY');
-    }
 
     const route = getGameModeRoute(modeId);
     if (route) {

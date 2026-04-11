@@ -1,10 +1,11 @@
 // import { getEasyMove } from './ai.easy'; 
 import { getMediumMove } from './ai.medium';
+import { getHardMove } from './ai.hard';
 
 const AI_STRATEGIES = {
     // EASY: getEasyMove, 
     MEDIUM: getMediumMove,
-    // HARD: getHardMove,
+    HARD: getHardMove,
 };
 
 /**
@@ -14,7 +15,7 @@ const AI_STRATEGIES = {
  * @param {String} botMark - 'X' or 'O'
  * @returns {Array} coordinate [row, col]
  */
-export const getBestAIMove = (board, difficulty = 'MEDIUM', botMark = 'O') => {
+export const getBestAIMove = (board, difficulty = 'HARD', botMark = 'O') => {
     
     const calculateMove = AI_STRATEGIES[difficulty] || AI_STRATEGIES.MEDIUM;
     

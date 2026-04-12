@@ -37,8 +37,11 @@ export const ProfileService = {
             premiumExpiresAt: user.premiumExpiresAt
         };
         
-        const stats = await GameInterface.getUserGameStats(userId);
-        const recentGames = await GameInterface.getRecentGames(userId, 5);
+        // Fetch stats and recent games
+        const [stats, recentGames] = await Promise.all([
+            GameInterface.getUserGameStats(userId),
+            GameInterface.getRecentGames(userId, 5)
+        ]);
 
         return ProfileDTO.toProfileOverview({ user, wallet, subscription, stats, recentGames });
     },

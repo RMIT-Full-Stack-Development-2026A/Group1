@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { ulid } from 'ulid';
 import { GameRepository } from '../repositories/game.repository.js';
 import { GameDTO } from '../dtos/game.dto.js';
 import { validateGameCreation, validateGameQuery, validateObjectId } from '../validators/game.validator.js';
@@ -30,7 +30,7 @@ export const GameService = {
             };
         }
 
-        const sessionNumber = `GS-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+        const sessionNumber = `GS-${ulid()}`;
         
         const parseDateSafe = (dateString) => {
             const parsed = new Date(dateString);
@@ -159,7 +159,7 @@ export const GameService = {
 
     createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
         if (!roomClosurePayload.sessionNumber) {
-            roomClosurePayload.sessionNumber = `ONL-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+            roomClosurePayload.sessionNumber = `ONL-${ulid()}`;
         }
         const session = await GameRepository.createSession(roomClosurePayload);
         return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);

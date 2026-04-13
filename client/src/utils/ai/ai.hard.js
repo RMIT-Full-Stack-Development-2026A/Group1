@@ -1,5 +1,3 @@
-// src/utils/ai/ai.hard.js
-
 const MAX_DEPTH = 3; // Look ahead 3 steps
 const TOP_MOVES_TO_SEARCH = 12; // Only run Minimax on the top 12 best heuristic moves
 

@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from "./config/swagger.config.js";
 import { generalRateLimit } from './middlewares/rateLimitMiddleware.js';
 import { errorMiddleware, notFoundHandler } from './middlewares/errorMiddleware.js';
 
@@ -9,6 +11,7 @@ import authRoutes from './modules/auth/routes/auth.routes.js';
 import adminRoutes from './modules/admin/routes/admin.routes.js';
 import profileRoutes from './modules/profile/routes/profile.routes.js';
 import gameRoutes from "./modules/game/routes/game.routes.js";
+
 
 const app = express();
 
@@ -20,6 +23,9 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json()); 
 app.use(generalRateLimit);
+
+// Swagger Documentation Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/api/v1/auth', authRoutes);

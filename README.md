@@ -39,6 +39,8 @@ Before you begin, ensure you have the following installed and set up:
     ``` 
 `Note`: The server will run on `http://localhost:5000` by default and uses `nodemon` to automatically restart on file changes.
 
+**Swagger/OpenAPI**: Typically hosted at `/api-docs` (e.g., `http://localhost:5000/api-docs`) using the swagger-ui-express package.
+
 ### Frontend Setup (Client)
 1. Open a new terminal window and navigate to the client directory:
     ```Bash

@@ -1,12 +1,14 @@
 import bcryptjs from "bcryptjs";
 import { AuthRepository } from "../repositories/auth.repository.js";
+import { AuthDTO } from "../dtos/auth.dto.js";
 import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput,  validateRegisterConflicts } from "../validators/auth.validator.js";
 import { RoomInterface } from "../../room/interfaces/room.interface.js";
 
 // Service contains auth business rules and throws standardized errors for errorMiddleware.
 export const AuthService = {
-    registerUser: async (userData, res) => {
+    
+    registerUser: async (userData) => {
         const validationErrors = validateRegisterInput(userData);
         if (validationErrors.length > 0) {
             throw {
@@ -35,7 +37,7 @@ export const AuthService = {
             country
         });
 
-        return newUser;
+        return AuthDTO.toUserResponse(newUser);
     },
 
     loginUser: async (loginData, res) => {
@@ -116,7 +118,7 @@ export const AuthService = {
         generateTokenAndSetCookie(res, user._id, user.role, user.isPremium);
 
         const safeUser = await AuthRepository.findById(user._id);
-        return { user: safeUser };
+        return AuthDTO.toUserResponse(safeUser);
     },
 
     logoutUser: async (res) => {
@@ -153,6 +155,52 @@ export const AuthService = {
 
         const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(userId);
 
-        return { user, activeRoom };
+        return AuthDTO.toCheckAuthResponse(user, activeRoom);
+    },
+
+    // Interface/Cross-Module Methods 
+    getUserStatus: async (userId) => {
+        const user = await AuthRepository.findById(userId);
+        if (!user) return null;
+        return AuthDTO.toUserResponse(user);
+    },
+
+    getUserSessionContext: async (userId) => {
+        const user = await AuthRepository.findById(userId);
+        if (!user) return null;
+        return {
+            id: user.id || user._id,
+            role: user.role,
+            isPremium: user.isPremium,
+            isActive: user.isActive
+        };
+    },
+
+    setPremiumExpiry: async (userId, premiumExpiresAt) => {
+        const user = await AuthRepository.updatePremiumExpiry(userId, premiumExpiresAt);
+        if (!user) return null;
+        return AuthDTO.toUserResponse(user);
+    },
+
+    setAccountStatus: async (userId, isActive) => {
+        const user = await AuthRepository.updateAccountStatus(userId, isActive);
+        if (!user) return null;
+        return AuthDTO.toUserResponse(user);
+    },
+
+    getUserById: async (userId) => {
+        return AuthRepository.findById(userId);
+    },
+
+    updateUserProfile: async (userId, updates) => {
+        return AuthRepository.updateUser(userId, updates);
+    },
+
+    checkProfileConflicts: async (userId, email, username) => {
+        return AuthRepository.checkProfileConflicts(userId, email, username);
+    },
+
+    getPaginatedUsers: async (filter, sort, skip, limit) => {
+        return AuthRepository.findUsersPaginated(filter, sort, skip, limit);
     }
 };

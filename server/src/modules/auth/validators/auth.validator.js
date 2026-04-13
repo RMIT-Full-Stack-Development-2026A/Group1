@@ -23,7 +23,7 @@ export const validateRegisterInput = (data) => {
         });
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_-]{6,}$/; 
+    const usernameRegex = /^[a-zA-Z0-9_-]{6,30}$/; 
     if (!usernameRegex.test(username)) {
         errors.push({
             field: "username",

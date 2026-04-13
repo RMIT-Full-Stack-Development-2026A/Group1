@@ -2,78 +2,78 @@ import mongoose from 'mongoose';
 import { baseSchemaOptions } from '../../../utils/baseSchemaOptions.js';
 
 const transactionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId, // User who owns this transaction
-    ref: 'User', // Links transaction to account
-    required: true, // Every transaction must belong to a user
-    index: true // Speeds up user transaction history queries
-  },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId, // User who owns this transaction
+        ref: 'User', 
+        required: true, 
+        index: true 
+    },
 
-  type: {
-    type: String, // Business category of transaction
-    enum: ['DEPOSIT', 'SUBSCRIPTION'], // Supported transaction types
-    required: true, // Required for history and logic branching
-    index: true // Useful for filtering deposits vs subscriptions
-  },
+    type: {
+        type: String, // Business category of transaction
+        enum: ['DEPOSIT', 'SUBSCRIPTION'], 
+        required: true, 
+        index: true 
+    },
 
-  provider: {
-    type: String, // Payment source/provider used for this transaction
-    enum: ['LOCAL_WALLET', 'STRIPE', 'PAYPAL'], // Supported providers in current design
-    required: true, // Each transaction must say where it came from
-    default: 'LOCAL_WALLET' // Default if handled internally
-  },
+    provider: {
+        type: String, // Payment source/provider used for this transaction
+        enum: ['LOCAL_WALLET', 'STRIPE', 'PAYPAL'], 
+        required: true, 
+        default: 'LOCAL_WALLET' 
+    },
 
-  amount: {
-    type: Number, // Money amount for this transaction
-    required: true, // Transaction must have value
-    min: 0 // Prevent negative stored amount
-  },
+    amount: {
+        type: Number, // Money amount for this transaction
+        required: true, 
+        min: 0 // Prevent negative stored amount
+    },
 
-  currency: {
-    type: String, // Currency code for financial clarity
-    default: 'USD' // Default currency in this project
-  },
+    currency: {
+        type: String, // Currency code for financial clarity
+        default: 'USD' 
+    },
 
-  status: {
-    type: String, // Processing outcome of the transaction
-    enum: ['PENDING', 'SUCCESS', 'FAILED'], // Supported payment statuses
-    required: true, // Every transaction must have a final/working state
-    default: 'SUCCESS', // Internal/local actions may succeed immediately
-    index: true // Useful for filtering failed/pending transactions
-  },
+    status: {
+        type: String, // Processing outcome of the transaction
+        enum: ['PENDING', 'SUCCESS', 'FAILED'], 
+        required: true, 
+        default: 'SUCCESS', 
+        index: true 
+    },
 
-  externalTransactionId: {
-    type: String, // ID from Stripe/PayPal/other provider if one exists
-    default: null, // Null if not applicable
-    index: true, // Useful for reconciliation and payment tracing
-    sparse: true // Only index documents that actually have this field
-  },
+    externalTransactionId: {
+        type: String, // ID from Stripe/PayPal/other provider if one exists
+        default: null, 
+        index: true,
+        sparse: true 
+    },
 
-  balanceBefore: {
-    type: Number, // Wallet balance before applying this transaction
-    default: 0 // Useful for audit trail
-  },
+    balanceBefore: {
+        type: Number, // Wallet balance before applying this transaction
+        default: 0 
+    },
 
-  balanceAfter: {
-    type: Number, // Wallet balance after applying this transaction
-    default: 0 // Useful for audit trail and debugging
-  },
+    balanceAfter: {
+        type: Number, // Wallet balance after applying this transaction
+        default: 0 
+    },
 
-  subscriptionPeriodStart: {
-    type: Date, // Start date of premium period for subscription transactions
-    default: null // Null for deposit transactions
-  },
+    subscriptionPeriodStart: {
+        type: Date, // Start date of premium period for subscription transactions
+        default: null 
+    },
 
-  subscriptionPeriodEnd: {
-    type: Date, // End date of premium period for subscription transactions
-    default: null, // Null for deposit transactions
-    index: true // Useful for subscription history and expiry analysis
-  },
+    subscriptionPeriodEnd: {
+        type: Date, // End date of premium period for subscription transactions
+        default: null, 
+        index: true 
+    },
 
-  metadata: {
-    type: mongoose.Schema.Types.Mixed, // Extra provider-specific details if needed
-    default: {} // Empty object when no extra data is needed
-  }
+    metadata: {
+        type: mongoose.Schema.Types.Mixed, // Extra provider-specific details if needed
+        default: {}
+    }
 }, baseSchemaOptions);
 
 transactionSchema.index({ userId: 1, createdAt: -1 }); // Fast latest-transactions lookup per user

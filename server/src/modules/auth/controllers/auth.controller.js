@@ -1,12 +1,10 @@
 import { AuthService } from "../services/auth.service.js";
-import { AuthDTO } from "../dtos/auth.dto.js";
 
 // Controller delegates all business rules to AuthService.
 export const AuthController = {
     register: async (req, res, next) => {
         try {
-            const newUser = await AuthService.registerUser(req.body);
-            const safeUser = AuthDTO.toUserResponse(newUser);
+            const safeUser = await AuthService.registerUser(req.body);
 
             return res.status(201).json({
                 data: safeUser,
@@ -24,8 +22,7 @@ export const AuthController = {
                 password: req.body.password
             };
 
-            const result = await AuthService.loginUser(loginData, res);
-            const safeUser = AuthDTO.toUserResponse(result.user);
+            const safeUser = await AuthService.loginUser(loginData, res);
 
             return res.status(200).json({
                 data: safeUser,
@@ -60,10 +57,10 @@ export const AuthController = {
                 });
             }
 
-            const result = await AuthService.checkAuthUser(req.user.id);
+            const authResponse = await AuthService.checkAuthUser(req.user.id);
 
             return res.status(200).json({
-                data: AuthDTO.toCheckAuthResponse(result.user, result.activeRoom),
+                data: authResponse,
                 message: "Authenticated."
             });
         } catch (error) {

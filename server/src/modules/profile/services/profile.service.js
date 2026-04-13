@@ -1,5 +1,6 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
+import { ProfileDTO } from '../dtos/profile.dto.js'
 import { validateProfileUpdate } from '../validators/profile.validator.js';
 
 export const ProfileService = {
@@ -14,7 +15,7 @@ export const ProfileService = {
                 valid_example: "Ensure your session is valid and active."
             };
         }
-        return user;
+        return ProfileDTO.toBaseProfile(user);
     },
 
     getProfileOverview: async (userId) => {
@@ -36,10 +37,13 @@ export const ProfileService = {
             premiumExpiresAt: user.premiumExpiresAt
         };
         
-        const stats = await GameInterface.getUserGameStats(userId);
-        const recentGames = await GameInterface.getRecentGames(userId, 5);
+        // Fetch stats and recent games
+        const [stats, recentGames] = await Promise.all([
+            GameInterface.getUserGameStats(userId),
+            GameInterface.getRecentGames(userId, 5)
+        ]);
 
-        return { user, wallet, subscription, stats, recentGames };
+        return ProfileDTO.toProfileOverview({ user, wallet, subscription, stats, recentGames });
     },
 
     updateProfile: async (userId, updateData) => {
@@ -76,6 +80,6 @@ export const ProfileService = {
         }
 
         const updatedUser = await AuthInterface.updateUserProfile(userId, allowedUpdates);
-        return updatedUser;
+        return ProfileDTO.toBaseProfile(updatedUser);
     }
 };

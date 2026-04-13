@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ulid } from 'ulid';
 import { roomMoveSchema } from './roomMove.model.js';
 import { roomParticipantSchema } from './roomParticipant.model.js';
 import { baseSchemaOptions } from '../../../utils/baseSchemaOptions.js';
@@ -6,49 +7,50 @@ import { baseSchemaOptions } from '../../../utils/baseSchemaOptions.js';
 const gameRoomSchema = new mongoose.Schema({
     roomNumber: {
         type: String, // Human-readable unique room code/number
-        required: true, // Every room needs a unique identifier
-        unique: true, // Prevent duplicate room numbers
-        index: true // Speeds up room lookup
+        required: true, 
+        unique: true, 
+        index: true,
+        default: () => `RM-${ulid()}` // ULID prevents B-Tree index fragmentation
     },
 
     boardSize: {
         type: Number, // Board size selected for this online room
-        enum: [10, 15], // Only supported sizes
-        required: true, // Needed before game starts
-        index: true // Helps filter room listings by board size
+        enum: [10, 15],
+        required: true,
+        index: true 
     },
 
     status: {
         type: String, // Current lifecycle state of the room
-        enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'], // Supported live room states
-        default: 'WAITING', // New room starts as waiting for another player
-        index: true // Useful for arena filtering
+        enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'],
+        default: 'WAITING', 
+        index: true 
     },
 
     participants: {
         type: [roomParticipantSchema], // Current players inside the room
-        default: [] // Starts empty until creator joins / room is created
+        default: [] 
     },
 
     currentTurnParticipantIndex: {
         type: Number, // Which participant is allowed to move now
-        enum: [0, 1], // Only two sides exist
-        default: null // Null before game starts or after it ends
+        enum: [0, 1], 
+        default: null 
     },
 
     moves: {
         type: [roomMoveSchema], // Live move list used for socket sync and reconnect
-        default: [] // No moves at room creation
+        default: [] 
     },
 
     moveCount: {
-        type: Number, // Cached live move count for quick access
-        default: 0 // Starts at zero
+        type: Number, 
+        default: 0 
     },
 
     winningLine: {
         type: [{ row: Number, col: Number, coordinate: String }], // Live winning line when the game ends
-        default: [] // Empty unless someone wins
+        default: [] 
     },
 
     lastMove: {
@@ -58,23 +60,24 @@ const gameRoomSchema = new mongoose.Schema({
     },
 
     startedAt: {
-        type: Date, // Time when actual gameplay started
+        type: Date, 
         default: null // Null while room is only waiting/ready
     },
 
     endedAt: {
-        type: Date, // Time when room ended or was closed
-        default: null // Null while room is still active
+        type: Date, 
+        default: null 
     },
 
     closedBy: {
         type: String, // Who closed the room
-        enum: ['PLAYER', 'ADMIN', 'SYSTEM'], // Useful for auditing why room disappeared
+        enum: ['PLAYER', 'ADMIN', 'SYSTEM'], 
         default: null // Null until room is closed
     }
 }, baseSchemaOptions);
 
 gameRoomSchema.index({ status: 1, createdAt: -1 }); // Fast arena queries by room status
 gameRoomSchema.index({ 'participants.userId': 1, status: 1 }); // Fast reconnect lookup for a user's active room
+gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*60 }) // TTL: Engine auto-deletes document 1 hr after closure
 
 export const GameRoom = mongoose.model('GameRoom', gameRoomSchema);

@@ -1,5 +1,6 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
+import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId } from '../validators/admin.validator.js';
 
 export const AdminService = {
@@ -8,10 +9,11 @@ export const AdminService = {
         
         const { users, total } = await AuthInterface.getPaginatedUsers(filter, sort, pagination.skip, pagination.limit);
         
-        return {
-            items: users,
-            pagination: { total, page: pagination.page, limit: pagination.limit }
-        };
+        return AdminDTO.toPlayerList(users, { 
+            total, 
+            page: pagination.page, 
+            limit: pagination.limit 
+        });
     },
 
     getPlayerDetail: async (playerId) => {
@@ -39,7 +41,7 @@ export const AdminService = {
         // Orchestrate extra stats gathering
         const extraStats = await GameInterface.getUserGameStats(playerId);
 
-        return { user, extra: extraStats };
+        return AdminDTO.toPlayerDetail(user, extraStats);
     },
 
     changePlayerStatus: async (playerId, isActive) => {
@@ -76,6 +78,6 @@ export const AdminService = {
         }
 
         const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
-        return updatedUser;
+        return AdminDTO.toPlayerDetail(updatedUser);
     }
 };

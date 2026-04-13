@@ -1,5 +1,4 @@
 import { GameService } from "../services/game.service.js";
-import { GameDTO } from "../dtos/game.dto.js";
 
 export const GameController = {
     
@@ -7,8 +6,7 @@ export const GameController = {
     createLocalSession: async (req, res, next) => {
         try {
             const viewerUserId = req.user.id; 
-            const savedSession = await GameService.createLocalGameSession(viewerUserId, req.body);
-            const safeData = GameDTO.toGameDetail(savedSession, viewerUserId);
+            const safeData = await GameService.createLocalGameSession(viewerUserId, req.body);
 
             return res.status(201).json({
                 data: safeData,
@@ -22,10 +20,10 @@ export const GameController = {
     // get game list API
     getGames: async (req, res, next) => {
         try {
-            const result = await GameService.listUserGameSessions(req.user.id, req.query);
+            const safeData = await GameService.listUserGameSessions(req.user.id, req.query);
             
             return res.status(200).json({
-                data: GameDTO.toGameListResponse(result.items, result.pagination, req.user.id),
+                data: safeData,
                 message: "Game history fetched successfully."
             });
         } catch (error) {
@@ -36,10 +34,10 @@ export const GameController = {
     // get game detail API
     getGameDetail: async (req, res, next) => {
         try {
-            const session = await GameService.getGameSessionDetail(req.user.id, req.params.id);
+            const safeData = await GameService.getGameSessionDetail(req.user.id, req.params.id);
             
             return res.status(200).json({
-                data: GameDTO.toGameDetail(session, req.user.id),
+                data: safeData,
                 message: "Game details fetched successfully."
             });
         } catch (error) {

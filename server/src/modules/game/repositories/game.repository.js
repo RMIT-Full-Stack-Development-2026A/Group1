@@ -22,26 +22,58 @@ export const GameRepository = {
 
     // Data provided to Profile module
     calculateUserStats: async (userId) => {
-        const sessions = await GameSession.find({ 'participants.userId': userId });
-        
-        let wins = 0, losses = 0, draws = 0, aborted = 0;
-
-        sessions.forEach(session => {
-            if (session.status === 'ABORTED') aborted++;
-            else if (session.status === 'DRAW') draws++;
-            else if (session.status === 'FINISHED') {
-                const pIndex = session.participants.findIndex(p => String(p.userId) === String(userId));
-                if (pIndex !== -1 && pIndex === session.winnerParticipantIndex) wins++;
-                else losses++;
+        const stats = await GameSession.aggregate([
+            { $match: { 'participants.userId': userId } },
+            {
+                // Find out if the user was participant 0 or 1
+                $addFields: {
+                    userIndex: { $indexOfArray: ["$participants.userId", userId] }
+                }
+            },
+            {
+                // Tally up the results
+                $group: {
+                    _id: null,
+                    totalGames: { $sum: 1 },
+                    aborted: { $sum: { $cond: [{ $eq: ["$status", "ABORTED"] }, 1, 0] } },
+                    draws: { $sum: { $cond: [{ $eq: ["$status", "DRAW"] }, 1, 0] } },
+                    wins: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $and: [
+                                        { $eq: ["$status", "FINISHED"] },
+                                        { $eq: ["$userIndex", "$winnerParticipantIndex"] }
+                                    ]
+                                }, 1, 0
+                            ]
+                        }
+                    },
+                    losses: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $and: [
+                                        { $eq: ["$status", "FINISHED"] },
+                                        { $ne: ["$userIndex", "$winnerParticipantIndex"] },
+                                        { $ne: ["$winnerParticipantIndex", null] }
+                                    ]
+                                }, 1, 0
+                            ]
+                        }
+                    }
+                }
             }
-        });
+        ]);
 
-        return { totalGames: sessions.length, wins, losses, draws, aborted };
+        // Aggregate returns an array, so extract the first object or return defaults
+        return stats[0] || { totalGames: 0, wins: 0, losses: 0, draws: 0, aborted: 0 };
     },
 
     // Data provided to Profile module
     findRecentGamesByUser: async (userId, limit) => {
         return GameSession.find({ 'participants.userId': userId })
+            .select('-moves')
             .sort({ endedAt: -1, startedAt: -1 })
             .limit(limit)
             .select('sessionNumber gameType boardSize startedAt endedAt status winnerParticipantIndex participants');

@@ -13,7 +13,7 @@ export const useGameModeSelect = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   
-  const { setGameMode } = useModeStore();
+  const { setGameMode, setAiDifficulty } = useModeStore();
 
   /**
    * Redirect to login if not authenticated

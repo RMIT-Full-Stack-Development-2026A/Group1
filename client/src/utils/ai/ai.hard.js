@@ -1,5 +1,5 @@
 // This makes traps almost impossible to pull off against the AI.
-const MAX_DEPTH = 4; 
+const MAX_DEPTH = 6; 
 
 // Decrease slightly to balance the exponential cost of Depth 4 and keep the browser fast
 const TOP_MOVES_TO_SEARCH = 10; 

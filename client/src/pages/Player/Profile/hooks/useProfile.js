@@ -96,6 +96,10 @@ export const useProfile = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterResult, setFilterResult] = useState("ALL RESULTS");
   const [filterGameType, setFilterGameType] = useState("GAME TYPE");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState("endedAt"); // 'endedAt' or 'startedAt'
+  const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
   const [totalMatches, setTotalMatches] = useState(MOCK_MATCHES.length);
 
@@ -234,6 +238,10 @@ export const useProfile = () => {
           q: searchQuery,
           result: filterResult === "ALL RESULTS" ? undefined : filterResult,
           gameType: filterGameType === "GAME TYPE" ? undefined : filterGameType,
+          from: dateFrom ? new Date(dateFrom).toISOString() : undefined,
+          to: dateTo ? new Date(dateTo).toISOString() : undefined,
+          sortBy: sortBy,
+          sortOrder: sortOrder,
           page: currentPage,
         };
 
@@ -262,7 +270,7 @@ export const useProfile = () => {
     };
 
     fetchMatches();
-  }, [searchQuery, filterResult, filterGameType, currentPage]);
+  }, [searchQuery, filterResult, filterGameType, dateFrom, dateTo, sortBy, sortOrder, currentPage]);
 
   // Handle edit profile - open modal
   const handleEditProfile = () => {
@@ -356,6 +364,29 @@ export const useProfile = () => {
     setCurrentPage(pageNum);
   };
 
+  // Handle sort by column
+  const handleSortBy = (column) => {
+    // If clicking the same column, toggle order; otherwise set new column with desc order
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+    setCurrentPage(1); // Reset to page 1 when sorting
+  };
+
+  // Handle date range changes
+  const handleDateFromChange = (date) => {
+    setDateFrom(date);
+    setCurrentPage(1);
+  };
+
+  const handleDateToChange = (date) => {
+    setDateTo(date);
+    setCurrentPage(1);
+  };
+
   // Handle avatar update
   const handleAvatarUpdate = (previewUrl, serverUrl) => {
     setPlayerData((prev) => ({
@@ -408,6 +439,17 @@ export const useProfile = () => {
     setFilterResult,
     filterGameType,
     setFilterGameType,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
+    handleDateFromChange,
+    handleDateToChange,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    handleSortBy,
     currentPage,
     setCurrentPage,
     totalMatches,

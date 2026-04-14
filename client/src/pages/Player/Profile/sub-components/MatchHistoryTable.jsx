@@ -9,12 +9,25 @@ export default function MatchHistoryTable({
   onFilterResultChange,
   filterGameType,
   onFilterGameTypeChange,
+  dateFrom,
+  onDateFromChange,
+  dateTo,
+  onDateToChange,
+  sortBy,
+  sortOrder,
+  onSortBy,
   currentPage,
   totalMatches,
   onPageChange,
   onReplay,
   loading,
 }) {
+  const SortIndicator = ({ column }) => {
+    if (sortBy !== column) return <span className="ml-1 text-outline/40">⇅</span>;
+    return sortOrder === "desc" 
+      ? <span className="ml-1 text-primary-container">↓</span> 
+      : <span className="ml-1 text-primary-container">↑</span>;
+  };
   const getResultColor = (result) => {
     switch (result) {
       case "WIN":
@@ -89,6 +102,24 @@ export default function MatchHistoryTable({
             </span>
           </div>
 
+          {/* Date From Filter */}
+          <input
+            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+            placeholder="From"
+            type="date"
+            value={dateFrom}
+            onChange={(e) => onDateFromChange(e.target.value)}
+          />
+
+          {/* Date To Filter */}
+          <input
+            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+            placeholder="To"
+            type="date"
+            value={dateTo}
+            onChange={(e) => onDateToChange(e.target.value)}
+          />
+
           {/* Result Filter */}
           <select
             className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
@@ -121,7 +152,12 @@ export default function MatchHistoryTable({
           <thead>
             <tr className="bg-surface-container-lowest text-outline text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant">
               <th className="px-6 py-4">#</th>
-              <th className="px-6 py-4">DATE</th>
+              <th 
+                className="px-6 py-4 cursor-pointer hover:text-primary-container transition-colors" 
+                onClick={() => onSortBy("endedAt")}
+              >
+                DATE <SortIndicator column="endedAt" />
+              </th>
               <th className="px-6 py-4">GAME TYPE</th>
               <th className="px-6 py-4">OPPONENT</th>
               <th className="px-6 py-4">RESULT</th>

@@ -22,6 +22,13 @@ export default function PlayerProfile() {
     setFilterResult,
     filterGameType,
     setFilterGameType,
+    dateFrom,
+    handleDateFromChange,
+    dateTo,
+    handleDateToChange,
+    sortBy,
+    sortOrder,
+    handleSortBy,
     currentPage,
     handlePageChange,
     totalMatches,
@@ -80,6 +87,13 @@ export default function PlayerProfile() {
         onFilterResultChange={setFilterResult}
         filterGameType={filterGameType}
         onFilterGameTypeChange={setFilterGameType}
+        dateFrom={dateFrom}
+        onDateFromChange={handleDateFromChange}
+        dateTo={dateTo}
+        onDateToChange={handleDateToChange}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortBy={handleSortBy}
         currentPage={currentPage}
         totalMatches={totalMatches}
         onPageChange={handlePageChange}

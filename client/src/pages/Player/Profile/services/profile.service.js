@@ -36,10 +36,15 @@ export const profileService = {
     }
   },
 
-  // Update player profile
-  async updateProfile(profileData) {
+  // Update player profile (email, username, country)
+  async updateProfile(updateData) {
     try {
-      const response = await http.put("/profile/update", profileData);
+      const payload = {};
+      if (updateData.email) payload.email = updateData.email;
+      if (updateData.username) payload.username = updateData.username;
+      if (updateData.country) payload.country = updateData.country;
+
+      const response = await http.put("/profile/update", payload);
       return response.data;
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -54,6 +59,22 @@ export const profileService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching match replay:", error);
+      throw error;
+    }
+  },
+
+  // Change player password (requires old password for verification)
+  // TODO: Backend endpoint PATCH /api/v1/profile/password not yet implemented
+  // Route is defined in backend/docs/ENDPOINTS.md but commented out in backend/src/modules/profile/routes/profile.routes.js line 72
+  async changePassword(passwordData) {
+    try {
+      const response = await http.patch("/profile/password", {
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.password,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error changing password:", error);
       throw error;
     }
   },

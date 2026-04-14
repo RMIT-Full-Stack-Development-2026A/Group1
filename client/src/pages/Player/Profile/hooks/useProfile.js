@@ -99,6 +99,12 @@ export const useProfile = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalMatches, setTotalMatches] = useState(MOCK_MATCHES.length);
 
+  // Edit Profile Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [countries, setCountries] = useState([]);
+  const [countriesLoading, setCountriesLoading] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
   // Fetch player profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
@@ -153,6 +159,31 @@ export const useProfile = () => {
     };
 
     fetchProfile();
+  }, []);
+
+  // Fetch countries for edit profile modal
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        setCountriesLoading(true);
+        const data = await countryService.getCountries();
+        setCountries(data);
+      } catch (err) {
+        console.warn("Error loading countries:", err.message);
+        // Fallback to some default countries
+        setCountries([
+          { name: "USA", code: "US" },
+          { name: "United Kingdom", code: "GB" },
+          { name: "Canada", code: "CA" },
+          { name: "Australia", code: "AU" },
+          { name: "Vietnam", code: "VN" },
+        ]);
+      } finally {
+        setCountriesLoading(false);
+      }
+    };
+
+    fetchCountries();
   }, []);
 
   // Transform backend match data to frontend format
@@ -233,10 +264,85 @@ export const useProfile = () => {
     fetchMatches();
   }, [searchQuery, filterResult, filterGameType, currentPage]);
 
-  // Handle edit profile
+  // Handle edit profile - open modal
   const handleEditProfile = () => {
-    // TODO: Open profile edit modal or redirect to edit page
-    console.log("Edit profile clicked");
+    setIsEditModalOpen(true);
+  };
+
+  // Handle saving profile changes
+  const handleSaveProfile = async (updateData) => {
+    try {
+      setIsSavingProfile(true);
+      
+      // Call API to update profile
+      if (updateData.email || updateData.username || updateData.country) {
+        const profileUpdateData = {};
+        if (updateData.email) profileUpdateData.email = updateData.email;
+        if (updateData.username) profileUpdateData.username = updateData.username;
+        if (updateData.country) profileUpdateData.country = updateData.country;
+        
+        await profileService.updateProfile(profileUpdateData);
+      }
+
+      // Call API to change password if provided
+      if (updateData.password) {
+        await profileService.changePassword({ 
+          password: updateData.password,
+          oldPassword: updateData.oldPassword 
+        });
+      }
+
+      // Update local player data
+      setPlayerData((prev) => ({
+        ...prev,
+        email: updateData.email || prev.email,
+        username: updateData.username || prev.username,
+        country: updateData.country || prev.country,
+      }));
+
+      // If country changed, fetch new flag
+      if (updateData.country) {
+        const flagData = await countryService.getCountryFlag(updateData.country);
+        if (flagData) {
+          setCountryFlag(flagData);
+        }
+      }
+
+      // Close modal and refresh profile data
+      setIsEditModalOpen(false);
+      
+      // Optional: Refresh full profile data to sync with backend
+      const response = await profileService.getProfileOverview();
+      const apiData = response.data || response;
+      
+      const mappedData = {
+        id: apiData?.user?.id || apiData?.id,
+        username: apiData?.user?.username || apiData?.username,
+        email: apiData?.user?.email || apiData?.email,
+        isPremium: apiData?.subscription?.isPremium || apiData?.user?.isPremium || apiData?.isPremium || false,
+        country: apiData?.user?.country || apiData?.country,
+        level: apiData?.user?.level || apiData?.level || 1,
+        playerId: apiData?.user?.id || apiData?.id,
+        avatarUrl: apiData?.user?.avatar || apiData?.avatar,
+        stats: {
+          wins: apiData?.stats?.wins || 0,
+          losses: apiData?.stats?.losses || 0,
+          draws: apiData?.stats?.draws || 0,
+          winRate: apiData?.stats?.totalGames > 0 
+            ? ((apiData.stats.wins / apiData.stats.totalGames) * 100).toFixed(1)
+            : 0,
+        },
+      };
+      
+      setPlayerData(mappedData);
+
+      return true;
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      return false;
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   // Handle replay button click
@@ -301,5 +407,12 @@ export const useProfile = () => {
     handleReplay,
     handlePageChange,
     stats: getStatsConfig(),
+    // Edit modal state and functions
+    isEditModalOpen,
+    setIsEditModalOpen,
+    countries,
+    countriesLoading,
+    isSavingProfile,
+    handleSaveProfile,
   };
 };

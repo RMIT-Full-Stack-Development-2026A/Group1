@@ -6,6 +6,7 @@ import React from "react";
 import ProfileHeader from "./sub-components/ProfileHeader";
 import StatsCard from "./sub-components/StatsCard";
 import MatchHistoryTable from "./sub-components/MatchHistoryTable";
+import EditProfileModal from "./sub-components/EditProfileModal";
 import { useProfile } from "./hooks/useProfile";
 
 export default function PlayerProfile() {
@@ -27,6 +28,12 @@ export default function PlayerProfile() {
     handleEditProfile,
     handleReplay,
     stats,
+    isEditModalOpen,
+    setIsEditModalOpen,
+    countries,
+    countriesLoading,
+    isSavingProfile,
+    handleSaveProfile,
   } = useProfile();
 
   if (error) {
@@ -76,6 +83,17 @@ export default function PlayerProfile() {
         onPageChange={handlePageChange}
         onReplay={handleReplay}
         loading={loading}
+      />
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        playerData={playerData}
+        countries={countries}
+        countriesLoading={countriesLoading}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveProfile}
+        isSaving={isSavingProfile}
       />
     </main>
   );

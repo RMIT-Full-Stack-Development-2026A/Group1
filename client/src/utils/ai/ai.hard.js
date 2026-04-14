@@ -1,8 +1,14 @@
-const MAX_DEPTH = 3; // Look ahead 3 steps
-const TOP_MOVES_TO_SEARCH = 12; // Only run Minimax on the top 12 best heuristic moves
+// This makes traps almost impossible to pull off against the AI.
+const MAX_DEPTH = 4; 
+
+// Decrease slightly to balance the exponential cost of Depth 4 and keep the browser fast
+const TOP_MOVES_TO_SEARCH = 10; 
+
+// UPGRADE 2: Paranoia Multiplier. The Bot fears the human's setup more than it values its own.
+const DEFENSE_PARANOIA_FACTOR = 1.5; 
 
 // ---------------------------------------------------------
-// 1. HELPER FUNCTIONS (Reused & optimized from Medium AI)
+// 1. HELPER FUNCTIONS 
 // ---------------------------------------------------------
 const getScore = (count, blocks) => {
     if (blocks === 2 && count < 5) return 0; 
@@ -80,10 +86,6 @@ const getActiveZone = (board, padding = 2) => {
 // 2. MINIMAX CORE LOGIC
 // ---------------------------------------------------------
 
-/**
- * Static evaluation of the board for the leaf nodes of Minimax
- * Positive score means Bot is winning, Negative means Human is winning
- */
 const evaluateBoardStatic = (board, botMark, humanMark, zone) => {
     let botScore = 0;
     let humanScore = 0;
@@ -97,28 +99,27 @@ const evaluateBoardStatic = (board, botMark, humanMark, zone) => {
             }
         }
     }
-    return botScore - humanScore;
+    // Multiply humanScore to make the Bot hyper-defensive in its future evaluations
+    return botScore - (humanScore * DEFENSE_PARANOIA_FACTOR);
 };
 
-/**
- * Generate and sort the top N best moves using Heuristic to optimize Alpha-Beta Pruning
- */
 const getSortedCandidateMoves = (board, botMark, humanMark, zone) => {
     const moves = [];
     
     for (let r = zone.minR; r <= zone.maxR; r++) {
         for (let c = zone.minC; c <= zone.maxC; c++) {
             if (board[r][c] === null) {
-                // HARD BOT: Combines both Attack and Defense to find the absolute most impactful cells
                 const attackScore = evaluateCell(board, r, c, botMark);
                 const defenseScore = evaluateCell(board, r, c, humanMark);
                 
-                // If a move is an immediate win or immediate loss, flag it with massive weight
-                if (attackScore >= 1000000) return [[r, c]]; // We win immediately
-                if (defenseScore >= 1000000) return [[r, c]]; // We must block immediately
+                // CRITICAL FIX: Order of operations matters. 
+                // 1. If Bot can win right now, do it.
+                if (attackScore >= 10000000) return [[r, c]]; 
+                // 2. If Bot can't win, but Human is about to win, block it AT ALL COSTS.
+                if (defenseScore >= 10000000) return [[r, c]]; 
 
-                // Total importance of the cell
-                const totalScore = attackScore + defenseScore;
+                // Weight defense heavier to suffocate the player's attempts to build
+                const totalScore = attackScore + (defenseScore * DEFENSE_PARANOIA_FACTOR);
                 
                 if (totalScore > 0) {
                     moves.push({ row: r, col: c, score: totalScore });
@@ -127,46 +128,40 @@ const getSortedCandidateMoves = (board, botMark, humanMark, zone) => {
         }
     }
 
-    // Sort descending by score and keep only the top N moves
     moves.sort((a, b) => b.score - a.score);
     return moves.slice(0, TOP_MOVES_TO_SEARCH).map(m => [m.row, m.col]);
 };
 
-/**
- * The Minimax algorithm with Alpha-Beta Pruning
- */
 const minimax = (board, depth, alpha, beta, isMaximizing, botMark, humanMark, zone) => {
     if (depth === 0) {
         return evaluateBoardStatic(board, botMark, humanMark, zone);
     }
 
     const candidateMoves = getSortedCandidateMoves(board, botMark, humanMark, zone);
-    
-    // If board is full or no moves left
     if (candidateMoves.length === 0) return 0;
 
     if (isMaximizing) {
         let maxEval = -Infinity;
         for (const [r, c] of candidateMoves) {
-            board[r][c] = botMark; // Make move
+            board[r][c] = botMark; 
             const ev = minimax(board, depth - 1, alpha, beta, false, botMark, humanMark, zone);
-            board[r][c] = null;    // Undo move
+            board[r][c] = null;    
 
             maxEval = Math.max(maxEval, ev);
             alpha = Math.max(alpha, ev);
-            if (beta <= alpha) break; // Prune
+            if (beta <= alpha) break; 
         }
         return maxEval;
     } else {
         let minEval = Infinity;
         for (const [r, c] of candidateMoves) {
-            board[r][c] = humanMark; // Make move
+            board[r][c] = humanMark; 
             const ev = minimax(board, depth - 1, alpha, beta, true, botMark, humanMark, zone);
-            board[r][c] = null;      // Undo move
+            board[r][c] = null;      
 
             minEval = Math.min(minEval, ev);
             beta = Math.min(beta, ev);
-            if (beta <= alpha) break; // Prune
+            if (beta <= alpha) break; 
         }
         return minEval;
     }
@@ -181,29 +176,25 @@ export const getHardMove = (board, botMark) => {
     
     const zone = getActiveZone(board, 2);
 
-    // Empty board -> center
     if (!zone) {
         const center = Math.floor(size / 2);
         return [center, center];
     }
 
-    // 1. Get Top Candidates
     const candidateMoves = getSortedCandidateMoves(board, botMark, humanMark, zone);
     
-    // If getSortedCandidateMoves returned exactly 1 move, it means it's an immediate win or forced block. Play it instantly.
+    // Immediate win or block found by HR department
     if (candidateMoves.length === 1) {
         return candidateMoves[0];
     }
 
-    // 2. Run Minimax on the candidates
     let bestScore = -Infinity;
     let bestMove = candidateMoves[0] || [0,0];
 
     for (const [r, c] of candidateMoves) {
-        board[r][c] = botMark; // Simulate move
+        board[r][c] = botMark; 
         const moveScore = minimax(board, MAX_DEPTH - 1, -Infinity, Infinity, false, botMark, humanMark, zone);
-        board[r][c] = null;    // Undo simulate
-
+        board[r][c] = null;    
 
         if (moveScore > bestScore) {
             bestScore = moveScore;

@@ -20,7 +20,7 @@ export const GAME_MODES = [
     status: 'TODO',
   },
   {
-    id: 'TWO_PLAYER',
+    id: 'TWO_PLAYERS',
     title: 'LOCAL ARENA',
     description: 'Challenge a friend on the same machine.',
     icon: 'videogame_asset',

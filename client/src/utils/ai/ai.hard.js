@@ -204,11 +204,9 @@ export const getHardMove = (board, botMark) => {
         const moveScore = minimax(board, MAX_DEPTH - 1, -Infinity, Infinity, false, botMark, humanMark, zone);
         board[r][c] = null;    // Undo simulate
 
-        // Add a tiny random fraction to avoid predictable behavior when scores tie
-        const randomizedScore = moveScore + (Math.random() * 10); 
 
-        if (randomizedScore > bestScore) {
-            bestScore = randomizedScore;
+        if (moveScore > bestScore) {
+            bestScore = moveScore;
             bestMove = [r, c];
         }
     }

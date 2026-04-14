@@ -11,6 +11,7 @@ import { useProfile } from "./hooks/useProfile";
 export default function PlayerProfile() {
   const {
     playerData,
+    countryFlag,
     matchHistory,
     loading,
     error,
@@ -39,10 +40,11 @@ export default function PlayerProfile() {
   }
 
   return (
-    <main className="max-w-[1440px] mx-auto p-8 space-y-8">
+    <main className="max-w-[1440px] mx-auto p-8 space-y-8 font-body">
       {/* Profile Header */}
       <ProfileHeader
         playerData={playerData}
+        countryFlag={countryFlag}
         onEditProfile={handleEditProfile}
       />
 

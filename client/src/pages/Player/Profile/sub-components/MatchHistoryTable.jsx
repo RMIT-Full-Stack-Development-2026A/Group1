@@ -18,13 +18,30 @@ export default function MatchHistoryTable({
   const getResultColor = (result) => {
     switch (result) {
       case "WIN":
-        return "bg-primary-container/20 text-primary-container border-primary-container/40";
+        return {
+          backgroundColor: "#4cc9f0",
+          color: "#000000",
+          borderColor: "#4cc9f0",
+        };
       case "LOSS":
-        return "bg-error-container/20 text-error-container border-error-container/40";
+        return {
+          backgroundColor: "#93000a",
+          color: "#000000",
+          borderColor: "#93000a",
+        };
       case "ABORT":
-        return "bg-surface-container-highest text-outline border-outline/40";
+      case "DRAW":
+        return {
+          backgroundColor: "#879398",
+          color: "#000000",
+          borderColor: "#879398",
+        };
       default:
-        return "";
+        return {
+          backgroundColor: "transparent",
+          color: "#000000",
+          borderColor: "#879398",
+        };
     }
   };
 
@@ -43,9 +60,12 @@ export default function MatchHistoryTable({
   const totalPages = Math.ceil(totalMatches / itemsPerPage);
 
   return (
-    <section className="bg-surface-container border border-outline-variant flex flex-col">
+    <section 
+      className="border border-outline-variant flex flex-col"
+      style={{ backgroundColor: "#1b1c2c" }}
+    >
       {/* Table Header/Controls */}
-      <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-outline-variant pixel-grid">
+      <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-outline-variant">
         <h3 className="font-arcade text-lg text-on-surface flex items-center gap-3">
           <span className="material-symbols-outlined text-primary-container">
             history
@@ -88,8 +108,9 @@ export default function MatchHistoryTable({
             onChange={(e) => onFilterGameTypeChange(e.target.value)}
           >
             <option>GAME TYPE</option>
-            <option>CLASSIC 3X3</option>
-            <option>TURBO 5X5</option>
+            <option>SINGLE_PLAYER</option>
+            <option>TWO_PLAYERS</option>
+            <option>ONLINE_MATCH</option>
           </select>
         </div>
       </div>
@@ -104,20 +125,21 @@ export default function MatchHistoryTable({
               <th className="px-6 py-4">GAME TYPE</th>
               <th className="px-6 py-4">OPPONENT</th>
               <th className="px-6 py-4">RESULT</th>
-              <th className="px-6 py-4">DURATION</th>
+              <th className="px-6 py-4">START TIME</th>
+              <th className="px-6 py-4">END TIME</th>
               <th className="px-6 py-4 text-right">REPLAY</th>
             </tr>
           </thead>
           <tbody className="text-xs font-medium uppercase tracking-tight divide-y divide-outline-variant/30">
             {loading ? (
               <tr>
-                <td colSpan="7" className="px-6 py-8 text-center text-outline/50">
+                <td colSpan="8" className="px-6 py-8 text-center text-outline/50">
                   Loading matches...
                 </td>
               </tr>
             ) : matches.length === 0 ? (
               <tr>
-                <td colSpan="7" className="px-6 py-8 text-center text-outline/50">
+                <td colSpan="8" className="px-6 py-8 text-center text-outline/50">
                   No matches found
                 </td>
               </tr>
@@ -137,12 +159,18 @@ export default function MatchHistoryTable({
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`${getResultColor(match.result)} px-2 py-1 border`}
+                      className="border inline-flex items-center justify-center"
+                      style={{
+                        ...getResultColor(match.result),
+                        width: "80px",
+                        height: "32px",
+                      }}
                     >
                       {match.result}
                     </span>
                   </td>
-                  <td className="px-6 py-4">{match.duration}</td>
+                  <td className="px-6 py-4">{match.startTime}</td>
+                  <td className="px-6 py-4">{match.endTime}</td>
                   <td className="px-6 py-4 text-right">
                     {match.canReplay ? (
                       <span

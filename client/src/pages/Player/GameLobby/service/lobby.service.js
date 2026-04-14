@@ -33,20 +33,6 @@ export const LobbyService = {
         }
     },
 
-    /**
-     * Get player stats from backend (via profile API)
-     * Should call GET /profile/overview for complete stats
-     */
-    getPlayerStats: async () => {
-        try {
-            // TODO: Import profileService and call it
-            // For now return mock stats
-            return LobbyService._getMockPlayerStats();
-        } catch (error) {
-            console.error('[Lobby Service] Failed to fetch player stats:', error);
-            return LobbyService._getMockPlayerStats();
-        }
-    },
 
     /**
      * Get recent activity from backend
@@ -98,10 +84,10 @@ export const LobbyService = {
 
             console.log('[Lobby Service] Fetched recent activity:', activity);
             
-            return activity.length > 0 ? activity : LobbyService._getMockRecentActivity();
+            return activity.length > 0 ? activity : [];
         } catch (error) {
             console.error('[Lobby Service] Failed to fetch recent activity:', error);
-            return LobbyService._getMockRecentActivity();
+            return [];
         }
     },
 
@@ -167,22 +153,5 @@ export const LobbyService = {
         ];
     },
 
-    _getMockPlayerStats: () => {
-        return {
-            wins: 42,
-            losses: 12,
-            rank: "#085 ELITE",
-            totalGames: 54,
-            winRate: "77.8%",
-        };
-    },
 
-    _getMockRecentActivity: () => {
-        return [
-            { time: "14:22", action: "MATCH_WON", opponent: "USER_77", type: "win" },
-            { time: "14:05", action: "ENTERED_LOBBY", type: "neutral" },
-            { time: "13:58", action: "LEVEL_UP", level: "LVL 14", type: "level" },
-            { time: "13:45", action: "MATCH_LOST", opponent: "USER_53", type: "loss" },
-        ];
-    },
 };

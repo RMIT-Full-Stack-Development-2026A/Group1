@@ -34,6 +34,11 @@ body {
     font-family: 'Press Start 2P', cursive;
 }
 
+/* Pixel font for arcade/number display */
+.font-arcade {
+    font-family: 'Press Start 2P', cursive;
+}
+
 /* Optional: Use for specific elements if needed */
 .pixel-font {
     font-family: 'Press Start 2P', cursive;

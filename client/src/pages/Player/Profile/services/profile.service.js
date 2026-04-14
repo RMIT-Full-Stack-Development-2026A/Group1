@@ -2,6 +2,17 @@
 import http from "@/utils/httpHelper";
 
 export const profileService = {
+  // Fetch aggregated profile overview (recommended for profile page)
+  async getProfileOverview() {
+    try {
+      const response = await http.get("/profile/overview");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching profile overview:", error);
+      throw error;
+    }
+  },
+
   // Fetch player profile data
   async getPlayerProfile() {
     try {

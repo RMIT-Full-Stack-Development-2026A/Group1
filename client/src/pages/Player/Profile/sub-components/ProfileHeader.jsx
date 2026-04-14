@@ -1,14 +1,23 @@
 // Profile Header Sub-component - Displays player avatar, username, and basic info
 import React from "react";
 
-export default function ProfileHeader({ playerData, onEditProfile }) {
+export default function ProfileHeader({ playerData, countryFlag, onEditProfile }) {
   if (!playerData) {
     return <div className="h-32 bg-surface-container animate-pulse"></div>;
   }
 
   return (
-    <section className="bg-surface-container border border-outline-variant p-6 relative flex flex-col md:flex-row justify-between items-center gap-6">
-      <div className="absolute top-0 left-0 w-full h-[4px] bg-primary-container"></div>
+    <section 
+      className="border border-outline-variant p-6 relative flex flex-col md:flex-row justify-between items-center gap-6"
+      style={{ backgroundColor: "#1b1c2c" }}
+    >
+      <div 
+        className="absolute top-0 left-0 w-full z-10"
+        style={{ 
+          height: "4px",
+          backgroundColor: "#4cc9f0"
+        }}
+      ></div>
       
       <div className="flex items-center gap-6 flex-1">
         {/* Avatar */}
@@ -50,11 +59,17 @@ export default function ProfileHeader({ playerData, onEditProfile }) {
           {/* Stats Row */}
           <div className="flex items-center gap-4 text-outline font-bold text-xs uppercase tracking-widest flex-wrap">
             <span className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">flag</span>
+              {countryFlag ? (
+                <img
+                  src={countryFlag.flag}
+                  alt={countryFlag.flagAlt}
+                  className="w-6 h-4 object-cover"
+                />
+              ) : (
+                <span className="material-symbols-outlined text-sm">flag</span>
+              )}
               {playerData.country}
             </span>
-            <span className="text-primary">LVL {playerData.level}</span>
-            <span className="text-[#3d484d]">ID: {playerData.playerId}</span>
           </div>
         </div>
       </div>

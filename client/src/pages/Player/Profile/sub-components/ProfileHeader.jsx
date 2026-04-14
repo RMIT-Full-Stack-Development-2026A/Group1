@@ -2,6 +2,13 @@
 import React, { useRef, useState } from "react";
 import { profileService } from "../services/profile.service";
 
+// Standard avatar size for optimal display performance
+const AVATAR_SIZE = {
+  width: 256,
+  height: 256,
+  maxQuality: 0.8,
+};
+
 export default function ProfileHeader({ playerData, countryFlag, onEditProfile, onAvatarUpdate }) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -9,6 +16,94 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
+  };
+
+  /**
+   * Resizes image to standard avatar size using Canvas API
+   * Maintains aspect ratio and converts to JPEG for optimization
+   * @param {File} file - Original image file
+   * @returns {Promise<File>} - Resized image file
+   */
+  const resizeImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const img = new Image();
+
+          img.onload = () => {
+            // Create canvas for resizing
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            // Set canvas size to desired avatar dimensions
+            canvas.width = AVATAR_SIZE.width;
+            canvas.height = AVATAR_SIZE.height;
+
+            // Calculate dimensions maintaining aspect ratio (center crop)
+            let sourceWidth = img.width;
+            let sourceHeight = img.height;
+            let sourceX = 0;
+            let sourceY = 0;
+
+            const sourceAspect = sourceWidth / sourceHeight;
+            const targetAspect = AVATAR_SIZE.width / AVATAR_SIZE.height;
+
+            if (sourceAspect > targetAspect) {
+              // Image is wider than target, crop sides
+              sourceWidth = sourceHeight * targetAspect;
+              sourceX = (img.width - sourceWidth) / 2;
+            } else {
+              // Image is taller than target, crop top/bottom
+              sourceHeight = sourceWidth / targetAspect;
+              sourceY = (img.height - sourceHeight) / 2;
+            }
+
+            // Draw and enlarge image to fill canvas
+            ctx.drawImage(
+              img,
+              sourceX,
+              sourceY,
+              sourceWidth,
+              sourceHeight,
+              0,
+              0,
+              AVATAR_SIZE.width,
+              AVATAR_SIZE.height
+            );
+
+            // Convert canvas to blob (JPEG format for smaller file size)
+            canvas.toBlob(
+              (blob) => {
+                // Create File object from blob
+                const resizedFile = new File([blob], file.name, {
+                  type: "image/jpeg",
+                  lastModified: Date.now(),
+                });
+                resolve(resizedFile);
+              },
+              "image/jpeg",
+              AVATAR_SIZE.maxQuality
+            );
+          };
+
+          img.onerror = () => {
+            reject(new Error("Failed to load image"));
+          };
+
+          img.src = e.target?.result;
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error("Failed to read file"));
+      };
+
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleFileChange = async (e) => {
@@ -33,15 +128,18 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
     setUploadError(null);
 
     try {
+      // Resize image to standard avatar size (256x256)
+      const resizedFile = await resizeImage(file);
+
       // TODO: Backend endpoint POST /api/v1/profile/avatar not yet implemented
-      // Once backend is ready, this will upload the avatar
-      const result = await profileService.uploadAvatar(file);
-      // Create local preview URL
-      const previewUrl = URL.createObjectURL(file);
+      // Once backend is ready, this will upload the resized avatar
+      const result = await profileService.uploadAvatar(resizedFile);
+      // Create local preview URL from resized file
+      const previewUrl = URL.createObjectURL(resizedFile);
       onAvatarUpdate?.(previewUrl, result?.avatarUrl || previewUrl);
     } catch (error) {
       console.error("Avatar upload error:", error);
-      setUploadError(error.message || "Failed to upload avatar");
+      setUploadError(error.message || "Failed to process avatar");
       setTimeout(() => setUploadError(null), 3000);
     } finally {
       setUploading(false);

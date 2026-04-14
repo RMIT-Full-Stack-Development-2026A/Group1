@@ -14,15 +14,15 @@ const getAdjacentEmptyCells = (board, opponentMark) => {
     const size = board.length;
     const adjacentCells = new Set();
     
-    // 4 directions: up, down, left, right
-    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    // 8 directions: up, down, left, right, and 4 diagonals
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
     
     // Scan the board for opponent marks
     for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
             // Found an opponent mark
             if (board[r][c] === opponentMark) {
-                // Check all 4 adjacent cells
+                // Check all 8 adjacent cells
                 for (const [dr, dc] of directions) {
                     const newR = r + dr;
                     const newC = c + dc;

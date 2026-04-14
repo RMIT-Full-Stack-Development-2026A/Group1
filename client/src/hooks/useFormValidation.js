@@ -9,7 +9,9 @@ import {
 /**
  * Custom hook for managing form validation state
  * Handles email, username, password validation and password strength
+ * Shared hook used across Register and Profile pages
  * 
+ * @param {Object} initialData - Optional initial form data
  * @returns {Object} - { formData, setFormData, validation states, handlers, etc. }
  */
 export const useFormValidation = (initialData = {}) => {

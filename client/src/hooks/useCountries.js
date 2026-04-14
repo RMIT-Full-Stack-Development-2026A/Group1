@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
  * useCountries Hook
  * Fetches country data from REST Countries API
  * Returns array of countries with name and flag
+ * Shared hook used across Register and Profile pages
  */
 export const useCountries = () => {
     const [countries, setCountries] = useState([]);

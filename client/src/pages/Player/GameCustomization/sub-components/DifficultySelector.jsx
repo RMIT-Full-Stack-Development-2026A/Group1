@@ -31,7 +31,7 @@ export default function DifficultySelector({ selectedDifficulty, onSelect }) {
                                 color: difficulty.id === 'EASY' ? '#4cc9f0' : difficulty.id === 'MEDIUM' ? '#facc15' : '#ef4444'
                             }}
                         >
-                            {difficulty.aiName}
+                            {difficulty.level}
                         </span>
 
                         {/* Description */}

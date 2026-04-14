@@ -356,6 +356,14 @@ export const useProfile = () => {
     setCurrentPage(pageNum);
   };
 
+  // Handle avatar update
+  const handleAvatarUpdate = (previewUrl, serverUrl) => {
+    setPlayerData((prev) => ({
+      ...prev,
+      avatarUrl: serverUrl || previewUrl,
+    }));
+  };
+
   // Placeholder mock data for stats - replace with real API data
   const getStatsConfig = () => [
     {
@@ -406,6 +414,7 @@ export const useProfile = () => {
     handleEditProfile,
     handleReplay,
     handlePageChange,
+    handleAvatarUpdate,
     stats: getStatsConfig(),
     // Edit modal state and functions
     isEditModalOpen,

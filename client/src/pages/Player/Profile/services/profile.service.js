@@ -78,4 +78,24 @@ export const profileService = {
       throw error;
     }
   },
+
+  // Upload/update player avatar
+  // TODO: Backend endpoint POST /api/v1/profile/avatar not yet implemented
+  // Route is defined in backend/docs/ENDPOINTS.md but not yet implemented in backend/src/modules/profile/routes
+  async uploadAvatar(file) {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await http.post("/profile/avatar", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      throw error;
+    }
+  },
 };

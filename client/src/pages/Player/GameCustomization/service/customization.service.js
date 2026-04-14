@@ -161,7 +161,7 @@ export const getDifficultyLevels = () => {
         {
             id: 'EASY',
             level: 'EASY',
-            aiName: 'Easy',
+            aiName: 'Bot (Easy)',
             badgeColor: 'cyan-400',
             badgeColorHex: '#22d3ee',
             description: 'A rookie opponent. Learn the game at your own pace.'
@@ -169,7 +169,7 @@ export const getDifficultyLevels = () => {
         {
             id: 'MEDIUM',
             level: 'MEDIUM',
-            aiName: 'Medium',
+            aiName: 'Bot (Medium)',
             badgeColor: 'yellow-400',
             badgeColorHex: '#facc15',
             description: 'A seasoned opponent. Expect a real challenge.'
@@ -177,7 +177,7 @@ export const getDifficultyLevels = () => {
         {
             id: 'HARD',
             level: 'HARD',
-            aiName: 'Hard',
+            aiName: 'Bot (Hard)',
             badgeColor: 'red-500',
             badgeColorHex: '#ef4444',
             description: 'A master tactician. Seek the ultimate test of skill.'

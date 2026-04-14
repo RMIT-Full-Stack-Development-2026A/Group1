@@ -27,6 +27,7 @@ export default function PlayerProfile() {
     totalMatches,
     handleEditProfile,
     handleReplay,
+    handleAvatarUpdate,
     stats,
     isEditModalOpen,
     setIsEditModalOpen,
@@ -53,6 +54,7 @@ export default function PlayerProfile() {
         playerData={playerData}
         countryFlag={countryFlag}
         onEditProfile={handleEditProfile}
+        onAvatarUpdate={handleAvatarUpdate}
       />
 
       {/* Stats Grid */}

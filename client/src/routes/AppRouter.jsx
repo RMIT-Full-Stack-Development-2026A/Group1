@@ -1,6 +1,6 @@
-import React, { lazy, Suspense,  } from "react";
+import React, { lazy, Suspense, useEffect  } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-// import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/AuthStore";
 import ProtectedRoute from "./ProtectedRoute";
 
 // Lazy-loaded pages
@@ -20,21 +20,27 @@ const AdminDashboard = lazy(() => import("@/pages/Admin/AdminDashboard/index"));
 const PlayerManagement = lazy(() => import("@/pages/Admin/PlayerManagement/index"));
 const GameRoomMonitor = lazy(() => import("@/pages/Admin/GameRoomMonitor/index"));
 
-// const RedirectAuthenticatedUser = ({ children }) => {
-// };
+const RedirectAuthenticatedUser = ({ children }) => {
+    const { isAuthenticated, user } = useAuthStore();
+    if (isAuthenticated && user != null) {
+        return <Navigate to="/login" replace/>;
+    }
+
+    return children;
+};
 
 export default function AppRouter() {
-    // const { checkAuth } = useAuthStore();
-    //
-    // useEffect(() => {
-    //     checkAuth();
-    // }, [checkAuth]);
+    const { checkAuth } = useAuthStore();
+    
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
 
     return (
         <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
             <Routes>
                 {/* 1. Guest Pages */}
-                <Route path="/" element={<LandingPage />} />
+                <Route path="/" element={<RedirectAuthenticatedUser><LandingPage /></RedirectAuthenticatedUser>} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
 

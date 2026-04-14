@@ -10,7 +10,7 @@ import {
     isUsernameValid,
     isPasswordValid,
     passwordsMatch,
-} from "../utils/validationUtils";
+} from "@/utils/formValidation";
 
 export const registerService = {
     /**

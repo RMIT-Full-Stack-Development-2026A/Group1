@@ -5,7 +5,7 @@ import {
   PasswordField,
   UsernameField,
   CountrySelect,
-} from "@/pages/Guest/sub-components/FormFields";
+} from "@/components/reusable/FormFields";
 import {
   validateEmail,
   validateUsername,
@@ -14,7 +14,7 @@ import {
   isUsernameValid,
   isPasswordValid,
   passwordsMatch,
-} from "@/pages/Guest/Register/utils/validationUtils";
+} from "@/utils/formValidation";
 
 export default function EditProfileModal({
   isOpen,
@@ -278,7 +278,9 @@ export default function EditProfileModal({
                   type="button"
                   onClick={() => setShowOldPassword(!showOldPassword)}
                   disabled={isSaving}
-                  className="absolute right-3 top-3 text-[#4cc9f0] hover:text-[#5dd9ff] disabled:opacity-50"
+                  className={`absolute right-3 top-3 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                    showOldPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                  } hover:text-[#4cc9f0]`}
                 >
                   <span className="material-symbols-outlined text-sm">
                     {showOldPassword ? "visibility_off" : "visibility"}

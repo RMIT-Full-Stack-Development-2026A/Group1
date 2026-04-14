@@ -1,7 +1,7 @@
 /**
- * Validation Utilities
+ * Form Validation Utilities
  * Shared validation functions for email, username, and password
- * Used across Register form validation
+ * Used across Registration and Profile forms
  */
 
 /**

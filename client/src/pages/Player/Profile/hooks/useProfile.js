@@ -1,7 +1,7 @@
 // Custom hook for managing profile page state and logic
 import { useState, useEffect } from "react";
 import { profileService } from "../services/profile.service";
-import { countryService } from "../services/countryService";
+import { countryService } from "@/services/countryService";
 
 // Mock match data for preview/layout purposes
 const MOCK_MATCHES = [

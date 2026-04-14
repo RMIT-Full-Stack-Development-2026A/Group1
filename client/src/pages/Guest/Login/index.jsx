@@ -109,7 +109,9 @@ export default function LoginPage() {
                                             showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
                                         } hover:text-[#4cc9f0]`}
                                     >
-                                        👁
+                                        <span className="material-symbols-outlined text-sm">
+                                            {showPassword ? "visibility_off" : "visibility"}
+                                        </span>
                                     </button>
                                 </div>
                             </div>

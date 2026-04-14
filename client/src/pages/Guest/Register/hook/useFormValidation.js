@@ -4,7 +4,7 @@ import {
     validateUsername,
     validatePassword,
     passwordsMatch,
-} from "../utils/validationUtils";
+} from "@/utils/formValidation";
 
 /**
  * Custom hook for managing form validation state

@@ -1,11 +1,10 @@
 import sharp from 'sharp';
-import path from 'path';
-import fs from 'fs/promises';
-
+import cloudinary from '../../../config/cloudinary.config.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { ProfileDTO } from '../dtos/profile.dto.js'
 import { validateProfileUpdate } from '../validators/profile.validator.js';
+import { getPublicIdFromUrl } from '../utils/getImageUrl.js';
 
 export const ProfileService = {
     getProfile: async (userId) => {
@@ -89,41 +88,61 @@ export const ProfileService = {
     },
 
     uploadAvatar: async (userId, file) => {
-        if (!file) {
-            throw {
-                statusCode: 400,
-                error: "BAD_REQUEST",
-                message: "No file uploaded.",
-                cause: "The request did not contain a file under the 'avatar' field.",
-                valid_example: "Use multipart/form-data with a file field named 'avatar'."
-            };
-        }
-
         try {
-            // 1. Define filename and path (assuming an 'uploads' folder exists)
-            const fileName = `avatar-${userId}-${Date.now()}.webp`;
-            const uploadPath = path.join('uploads', 'avatars', fileName);
+            // 1. Fetch current user to get the OLD avatar URL before overwriting it
+            const currentUser = await AuthInterface.getUserById(userId);
+            const oldAvatarUrl = currentUser?.avatar;
 
-            // 2. Process image with Sharp: Resize 200x200, convert to WebP
-            await sharp(file.buffer)
+            // 2. Process image with sharp: resize and convert to webp
+            const processedImageBuffer = await sharp(file.buffer)
                 .resize(200, 200, { fit: 'cover' })
                 .webp({ quality: 80 })
-                .toFile(uploadPath);
+                .toBuffer();
 
-            // 3. Update the avatar URL in the database using the existing interface
-            // For now, we save the relative path or a URL
-            const avatarUrl = `/uploads/avatars/${fileName}`;
-            const updatedUser = await AuthInterface.updateUserProfile(userId, { avatar: avatarUrl });
+            // 3. Upload to Cloudinary using Promise wrapper for upload_stream
+            const uploadToCloudinary = (buffer) => {
+                return new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'avatars', 
+                            public_id: `user-${userId}-${Date.now()}`,
+                            resource_type: 'image'
+                        },
+                        (error, result) => {
+                            if (error) return reject(error);
+                            resolve(result);
+                        }
+                    );
+                    uploadStream.end(buffer);
+                });
+            };
 
+            const cloudinaryResult = await uploadToCloudinary(processedImageBuffer);
+            const newAvatarUrl = cloudinaryResult.secure_url;
+
+            // 4. CLEANUP: Delete the old avatar from Cloudinary (fire-and-forget)
+            if (oldAvatarUrl && oldAvatarUrl.includes('cloudinary')) {
+                const oldPublicId = getPublicIdFromUrl(oldAvatarUrl);
+                if (oldPublicId) {
+                    cloudinary.uploader.destroy(oldPublicId).catch(err => {
+                        console.error(`[Cloudinary] Failed to delete old avatar ${oldPublicId}:`, err);
+                    });
+                }
+            }
+
+            // 5. Update user profile in the database with the new secure URL
+            const updatedUser = await AuthInterface.updateUserProfile(userId, { avatar: newAvatarUrl });
+            
             return ProfileDTO.toBaseProfile(updatedUser);
+
         } catch (error) {
-            console.error('[Sharp Error]', error);
+            console.error('[Avatar Upload Error]', error);
             throw {
                 statusCode: 500,
-                error: "IMAGE_PROCESSING_FAILED",
-                message: "Could not process avatar image.",
-                cause: "Sharp library failed to resize or save the image buffer.",
-                valid_example: "Ensure the uploaded file is a valid image (JPG/PNG/WEBP)."
+                error: "UPLOAD_FAILED",
+                message: "Could not process or upload avatar image.",
+                cause: error.message || "Internal error during Sharp processing or Cloudinary upload.",
+                valid_example: "Ensure your API keys are correct and the image is valid."
             };
         }
     }

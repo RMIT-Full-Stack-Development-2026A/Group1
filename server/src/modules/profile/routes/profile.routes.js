@@ -1,6 +1,7 @@
 import express from 'express';
 import { ProfileController } from '../controllers/profile.controller.js';
-import { verifyToken } from '../../../middlewares/authMiddleware.js'; 
+import { verifyToken } from '../../../middlewares/authMiddleware.js';
+import { upload } from './path-to-multer-config.js'; 
 
 const profileRoutes = express.Router();
 profileRoutes.use(verifyToken);
@@ -87,6 +88,6 @@ profileRoutes.put('/update', ProfileController.updateProfile);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-// profileRoutes.post('/avatar');
+profileRoutes.post('/avatar', upload.single('avatar'), ProfileController.uploadAvatar);
 
 export default profileRoutes;

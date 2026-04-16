@@ -56,18 +56,18 @@ profileRoutes.put('/update', ProfileController.updateProfile);
 /**
  * @openapi
  * /api/v1/profile/password:
- * patch:
- * tags: [Profile]
- * summary: Change current user password
- * requestBody:
- * $ref: '#/components/requestBodies/ChangePasswordBody'
- * responses:
- * 200:
- * $ref: '#/components/responses/NoDataResponse'
- * 400:
- * $ref: '#/components/responses/BadRequestResponse'
- * 401:
- * $ref: '#/components/responses/UnauthorizedResponse'
+ *  patch:
+ *      tags: [Profile]
+ *      summary: Change current user password
+ *      requestBody:
+ *          $ref: '#/components/requestBodies/ChangePasswordBody'
+ *          responses:
+ *              200:
+ *                  $ref: '#/components/responses/NoDataResponse'
+ *              400:
+ *                  $ref: '#/components/responses/BadRequestResponse'
+ *              401:
+ *                  $ref: '#/components/responses/UnauthorizedResponse'
  */
 profileRoutes.patch('/password', ProfileController.changePassword);
 

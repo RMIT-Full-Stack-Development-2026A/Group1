@@ -1,20 +1,52 @@
-/**
- * WinOverlay — modal shown when game ends.
- * Props:
- *   winnerData  { player: 'X'|'O', cells: [[r,c],...] } | null
- *   isDraw      boolean
- *   onRestart   () => void
- *   onBackToLobby () => void
- */
-const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby}) => {
-    const title     = isDraw ? 'DRAW'                                   : `PLAYER ${winnerData?.player} WINS!`;
-    const badgeText = isDraw ? 'DRAW MATCH'                             : 'CONGRATULATIONS';
-    const subtitle  = isDraw ? 'YOU AND YOUR OPPONENT ARE EQUAL'        : `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`;
+import { useState, useEffect } from 'react';
+import { X, Eye } from 'lucide-react';
+
+const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
+    const [isMinimized, setIsMinimized] = useState(false);
+
+    // Reset minimize state when new result comes
+    useEffect(() => {
+        if (winnerData || isDraw) {
+            setIsMinimized(false);
+        }
+    }, [winnerData, isDraw]);
+
+    // Lock scroll when overlay is active
+    useEffect(() => {
+        if (winnerData || isDraw) {
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = 'auto';
+            };
+        }
+    }, [winnerData, isDraw]);
+
+    if (!winnerData && !isDraw) return null;
+
+    // Minimized state (bottom-right button)
+    if (isMinimized) {
+        return (
+            <div className="fixed bottom-8 right-8 z-[120] animate-fade-in">
+                <button
+                    onClick={() => setIsMinimized(false)}
+                    className="bg-[#12121f] border-2 border-primary-cyan text-primary-cyan px-4 py-3 font-headline text-[12px] uppercase flex items-center gap-2 shadow-[2px_2px_0px_#005266] hover:bg-primary-cyan hover:text-[#003543] transition-colors"
+                >
+                    <Eye size={16} /> VIEW RESULT
+                </button>
+            </div>
+        );
+    }
+
+    const title     = isDraw ? 'DRAW' : `PLAYER ${winnerData?.player} WINS!`;
+    const badgeText = isDraw ? 'DRAW MATCH' : 'CONGRATULATIONS';
+    const subtitle  = isDraw
+        ? 'YOU AND YOUR OPPONENT ARE EQUAL'
+        : `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`;
 
     return (
-        <div className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center">
+        <div className="fixed inset-0 z-[110] bg-deep-bg/85 flex items-center justify-center animate-fade-in">
 
-            {/* Pixel confetti — design team can animate these */}
+            {/* Background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-12 left-1/4  w-3 h-3 bg-primary-cyan" />
                 <div className="absolute top-36 right-1/4 w-4 h-4 bg-[#fad100]" />
@@ -23,16 +55,26 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby}) => {
                 <div className="absolute bottom-1/3 right-1/3 w-4 h-4 bg-primary-cyan" />
             </div>
 
+            {/* Modal */}
             <div
-                className="bg-[#12121f] border-4 border-[#fad100] p-12 max-w-2xl w-full mx-4 text-center relative"
+                className="relative z-10 bg-[#12121f] border-4 border-[#fad100] p-10 max-w-[500px] w-[90%] text-center shadow-2xl"
                 style={{ boxShadow: '0 0 30px #fad100' }}
             >
+                {/* Close (minimize) button */}
+                <button
+                    onClick={() => setIsMinimized(true)}
+                    className="absolute top-4 right-4 text-[#879398] hover:text-[#ffb4ab] transition-colors"
+                    title="Hide overlay"
+                >
+                    <X size={24} />
+                </button>
+
                 {/* Badge */}
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#fad100] text-[#3b2f00] px-6 py-2 font-headline text-[10px] uppercase whitespace-nowrap">
                     {badgeText}
                 </div>
 
-                {/* Main title */}
+                {/* Title */}
                 <h1
                     className="font-headline text-3xl mb-3 leading-relaxed"
                     style={{ color: '#fad100', textShadow: '0 0 12px #fad100' }}

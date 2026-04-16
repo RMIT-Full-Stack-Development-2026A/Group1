@@ -37,6 +37,15 @@ class HttpHelper {
     }
 
     post(url, data) {
+        // If data is FormData, don't force JSON content-type
+        // axios will automatically set multipart/form-data with correct boundary
+        if (data instanceof FormData) {
+            return this.api.post(url, data, {
+                headers: {
+                    'Content-Type': undefined, // Let browser/axios set it
+                }
+            });
+        }
         return this.api.post(url, data);
     }
 

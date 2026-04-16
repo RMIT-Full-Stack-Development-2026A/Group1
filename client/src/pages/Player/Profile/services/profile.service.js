@@ -91,12 +91,11 @@ export const profileService = {
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const response = await http.post("/profile/avatar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return response.data;
+      // When passing FormData to axios, it automatically detects and sets:
+      // Content-Type: multipart/form-data with the correct boundary
+      // Do NOT manually set Content-Type header as it interferes with FormData
+      const response = await http.post("/profile/avatar", formData);
+      return response;
     } catch (error) {
       console.error("Error uploading avatar:", error);
       throw error;

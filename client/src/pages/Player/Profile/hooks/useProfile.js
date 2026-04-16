@@ -3,26 +3,8 @@ import { useState, useEffect } from "react";
 import { profileService } from "../services/profile.service";
 import { countryService } from "@/services/countryService";
 
-// Mock player data for preview/layout purposes
-const MOCK_PLAYER_DATA = {
-  id: "player_001",
-  username: "PLAYER_01",
-  email: "player01@example.com",
-  isPremium: true,
-  country: "USA",
-  level: 42,
-  playerId: "88-BF-9021",
-  avatarUrl: null,
-  stats: {
-    wins: 1204,
-    losses: 432,
-    draws: 156,
-    winRate: 74.2,
-  },
-};
-
 export const useProfile = () => {
-  const [playerData, setPlayerData] = useState(MOCK_PLAYER_DATA);
+  const [playerData, setPlayerData] = useState(null);
   const [countryFlag, setCountryFlag] = useState(null);
   const [matchHistory, setMatchHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,9 +82,8 @@ export const useProfile = () => {
           }
         }
       } catch (err) {
-        console.warn("Using mock player data due to API error:", err.message);
-        setPlayerData(MOCK_PLAYER_DATA);
-        // setError(err.message);
+        console.error("Error fetching profile:", err.message);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -357,37 +338,42 @@ export const useProfile = () => {
     }));
   };
 
-  // Placeholder mock data for stats - replace with real API data
-  const getStatsConfig = () => [
-    {
-      label: "WINS",
-      value: playerData?.stats?.wins?.toLocaleString() || "0",
-      icon: "trending_up",
-      barWidth: 100,
-      color: "bg-primary-container text-primary-container",
-    },
-    {
-      label: "LOSSES",
-      value: playerData?.stats?.losses?.toLocaleString() || "0",
-      icon: "trending_down",
-      barWidth: 100,
-      color: "bg-error-container text-error-container",
-    },
-    {
-      label: "DRAWS",
-      value: playerData?.stats?.draws?.toLocaleString() || "0",
-      icon: "balance",
-      barWidth: 100,
-      color: "bg-outline text-outline",
-    },
-    {
-      label: "WIN RATE",
-      value: `${playerData?.stats?.winRate || 0}%`,
-      icon: "star",
-      barWidth: 100,
-      color: "bg-tertiary-container text-tertiary-container",
-    },
-  ];
+  // Calculate stats display configuration from real API data
+  const getStatsConfig = () => {
+    const winRate = playerData?.stats?.winRate || 0;
+    const totalGames = (playerData?.stats?.wins || 0) + (playerData?.stats?.losses || 0) + (playerData?.stats?.draws || 0);
+    
+    return [
+      {
+        label: "WINS",
+        value: playerData?.stats?.wins?.toLocaleString() || "0",
+        icon: "trending_up",
+        barWidth: totalGames > 0 ? ((playerData?.stats?.wins || 0) / totalGames) * 100 : 0,
+        color: "bg-primary-container text-primary-container",
+      },
+      {
+        label: "LOSSES",
+        value: playerData?.stats?.losses?.toLocaleString() || "0",
+        icon: "trending_down",
+        barWidth: totalGames > 0 ? ((playerData?.stats?.losses || 0) / totalGames) * 100 : 0,
+        color: "bg-error-container text-error-container",
+      },
+      {
+        label: "DRAWS",
+        value: playerData?.stats?.draws?.toLocaleString() || "0",
+        icon: "balance",
+        barWidth: totalGames > 0 ? ((playerData?.stats?.draws || 0) / totalGames) * 100 : 0,
+        color: "bg-outline text-outline",
+      },
+      {
+        label: "WIN RATE",
+        value: `${winRate}%`,
+        icon: "star",
+        barWidth: winRate,
+        color: "bg-tertiary-container text-tertiary-container",
+      },
+    ];
+  };
 
   return {
     playerData,

@@ -101,6 +101,7 @@ export default function PlayerProfile() {
         onReplay={handleReplay}
         onApplyFilters={handleApplyFilters}
         loading={loading}
+        isPremium={playerData?.isPremium || false}
       />
 
       {/* Edit Profile Modal */}

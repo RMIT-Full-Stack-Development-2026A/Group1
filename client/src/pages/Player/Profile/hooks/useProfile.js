@@ -1,9 +1,11 @@
 // Custom hook for managing profile page state and logic
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { profileService } from "../services/profile.service";
 import { countryService } from "@/services/countryService";
 
 export const useProfile = () => {
+  const navigate = useNavigate();
   const [playerData, setPlayerData] = useState(null);
   const [countryFlag, setCountryFlag] = useState(null);
   const [matchHistory, setMatchHistory] = useState([]);
@@ -148,7 +150,8 @@ export const useProfile = () => {
     };
 
     return {
-      id: backendMatch.sessionNumber || backendMatch.id,
+      id: backendMatch._id || backendMatch.id,
+      sessionNumber: backendMatch.sessionNumber,
       date: extractDateFromISO(backendMatch.startedAt),
       gameType: backendMatch.gameType,
       opponent: backendMatch.opponentName,
@@ -298,10 +301,10 @@ export const useProfile = () => {
     }
   };
 
-  // Handle replay button click
+  // Handle replay button click - navigate to match replay page
   const handleReplay = (matchId) => {
-    // TODO: Navigate to replay page with match ID
-    console.log("Replay match:", matchId);
+    console.log("Navigating to replay for match:", matchId);
+    navigate(`/replay/${matchId}`);
   };
 
   // Handle pagination

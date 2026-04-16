@@ -22,6 +22,7 @@ export default function MatchHistoryTable({
   onReplay,
   onApplyFilters,
   loading,
+  isPremium,
 }) {
   const SortIndicator = ({ column }) => {
     if (sortBy !== column) return <span className="ml-1 text-outline/40">⇅</span>;
@@ -217,16 +218,21 @@ export default function MatchHistoryTable({
                   <td className="px-6 py-4">{match.startTime}</td>
                   <td className="px-6 py-4">{match.endTime}</td>
                   <td className="px-6 py-4 text-right">
-                    {match.canReplay ? (
+                    {isPremium ? (
                       <span
                         className="material-symbols-outlined text-secondary-container cursor-pointer hover:scale-110 transition-transform"
                         style={{ fontVariationSettings: "'FILL' 1" }}
                         onClick={() => onReplay(match.id)}
+                        title="View match replay"
                       >
                         play_arrow
                       </span>
                     ) : (
-                      <span className="material-symbols-outlined text-outline/30 cursor-not-allowed">
+                      <span
+                        className="material-symbols-outlined text-warning cursor-pointer hover:scale-110 transition-transform"
+                        onClick={() => onReplay(match.id)}
+                        title="Premium feature - click to view replay"
+                      >
                         block
                       </span>
                     )}

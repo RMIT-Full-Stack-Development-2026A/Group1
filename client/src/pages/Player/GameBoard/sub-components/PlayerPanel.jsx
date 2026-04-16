@@ -1,18 +1,25 @@
 import { User, Bot } from 'lucide-react';
 
+const difficultyConfig = {
+    EASY: 'bg-green-400 text-green-950',
+    MEDIUM: 'bg-[#fad100] text-[#6d5a00]', 
+    HARD: 'bg-red-500 text-red-50'
+};
+
 /**
  * PlayerPanel — shared component for Player X and Player O.
  * Props:
- *   role        'X' | 'O'
- *   playerName  string
- *   isBot       boolean
- *   isActive    boolean  — true when it's this player's turn
- *   difficulty  string | undefined  — shown as badge if isBot
+ * role        'X' | 'O'
+ * playerName  string
+ * isBot       boolean
+ * isActive    boolean  — true when it's this player's turn
+ * difficulty  string | undefined  — shown as badge if isBot
  */
 const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty }) => {
     const isX = role === 'X';
     const markerColor = isX ? '#ffb4ab' : '#93e2ff';
     const markerGlow  = isX ? '0 0 10px #93000a' : '0 0 10px #4cc9f0';
+    const diffStyle = difficulty ? (difficultyConfig[difficulty.toUpperCase()] || 'bg-gray-400 text-gray-900') : '';
 
     return (
         <aside
@@ -36,19 +43,17 @@ const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty }) => {
                     {isBot ? <Bot size={52} color="#879398" /> : <User size={52} color="#879398" />}
                     
                     {difficulty && (
-                        <div className="absolute bottom-0 right-0 bg-[#fad100] text-[#6d5a00] px-2 py-0.5 text-[8px] font-bold font-mono">
+                        <div className={`absolute bottom-0 right-0 px-2 py-0.5 text-[8px] font-bold font-mono ${diffStyle}`}>
                             {difficulty}
                         </div>
                     )}
                 </div>
 
-                {}
                 <p className="font-headline text-[10px] tracking-tighter uppercase"
                    style={{ color: isActive ? '#93e2ff' : '#879398' }}>
                     {playerName}
                 </p>
 
-                {}
                 <div
                     className="font-headline text-5xl"
                     style={{ color: markerColor, textShadow: markerGlow }}

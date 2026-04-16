@@ -1,33 +1,31 @@
+import { useMemo } from 'react';
 import GridCell from './GridCell';
 import ScanLines from '../../../../components/reusable/ScanLines';
 
 const COL_LETTERS = Array.from({ length: 15 }, (_, i) => String.fromCharCode(65 + i));
 
-const BOARD_SIZES   = [10, 15];
-const MARKER_STYLES = [
-    { value: 'default',  label: 'Default (X / O)' },
-    { value: 'custom_1', label: 'Custom 1' },
-];
-
 const BoardArea = ({
-    board, boardSize, matchTitle, markerVariant,
-    winnerData, isDraw, isLocked,
-    onCellClick, onReset, onSizeChange, onMarkerChange,
+    board,
+    boardSize,
+    markerVariant,
+    winnerData,
+    isDraw,
+    isLocked,
+    onCellClick,
 }) => {
     const gameOver = !!winnerData || isDraw;
-    const moveCount = board.flat().filter(v => v !== null).length;
 
-    const columns = COL_LETTERS.slice(0, boardSize);
-    const rows    = Array.from({ length: boardSize }, (_, i) => String(i + 1).padStart(2, '0'));
-
-    const selectClass = "bg-[#1e1e2c] border border-[#3d484d] text-[#e3e0f4] font-mono text-[10px] uppercase px-2 py-1 focus:outline-none focus:border-[#4cc9f0]";
+    const columns = useMemo(() => COL_LETTERS.slice(0, boardSize), [boardSize]);
+    const rows = useMemo(
+        () => Array.from({ length: boardSize }, (_, i) => String(i + 1).padStart(2, '0')),
+        [boardSize]
+    );
 
     return (
-        <section className="h-[75vh] flex flex-col max-w-[100vh] mx-3">
+        <section className="flex-1 flex items-center justify-center">
             <ScanLines />
-            {/* Coordinate grid */}
             <div
-                className="bg-surface-card p-3 border border-outline-variant grid z-101 aspect-square h-full overflow-hidden"
+                className="bg-surface-card p-3 border border-outline-variant grid aspect-square w-full max-w-[600px]"
                 style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
             >
                 {/* Top labels */}
@@ -56,10 +54,8 @@ const BoardArea = ({
                                 value={cellValue}
                                 markerVariant={markerVariant}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
-                                onClick={() => onCellClick(rowIndex, colIndex)}
-                                
-                                // UPDATED: Add isLocked to disable condition
-                                disabled={cellValue !== null || gameOver || isLocked} 
+                                onClick={() => onCellClick?.(rowIndex, colIndex)}
+                                disabled={cellValue !== null || gameOver || isLocked}
                             />
                         ))
                     )}

@@ -97,7 +97,7 @@ const GameBoard = () => {
     }
 
     return (
-        <div className="flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden h-screen w-screen relative">
+        <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden relative">
             <ScanLines />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&display=swap');
@@ -115,7 +115,7 @@ const GameBoard = () => {
 
             <Navigation />
 
-            <main className="mx-auto w-fit pt-16 flex-1 overflow-hidden flex px-6 gap-6 items-center justify-center font-mono">
+            <main className="flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
                 <PlayerPanel 
                     role="X" 
                     playerName={playersInfo[0].usernameSnapshot} 

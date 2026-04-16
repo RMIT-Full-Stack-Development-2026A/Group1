@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect  } from "react";
+import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
 import ProtectedRoute from "./ProtectedRoute";
@@ -30,12 +30,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 export default function AppRouter() {
-    const { checkAuth } = useAuthStore();
     
-    useEffect(() => {
-        checkAuth();
-    }, [checkAuth]);
-
     return (
         <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
             <Routes>

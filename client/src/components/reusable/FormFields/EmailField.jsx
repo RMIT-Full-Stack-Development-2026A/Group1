@@ -1,25 +1,25 @@
 import React from "react";
 
 /**
- * UsernameField Component
- * Reusable username input with validation criteria display
+ * EmailField Component
+ * Reusable email input with real-time validation criteria display
  */
-const UsernameField = ({
+const EmailField = ({
     value,
     onChange,
-    placeholder = "PLAYER_01",
-    usernameValidation = { validChars: false, validLength: false },
+    placeholder = "player@gmail.com",
+    emailValidation = { hasAt: false, hasDot: false, validLength: false, noProhibited: false },
     CriteriaCheckbox,
     disabled = false,
 }) => {
     return (
         <div className="space-y-2">
             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
-                Username
+                Email Address
             </label>
             <input
-                type="text"
-                name="username"
+                type="email"
+                name="email"
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
@@ -33,12 +33,20 @@ const UsernameField = ({
                     </p>
                     <div className="space-y-1">
                         <CriteriaCheckbox
-                            met={usernameValidation.validLength}
-                            label="At least 6 characters"
+                            met={emailValidation.hasAt}
+                            label="Contains exactly one '@' symbol"
                         />
                         <CriteriaCheckbox
-                            met={usernameValidation.validChars}
-                            label="Only letters, numbers, underscore (_), hyphen (-)"
+                            met={emailValidation.hasDot}
+                            label="Has '.' after '@' symbol"
+                        />
+                        <CriteriaCheckbox
+                            met={emailValidation.validLength}
+                            label="Less than 255 characters"
+                        />
+                        <CriteriaCheckbox
+                            met={emailValidation.noProhibited}
+                            label="No spaces or prohibited chars ( ) ; :"
                         />
                     </div>
                 </div>
@@ -47,4 +55,4 @@ const UsernameField = ({
     );
 };
 
-export default UsernameField;
+export default EmailField;

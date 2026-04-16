@@ -6,8 +6,6 @@ export const API_ENDPOINTS = {
         LOGIN: "/auth/login",
         LOGOUT: "/auth/logout",
         CHECK_AUTH: "/auth/check-auth",
-        // TODO: Backend needs to implement endpoint to clear failed login attempts
-        // CLEAR_FAILED_ATTEMPTS: "/auth/clear-failed-attempts",
     },
     PROFILE: {
         UPDATE: "/profile",

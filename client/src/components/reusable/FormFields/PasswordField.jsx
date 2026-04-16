@@ -20,6 +20,25 @@ const PasswordField = ({
     disabled = false,
     isConfirmField = false,
 }) => {
+    // Calculate password strength based on validation criteria
+    const calculateStrength = () => {
+        if (!passwordValidation) return 0;
+        const metCriteria = [
+            passwordValidation.hasLength,
+            passwordValidation.hasLower,
+            passwordValidation.hasCapital,
+            passwordValidation.hasNumber,
+            passwordValidation.hasSpecial,
+        ].filter(Boolean).length;
+
+        // Map number of met criteria (0-5) to strength level (0-4)
+        if (metCriteria === 0) return 0;
+        if (metCriteria <= 2) return 1;
+        if (metCriteria === 3) return 2;
+        if (metCriteria === 4) return 3;
+        return 4; // all 5 criteria met
+    };
+
     // Determine strength level and colors
     const getStrengthDisplay = () => {
         const levels = [
@@ -29,7 +48,8 @@ const PasswordField = ({
             { label: "STRONG", color: "#fad100", bgColor: "#2a3f2a", percentage: 75 },
             { label: "VERY STRONG", color: "#5cb85c", bgColor: "#2a3f2a", percentage: 100 },
         ];
-        return levels[passwordStrength] || levels[0];
+        const strength = calculateStrength();
+        return levels[strength] || levels[0];
     };
     return (
         <div className="space-y-2">
@@ -58,7 +78,9 @@ const PasswordField = ({
                         showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
                     } hover:text-[#4cc9f0]`}
                 >
-                    👁
+                    <span className="material-symbols-outlined text-sm">
+                        {showPassword ? "visibility_off" : "visibility"}
+                    </span>
                 </button>
             </div>
 

@@ -18,6 +18,7 @@ const GRID_STYLES = [
 ];
 
 // Maps frontend numeric IDs to backend enum names
+// 'CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'
 const MARKER_VARIANTS = [
     { 
         id: "CLASSIC", 
@@ -36,7 +37,7 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_8px_#a855f7] drop-shadow-[0_0_18px_#a855f7] drop-shadow-[0_0_30px_#a855f7]" 
     },
     { 
-        id: "ELEMENTAL", 
+        id: "SKETCH", 
         displayId: 3, 
         xColor: "text-orange-500", 
         oColor: "text-blue-400", 
@@ -44,7 +45,7 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_10px_#60a5fa] drop-shadow-[0_0_20px_#3b82f6]" 
     },
     { 
-        id: "PIXEL", 
+        id: "STONE", 
         displayId: 4, 
         xColor: "text-lime-400", 
         oColor: "text-pink-500", 
@@ -52,7 +53,7 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_6px_#ec4899] drop-shadow-[0_0_12px_#ec4899] drop-shadow-[0_0_20px_#ec4899]" 
     },
     { 
-        id: "STONE", 
+        id: "PIXEL", 
         displayId: 5, 
         xColor: "text-slate-200", 
         oColor: "text-slate-200", 
@@ -61,7 +62,7 @@ const MARKER_VARIANTS = [
         bordered: true 
     },
     { 
-        id: "MATRIX", 
+        id: "MINIMAL", 
         displayId: 6, 
         xColor: "text-emerald-400", 
         oColor: "text-emerald-400", 
@@ -92,20 +93,19 @@ export const getMarkerVariants = () => [...MARKER_VARIANTS];
  * @param {Object} selection - Frontend selection { boardSize, gridStyle, markerVariant }
  * @returns {Object} Backend format { boardSize: number, boardStyle: string, markerStyle: string }
  */
+
 export const transformToBackendFormat = (selection) => {
-    // Find the backend enum names from display selections
+    
     let boardSize = selection.boardSize;
     if (typeof boardSize === 'string') {
-        // If it's "10x10" or "15x15" format, parse to number
         boardSize = parseInt(boardSize.split('x')[0]);
     }
-
-    // Find grid style enum name - match by displayId
-    const gridStyleObj = GRID_STYLES.find(s => s.displayId === selection.gridStyle);
-    const boardStyle = gridStyleObj?.id || 'NEON';
-
-    // Find marker style enum name - match by displayId
-    const markerVariantObj = MARKER_VARIANTS.find(m => m.displayId === selection.markerVariant);
+  
+    const currentGridStyle = String(selection.gridStyle).toLowerCase();
+    const gridStyleObj = GRID_STYLES.find(s => s.displayId === currentGridStyle);
+    const boardStyle = gridStyleObj?.id || 'CLASSIC'; 
+    const currentMarkerId = Number(selection.markerVariant); 
+    const markerVariantObj = MARKER_VARIANTS.find(m => m.displayId === currentMarkerId);
     const markerStyle = markerVariantObj?.id || 'CLASSIC';
 
     return {
@@ -150,6 +150,8 @@ export const createGameRoom = async (options) => {
         console.error("Room creation error:", error);
         throw error;
     }
+    console.log("Dữ liệu gốc từ UI:", options);
+    console.log("Dữ liệu sau khi chuyển đổi (Payload):", backendPayload);
 };
 
 /**

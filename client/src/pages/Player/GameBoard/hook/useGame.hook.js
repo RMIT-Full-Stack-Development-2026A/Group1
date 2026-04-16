@@ -3,6 +3,8 @@ import { checkWin, checkDraw } from './gameLogic';
 import { gameService } from '../service/game.service';
 import { getBestAIMove } from '../../../../utils/ai';
 import { useModeStore } from '../../../../stores/ModeStore';
+import { transformToBackendFormat } from '../../GameCustomization/service/customization.service';
+import { useCustomizationStore } from '../../../../stores/CustomizationStore'; // Import the store to access current customization settings
 
 // Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));
@@ -58,23 +60,17 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
     }, [moveHistory.length, winnerData, isDraw, firstTurnIndex]); 
 
     // Handle move upgraded with exact BE Schema
-    const handleMove = useCallback(async (row, col) => {
-        // Ignore click if cell is occupied or game is already over
+const handleMove = useCallback(async (row, col) => {
         if (isLocked || board[row][col] !== null || winnerData || isDraw) {
-            console.log("[DEBUG] Move rejected. Locked:", isLocked, "Cell Full:", board[row][col] !== null);
             return;
         }
 
-        console.log(`[DEBUG] Executing Move -> Player: ${currentPlayer}, Row: ${row}, Col: ${col}`);
-
-        // Copy board state to trigger re-render
         const newBoard = board.map(r => [...r]);
         newBoard[row][col] = currentPlayer;
         setBoard(newBoard);
 
         const timestamp = new Date().toISOString();
         
-        // 1. Format new move matching BE payload
         const newMove = {
             moveNumber: moveHistory.length + 1,
             byParticipantIndex: participantIndex,
@@ -86,62 +82,44 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         const updatedHistory = [...moveHistory, newMove];
         setMoveHistory(updatedHistory);
 
-        // Check win
+        // Kiểm tra thắng/hòa để gửi kết quả
         const winningCells = checkWin(newBoard, row, col, currentPlayer);
-        
-        if (winningCells) {
-            setWinnerData({ player: currentPlayer, cells: winningCells });
-            
-            // 2. Format winning line matching BE payload
-            const formattedWinningLine = winningCells.map(([r, c]) => ({
-                row: r,
-                col: c,
-                coordinate: toAlgebraic(r, c)
-            }));
+        const drawDetected = !winningCells && checkDraw(newBoard);
 
-            // Call API to save match result
-            try {
-                await gameService.saveGameResult({
-                    gameType: gameMode,
-                    status: "FINISHED",
-                    boardSize: boardSize,
-                    firstTurnParticipantIndex: firstTurnIndex,
-                    winnerParticipantIndex: participantIndex, // The one who just moved is the winner
-                    startedAt: startedAt,
-                    endedAt: timestamp,
-                    participants: playersInfo, 
-                    winningLine: formattedWinningLine,
-                    moves: updatedHistory
-                });
-            } catch (error) {
-                console.error("Save match result failed, but UI can proceed:", error);
-            }
-            return;
-        }
+        if (winningCells || drawDetected) {
+            if (winningCells) setWinnerData({ player: currentPlayer, cells: winningCells });
+            if (drawDetected) setIsDraw(true);
 
-        // Check draw
-        if (checkDraw(newBoard)) {
-            setIsDraw(true);
+            // LOGIC FIX: Lấy state hiện tại từ CustomizationStore và transform sang định dạng Backend
+            const customization = useCustomizationStore.getState();
+            const { boardStyle, markerStyle } = transformToBackendFormat(customization);
+
+            const payload = {
+                gameType: gameMode,
+                status: winningCells ? "FINISHED" : "DRAW",
+                boardSize: boardSize,
+                // Thêm 2 trường này để lưu đúng giao diện đã chọn
+                boardStyle: boardStyle, 
+                markerStyle: markerStyle,
+                firstTurnParticipantIndex: firstTurnIndex,
+                winnerParticipantIndex: winningCells ? participantIndex : null,
+                startedAt: startedAt,
+                endedAt: timestamp,
+                participants: playersInfo, 
+                winningLine: winningCells ? winningCells.map(([r, c]) => ({
+                    row: r, col: c, coordinate: toAlgebraic(r, c)
+                })) : [],
+                moves: updatedHistory
+            };
+
             try {
-                await gameService.saveGameResult({ 
-                    gameType: gameMode,
-                    status: "DRAW",
-                    boardSize: boardSize,
-                    firstTurnParticipantIndex: firstTurnIndex,
-                    winnerParticipantIndex: null, // No winner in draw
-                    startedAt: startedAt,
-                    endedAt: timestamp,
-                    participants: playersInfo,
-                    winningLine: [],
-                    moves: updatedHistory
-                });
+                await gameService.saveGameResult(payload);
             } catch (error) {
                 console.error("Save match result failed:", error);
             }
             return;
         }
 
-        // Switch player
         setCurrentPlayer(prev => prev === 'X' ? 'O' : 'X');
         setParticipantIndex(1 - participantIndex);
     }, [board, currentPlayer, winnerData, isDraw, moveHistory, isLocked, gameMode, boardSize, participantIndex, firstTurnIndex, startedAt, playersInfo]);

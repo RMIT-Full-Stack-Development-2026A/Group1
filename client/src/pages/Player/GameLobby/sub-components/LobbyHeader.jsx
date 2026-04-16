@@ -21,7 +21,7 @@ export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin }) 
                     onClick={onCreateRoom}
                     className="bg-[#4cc9f0] text-[#003543] font-mono font-bold cursor-pointer px-6 py-3 shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase tracking-tighter text-sm flex items-center gap-2"
                 >
-                    ➕ CREATE ROOM
+                    + CREATE ROOM
                 </button>
             </div>
         </div>

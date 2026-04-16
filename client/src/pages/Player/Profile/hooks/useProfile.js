@@ -3,70 +3,6 @@ import { useState, useEffect } from "react";
 import { profileService } from "../services/profile.service";
 import { countryService } from "@/services/countryService";
 
-// Mock match data for preview/layout purposes
-const MOCK_MATCHES = [
-  {
-    id: "0842",
-    date: "2070.10.24 14:22",
-    gameType: "ONLINE_MATCH",
-    opponent: "CYBER_PUNK_42",
-    result: "WIN",
-    startTime: "14:22",
-    endTime: "14:27",
-    canReplay: true,
-  },
-  {
-    id: "0841",
-    date: "2070.10.24 14:10",
-    gameType: "TWO_PLAYERS",
-    opponent: "X_TERMINATOR_X",
-    result: "LOSS",
-    startTime: "14:10",
-    endTime: "14:11",
-    canReplay: true,
-  },
-  {
-    id: "0840",
-    date: "2070.10.23 23:58",
-    gameType: "SINGLE_PLAYER",
-    opponent: "BOT_LEVEL_MAX",
-    result: "ABORT",
-    startTime: "23:58",
-    endTime: "23:59",
-    canReplay: false,
-  },
-  {
-    id: "0839",
-    date: "2070.10.23 22:15",
-    gameType: "ONLINE_MATCH",
-    opponent: "NEO_TOKYO_QUEEN",
-    result: "WIN",
-    startTime: "22:15",
-    endTime: "22:19",
-    canReplay: true,
-  },
-  {
-    id: "0838",
-    date: "2070.10.23 20:05",
-    gameType: "TWO_PLAYERS",
-    opponent: "SILENT_SHADOW",
-    result: "DRAW",
-    startTime: "20:05",
-    endTime: "20:08",
-    canReplay: true,
-  },
-  {
-    id: "0837",
-    date: "2070.10.23 18:45",
-    gameType: "SINGLE_PLAYER",
-    opponent: "NEON_KNIGHT",
-    result: "WIN",
-    startTime: "18:45",
-    endTime: "18:47",
-    canReplay: true,
-  },
-];
-
 // Mock player data for preview/layout purposes
 const MOCK_PLAYER_DATA = {
   id: "player_001",
@@ -88,7 +24,7 @@ const MOCK_PLAYER_DATA = {
 export const useProfile = () => {
   const [playerData, setPlayerData] = useState(MOCK_PLAYER_DATA);
   const [countryFlag, setCountryFlag] = useState(null);
-  const [matchHistory, setMatchHistory] = useState(MOCK_MATCHES);
+  const [matchHistory, setMatchHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -101,7 +37,7 @@ export const useProfile = () => {
   const [sortBy, setSortBy] = useState("endedAt"); // 'endedAt' or 'startedAt'
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalMatches, setTotalMatches] = useState(MOCK_MATCHES.length);
+  const [totalMatches, setTotalMatches] = useState(0);
 
   // Edit Profile Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -191,8 +127,7 @@ export const useProfile = () => {
   }, []);
 
   // Transform backend match data to frontend format
-  // When backend API is completed, it will return startedAt and endedAt as ISO 8601 dates
-  // This function extracts the time portion for display
+  // Maps API response structure to display format
   const transformMatchData = (backendMatch) => {
     const extractTimeFromISO = (isoDate) => {
       if (!isoDate) return "00:00";
@@ -213,19 +148,23 @@ export const useProfile = () => {
       }).replace(/\//g, ".");
     };
 
+    // Map API viewerResult to display format
+    const mapResult = (viewerResult) => {
+      if (!viewerResult) return "ABORT";
+      if (viewerResult === "WIN") return "WIN";
+      if (viewerResult === "LOSE") return "LOSS";
+      return "DRAW";
+    };
+
     return {
       id: backendMatch.sessionNumber || backendMatch.id,
       date: extractDateFromISO(backendMatch.startedAt),
       gameType: backendMatch.gameType,
-      opponent: backendMatch.participants?.[1]?.usernameSnapshot || backendMatch.opponent,
-      result: backendMatch.status === "FINISHED" 
-        ? "WIN" // TODO: Check winnerParticipantIndex when available
-        : backendMatch.status === "DRAW" 
-        ? "DRAW" 
-        : "ABORT",
+      opponent: backendMatch.opponentName,
+      result: mapResult(backendMatch.viewerResult),
       startTime: extractTimeFromISO(backendMatch.startedAt),
       endTime: extractTimeFromISO(backendMatch.endedAt),
-      canReplay: backendMatch.moves && backendMatch.moves.length > 0,
+      canReplay: backendMatch.status === "COMPLETED",
     };
   };
 
@@ -247,23 +186,17 @@ export const useProfile = () => {
 
         const response = await profileService.getMatchHistory(filters);
         const items = response.data?.items || [];
+        const total = response.data?.total || 0;
         
-        if (items.length === 0) {
-          // Use mock data if API returns empty
-          setMatchHistory(MOCK_MATCHES);
-          setTotalMatches(MOCK_MATCHES.length);
-        } else {
-          // Transform backend data to frontend format for startTime/endTime display
-          const transformedMatches = items.map(transformMatchData);
-          setMatchHistory(transformedMatches);
-          setTotalMatches(response.data?.total || 0);
-        }
+        // Transform backend data to frontend format
+        const transformedMatches = items.map(transformMatchData);
+        setMatchHistory(transformedMatches);
+        setTotalMatches(total);
       } catch (err) {
-        console.warn("Using mock match data due to API error");
-        // Use mock data on error
-        setMatchHistory(MOCK_MATCHES);
-        setTotalMatches(MOCK_MATCHES.length);
-        // setError(err.message);
+        console.error("Error fetching match history:", err);
+        setMatchHistory([]);
+        setTotalMatches(0);
+        setError(err.message);
       } finally {
         setLoading(false);
       }

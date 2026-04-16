@@ -27,7 +27,11 @@ export const profileService = {
   // Fetch player match history with optional filters
   async getMatchHistory(filters = {}) {
     try {
-      const params = new URLSearchParams(filters);
+      // Filter out undefined and empty string values to prevent "undefined" in query string
+      const cleanFilters = Object.fromEntries(
+        Object.entries(filters).filter(([, value]) => value !== undefined && value !== "")
+      );
+      const params = new URLSearchParams(cleanFilters);
       const response = await http.get(`/games?${params}`);
       return response.data;
     } catch (error) {

@@ -3,7 +3,6 @@ import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export const matchReplayService = {
   getReplayById: async (gameId) => {
-    // API Call thực tế:
     return http.get(API_ENDPOINTS.GAME.DETAILS(gameId));
   }
 };

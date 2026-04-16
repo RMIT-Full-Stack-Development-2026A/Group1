@@ -24,10 +24,10 @@ export default function MoveLog({ moveLog, currentStep, boardSize, onJumpToStep,
     return (
         <div className="h-full min-h-[500px] flex flex-col bg-surface border border-outline-variant chunky-shadow overflow-hidden">
             <div className="h-10 bg-primary-container flex items-center px-4 justify-between shrink-0">
-                <span className="text-on-primary font-bold text-[10px] uppercase tracking-widest font-body">
+                <span className="text-[#5bd5fc] font-bold text-[10px] uppercase tracking-widest font-body">
                     MOVE_LOG
                 </span>
-                <span className="text-on-primary font-bold text-[10px] font-body">
+                <span className="text-[#5bd5fc] font-bold text-[10px] font-body">
                     {moveLog.length} ROUNDS
                 </span>
             </div>

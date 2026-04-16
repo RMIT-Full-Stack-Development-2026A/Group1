@@ -3,11 +3,11 @@ import { Lock, X, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 /**
- * PremiumRequiredModal - Dùng chung cho mọi tính năng khóa Premium
+ * PremiumRequiredModal - Use when a user tries to access a premium feature without the necessary subscription.
  * * Props:
- * @param {boolean} isOpen - Trạng thái đóng/mở
- * @param {function} onClose - Hàm đóng modal
- * @param {string} featureName - Tên tính năng bị khóa (vd: "MATCH REPLAYS")
+ * @param {boolean} isOpen - Controls whether the modal is visible
+ * @param {function} onClose - Callback function to close the modal
+ * @param {string} featureName - The name of the feature that is locked (e.g., "MATCH REPLAYS")
  */
 const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" }) => {
     const navigate = useNavigate();

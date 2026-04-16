@@ -82,10 +82,10 @@ export const getBoardSizes = () => [...BOARD_SIZES];
  */
 export const getGridStyles = () => [...GRID_STYLES];
 
-/**
- * Get all available marker variants
- */
-export const getMarkerVariants = () => [...MARKER_VARIANTS];
+// /**
+//  * Get all available marker variants
+//  */
+// export const getMarkerVariants = () => [...MARKER_VARIANTS];
 
 /**
  * Transform frontend values to backend API format

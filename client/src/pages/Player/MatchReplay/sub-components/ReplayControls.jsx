@@ -7,7 +7,7 @@ function IconBtn({ icon, onClick, size = 'sm', disabled = false }) {
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`${dimensionClass} bg-surface-container border border-outline text-on-surface flex items-center justify-center chunky-shadow hover:bg-surface-container-high active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed`}
+            className={`${dimensionClass} cursor-pointer bg-surface-container bg-[#006780] border border-outline text-on-surface flex items-center justify-center chunky-shadow hover:bg-surface-container-high active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed`}
         >
             <span className="material-symbols-outlined">{icon}</span>
         </button>
@@ -74,10 +74,10 @@ export default function ReplayControls({
                             key={value}
                             type="button"
                             onClick={() => onSetSpeed(value)}
-                            className={`px-3 py-1 font-body uppercase tracking-widest text-[10px] transition-colors ${
+                            className={`px-3 py-1 cursor-pointer bg-[#006780] font-body uppercase tracking-widest text-[10px] transition-colors ${
                                 speed === value
-                                    ? 'bg-secondary-container border border-secondary-container text-on-secondary chunky-shadow'
-                                    : 'bg-surface-container-highest border border-outline text-outline hover:text-on-surface'
+                                    ? 'cursor-pointer bg-secondary-container border border-secondary-container text-on-secondary chunky-shadow'
+                                    : 'cursor-pointer bg-surface-container-highest border border-outline text-outline hover:text-on-surface'
                             }`}
                         >
                             {value}X

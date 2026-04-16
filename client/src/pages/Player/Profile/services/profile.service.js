@@ -84,8 +84,7 @@ export const profileService = {
   },
 
   // Upload/update player avatar
-  // TODO: Backend endpoint POST /api/v1/profile/avatar not yet implemented
-  // Route is defined in backend/docs/ENDPOINTS.md but not yet implemented in backend/src/modules/profile/routes
+  // Backend: POST /api/v1/profile/avatar - Handles Sharp processing (200x200, WebP, quality 80) and Cloudinary upload
   async uploadAvatar(file) {
     try {
       const formData = new FormData();

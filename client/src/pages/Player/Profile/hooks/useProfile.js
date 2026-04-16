@@ -399,6 +399,7 @@ export const useProfile = () => {
     appliedSortOrder,
     // Handlers
     handleApplyFilters,
+    handleEditProfile,
     handleSortBy,
     handleReplay,
     handlePageChange,

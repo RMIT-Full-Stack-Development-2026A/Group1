@@ -81,5 +81,24 @@ export const ProfileService = {
 
         const updatedUser = await AuthInterface.updateUserProfile(userId, allowedUpdates);
         return ProfileDTO.toBaseProfile(updatedUser);
-    }
+    },
+
+    changePassword: async (userId, passwordData) => {
+        const validationErrors = validatePasswordChange(passwordData);
+        if (validationErrors.length > 0) {
+            throw {
+                statusCode: 400,
+                error: "VALIDATION_ERROR",
+                message: "Invalid password change request.",
+                cause: "Passwords do not match or fail complexity requirements.",
+                valid_example: "Ensure old password is correct, and new password matches the confirm password field.",
+                details: validationErrors
+            };
+        }
+
+        // Delegate to Auth module to handle bcrypt verification and hashing
+        await AuthInterface.changePassword(userId, passwordData.oldPassword, passwordData.newPassword);
+        
+        return null;
+    },
 };

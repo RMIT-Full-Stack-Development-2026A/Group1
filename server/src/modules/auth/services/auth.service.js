@@ -200,6 +200,35 @@ export const AuthService = {
         return AuthRepository.checkProfileConflicts(userId, email, username);
     },
 
+    changePassword: async (userId, oldPassword, newPassword) => {
+        const user = await AuthRepository.findByIdWithPassword(userId);
+        if (!user) {
+            throw {
+                statusCode: 404,
+                error: "USER_NOT_FOUND",
+                message: "Password change failed. User not found.",
+                cause: "No user record exists in the database matching the authenticated ID.",
+                valid_example: "Ensure your session is valid and active."
+            };
+        }
+
+        const isPasswordCorrect = await bcryptjs.compare(String(oldPassword), user.passwordHash);
+        if (!isPasswordCorrect) {
+            throw {
+                statusCode: 401,
+                error: "INVALID_CREDENTIALS",
+                message: "Password change failed. Incorrect old password.",
+                cause: "The provided old password does not match the current password on record.",
+                valid_example: "Provide the correct current password to authorize this change."
+            };
+        }
+
+        const newPasswordHash = await bcryptjs.hash(String(newPassword), 10);
+        await AuthRepository.updatePassword(userId, newPasswordHash);
+
+        return null;
+    },
+
     getPaginatedUsers: async (filter, sort, skip, limit) => {
         return AuthRepository.findUsersPaginated(filter, sort, skip, limit);
     }

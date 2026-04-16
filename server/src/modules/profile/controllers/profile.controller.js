@@ -38,5 +38,18 @@ export const ProfileController = {
         } catch (error) {
             return next(error);
         }
+    },
+
+    changePassword: async (req, res, next) => {
+        try {
+            await ProfileService.changePassword(req.user.id, req.body);
+            
+            return res.status(200).json({
+                data: null,
+                message: "Password changed successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
     }
 };

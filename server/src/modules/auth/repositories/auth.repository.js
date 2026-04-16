@@ -111,6 +111,14 @@ export const AuthRepository = {
         ).select('-passwordHash'); // Exclude password from the returned document
     },
 
+    updatePassword: async (userId, passwordHash) => {
+        return User.findByIdAndUpdate(
+            userId,
+            { $set: { passwordHash } },
+            { returnDocument: 'after' }
+        );
+    },
+
     checkProfileConflicts: async (userId, email, username) => {
         const orConditions = [];
         if (email) orConditions.push({ email });

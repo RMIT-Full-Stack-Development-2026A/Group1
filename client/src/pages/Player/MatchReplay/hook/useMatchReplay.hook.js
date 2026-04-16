@@ -1,94 +1,196 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { matchReplayService } from '../service/matchReplay.service';
 
+const normalizeGameId = (value) => {
+    if (!value) return '';
+
+    const trimmed = String(value).trim();
+    const withoutPrefix = trimmed.replace(/^gameId=/i, '');
+
+    return withoutPrefix.includes('=') ? withoutPrefix.split('=').pop() : withoutPrefix;
+};
+
+const clampStep = (step, totalMoves) => {
+    const numeric = Number(step);
+    if (!Number.isFinite(numeric)) return 0;
+    return Math.max(0, Math.min(totalMoves, Math.round(numeric)));
+};
+
 export const useMatchReplay = (gameId, isUserPremium) => {
-  const [sessionData, setSessionData] = useState(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
+    const [sessionData, setSessionData] = useState(null);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [speed, setPlaybackSpeed] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
-  // 1. Lấy và mapping dữ liệu Backend (DTO Pattern)
-  useEffect(() => {
-    if (!isUserPremium || !gameId) return;
+    const cleanGameId = normalizeGameId(gameId);
+    const totalMoves = sessionData?.moves?.length ?? 0;
 
-    matchReplayService.getReplayById(gameId).then((raw) => {
-      // DTO: Transform DB schema thành UI Schema dễ dùng
-      const playerX = raw.participants.find(p => p.mark === 'X');
-      const playerO = raw.participants.find(p => p.mark === 'O');
-      
-      const mappedMoves = raw.moves.map(m => ({
-        ...m,
-        mark: raw.participants[m.byParticipantIndex].mark,
-      }));
+    useEffect(() => {
+        let isMounted = true;
 
-      setSessionData({
-        ...raw,
-        playerX,
-        playerO,
-        moves: mappedMoves
-      });
-      setCurrentStep(mappedMoves.length); // Mặc định vào xem là tua đến cuối trận
-    });
-  }, [gameId, isUserPremium]);
-
-  // 2. Playback System
-  useEffect(() => {
-    let interval;
-    if (isPlaying && sessionData && currentStep < sessionData.moves.length) {
-      interval = setInterval(() => {
-        setCurrentStep(prev => {
-          if (prev >= sessionData.moves.length - 1) {
+        const fetchReplay = async () => {
             setIsPlaying(false);
-            return prev + 1;
-          }
-          return prev + 1;
+            setCurrentStep(0);
+            setSessionData(null);
+
+            if (!cleanGameId) {
+                setErrorMessage('Invalid game ID.');
+                setIsLoading(false);
+                return;
+            }
+
+            if (!isUserPremium) {
+                setErrorMessage('You need a Premium subscription to view replays.');
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(true);
+            setErrorMessage('');
+
+            try {
+                const response = await matchReplayService.getReplayById(cleanGameId);
+                const raw = response?.data ?? response;
+                const participants = Array.isArray(raw?.participants) ? raw.participants : [];
+                const rawMoves = Array.isArray(raw?.moves) ? raw.moves : [];
+
+                const mappedSession = {
+                    ...raw,
+                    playerX: participants.find((participant) => participant.mark === 'X') ?? {},
+                    playerO: participants.find((participant) => participant.mark === 'O') ?? {},
+                    moves: rawMoves.map((move) => ({
+                        ...move,
+                        mark: participants[move.byParticipantIndex]?.mark ?? 'X'
+                    })),
+                    winner:
+                        raw?.winnerParticipantIndex != null
+                            ? participants[raw.winnerParticipantIndex] ?? null
+                            : null
+                };
+
+                if (!isMounted) return;
+                setSessionData(mappedSession);
+                setCurrentStep(0);
+            } catch (err) {
+                if (!isMounted) return;
+
+                if (err?.status === 403) {
+                    setErrorMessage('You are not authorized to view this replay.');
+                } else if (err?.status === 404) {
+                    setErrorMessage('Game session not found.');
+                } else {
+                    setErrorMessage(err?.message || 'Failed to load replay.');
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        fetchReplay();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [cleanGameId, isUserPremium]);
+
+    useEffect(() => {
+        if (!isPlaying || !sessionData || currentStep >= totalMoves) {
+            if (currentStep >= totalMoves) {
+                setIsPlaying(false);
+            }
+            return undefined;
+        }
+
+        const interval = setInterval(() => {
+            setCurrentStep((previousStep) => {
+                const nextStep = Math.min(totalMoves, previousStep + 1);
+                if (nextStep >= totalMoves) {
+                    setIsPlaying(false);
+                }
+                return nextStep;
+            });
+        }, 1000 / speed);
+
+        return () => clearInterval(interval);
+    }, [isPlaying, currentStep, sessionData, speed, totalMoves]);
+
+    const boardState = useMemo(() => {
+        if (!sessionData) return [];
+
+        const size = sessionData.boardSize;
+        const board = Array.from({ length: size }, () => Array(size).fill(null));
+        const isAtEnd = currentStep === sessionData.moves.length;
+        const winSet = new Set((sessionData.winningLine || []).map((winningCell) => `${winningCell.row},${winningCell.col}`));
+
+        sessionData.moves.slice(0, currentStep).forEach((move, index) => {
+            board[move.row][move.col] = {
+                mark: move.mark,
+                stepIndex: move.moveNumber,
+                isLatest: index === currentStep - 1,
+                isWinning: isAtEnd && winSet.has(`${move.row},${move.col}`)
+            };
         });
-      }, 1000 / speed);
-    } else if (currentStep >= sessionData?.moves.length) {
-      setIsPlaying(false);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, currentStep, sessionData, speed]);
 
-  // 3. Render bàn cờ dựa theo currentStep
-  const boardState = useMemo(() => {
-    if (!sessionData) return [];
-    const size = sessionData.boardSize;
-    const board = Array.from({ length: size }, () => Array(size).fill(null));
-    
-    // Đánh dấu Winning Line nếu ở step cuối
-    const isAtEnd = currentStep === sessionData.moves.length;
-    const winSet = new Set((sessionData.winningLine || []).map(w => `${w.row},${w.col}`));
+        return board;
+    }, [sessionData, currentStep]);
 
-    sessionData.moves.slice(0, currentStep).forEach((move, i) => {
-      board[move.row][move.col] = {
-        mark: move.mark,
-        stepIndex: move.moveNumber,
-        isLatest: i === currentStep - 1,
-        isWinning: isAtEnd && winSet.has(`${move.row},${move.col}`)
-      };
-    });
-    return board;
-  }, [sessionData, currentStep]);
+    const moveLog = useMemo(() => {
+        if (!sessionData?.moves?.length) return [];
 
-  // 4. Các hàm Control
-  const controls = {
-    play: () => setIsPlaying(true),
-    pause: () => setIsPlaying(false),
-    next: () => setCurrentStep(s => Math.min(sessionData.moves.length, s + 1)),
-    prev: () => setCurrentStep(s => Math.max(0, s - 1)),
-    first: () => setCurrentStep(0),
-    last: () => setCurrentStep(sessionData.moves.length),
-    jump: (step) => setCurrentStep(step),
-    cycleSpeed: () => setSpeed(prev => (prev === 1 ? 2 : prev === 2 ? 4 : 1))
-  };
+        const rounds = [];
 
-  return {
-    sessionData,
-    boardState,
-    currentStep,
-    isPlaying,
-    speed,
-    controls
-  };
+        for (let index = 0; index < sessionData.moves.length; index += 2) {
+            rounds.push({
+                round: Math.floor(index / 2) + 1,
+                xMove: sessionData.moves[index] ?? null,
+                oMove: sessionData.moves[index + 1] ?? null
+            });
+        }
+
+        return rounds;
+    }, [sessionData]);
+
+    const controls = {
+        play: () => {
+            if (currentStep < totalMoves) {
+                setIsPlaying(true);
+            }
+        },
+        pause: () => setIsPlaying(false),
+        next: () => setCurrentStep((step) => Math.min(totalMoves, step + 1)),
+        prev: () => setCurrentStep((step) => Math.max(0, step - 1)),
+        first: () => {
+            setIsPlaying(false);
+            setCurrentStep(0);
+        },
+        last: () => {
+            setIsPlaying(false);
+            setCurrentStep(totalMoves);
+        },
+        jump: (step) => {
+            setIsPlaying(false);
+            setCurrentStep(clampStep(step, totalMoves));
+        },
+        setSpeed: (value) => {
+            if ([1, 2, 4].includes(value)) {
+                setPlaybackSpeed(value);
+            }
+        }
+    };
+
+    return {
+        sessionData,
+        boardState,
+        moveLog,
+        currentStep,
+        isPlaying,
+        speed,
+        isLoading,
+        errorMessage,
+        controls
+    };
 };

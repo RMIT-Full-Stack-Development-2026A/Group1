@@ -34,7 +34,7 @@ export const GameController = {
     // get game detail API
     getGameDetail: async (req, res, next) => {
         try {
-            const safeData = await GameService.getGameSessionDetail(req.user.id, req.params.id);
+            const safeData = await GameService.getGameSessionDetail(req.user.id, req.params.id, req.user);
             
             return res.status(200).json({
                 data: safeData,

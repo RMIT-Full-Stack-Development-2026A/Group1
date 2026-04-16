@@ -1,37 +1,120 @@
 import React from 'react';
 
-const ReplayBoard = ({ boardState, boardSize }) => {
-  const cols = Array.from({ length: boardSize }, (_, i) => String.fromCharCode(65 + i));
-  const rows = Array.from({ length: boardSize }, (_, i) => boardSize - i);
+export default function ReplayBoard({ boardState, boardSize }) {
+    const columns = Array.from({ length: boardSize }, (_, index) => String.fromCharCode(65 + index));
+    const rows = Array.from({ length: boardSize }, (_, index) => index + 1);
 
-  return (
-    <div className="relative p-8 bg-surface-container border border-outline-variant chunky-shadow overflow-auto max-w-full">
-      <div className="grid border border-outline-variant gap-[1px] bg-outline-variant" 
-           style={{ gridTemplateColumns: `repeat(${boardSize}, minmax(40px, 48px))` }}>
-        
-        {boardState.map((row, rIdx) => (
-          row.map((cell, cIdx) => (
-            <div key={`${rIdx}-${cIdx}`} 
-                 className={`h-10 md:h-12 bg-[#1a1a2e] flex items-center justify-center relative transition-colors hover:bg-surface-container-highest
-                 ${cell?.isWinning ? 'bg-[#1a3a1a] border border-secondary-container z-10' : ''}
-                 ${cell?.isLatest ? 'border-2 border-primary-container z-20 shadow-[0_0_8px_#4cc9f0]' : ''}`}>
-              
-              {cell && (
-                <>
-                  <span className={`font-headline text-lg md:text-xl ${cell.mark === 'X' ? 'text-error-container drop-shadow-[0_0_6px_rgba(147,0,10,0.8)]' : 'text-primary-container drop-shadow-[0_0_6px_rgba(76,201,240,0.8)]'}`}>
-                    {cell.mark}
-                  </span>
-                  <span className="absolute top-0.5 right-0.5 text-[8px] bg-white text-black px-[2px] font-body font-bold">
-                    {String(cell.stepIndex).padStart(2, '0')}
-                  </span>
-                </>
-              )}
+    return (
+        <div className="w-full overflow-auto bg-surface-container border border-outline-variant chunky-shadow p-4 md:p-6">
+            <div
+                className="grid min-w-max"
+                style={{
+                    gridTemplateColumns: '20px 1fr 20px',
+                    gridTemplateRows: '16px 1fr 16px'
+                }}
+            >
+                <div />
+
+                <div className="grid" style={{ gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))` }}>
+                    {columns.map((column) => (
+                        <div
+                            key={`top-${column}`}
+                            className="text-[9px] text-outline font-mono font-body text-center leading-4"
+                        >
+                            {column}
+                        </div>
+                    ))}
+                </div>
+
+                <div />
+
+                <div className="grid" style={{ gridTemplateRows: `repeat(${boardSize}, minmax(0, 1fr))` }}>
+                    {rows.map((row) => (
+                        <div
+                            key={`left-${row}`}
+                            className="text-[9px] text-outline font-mono font-body flex items-center justify-center"
+                        >
+                            {row}
+                        </div>
+                    ))}
+                </div>
+
+                <div
+                    className="grid border border-outline-variant/50"
+                    style={{ gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))` }}
+                >
+                    {boardState.map((row, rowIndex) =>
+                        row.map((cell, colIndex) => {
+                            const cellClasses = [
+                                'aspect-square',
+                                'bg-surface-container',
+                                'border-r',
+                                'border-b',
+                                'border-outline-variant/30',
+                                'flex',
+                                'items-center',
+                                'justify-center',
+                                'relative'
+                            ];
+
+                            if (cell?.isWinning) {
+                                cellClasses.push('bg-secondary-container/20', 'border', 'border-secondary-container');
+                            }
+
+                            if (cell?.isLatest) {
+                                cellClasses.push('border-2', 'border-primary-container', 'shadow-[0_0_8px_rgba(76,201,240,0.8)]');
+                            }
+
+                            return (
+                                <div key={`${rowIndex}-${colIndex}`} className={cellClasses.join(' ')}>
+                                    {cell ? (
+                                        <>
+                                            <span
+                                                className={
+                                                    cell.mark === 'X'
+                                                        ? 'font-headline text-[clamp(10px,2.5cqw,20px)] text-error-container drop-shadow-[0_0_6px_rgba(147,0,10,0.8)]'
+                                                        : 'font-headline text-[clamp(10px,2.5cqw,20px)] text-primary-container drop-shadow-[0_0_6px_rgba(76,201,240,0.8)]'
+                                                }
+                                            >
+                                                {cell.mark}
+                                            </span>
+                                            <span className="absolute top-0 right-0.5 text-[7px] text-outline font-body leading-none">
+                                                {String(cell.stepIndex).padStart(2, '0')}
+                                            </span>
+                                        </>
+                                    ) : null}
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+
+                <div className="grid" style={{ gridTemplateRows: `repeat(${boardSize}, minmax(0, 1fr))` }}>
+                    {rows.map((row) => (
+                        <div
+                            key={`right-${row}`}
+                            className="text-[9px] text-outline font-mono font-body flex items-center justify-center"
+                        >
+                            {row}
+                        </div>
+                    ))}
+                </div>
+
+                <div />
+
+                <div className="grid" style={{ gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))` }}>
+                    {columns.map((column) => (
+                        <div
+                            key={`bottom-${column}`}
+                            className="text-[9px] text-outline font-mono font-body text-center leading-4"
+                        >
+                            {column}
+                        </div>
+                    ))}
+                </div>
+
+                <div />
             </div>
-          ))
-        ))}
-
-      </div>
-    </div>
-  );
-};
-export default ReplayBoard;
+        </div>
+    );
+}

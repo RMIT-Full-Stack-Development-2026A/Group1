@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { authService } from "../services/auth/auth.service";
-import { getStoredToken, extractUserIdentity } from '../utils/jwtUtils';
 
 // Global flag to ensure checkAuth is only called once per app lifecycle
 let hasInitializedAuth = false;

@@ -1,15 +1,14 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../stores/AuthStore";
 
 export default function Navigation() {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { isLoggedIn, loading, logout } = useAuth();
+    const { isAuthenticated, isLoading, logout } = useAuthStore();
 
     const handleLogoClick = () => {
         // If logged in, go to game mode select. Otherwise, go to landing page
-        if (isLoggedIn) {
+        if (isAuthenticated) {
             navigate("/play");
         } else {
             navigate("/");
@@ -61,7 +60,7 @@ export default function Navigation() {
             </div>
 
             <div className="flex items-center gap-4">
-                {!loading && isLoggedIn ? (
+                {!isLoading && isAuthenticated ? (
                     <button
                         onClick={handleLogout}
                         className="font-mono uppercase tracking-widest text-xs bg-[#ffb4ab] cursor-pointer text-[#690005] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#ffb4ab] transition-all"

@@ -75,8 +75,7 @@ const userSchema = new mongoose.Schema({
     },
     passwordHash: {
         type: String, // Stores hashed password, never plain text password
-        required: true, 
-        match: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        required: true,     
         select: false
     },
     country: {

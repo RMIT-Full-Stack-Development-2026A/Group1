@@ -148,6 +148,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
 
     // Handle AI move or wait for opponent move in online mode
     useEffect(() => {
+
         if (winnerData || isDraw) return; 
 
         const processAutoMove = async () => {
@@ -174,7 +175,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                     
                     // 5. Unlock UI
                     setIsLocked(false); 
-                }, 1300); // 600ms delay
+                }, 1300); // 1300ms delay
             }
             // ONLINE_MATCH logic
             else if (gameMode === 'ONLINE_MATCH' && currentPlayer === 'O') {

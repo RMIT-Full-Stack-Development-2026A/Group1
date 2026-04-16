@@ -1,6 +1,5 @@
 import http from "../../utils/httpHelper";
 import { API_ENDPOINTS } from "../../config/apiConfig";
-import { saveToken, clearToken, extractUserIdentity } from "../../utils/jwtUtils";
 
 export const authService = {
     // Call login API and save JWT token 

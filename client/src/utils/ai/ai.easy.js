@@ -1,92 +1,64 @@
-/**
- * Easy AI Strategy - Random Adjacent Moves
- * The Easy AI shall randomly choose an empty cell immediately adjacent to 
- * the player's last move.
- */
+import { getActiveZone } from './ai.helpers';
 
 /**
- * Get all empty cells adjacent to any opponent mark
- * @param {Array} board - 2D board state
- * @param {String} opponentMark - The opponent's mark ('X' or 'O')
- * @returns {Array} Array of [row, col] coordinates adjacent to opponent marks
+ * Check if a specific empty cell is directly adjacent (8 directions) to any opponent mark
  */
-const getAdjacentEmptyCells = (board, opponentMark) => {
+const isAdjacentToOpponent = (board, row, col, opponentMark) => {
     const size = board.length;
-    const adjacentCells = new Set();
-    
-    // 8 directions: up, down, left, right, and 4 diagonals
-    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
-    
-    // Scan the board for opponent marks
-    for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-            // Found an opponent mark
-            if (board[r][c] === opponentMark) {
-                // Check all 8 adjacent cells
-                for (const [dr, dc] of directions) {
-                    const newR = r + dr;
-                    const newC = c + dc;
-                    
-                    // Check bounds and if cell is empty
-                    if (newR >= 0 && newR < size && newC >= 0 && newC < size && board[newR][newC] === null) {
-                        // Use Set to avoid duplicates (a cell might be adjacent to multiple opponent marks)
-                        adjacentCells.add(JSON.stringify([newR, newC]));
-                    }
-                }
-            }
+    // 8 directions: Up, Down, Left, Right, and 4 Diagonals
+    const directions = [
+        [-1, 0], [1, 0], [0, -1], [0, 1],
+        [-1, -1], [-1, 1], [1, -1], [1, 1]
+    ];
+
+    for (const [dr, dc] of directions) {
+        const r = row + dr;
+        const c = col + dc;
+        
+        // If the adjacent cell is within bounds and contains the opponent's mark
+        if (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === opponentMark) {
+            return true;
         }
     }
     
-    // Convert Set back to array of coordinates
-    return Array.from(adjacentCells).map(coord => JSON.parse(coord));
-};
-
-/**
- * Get all empty cells on the board
- * @param {Array} board - 2D board state
- * @returns {Array} Array of [row, col] coordinates for empty cells
- */
-const getAllEmptyCells = (board) => {
-    const size = board.length;
-    const emptyCells = [];
-    
-    for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-            if (board[r][c] === null) {
-                emptyCells.push([r, c]);
-            }
-        }
-    }
-    
-    return emptyCells;
+    return false;
 };
 
 /**
  * Easy AI Move - Randomly selects an empty cell adjacent to player's moves
- * @param {Array} board - 2D board state
- * @param {String} botMark - Bot's mark ('X' or 'O')
- * @returns {Array} coordinate [row, col]
+ * Optimized using Zone of Interest and 8-direction scanning
  */
 export const getEasyMove = (board, botMark = 'O') => {
-    // Determine opponent's mark
+    const size = board.length;
     const opponentMark = botMark === 'X' ? 'O' : 'X';
     
-    // Get all empty cells adjacent to opponent marks
-    const adjacentCells = getAdjacentEmptyCells(board, opponentMark);
-    
-    // If adjacent cells exist, randomly pick one
-    if (adjacentCells.length > 0) {
-        const randomIndex = Math.floor(Math.random() * adjacentCells.length);
-        return adjacentCells[randomIndex];
+    // We only need padding 1 because we only care about immediately adjacent cells
+    const zone = getActiveZone(board, 1);
+
+    // Fallback: If board is empty (first move), play exactly in the center
+    if (!zone) {
+        const center = Math.floor(size / 2);
+        return [center, center];
     }
-    
-    // Fallback: If no adjacent cells (e.g., first move), pick any random empty cell
-    const allEmpty = getAllEmptyCells(board);
-    if (allEmpty.length > 0) {
-        const randomIndex = Math.floor(Math.random() * allEmpty.length);
-        return allEmpty[randomIndex];
+
+    const candidateMoves = [];
+
+    // Only scan within the active bounding box
+    for (let r = zone.minR; r <= zone.maxR; r++) {
+        for (let c = zone.minC; c <= zone.maxC; c++) {
+            // Find empty cells that touch at least one opponent's mark
+            if (board[r][c] === null && isAdjacentToOpponent(board, r, c, opponentMark)) {
+                candidateMoves.push([r, c]);
+            }
+        }
     }
-    
-    // Safety: Board is full (shouldn't happen in normal gameplay)
+
+    // Pick a random adjacent cell
+    if (candidateMoves.length > 0) {
+        const randomIndex = Math.floor(Math.random() * candidateMoves.length);
+        return candidateMoves[randomIndex];
+    }
+
+    // Ultimate fallback
     return [0, 0];
 };

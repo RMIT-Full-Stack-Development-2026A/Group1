@@ -1,90 +1,13 @@
+import { getActiveZone, evaluateCell } from './ai.helpers';
+
 // This makes traps almost impossible to pull off against the AI.
 const MAX_DEPTH = 6; 
 
 // Decrease slightly to balance the exponential cost of Depth 4 and keep the browser fast
 const TOP_MOVES_TO_SEARCH = 10; 
 
-// UPGRADE 2: Paranoia Multiplier. The Bot fears the human's setup more than it values its own.
+// Paranoia Multiplier. The Bot fears the human's setup more than it values its own.
 const DEFENSE_PARANOIA_FACTOR = 1.5; 
-
-// ---------------------------------------------------------
-// 1. HELPER FUNCTIONS 
-// ---------------------------------------------------------
-const getScore = (count, blocks) => {
-    if (blocks === 2 && count < 5) return 0; 
-    if (count >= 5) return 10000000;              // Guaranteed Win
-    if (count === 4 && blocks === 0) return 100000; // Open 4
-    if (count === 4 && blocks === 1) return 10000;  // Capped 4
-    if (count === 3 && blocks === 0) return 5000;   // Open 3
-    if (count === 3 && blocks === 1) return 100;    // Capped 3
-    if (count === 2 && blocks === 0) return 50;     // Open 2
-    if (count === 2 && blocks === 1) return 5;      // Capped 2
-    if (count === 1 && blocks === 0) return 1;      // Single
-    return 0;
-};
-
-const evaluateCell = (board, row, col, mark) => {
-    let totalScore = 0;
-    let open3Count = 0; 
-    const size = board.length;
-    const directions = [ [0, 1], [1, 0], [1, 1], [1, -1] ];
-
-    for (const [dr, dc] of directions) {
-        let count = 1; 
-        let blocks = 0;
-
-        // Forward
-        let r = row + dr, c = col + dc;
-        while (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === mark) {
-            count++; r += dr; c += dc;
-        }
-        if (r < 0 || r >= size || c < 0 || c >= size || (board[r][c] !== null && board[r][c] !== mark)) blocks++;
-
-        // Backward
-        r = row - dr; c = col - dc;
-        while (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === mark) {
-            count++; r -= dr; c -= dc;
-        }
-        if (r < 0 || r >= size || c < 0 || c >= size || (board[r][c] !== null && board[r][c] !== mark)) blocks++;
-
-        if (count === 3 && blocks === 0) open3Count++;
-        totalScore += getScore(count, blocks);
-    }
-    
-    if (open3Count >= 2) totalScore += 80000; // Fork detection
-    return totalScore;
-};
-
-const getActiveZone = (board, padding = 2) => {
-    const size = board.length;
-    let minR = size, maxR = -1, minC = size, maxC = -1;
-    let hasMoves = false;
-
-    for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-            if (board[r][c] !== null) {
-                hasMoves = true;
-                if (r < minR) minR = r;
-                if (r > maxR) maxR = r;
-                if (c < minC) minC = c;
-                if (c > maxC) maxC = c;
-            }
-        }
-    }
-
-    if (!hasMoves) return null;
-
-    return {
-        minR: Math.max(0, minR - padding),
-        maxR: Math.min(size - 1, maxR + padding),
-        minC: Math.max(0, minC - padding),
-        maxC: Math.min(size - 1, maxC + padding)
-    };
-};
-
-// ---------------------------------------------------------
-// 2. MINIMAX CORE LOGIC
-// ---------------------------------------------------------
 
 const evaluateBoardStatic = (board, botMark, humanMark, zone) => {
     let botScore = 0;
@@ -132,6 +55,7 @@ const getSortedCandidateMoves = (board, botMark, humanMark, zone) => {
     return moves.slice(0, TOP_MOVES_TO_SEARCH).map(m => [m.row, m.col]);
 };
 
+// Core Minimax
 const minimax = (board, depth, alpha, beta, isMaximizing, botMark, humanMark, zone) => {
     if (depth === 0) {
         return evaluateBoardStatic(board, botMark, humanMark, zone);
@@ -167,9 +91,7 @@ const minimax = (board, depth, alpha, beta, isMaximizing, botMark, humanMark, zo
     }
 };
 
-/**
- * 3. MAIN EXPORT FUNCTION (Hard Bot)
- */
+// Export Function
 export const getHardMove = (board, botMark) => {
     const size = board.length;
     const humanMark = botMark === 'X' ? 'O' : 'X';

@@ -62,7 +62,7 @@ const MatchReplay = () => {
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">
                 <div className="col-span-12 lg:col-span-8 flex flex-col items-center w-full">
-                    <ReplayBoard boardState={boardState} boardSize={sessionData.boardSize} />
+                    <ReplayBoard boardState={boardState} boardSize={sessionData.boardSize} markerStyle={sessionData.markerStyle}/>
 
                     <ReplayControls
                         currentStep={currentStep}

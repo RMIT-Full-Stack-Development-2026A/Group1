@@ -71,7 +71,7 @@ export default function GameCustomization() {
     };
 
     const handleCancel = () => {
-        navigate("/lobby");
+        navigate(gameMode === 'SINGLE_PLAYER' ? '/game-mode-select' : '/lobby');
     };
 
     if (isCheckingAuth) {

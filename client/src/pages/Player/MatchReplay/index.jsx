@@ -13,7 +13,7 @@ const MatchReplay = () => {
     const { gameId: rawGameId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
-    const isUserPremium = true;
+    const isUserPremium = user?.isPremium || false;
 
     const {
         sessionData,
@@ -32,7 +32,7 @@ const MatchReplay = () => {
             <PremiumRequiredModal
                 isOpen={true}
                 featureName="MATCH REPLAYS"
-                onClose={() => navigate('/player/subscription')}
+                onClose={() => navigate('/subscription')}
             />
         );
     }

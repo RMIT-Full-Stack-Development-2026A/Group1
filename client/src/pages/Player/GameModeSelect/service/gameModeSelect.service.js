@@ -29,7 +29,7 @@ export const GAME_MODES = [
     buttonIcon: 'swords',
     buttonStyle: 'outlined',
     topBarColor: 'bg-[#fad100]',
-    route: '/play/local-arena',
+    route: '/play/customize',
     badge: null,
     glowEffect: false,
     status: 'TODO', // ← Not yet implemented

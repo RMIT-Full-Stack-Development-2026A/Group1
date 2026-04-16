@@ -44,7 +44,6 @@ export default function AppRouter() {
                 <Route path="/play" element={<ProtectedRoute><GameModeSelect /></ProtectedRoute>} />
                 <Route path="/lobby" element={<ProtectedRoute><GameLobby /></ProtectedRoute>} />
                 <Route path="/play/customize" element={<ProtectedRoute><GameCustomization /></ProtectedRoute>} />
-                <Route path="/play/local-arena" element={<ProtectedRoute><GameCustomization /></ProtectedRoute>} />
                 <Route path="/game/:roomId" element={<ProtectedRoute><GameBoard /></ProtectedRoute>} />
                 <Route path="/replay/:gameId" element={<ProtectedRoute><MatchReplay /></ProtectedRoute>} />
                 <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />

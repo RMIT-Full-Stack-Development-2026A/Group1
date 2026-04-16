@@ -1,7 +1,7 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { ProfileDTO } from '../dtos/profile.dto.js'
-import { validateProfileUpdate } from '../validators/profile.validator.js';
+import { validateProfileUpdate, validatePasswordChange } from '../validators/profile.validator.js';
 
 export const ProfileService = {
     getProfile: async (userId) => {

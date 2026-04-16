@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/stores/AuthStore";
 
 export default function Navigation() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isLoggedIn, loading, logout } = useAuth();
+    const { isAuthenticated, isCheckingAuth, logout, checkAuth } = useAuthStore();
+
+    // Initialize auth check on component mount
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
 
     const handleLogoClick = () => {
         // If logged in, go to game mode select. Otherwise, go to landing page
-        if (isLoggedIn) {
+        if (isAuthenticated) {
             navigate("/play");
         } else {
             navigate("/");
@@ -17,11 +22,9 @@ export default function Navigation() {
     };
 
     const handleLogout = async () => {
-        const success = await logout();
-        if (success) {
-            // Redirect to landing page after logout
-            navigate("/");
-        }
+        await logout();
+        // Redirect to landing page after logout
+        navigate("/");
     };
 
     return (
@@ -34,7 +37,7 @@ export default function Navigation() {
                     TicTacToang
                 </span>
                 
-                {isLoggedIn && !loading && (
+                {isAuthenticated && !isCheckingAuth && (
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate("/play")}
@@ -61,7 +64,7 @@ export default function Navigation() {
             </div>
 
             <div className="flex items-center gap-4">
-                {!loading && isLoggedIn ? (
+                {!isCheckingAuth && isAuthenticated ? (
                     <button
                         onClick={handleLogout}
                         className="font-mono uppercase tracking-widest text-xs bg-[#ffb4ab] cursor-pointer text-[#690005] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#ffb4ab] transition-all"

@@ -161,43 +161,26 @@ export const getDifficultyLevels = () => {
         {
             id: 'EASY',
             level: 'EASY',
-            aiName: 'Jeremy',
+            aiName: 'Bot (Easy)',
             badgeColor: 'cyan-400',
             badgeColorHex: '#22d3ee',
-            description: 'A novice AI that makes random decisions adjacent to your moves. Perfect for learning the game.',
-            behaviors: [
-                'Random selection from adjacent empty cells',
-                'No defensive strategy',
-                'Ideal for beginners'
-            ]
+            description: 'A rookie opponent. Learn the game at your own pace.'
         },
         {
             id: 'MEDIUM',
             level: 'MEDIUM',
-            aiName: 'Bot',
+            aiName: 'Bot (Medium)',
             badgeColor: 'yellow-400',
             badgeColorHex: '#facc15',
-            description: 'A tactical AI focused on defense. Blocks your winning patterns and prevents threats.',
-            behaviors: [
-                'Prevents 5-mark lines',
-                'Blocks 4-mark opened lines',
-                'Counters fork formations',
-                'Challenging opponents'
-            ]
+            description: 'A seasoned opponent. Expect a real challenge.'
         },
         {
             id: 'HARD',
             level: 'HARD',
-            aiName: 'Neural',
+            aiName: 'Bot (Hard)',
             badgeColor: 'red-500',
             badgeColorHex: '#ef4444',
-            description: 'An advanced AI with both defensive and offensive play. Completes its own patterns when possible.',
-            behaviors: [
-                'All defensive tactics (MEDIUM)',
-                'Aggressive pattern completion',
-                'Strategic offensive play',
-                'Expert difficulty'
-            ]
+            description: 'A master tactician. Seek the ultimate test of skill.'
         }
     ];
 };

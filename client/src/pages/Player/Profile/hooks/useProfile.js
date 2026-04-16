@@ -28,7 +28,7 @@ export const useProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filter and pagination state
+  // Filter and pagination state - inputs (what user is adjusting)
   const [searchQuery, setSearchQuery] = useState("");
   const [filterResult, setFilterResult] = useState("ALL RESULTS");
   const [filterGameType, setFilterGameType] = useState("GAME TYPE");
@@ -38,6 +38,16 @@ export const useProfile = () => {
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
   const [totalMatches, setTotalMatches] = useState(0);
+
+  // Applied filters state - only these trigger API calls
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
+  const [appliedFilterResult, setAppliedFilterResult] = useState("ALL RESULTS");
+  const [appliedFilterGameType, setAppliedFilterGameType] = useState("GAME TYPE");
+  const [appliedDateFrom, setAppliedDateFrom] = useState("");
+  const [appliedDateTo, setAppliedDateTo] = useState("");
+  const [appliedSortBy, setAppliedSortBy] = useState("endedAt");
+  const [appliedSortOrder, setAppliedSortOrder] = useState("desc");
+  const [appliedPage, setAppliedPage] = useState(1);
 
   // Edit Profile Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -164,32 +174,53 @@ export const useProfile = () => {
       result: mapResult(backendMatch.viewerResult),
       startTime: extractTimeFromISO(backendMatch.startedAt),
       endTime: extractTimeFromISO(backendMatch.endedAt),
-      canReplay: backendMatch.status === "COMPLETED",
+      canReplay: backendMatch.status === "FINISHED" || backendMatch.status === "DRAW",
     };
   };
 
-  // Fetch match history with filters
+  // Apply filters - called when Filter button is clicked
+  const handleApplyFilters = () => {
+    setAppliedSearchQuery(searchQuery);
+    setAppliedFilterResult(filterResult);
+    setAppliedFilterGameType(filterGameType);
+    setAppliedDateFrom(dateFrom);
+    setAppliedDateTo(dateTo);
+    setAppliedPage(1); // Reset to page 1 when applying new filters
+  };
+
+  // Fetch match history with filters - only when applied filters change
   useEffect(() => {
     const fetchMatches = async () => {
       try {
         setLoading(true);
         const filters = {
-          q: searchQuery,
-          result: filterResult === "ALL RESULTS" ? undefined : filterResult,
-          gameType: filterGameType === "GAME TYPE" ? undefined : filterGameType,
-          from: dateFrom ? new Date(dateFrom).toISOString() : undefined,
-          to: dateTo ? new Date(dateTo).toISOString() : undefined,
-          sortBy: sortBy,
-          sortOrder: sortOrder,
-          page: currentPage,
+          q: appliedSearchQuery,
+          result: appliedFilterResult === "ALL RESULTS" ? undefined : appliedFilterResult,
+          gameType: appliedFilterGameType === "GAME TYPE" ? undefined : appliedFilterGameType,
+          from: appliedDateFrom ? new Date(appliedDateFrom).toISOString() : undefined,
+          to: appliedDateTo ? new Date(appliedDateTo).toISOString() : undefined,
+          sortBy: appliedSortBy,
+          sortOrder: appliedSortOrder,
+          page: appliedPage,
         };
 
         const response = await profileService.getMatchHistory(filters);
-        const items = response.data?.items || [];
-        const total = response.data?.total || 0;
+
+        const items = response.data?.items || response?.items || [];
+        let total = response.data?.total || response?.total || 0;
+        
         
         // Transform backend data to frontend format
-        const transformedMatches = items.map(transformMatchData);
+        let transformedMatches = items.map(transformMatchData);
+        
+        // Apply in-memory filtering for WIN/LOSS since backend returns all FINISHED games
+        // (both wins and losses have status === FINISHED)
+        if (appliedFilterResult === "WIN") {
+          transformedMatches = transformedMatches.filter(match => match.result === "WIN");
+        } else if (appliedFilterResult === "LOSS") {
+          transformedMatches = transformedMatches.filter(match => match.result === "LOSS");
+        }
+        
         setMatchHistory(transformedMatches);
         setTotalMatches(total);
       } catch (err) {
@@ -203,7 +234,7 @@ export const useProfile = () => {
     };
 
     fetchMatches();
-  }, [searchQuery, filterResult, filterGameType, dateFrom, dateTo, sortBy, sortOrder, currentPage]);
+  }, [appliedSearchQuery, appliedFilterResult, appliedFilterGameType, appliedDateFrom, appliedDateTo, appliedSortBy, appliedSortOrder, appliedPage]);
 
   // Handle edit profile - open modal
   const handleEditProfile = () => {
@@ -294,30 +325,28 @@ export const useProfile = () => {
 
   // Handle pagination
   const handlePageChange = (pageNum) => {
-    setCurrentPage(pageNum);
+    setAppliedPage(pageNum);
   };
 
   // Handle sort by column
   const handleSortBy = (column) => {
     // If clicking the same column, toggle order; otherwise set new column with desc order
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+    if (appliedSortBy === column) {
+      setAppliedSortOrder(appliedSortOrder === "desc" ? "asc" : "desc");
     } else {
-      setSortBy(column);
-      setSortOrder("desc");
+      setAppliedSortBy(column);
+      setAppliedSortOrder("desc");
     }
-    setCurrentPage(1); // Reset to page 1 when sorting
+    setAppliedPage(1); // Reset to page 1 when sorting
   };
 
   // Handle date range changes
   const handleDateFromChange = (date) => {
     setDateFrom(date);
-    setCurrentPage(1);
   };
 
   const handleDateToChange = (date) => {
     setDateTo(date);
-    setCurrentPage(1);
   };
 
   // Handle avatar update
@@ -366,6 +395,7 @@ export const useProfile = () => {
     matchHistory,
     loading,
     error,
+    // Filter inputs (user adjusts these)
     searchQuery,
     setSearchQuery,
     filterResult,
@@ -378,17 +408,16 @@ export const useProfile = () => {
     setDateTo,
     handleDateFromChange,
     handleDateToChange,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
+    // Applied filters (these trigger API calls)
+    appliedSortBy,
+    appliedSortOrder,
+    // Handlers
+    handleApplyFilters,
     handleSortBy,
-    currentPage,
-    setCurrentPage,
-    totalMatches,
-    handleEditProfile,
     handleReplay,
     handlePageChange,
+    currentPage: appliedPage,
+    totalMatches,
     handleAvatarUpdate,
     stats: getStatsConfig(),
     // Edit modal state and functions

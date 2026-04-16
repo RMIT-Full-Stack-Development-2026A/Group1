@@ -20,6 +20,7 @@ export default function MatchHistoryTable({
   totalMatches,
   onPageChange,
   onReplay,
+  onApplyFilters,
   loading,
 }) {
   const SortIndicator = ({ column }) => {
@@ -143,6 +144,14 @@ export default function MatchHistoryTable({
             <option>TWO_PLAYERS</option>
             <option>ONLINE_MATCH</option>
           </select>
+
+          {/* Filter Button */}
+          <button
+            onClick={onApplyFilters}
+            className="bg-primary-container text-on-primary px-4 py-2 text-xs uppercase font-bold border border-primary-container hover:bg-primary hover:border-primary transition-all active:translate-y-[2px]"
+          >
+            FILTER
+          </button>
         </div>
       </div>
 

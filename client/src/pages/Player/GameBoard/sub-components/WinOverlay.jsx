@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Eye } from 'lucide-react';
+import { useAudio } from '@/hooks/useAudio';
+import { AUDIO_FILES } from '@/config/audioConfig';
 
 const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
+    const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
+
     const [isMinimized, setIsMinimized] = useState(false);
 
     // Reset minimize state when new result comes

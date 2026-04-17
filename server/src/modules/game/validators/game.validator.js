@@ -59,7 +59,23 @@ export const validateGameQuery = (userId, query) => {
     const filter = { 'participants.userId': userId }; // Force filtering by requesting user
 
     if (query.gameType) filter.gameType = query.gameType;
-    if (query.status) filter.status = query.status;
+    
+    // Handle status and result filtering
+    if (query.status) {
+        filter.status = query.status;
+    }
+    
+    if (query.result) {
+        // Map result types to status filters
+        if (query.result === 'DRAW') {
+            filter.status = 'DRAW';
+        } else if (query.result === 'ABORT') {
+            filter.status = 'ABORTED';
+        } else if (query.result === 'WIN' || query.result === 'LOSS') {
+            // For WIN/LOSS, we need status === FINISHED
+            filter.status = 'FINISHED';
+        }
+    }
 
     if (query.q) {
         filter.$or = [

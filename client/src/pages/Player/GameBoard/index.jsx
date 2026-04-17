@@ -49,7 +49,7 @@ const GameBoard = () => {
     // Build player infor
     const playersInfo = useMemo(() => {
         const player1 = {
-            userId: user?._id || user?.id || null, 
+            userId: user?.id,
             usernameSnapshot: user?.username || user?.name || 'PLAYER_01', 
             role: 'HUMAN',
             mark: 'X'
@@ -147,7 +147,7 @@ const GameBoard = () => {
             </main>
 
             {gameOver && (
-                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate('/lobby')} />
+                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate(isBotMatch ? '/game-mode-select' : '/lobby')} />
             )}
         </div>
     );

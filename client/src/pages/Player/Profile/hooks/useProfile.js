@@ -1,98 +1,18 @@
 // Custom hook for managing profile page state and logic
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { profileService } from "../services/profile.service";
 import { countryService } from "@/services/countryService";
 
-// Mock match data for preview/layout purposes
-const MOCK_MATCHES = [
-  {
-    id: "0842",
-    date: "2070.10.24 14:22",
-    gameType: "ONLINE_MATCH",
-    opponent: "CYBER_PUNK_42",
-    result: "WIN",
-    startTime: "14:22",
-    endTime: "14:27",
-    canReplay: true,
-  },
-  {
-    id: "0841",
-    date: "2070.10.24 14:10",
-    gameType: "TWO_PLAYERS",
-    opponent: "X_TERMINATOR_X",
-    result: "LOSS",
-    startTime: "14:10",
-    endTime: "14:11",
-    canReplay: true,
-  },
-  {
-    id: "0840",
-    date: "2070.10.23 23:58",
-    gameType: "SINGLE_PLAYER",
-    opponent: "BOT_LEVEL_MAX",
-    result: "ABORT",
-    startTime: "23:58",
-    endTime: "23:59",
-    canReplay: false,
-  },
-  {
-    id: "0839",
-    date: "2070.10.23 22:15",
-    gameType: "ONLINE_MATCH",
-    opponent: "NEO_TOKYO_QUEEN",
-    result: "WIN",
-    startTime: "22:15",
-    endTime: "22:19",
-    canReplay: true,
-  },
-  {
-    id: "0838",
-    date: "2070.10.23 20:05",
-    gameType: "TWO_PLAYERS",
-    opponent: "SILENT_SHADOW",
-    result: "DRAW",
-    startTime: "20:05",
-    endTime: "20:08",
-    canReplay: true,
-  },
-  {
-    id: "0837",
-    date: "2070.10.23 18:45",
-    gameType: "SINGLE_PLAYER",
-    opponent: "NEON_KNIGHT",
-    result: "WIN",
-    startTime: "18:45",
-    endTime: "18:47",
-    canReplay: true,
-  },
-];
-
-// Mock player data for preview/layout purposes
-const MOCK_PLAYER_DATA = {
-  id: "player_001",
-  username: "PLAYER_01",
-  email: "player01@example.com",
-  isPremium: true,
-  country: "USA",
-  level: 42,
-  playerId: "88-BF-9021",
-  avatarUrl: null,
-  stats: {
-    wins: 1204,
-    losses: 432,
-    draws: 156,
-    winRate: 74.2,
-  },
-};
-
 export const useProfile = () => {
-  const [playerData, setPlayerData] = useState(MOCK_PLAYER_DATA);
+  const navigate = useNavigate();
+  const [playerData, setPlayerData] = useState(null);
   const [countryFlag, setCountryFlag] = useState(null);
-  const [matchHistory, setMatchHistory] = useState(MOCK_MATCHES);
+  const [matchHistory, setMatchHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filter and pagination state
+  // Filter and pagination state - inputs (what user is adjusting)
   const [searchQuery, setSearchQuery] = useState("");
   const [filterResult, setFilterResult] = useState("ALL RESULTS");
   const [filterGameType, setFilterGameType] = useState("GAME TYPE");
@@ -101,7 +21,17 @@ export const useProfile = () => {
   const [sortBy, setSortBy] = useState("endedAt"); // 'endedAt' or 'startedAt'
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalMatches, setTotalMatches] = useState(MOCK_MATCHES.length);
+  const [totalMatches, setTotalMatches] = useState(0);
+
+  // Applied filters state - only these trigger API calls
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
+  const [appliedFilterResult, setAppliedFilterResult] = useState("ALL RESULTS");
+  const [appliedFilterGameType, setAppliedFilterGameType] = useState("GAME TYPE");
+  const [appliedDateFrom, setAppliedDateFrom] = useState("");
+  const [appliedDateTo, setAppliedDateTo] = useState("");
+  const [appliedSortBy, setAppliedSortBy] = useState("endedAt");
+  const [appliedSortOrder, setAppliedSortOrder] = useState("desc");
+  const [appliedPage, setAppliedPage] = useState(1);
 
   // Edit Profile Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -154,9 +84,8 @@ export const useProfile = () => {
           }
         }
       } catch (err) {
-        console.warn("Using mock player data due to API error:", err.message);
-        setPlayerData(MOCK_PLAYER_DATA);
-        // setError(err.message);
+        console.error("Error fetching profile:", err.message);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -191,8 +120,7 @@ export const useProfile = () => {
   }, []);
 
   // Transform backend match data to frontend format
-  // When backend API is completed, it will return startedAt and endedAt as ISO 8601 dates
-  // This function extracts the time portion for display
+  // Maps API response structure to display format
   const transformMatchData = (backendMatch) => {
     const extractTimeFromISO = (isoDate) => {
       if (!isoDate) return "00:00";
@@ -213,64 +141,84 @@ export const useProfile = () => {
       }).replace(/\//g, ".");
     };
 
+    // Map API viewerResult to display format
+    const mapResult = (viewerResult) => {
+      if (!viewerResult) return "ABORT";
+      if (viewerResult === "WIN") return "WIN";
+      if (viewerResult === "LOSE") return "LOSS";
+      return "DRAW";
+    };
+
     return {
-      id: backendMatch.sessionNumber || backendMatch.id,
+      id: backendMatch._id || backendMatch.id,
+      sessionNumber: backendMatch.sessionNumber,
       date: extractDateFromISO(backendMatch.startedAt),
       gameType: backendMatch.gameType,
-      opponent: backendMatch.participants?.[1]?.usernameSnapshot || backendMatch.opponent,
-      result: backendMatch.status === "FINISHED" 
-        ? "WIN" // TODO: Check winnerParticipantIndex when available
-        : backendMatch.status === "DRAW" 
-        ? "DRAW" 
-        : "ABORT",
+      opponent: backendMatch.opponentName,
+      result: mapResult(backendMatch.viewerResult),
       startTime: extractTimeFromISO(backendMatch.startedAt),
       endTime: extractTimeFromISO(backendMatch.endedAt),
-      canReplay: backendMatch.moves && backendMatch.moves.length > 0,
+      canReplay: backendMatch.status === "FINISHED" || backendMatch.status === "DRAW",
     };
   };
 
-  // Fetch match history with filters
+  // Apply filters - called when Filter button is clicked
+  const handleApplyFilters = () => {
+    setAppliedSearchQuery(searchQuery);
+    setAppliedFilterResult(filterResult);
+    setAppliedFilterGameType(filterGameType);
+    setAppliedDateFrom(dateFrom);
+    setAppliedDateTo(dateTo);
+    setAppliedPage(1); // Reset to page 1 when applying new filters
+  };
+
+  // Fetch match history with filters - only when applied filters change
   useEffect(() => {
     const fetchMatches = async () => {
       try {
         setLoading(true);
         const filters = {
-          q: searchQuery,
-          result: filterResult === "ALL RESULTS" ? undefined : filterResult,
-          gameType: filterGameType === "GAME TYPE" ? undefined : filterGameType,
-          from: dateFrom ? new Date(dateFrom).toISOString() : undefined,
-          to: dateTo ? new Date(dateTo).toISOString() : undefined,
-          sortBy: sortBy,
-          sortOrder: sortOrder,
-          page: currentPage,
+          q: appliedSearchQuery,
+          result: appliedFilterResult === "ALL RESULTS" ? undefined : appliedFilterResult,
+          gameType: appliedFilterGameType === "GAME TYPE" ? undefined : appliedFilterGameType,
+          from: appliedDateFrom ? new Date(appliedDateFrom).toISOString() : undefined,
+          to: appliedDateTo ? new Date(appliedDateTo).toISOString() : undefined,
+          sortBy: appliedSortBy,
+          sortOrder: appliedSortOrder,
+          page: appliedPage,
         };
 
         const response = await profileService.getMatchHistory(filters);
-        const items = response.data?.items || [];
+
+        const items = response.data?.items || response?.items || [];
+        let total = response.data?.total || response?.total || 0;
         
-        if (items.length === 0) {
-          // Use mock data if API returns empty
-          setMatchHistory(MOCK_MATCHES);
-          setTotalMatches(MOCK_MATCHES.length);
-        } else {
-          // Transform backend data to frontend format for startTime/endTime display
-          const transformedMatches = items.map(transformMatchData);
-          setMatchHistory(transformedMatches);
-          setTotalMatches(response.data?.total || 0);
+        
+        // Transform backend data to frontend format
+        let transformedMatches = items.map(transformMatchData);
+        
+        // Apply in-memory filtering for WIN/LOSS since backend returns all FINISHED games
+        // (both wins and losses have status === FINISHED)
+        if (appliedFilterResult === "WIN") {
+          transformedMatches = transformedMatches.filter(match => match.result === "WIN");
+        } else if (appliedFilterResult === "LOSS") {
+          transformedMatches = transformedMatches.filter(match => match.result === "LOSS");
         }
+        
+        setMatchHistory(transformedMatches);
+        setTotalMatches(total);
       } catch (err) {
-        console.warn("Using mock match data due to API error");
-        // Use mock data on error
-        setMatchHistory(MOCK_MATCHES);
-        setTotalMatches(MOCK_MATCHES.length);
-        // setError(err.message);
+        console.error("Error fetching match history:", err);
+        setMatchHistory([]);
+        setTotalMatches(0);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchMatches();
-  }, [searchQuery, filterResult, filterGameType, dateFrom, dateTo, sortBy, sortOrder, currentPage]);
+  }, [appliedSearchQuery, appliedFilterResult, appliedFilterGameType, appliedDateFrom, appliedDateTo, appliedSortBy, appliedSortOrder, appliedPage]);
 
   // Handle edit profile - open modal
   const handleEditProfile = () => {
@@ -353,38 +301,36 @@ export const useProfile = () => {
     }
   };
 
-  // Handle replay button click
+  // Handle replay button click - navigate to match replay page
   const handleReplay = (matchId) => {
-    // TODO: Navigate to replay page with match ID
-    console.log("Replay match:", matchId);
+    console.log("Navigating to replay for match:", matchId);
+    navigate(`/replay/${matchId}`);
   };
 
   // Handle pagination
   const handlePageChange = (pageNum) => {
-    setCurrentPage(pageNum);
+    setAppliedPage(pageNum);
   };
 
   // Handle sort by column
   const handleSortBy = (column) => {
     // If clicking the same column, toggle order; otherwise set new column with desc order
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+    if (appliedSortBy === column) {
+      setAppliedSortOrder(appliedSortOrder === "desc" ? "asc" : "desc");
     } else {
-      setSortBy(column);
-      setSortOrder("desc");
+      setAppliedSortBy(column);
+      setAppliedSortOrder("desc");
     }
-    setCurrentPage(1); // Reset to page 1 when sorting
+    setAppliedPage(1); // Reset to page 1 when sorting
   };
 
   // Handle date range changes
   const handleDateFromChange = (date) => {
     setDateFrom(date);
-    setCurrentPage(1);
   };
 
   const handleDateToChange = (date) => {
     setDateTo(date);
-    setCurrentPage(1);
   };
 
   // Handle avatar update
@@ -395,37 +341,42 @@ export const useProfile = () => {
     }));
   };
 
-  // Placeholder mock data for stats - replace with real API data
-  const getStatsConfig = () => [
-    {
-      label: "WINS",
-      value: playerData?.stats?.wins?.toLocaleString() || "0",
-      icon: "trending_up",
-      barWidth: 100,
-      color: "bg-primary-container text-primary-container",
-    },
-    {
-      label: "LOSSES",
-      value: playerData?.stats?.losses?.toLocaleString() || "0",
-      icon: "trending_down",
-      barWidth: 100,
-      color: "bg-error-container text-error-container",
-    },
-    {
-      label: "DRAWS",
-      value: playerData?.stats?.draws?.toLocaleString() || "0",
-      icon: "balance",
-      barWidth: 100,
-      color: "bg-outline text-outline",
-    },
-    {
-      label: "WIN RATE",
-      value: `${playerData?.stats?.winRate || 0}%`,
-      icon: "star",
-      barWidth: 100,
-      color: "bg-tertiary-container text-tertiary-container",
-    },
-  ];
+  // Calculate stats display configuration from real API data
+  const getStatsConfig = () => {
+    const winRate = playerData?.stats?.winRate || 0;
+    const totalGames = (playerData?.stats?.wins || 0) + (playerData?.stats?.losses || 0) + (playerData?.stats?.draws || 0);
+    
+    return [
+      {
+        label: "WINS",
+        value: playerData?.stats?.wins?.toLocaleString() || "0",
+        icon: "trending_up",
+        barWidth: totalGames > 0 ? ((playerData?.stats?.wins || 0) / totalGames) * 100 : 0,
+        color: "bg-primary-container text-primary-container",
+      },
+      {
+        label: "LOSSES",
+        value: playerData?.stats?.losses?.toLocaleString() || "0",
+        icon: "trending_down",
+        barWidth: totalGames > 0 ? ((playerData?.stats?.losses || 0) / totalGames) * 100 : 0,
+        color: "bg-error-container text-error-container",
+      },
+      {
+        label: "DRAWS",
+        value: playerData?.stats?.draws?.toLocaleString() || "0",
+        icon: "balance",
+        barWidth: totalGames > 0 ? ((playerData?.stats?.draws || 0) / totalGames) * 100 : 0,
+        color: "bg-outline text-outline",
+      },
+      {
+        label: "WIN RATE",
+        value: `${winRate}%`,
+        icon: "star",
+        barWidth: winRate,
+        color: "bg-tertiary-container text-tertiary-container",
+      },
+    ];
+  };
 
   return {
     playerData,
@@ -433,6 +384,7 @@ export const useProfile = () => {
     matchHistory,
     loading,
     error,
+    // Filter inputs (user adjusts these)
     searchQuery,
     setSearchQuery,
     filterResult,
@@ -445,17 +397,17 @@ export const useProfile = () => {
     setDateTo,
     handleDateFromChange,
     handleDateToChange,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    handleSortBy,
-    currentPage,
-    setCurrentPage,
-    totalMatches,
+    // Applied filters (these trigger API calls)
+    appliedSortBy,
+    appliedSortOrder,
+    // Handlers
+    handleApplyFilters,
     handleEditProfile,
+    handleSortBy,
     handleReplay,
     handlePageChange,
+    currentPage: appliedPage,
+    totalMatches,
     handleAvatarUpdate,
     stats: getStatsConfig(),
     // Edit modal state and functions

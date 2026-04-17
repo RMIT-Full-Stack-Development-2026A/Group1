@@ -21,11 +21,9 @@ export default function Navigation() {
     };
 
     const handleLogout = async () => {
-        const success = await logout();
-        if (success) {
-            // Redirect to landing page after logout
-            navigate("/");
-        }
+        await logout();
+        // Redirect to landing page after logout
+        navigate("/");
     };
 
     return (
@@ -38,7 +36,7 @@ export default function Navigation() {
                     TicTacToang
                 </span>
                 
-                {isAuthenticated && !isLoading && (
+                {isAuthenticated && !isCheckingAuth && (
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate("/play")}

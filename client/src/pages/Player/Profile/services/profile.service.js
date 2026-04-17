@@ -27,7 +27,11 @@ export const profileService = {
   // Fetch player match history with optional filters
   async getMatchHistory(filters = {}) {
     try {
-      const params = new URLSearchParams(filters);
+      // Filter out undefined and empty string values to prevent "undefined" in query string
+      const cleanFilters = Object.fromEntries(
+        Object.entries(filters).filter(([, value]) => value !== undefined && value !== "")
+      );
+      const params = new URLSearchParams(cleanFilters);
       const response = await http.get(`/games?${params}`);
       return response.data;
     } catch (error) {
@@ -80,19 +84,17 @@ export const profileService = {
   },
 
   // Upload/update player avatar
-  // TODO: Backend endpoint POST /api/v1/profile/avatar not yet implemented
-  // Route is defined in backend/docs/ENDPOINTS.md but not yet implemented in backend/src/modules/profile/routes
+  // Backend: POST /api/v1/profile/avatar - Handles Sharp processing (200x200, WebP, quality 80) and Cloudinary upload
   async uploadAvatar(file) {
     try {
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const response = await http.post("/profile/avatar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return response.data;
+      // When passing FormData to axios, it automatically detects and sets:
+      // Content-Type: multipart/form-data with the correct boundary
+      // Do NOT manually set Content-Type header as it interferes with FormData
+      const response = await http.post("/profile/avatar", formData);
+      return response;
     } catch (error) {
       console.error("Error uploading avatar:", error);
       throw error;

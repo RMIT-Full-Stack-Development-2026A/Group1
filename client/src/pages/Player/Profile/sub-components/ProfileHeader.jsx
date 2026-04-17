@@ -2,13 +2,6 @@
 import React, { useRef, useState } from "react";
 import { profileService } from "../services/profile.service";
 
-// Standard avatar size for optimal display performance
-const AVATAR_SIZE = {
-  width: 256,
-  height: 256,
-  maxQuality: 0.8,
-};
-
 export default function ProfileHeader({ playerData, countryFlag, onEditProfile, onAvatarUpdate }) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -18,108 +11,21 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
     fileInputRef.current?.click();
   };
 
-  /**
-   * Resizes image to standard avatar size using Canvas API
-   * Maintains aspect ratio and converts to JPEG for optimization
-   * @param {File} file - Original image file
-   * @returns {Promise<File>} - Resized image file
-   */
-  const resizeImage = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        try {
-          const img = new Image();
-
-          img.onload = () => {
-            // Create canvas for resizing
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            // Set canvas size to desired avatar dimensions
-            canvas.width = AVATAR_SIZE.width;
-            canvas.height = AVATAR_SIZE.height;
-
-            // Calculate dimensions maintaining aspect ratio (center crop)
-            let sourceWidth = img.width;
-            let sourceHeight = img.height;
-            let sourceX = 0;
-            let sourceY = 0;
-
-            const sourceAspect = sourceWidth / sourceHeight;
-            const targetAspect = AVATAR_SIZE.width / AVATAR_SIZE.height;
-
-            if (sourceAspect > targetAspect) {
-              // Image is wider than target, crop sides
-              sourceWidth = sourceHeight * targetAspect;
-              sourceX = (img.width - sourceWidth) / 2;
-            } else {
-              // Image is taller than target, crop top/bottom
-              sourceHeight = sourceWidth / targetAspect;
-              sourceY = (img.height - sourceHeight) / 2;
-            }
-
-            // Draw and enlarge image to fill canvas
-            ctx.drawImage(
-              img,
-              sourceX,
-              sourceY,
-              sourceWidth,
-              sourceHeight,
-              0,
-              0,
-              AVATAR_SIZE.width,
-              AVATAR_SIZE.height
-            );
-
-            // Convert canvas to blob (JPEG format for smaller file size)
-            canvas.toBlob(
-              (blob) => {
-                // Create File object from blob
-                const resizedFile = new File([blob], file.name, {
-                  type: "image/jpeg",
-                  lastModified: Date.now(),
-                });
-                resolve(resizedFile);
-              },
-              "image/jpeg",
-              AVATAR_SIZE.maxQuality
-            );
-          };
-
-          img.onerror = () => {
-            reject(new Error("Failed to load image"));
-          };
-
-          img.src = e.target?.result;
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      reader.onerror = () => {
-        reject(new Error("Failed to read file"));
-      };
-
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      setUploadError("Please select an image file");
+    // Validate file type - backend only accepts JPEG, PNG, WebP
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError("Please select a JPG, PNG, or WebP image");
       setTimeout(() => setUploadError(null), 3000);
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("File size must be less than 5MB");
+    // Validate file size (max 2MB - matches backend multer config)
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError("File size must be less than 2MB");
       setTimeout(() => setUploadError(null), 3000);
       return;
     }
@@ -128,15 +34,12 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
     setUploadError(null);
 
     try {
-      // Resize image to standard avatar size (256x256)
-      const resizedFile = await resizeImage(file);
-
-      // TODO: Backend endpoint POST /api/v1/profile/avatar not yet implemented
-      // Once backend is ready, this will upload the resized avatar
-      const result = await profileService.uploadAvatar(resizedFile);
-      // Create local preview URL from resized file
-      const previewUrl = URL.createObjectURL(resizedFile);
-      onAvatarUpdate?.(previewUrl, result?.avatarUrl || previewUrl);
+      // Upload file directly - backend handles Sharp processing (resize to 200x200, convert to WebP)
+      // No need for frontend resizing as backend will re-process anyway
+      const result = await profileService.uploadAvatar(file);
+      // Create local preview URL from uploaded file
+      const previewUrl = URL.createObjectURL(file);
+      onAvatarUpdate?.(previewUrl, result?.avatarUrl || result?.data?.avatar || previewUrl);
     } catch (error) {
       console.error("Avatar upload error:", error);
       setUploadError(error.message || "Failed to process avatar");
@@ -149,9 +52,6 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
       }
     }
   };
-  if (!playerData) {
-    return <div className="h-32 bg-surface-container animate-pulse"></div>;
-  }
 
   return (
     <section 
@@ -173,7 +73,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
             {playerData?.avatarUrl ? (
               <img
                 alt="Player Avatar"
-                className="w-full h-full grayscale contrast-125 brightness-110 group-hover:brightness-50 group-hover:grayscale-0 transition-all duration-200"
+                className="w-full h-full group-hover:opacity-75 transition-all duration-200"
                 src={playerData.avatarUrl}
               />
             ) : (
@@ -188,7 +88,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
             >
               <button
                 onClick={handleAvatarClick}
-                disabled={uploading}
+                disabled={uploading || !playerData}
                 className="p-2 text-primary-cyan hover:text-opacity-70 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Change avatar"
               >
@@ -227,51 +127,72 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
         {/* Player Info */}
         <div className="flex flex-col gap-1 flex-1">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="font-arcade text-2xl text-on-surface">
-              {playerData.username}
-            </h2>
-            {playerData.isPremium && (
-              <div className="flex items-center bg-secondary-container px-2 py-1 gap-1">
-                <span
-                  className="material-symbols-outlined text-xs text-on-secondary-container"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  workspace_premium
-                </span>
-                <span className="text-[10px] font-bold text-on-secondary-container uppercase tracking-tighter">
-                  PREMIUM
+          {playerData ? (
+            <>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h2 className="font-arcade text-2xl text-on-surface">
+                  {playerData.username}
+                </h2>
+                {playerData.isPremium && (
+                  <div className="flex items-center bg-secondary-container px-2 py-1 gap-1">
+                    <span
+                      className="material-symbols-outlined text-xs text-on-secondary-container"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      workspace_premium
+                    </span>
+                    <span className="text-[10px] font-bold text-on-secondary-container uppercase tracking-tighter">
+                      PREMIUM
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Stats Row */}
+              <div className="flex items-center gap-4 text-outline font-bold text-xs uppercase tracking-widest flex-wrap">
+                <span className="flex items-center gap-1">
+                  {countryFlag ? (
+                    <img
+                      src={countryFlag.flag}
+                      alt={countryFlag.flagAlt}
+                      className="w-6 h-4 object-cover"
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">flag</span>
+                  )}
+                  {playerData.country}
                 </span>
               </div>
-            )}
-          </div>
-
-          {/* Stats Row */}
-          <div className="flex items-center gap-4 text-outline font-bold text-xs uppercase tracking-widest flex-wrap">
-            <span className="flex items-center gap-1">
-              {countryFlag ? (
-                <img
-                  src={countryFlag.flag}
-                  alt={countryFlag.flagAlt}
-                  className="w-6 h-4 object-cover"
-                />
-              ) : (
-                <span className="material-symbols-outlined text-sm">flag</span>
-              )}
-              {playerData.country}
-            </span>
-          </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="h-7 bg-surface-container rounded w-32 animate-pulse"></div>
+              <div className="h-4 bg-surface-container rounded w-24 animate-pulse"></div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Edit Button */}
-      <button
-        onClick={onEditProfile}
-        className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0"
-      >
-        <span className="material-symbols-outlined text-sm">edit</span>
-        EDIT PROFILE
-      </button>
+      {/* Edit and Upload Buttons */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          onClick={onEditProfile}
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0"
+        >
+          <span className="material-symbols-outlined text-sm">edit</span>
+          EDIT PROFILE
+        </button>
+
+        <button
+          onClick={handleAvatarClick}
+          disabled={uploading}
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Upload avatar image"
+        >
+          <span className="material-symbols-outlined text-sm">image</span>
+          UPLOAD AVATAR
+        </button>
+      </div>
     </section>
   );
 }

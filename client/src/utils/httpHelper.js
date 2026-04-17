@@ -18,29 +18,12 @@ class HttpHelper {
                 return response.data;
             },
             (error) => {
-                // Debug logging for non-expected errors
                 if (error.response && error.response.status === 401) {
-                    const isLogoutRequest = error.config.url.includes('/logout');
-                    const isCheckAuthRequest = error.config.url.includes('/check-auth');
-                    
-                    // Log 401 for check-auth and logout as expected behavior
-                    if (isCheckAuthRequest || isLogoutRequest) {
-                        console.debug(`[Auth] 401 ${isCheckAuthRequest ? 'check-auth' : 'logout'} - Expected (no token)`);
-                    } else {
-                        console.warn(`[API] 401 Unauthorized on ${error.config.method.toUpperCase()} ${error.config.url}`);
-                        window.dispatchEvent(new Event('auth:unauthorized'));
-                    }
-                } else if (error.response && error.response.status >= 400) {
-                    // Log other 4xx/5xx errors
-                    console.error(`[API] ${error.response.status} ${error.config.method.toUpperCase()} ${error.config.url}:`, error.response.data);
-                } else if (error.request) {
-                    // Network error
-                    console.error('[Network Error]:', error.message);
+                    window.dispatchEvent(new Event('auth:unauthorized'));
                 }
                 
-                // Create error object with response structure preserved for frontend error handling
                 const apiError = new Error(error.response?.data?.message || "An unexpected error occurred. Please try again.");
-                apiError.response = error.response; // Preserve full response for downstream handlers
+                apiError.response = error.response;
                 apiError.status = error.response?.status;
                 apiError.data = error.response?.data;
                 
@@ -54,6 +37,15 @@ class HttpHelper {
     }
 
     post(url, data) {
+        // If data is FormData, don't force JSON content-type
+        // axios will automatically set multipart/form-data with correct boundary
+        if (data instanceof FormData) {
+            return this.api.post(url, data, {
+                headers: {
+                    'Content-Type': undefined, // Let browser/axios set it
+                }
+            });
+        }
         return this.api.post(url, data);
     }
 

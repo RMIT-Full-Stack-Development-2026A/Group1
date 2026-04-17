@@ -32,7 +32,7 @@ const MatchReplay = () => {
             <PremiumRequiredModal
                 isOpen={true}
                 featureName="MATCH REPLAYS"
-                onClose={() => navigate('/subscription')}
+                onClose={() => navigate('/profile')}
             />
         );
     }
@@ -57,7 +57,7 @@ const MatchReplay = () => {
     }
 
     return (
-        <main className="flex-1 mt-16 mb-10 px-4 md:px-8 py-6 flex flex-col items-center pixel-grid bg-surface">
+        <main className="flex-1 mt-16 mb-10 px-4 md:px-8 py-6 flex flex-col items-center bg-surface">
             <MatchHeader session={sessionData} />
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">

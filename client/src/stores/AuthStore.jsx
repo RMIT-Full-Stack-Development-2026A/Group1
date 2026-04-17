@@ -99,15 +99,17 @@ export const useAuthStore = create((set) => ({
             const response = await Promise.race([checkAuthPromise, timeoutPromise]);
             
             // Use user data from backend response
-            const userIdentity = response.data ? {
-                id: response.data.id || response.data.userId,
-                userId: response.data.userId,
-                email: response.data.email,
-                username: response.data.user?.username || response.data.username,
-                role: response.data.role || 'PLAYER',
-                isPremium: response.data.isPremium || false,
-                avatar: response.data.avatar,
-                country: response.data.country,
+            // checkAuth returns: { data: { user: {...}, activeRoom: ... } }
+            const userData = response.data?.user;
+            const userIdentity = userData ? {
+                id: userData.id,
+                userId: userData.userId,
+                email: userData.email,
+                username: userData.username,
+                role: userData.role || 'PLAYER',
+                isPremium: userData.isPremium || false,
+                avatar: userData.avatar,
+                country: userData.country,
             } : null;
             
             console.log('[Auth] checkAuth succeeded. User from backend:', userIdentity);

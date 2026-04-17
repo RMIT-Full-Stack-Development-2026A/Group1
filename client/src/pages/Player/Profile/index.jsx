@@ -26,9 +26,10 @@ export default function PlayerProfile() {
     handleDateFromChange,
     dateTo,
     handleDateToChange,
-    sortBy,
-    sortOrder,
+    appliedSortBy,
+    appliedSortOrder,
     handleSortBy,
+    handleApplyFilters,
     currentPage,
     handlePageChange,
     totalMatches,
@@ -91,14 +92,16 @@ export default function PlayerProfile() {
         onDateFromChange={handleDateFromChange}
         dateTo={dateTo}
         onDateToChange={handleDateToChange}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
+        sortBy={appliedSortBy}
+        sortOrder={appliedSortOrder}
         onSortBy={handleSortBy}
         currentPage={currentPage}
         totalMatches={totalMatches}
         onPageChange={handlePageChange}
         onReplay={handleReplay}
+        onApplyFilters={handleApplyFilters}
         loading={loading}
+        isPremium={playerData?.isPremium || false}
       />
 
       {/* Edit Profile Modal */}

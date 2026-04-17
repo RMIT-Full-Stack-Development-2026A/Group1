@@ -36,7 +36,7 @@ export default function Navigation() {
                     TicTacToang
                 </span>
                 
-                {isAuthenticated && !isCheckingAuth && (
+                {isAuthenticated && !isLoading && (
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate("/play")}

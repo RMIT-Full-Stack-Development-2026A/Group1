@@ -13,7 +13,7 @@ const MatchReplay = () => {
     const { gameId: rawGameId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
-    const isUserPremium = true
+    const isUserPremium = false
 
     const {
         sessionData,

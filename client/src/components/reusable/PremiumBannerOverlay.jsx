@@ -15,7 +15,7 @@ const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" })
     if (!isOpen) return null;
 
     const handleUpgradeClick = () => {
-        onClose(); i
+        onClose();
         navigate('/subscription');
     };
 

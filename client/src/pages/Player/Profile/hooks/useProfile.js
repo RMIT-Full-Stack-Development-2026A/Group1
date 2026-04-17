@@ -4,6 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { profileService } from "../services/profile.service";
 import { countryService } from "@/services/countryService";
 
+/**
+ * Helper function to determine if user is currently premium
+ * @param {string | null} premiumExpiresAt - ISO date string or null from API
+ * @returns {boolean} true if premium is active (expiry date is in the future)
+ */
+const isPremiumActive = (premiumExpiresAt) => {
+  // DEVELOPMENT: Uncomment the line below to hardcode premium for testing
+  // return true;
+  
+  if (!premiumExpiresAt) return false;
+  const expiryDate = new Date(premiumExpiresAt);
+  return expiryDate > new Date();
+};
+
 export const useProfile = () => {
   const navigate = useNavigate();
   const [playerData, setPlayerData] = useState(null);
@@ -57,7 +71,7 @@ export const useProfile = () => {
           id: apiData?.user?.id || apiData?.id,
           username: apiData?.user?.username || apiData?.username,
           email: apiData?.user?.email || apiData?.email,
-          isPremium: apiData?.subscription?.isPremium || apiData?.user?.isPremium || apiData?.isPremium || false,
+          isPremium: isPremiumActive(apiData?.user?.premiumExpiresAt || apiData?.premiumExpiresAt),
           country: apiData?.user?.country || apiData?.country,
           level: apiData?.user?.level || apiData?.level || 1,
           playerId: apiData?.user?.id || apiData?.id,
@@ -275,7 +289,7 @@ export const useProfile = () => {
         id: apiData?.user?.id || apiData?.id,
         username: apiData?.user?.username || apiData?.username,
         email: apiData?.user?.email || apiData?.email,
-        isPremium: apiData?.subscription?.isPremium || apiData?.user?.isPremium || apiData?.isPremium || false,
+        isPremium: isPremiumActive(apiData?.user?.premiumExpiresAt || apiData?.premiumExpiresAt),
         country: apiData?.user?.country || apiData?.country,
         level: apiData?.user?.level || apiData?.level || 1,
         playerId: apiData?.user?.id || apiData?.id,

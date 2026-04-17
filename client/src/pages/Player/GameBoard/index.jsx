@@ -9,6 +9,9 @@ import { useCustomizationStore } from '@/stores/CustomizationStore';
 // Services
 import { getDifficultyLevels } from '@/pages/Player/GameCustomization/service/customization.service';
 
+// Utils
+import { getMarkerVariant } from '@/utils/markerRenderer';
+
 import { useGame } from './hook/useGame.hook';
 
 import Navigation from '@/components/reusable/Navigation';
@@ -29,6 +32,14 @@ const GameBoard = () => {
     const initialBoardSize = useMemo(() => {
         return parseInt(displaySize.split('x')[0], 10) || 10;
     }, [displaySize]);
+
+    // Get the marker variant data based on the selected variant
+    const markerVariantData = useMemo(() => {
+        return getMarkerVariant(markerVariant);
+    }, [markerVariant]);
+
+    // Get user avatar URL (fallback to undefined if not available)
+    const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
     // Map the markerVariant number (1, 2, 3...) to a string (default, custom_1...) so that the BoardArea component understands it.
     const activeMarkerStyle = markerVariant === 1 ? 'default' : `custom_${markerVariant}`;
@@ -120,7 +131,9 @@ const GameBoard = () => {
                     role="X" 
                     playerName={playersInfo[0].usernameSnapshot} 
                     isBot={false} 
-                    isActive={currentPlayer === 'X' && !gameOver} 
+                    isActive={currentPlayer === 'X' && !gameOver}
+                    avatarUrl={userAvatarUrl}
+                    markerVariantData={markerVariantData}
                 />
 
                 <BoardArea
@@ -142,7 +155,8 @@ const GameBoard = () => {
                     playerName={playersInfo[1].usernameSnapshot} 
                     isBot={isBotMatch} 
                     isActive={currentPlayer === 'O' && !gameOver} 
-                    difficulty={isBotMatch ? aiDifficulty : undefined} 
+                    difficulty={isBotMatch ? aiDifficulty : undefined}
+                    markerVariantData={markerVariantData}
                 />
             </main>
 

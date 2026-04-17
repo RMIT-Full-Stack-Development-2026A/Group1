@@ -35,15 +35,6 @@ const Subscription = () => {
             />
             
             <TransactionHistory transactions={transactions} />
-
-            <div className="fixed top-24 right-6 pointer-events-none opacity-20 hidden xl:block z-0">
-                <div className="font-mono text-[8px] leading-tight text-primary border-l border-primary pl-2">
-                    TERMINAL_ID: ARC-7700<br/>
-                    LATENCY: 14MS<br/>
-                    ENCRYPTION: AES-2048<br/>
-                    SIGNAL: STRONG
-                </div>
-            </div>
         </main>
     );
 };

@@ -1,10 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { Volume2, VolumeX } from "lucide-react";
 import { useAuthStore } from "../../stores/AuthStore";
+import { useAudioStore } from "../../stores/AudioStore";
 
 export default function Navigation() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { isAuthenticated, isLoading, logout } = useAuthStore();
+    const { isBackgroundMusicEnabled, toggleBackgroundMusic } = useAudioStore();
 
     const handleLogoClick = () => {
         // If logged in, go to game mode select. Otherwise, go to landing page
@@ -59,7 +64,21 @@ export default function Navigation() {
                 )}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={toggleBackgroundMusic}
+                    className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs px-4 py-2 border transition-all shadow-[2px_2px_0px_#1e1e2c] ${
+                        isBackgroundMusicEnabled
+                            ? "bg-[#052e32] text-[#4cc9f0] border-[#4cc9f0] hover:shadow-[0px_0px_8px_#4cc9f0]"
+                            : "bg-[#2b1515] text-[#ffb4ab] border-[#ffb4ab] hover:shadow-[0px_0px_8px_#ffb4ab]"
+                    }`}
+                    aria-pressed={!isBackgroundMusicEnabled}
+                    title={isBackgroundMusicEnabled ? 'Turn background music off' : 'Turn background music on'}
+                >
+                    {isBackgroundMusicEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                    {isBackgroundMusicEnabled ? 'MUSIC ON' : 'MUSIC OFF'}
+                </button>
+
                 {!isLoading && isAuthenticated ? (
                     <button
                         onClick={handleLogout}

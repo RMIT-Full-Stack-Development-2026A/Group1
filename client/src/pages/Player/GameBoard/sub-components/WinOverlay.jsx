@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Eye } from 'lucide-react';
 import { useAudio } from '@/hooks/useAudio';
 import { AUDIO_FILES } from '@/config/audioConfig';
 
-const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
-    const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
+let lastPlayedResultSignature = null;
 
+const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
+
+    const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
+    const hasPlayedResultSound = useRef(false);
     const [isMinimized, setIsMinimized] = useState(false);
+    
 
     // Reset minimize state when new result comes
     useEffect(() => {
@@ -14,6 +18,25 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
             setIsMinimized(false);
         }
     }, [winnerData, isDraw]);
+
+    useEffect(() => {
+        const resultSignature = winnerData
+            ? `winner:${winnerData.player}:${winnerData.cells?.join('-') ?? ''}`
+            : isDraw
+                ? 'draw'
+                : null;
+
+        if (resultSignature && resultSignature !== lastPlayedResultSignature && winnerData) {
+            playVictorySound();
+            hasPlayedResultSound.current = true;
+            lastPlayedResultSignature = resultSignature;
+        }
+
+        if (!winnerData && !isDraw) {
+            hasPlayedResultSound.current = false;
+            lastPlayedResultSignature = null;
+        }
+    }, [winnerData, isDraw, playVictorySound]);
 
     // Lock scroll when overlay is active
     useEffect(() => {
@@ -30,7 +53,7 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
     // Minimized state (bottom-right button)
     if (isMinimized) {
         return (
-            <div className="fixed bottom-8 right-8 z-[120] animate-fade-in">
+            <div className="fixed bottom-8 right-8 z-120 animate-fade-in">
                 <button
                     onClick={() => setIsMinimized(false)}
                     className="bg-[#12121f] border-2 border-primary-cyan text-primary-cyan px-4 py-3 font-headline text-[12px] uppercase flex items-center gap-2 shadow-[2px_2px_0px_#005266] hover:bg-primary-cyan hover:text-[#003543] transition-colors"
@@ -48,7 +71,7 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
         : `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`;
 
     return (
-        <div className="fixed inset-0 z-[110] bg-deep-bg/85 flex items-center justify-center animate-fade-in">
+        <div className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center animate-fade-in">
 
             {/* Background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none animated-particles">
@@ -57,13 +80,13 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
                 <div className="absolute bottom-24 left-1/3  w-2 h-2 bg-[#ffb4ab] animate-ping" />
                 <div className="absolute top-1/2 right-12 w-3 h-3 bg-[#ffcca9] animate-ping" />
                 <div className="absolute bottom-1/3 left-1/3 w-4 h-4 bg-primary-cyan animate-ping" />
-                <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-[#4cc9f0] animate-ping" />
+                <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary-cyan animate-ping" />
                 <div className="absolute top-1/2 right-1/3 w-3 h-3 bg-[#fad100] animate-ping" />
                 <div className="absolute bottom-1/4 left-1/2 w-1 h-1 bg-[#ffb4ab] animate-ping" />
             </div>
             {/* Modal */}
             <div
-                className="relative z-10 bg-[#12121f] border-4 border-[#fad100] p-10 max-w-[500px] w-[90%] text-center shadow-2xl"
+                className="relative z-10 bg-[#12121f] border-4 border-[#fad100] p-10 max-w-125 w-[90%] text-center shadow-2xl"
                 style={{ boxShadow: '0 0 30px #fad100' }}
             >
                 {/* Close (minimize) button */}

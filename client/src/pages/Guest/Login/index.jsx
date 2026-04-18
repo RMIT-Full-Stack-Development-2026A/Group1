@@ -23,11 +23,13 @@ export default function LoginPage() {
         handleRegisterNav,
     } = useLogin();
 
-    // Redirect to game mode select after successful login
+    // Redirect based on user role after successful login
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
-            console.log('[Login] User authenticated, redirecting to /play');
-            navigate("/play", { replace: true });
+            const { user } = useAuthStore.getState();
+            const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/play';
+            console.log(`[Login] User authenticated with role: ${user?.role}, redirecting to ${redirectPath}`);
+            navigate(redirectPath, { replace: true });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);
 

@@ -29,15 +29,6 @@ Accessible only after login.
 | Match Replay | `/replay/:gameId` | Replay past matches with move controls (pause, forward, backward, resume) | **Premium Only** |
 | Subscription | `/subscription` | Wallet management and premium subscription                                | Free (to upgrade) |
 
-## TODO - Future Implementation
-
-These pages are designed but not yet implemented:
-
-| Page | Route | Description                                                               | Status |
-|-----|------|---------------------------------------------------------------------------|--------|
-| Single Player | `/play/single-player` | Play against AI with 3 difficulty levels                                 | 🟡 TODO |
-| Local Arena | `/play/local-arena` | Local multiplayer on the same machine (2 players)                         | 🟡 TODO |
-
 # 3. Admin Pages
 
 Accessible only by users with the **ADMIN role**.

@@ -8,13 +8,19 @@ import { useAudioStore } from "../../stores/AudioStore";
 export default function Navigation() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isAuthenticated, isLoading, logout } = useAuthStore();
+    const { isAuthenticated, isLoading, logout, user } = useAuthStore();
     const { isBackgroundMusicEnabled, toggleBackgroundMusic } = useAudioStore();
 
+    const isAdmin = user?.role === 'ADMIN';
+
     const handleLogoClick = () => {
-        // If logged in, go to game mode select. Otherwise, go to landing page
+        // If logged in, go to appropriate dashboard. Otherwise, go to landing page
         if (isAuthenticated) {
-            navigate("/play");
+            if (isAdmin) {
+                navigate("/admin");
+            } else {
+                navigate("/play");
+            }
         } else {
             navigate("/");
         }
@@ -38,26 +44,43 @@ export default function Navigation() {
                 
                 {isAuthenticated && !isLoading && (
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate("/play")}
-                            className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
-                                location.pathname === "/play"
-                                    ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
-                                    : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
-                            }`}
-                        >
-                            GAME MODES
-                        </button>
-                        <button
-                            onClick={() => navigate("/profile")}
-                            className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
-                                location.pathname === "/profile"
-                                    ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
-                                    : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
-                            }`}
-                        >
-                            PROFILE
-                        </button>
+                        {isAdmin ? (
+                            /* Admin Navigation */
+                            <button
+                                onClick={() => navigate("/admin")}
+                                className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
+                                    location.pathname.startsWith("/admin")
+                                        ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                        : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                }`}
+                            >
+                                ADMIN DASHBOARD
+                            </button>
+                        ) : (
+                            /* Player Navigation */
+                            <>
+                                <button
+                                    onClick={() => navigate("/play")}
+                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
+                                        location.pathname === "/play"
+                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                    }`}
+                                >
+                                    GAME MODES
+                                </button>
+                                <button
+                                    onClick={() => navigate("/profile")}
+                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
+                                        location.pathname === "/profile"
+                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                    }`}
+                                >
+                                    PROFILE
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>

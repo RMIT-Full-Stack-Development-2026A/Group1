@@ -89,5 +89,18 @@ export const ProfileController = {
                 return next(error);
             }
         });
+    }, // <-- DẤU PHẨY CỰC KỲ QUAN TRỌNG ĐỂ NỐI 2 HÀM
+
+    changePassword: async (req, res, next) => {
+        try {
+            await ProfileService.changePassword(req.user.id, req.body);
+            
+            return res.status(200).json({
+                data: null,
+                message: "Password changed successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
     }
 };

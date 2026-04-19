@@ -54,3 +54,39 @@ export const validateProfileUpdate = (data) => {
 
     return errors
 };
+
+export const validatePasswordChange = (data) => {
+    const { oldPassword, newPassword, confirmPassword } = data || {};
+    const errors = [];
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+        errors.push({
+            field: "all",
+            error: "MISSING_FIELDS",
+            cause: "Old password, new password, and confirmation are all required.",
+            example: "Provide oldPassword, newPassword, and confirmPassword."
+        });
+        return errors;
+    }
+
+    if (newPassword !== confirmPassword) {
+        errors.push({
+            field: "confirmPassword",
+            error: "PASSWORD_MISMATCH",
+            cause: "The new password and confirm password fields do not match.",
+            example: "Ensure both new password fields are exactly identical."
+        });
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        errors.push({
+            field: "newPassword",
+            error: "WEAK_PASSWORD",
+            cause: "Must be >= 8 characters, include 1 uppercase, 1 lowercase, 1 number, and 1 special char.",
+            example: "StrongP@ssw0rd!"
+        });
+    }
+
+    return errors;
+};

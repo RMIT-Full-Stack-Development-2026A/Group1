@@ -17,6 +17,8 @@ export const AuthInterface = {
     
     checkProfileConflicts: async (userId, email, username) => AuthService.checkProfileConflicts(userId, email, username),
 
+    changePassword: async (userId, oldPassword, newPassword) => AuthService.changePassword(userId, oldPassword, newPassword),
+
     // Expose data for Admin module
     getPaginatedUsers: async (filter, sort, skip, limit) => AuthService.getPaginatedUsers(filter, sort, skip, limit)
 };

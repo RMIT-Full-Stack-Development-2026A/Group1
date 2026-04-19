@@ -1,7 +1,10 @@
+import sharp from 'sharp';
+import cloudinary from '../../../config/cloudinary.config.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { ProfileDTO } from '../dtos/profile.dto.js'
 import { validateProfileUpdate, validatePasswordChange } from '../validators/profile.validator.js';
+import { getPublicIdFromUrl } from '../utils/getImageUrl.js';
 
 export const ProfileService = {
     getProfile: async (userId) => {
@@ -54,7 +57,7 @@ export const ProfileService = {
                 error: "VALIDATION_ERROR",
                 message: "Invalid profile update data.",
                 cause: "One or more provided fields failed format validation.",
-                valid_example: "Provide a valid username, email, or country.",
+                valid_example: "Provide a valid username, email, country or avatar URL.",
                 details: validationErrors
             };
         }
@@ -63,14 +66,15 @@ export const ProfileService = {
         if (updateData.username) allowedUpdates.username = String(updateData.username).trim();
         if (updateData.email) allowedUpdates.email = String(updateData.email).trim().toLowerCase();
         if (updateData.country) allowedUpdates.country = String(updateData.country).trim();
+        if (updateData.avatar) allowedUpdates.avatar = String(updateData.avatar).trim();
 
         if (Object.keys(allowedUpdates).length === 0) {
             throw {
                 statusCode: 400,
                 error: "BAD_REQUEST",
                 message: "Profile update failed. No valid fields provided.",
-                cause: "The request body did not contain 'username', 'email', or 'country'.",
-                valid_example: "{\"username\": \"New_Name_123\", \"country\": \"VN\"}"
+                cause: "The request body did not contain 'username', 'email', 'country', or 'avatar'.",
+                valid_example: "{\"username\": \"New_Name_123\", \"country\": \"VN\", \"avatar\": \"https://link-photo.jpg\"}"
             };
         }
 
@@ -82,6 +86,66 @@ export const ProfileService = {
         const updatedUser = await AuthInterface.updateUserProfile(userId, allowedUpdates);
         return ProfileDTO.toBaseProfile(updatedUser);
     },
+
+    uploadAvatar: async (userId, file) => {
+        try {
+            // 1. Fetch current user to get the OLD avatar URL before overwriting it
+            const currentUser = await AuthInterface.getUserById(userId);
+            const oldAvatarUrl = currentUser?.avatar;
+
+            // 2. Process image with sharp: resize and convert to webp
+            const processedImageBuffer = await sharp(file.buffer)
+                .resize(200, 200, { fit: 'cover' })
+                .webp({ quality: 80 })
+                .toBuffer();
+
+            // 3. Upload to Cloudinary using Promise wrapper for upload_stream
+            const uploadToCloudinary = (buffer) => {
+                return new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'avatars', 
+                            public_id: `user-${userId}-${Date.now()}`,
+                            resource_type: 'image'
+                        },
+                        (error, result) => {
+                            if (error) return reject(error);
+                            resolve(result);
+                        }
+                    );
+                    uploadStream.end(buffer);
+                });
+            };
+
+            const cloudinaryResult = await uploadToCloudinary(processedImageBuffer);
+            const newAvatarUrl = cloudinaryResult.secure_url;
+
+            // 4. CLEANUP: Delete the old avatar from Cloudinary (fire-and-forget)
+            if (oldAvatarUrl && oldAvatarUrl.includes('cloudinary')) {
+                const oldPublicId = getPublicIdFromUrl(oldAvatarUrl);
+                if (oldPublicId) {
+                    cloudinary.uploader.destroy(oldPublicId).catch(err => {
+                        console.error(`[Cloudinary] Failed to delete old avatar ${oldPublicId}:`, err);
+                    });
+                }
+            }
+
+            // 5. Update user profile in the database with the new secure URL
+            const updatedUser = await AuthInterface.updateUserProfile(userId, { avatar: newAvatarUrl });
+            
+            return ProfileDTO.toBaseProfile(updatedUser);
+
+        } catch (error) {
+            console.error('[Avatar Upload Error]', error);
+            throw {
+                statusCode: 500,
+                error: "UPLOAD_FAILED",
+                message: "Could not process or upload avatar image.",
+                cause: error.message || "Internal error during Sharp processing or Cloudinary upload.",
+                valid_example: "Ensure your API keys are correct and the image is valid."
+            };
+        }
+    }, 
 
     changePassword: async (userId, passwordData) => {
         const validationErrors = validatePasswordChange(passwordData);
@@ -100,5 +164,5 @@ export const ProfileService = {
         await AuthInterface.changePassword(userId, passwordData.oldPassword, passwordData.newPassword);
         
         return null;
-    },
+    }
 };

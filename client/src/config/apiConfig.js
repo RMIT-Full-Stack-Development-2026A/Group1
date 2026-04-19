@@ -1,9 +1,13 @@
+export const API_BASE_URL = "http://localhost:5000/api/v1";
+
 export const API_ENDPOINTS = {
     AUTH: {
         REGISTER: "/auth/register",
         LOGIN: "/auth/login",
         LOGOUT: "/auth/logout",
         CHECK_AUTH: "/auth/check-auth",
+        // TODO: Backend needs to implement endpoint to clear failed login attempts
+        // CLEAR_FAILED_ATTEMPTS: "/auth/clear-failed-attempts",
     },
     PROFILE: {
         UPDATE: "/profile",
@@ -43,3 +47,4 @@ export const API_ENDPOINTS = {
         CLOSE_ROOM: (roomId) => `/admin/rooms/${roomId}`,
     }
 };
+

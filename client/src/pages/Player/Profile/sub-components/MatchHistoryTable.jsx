@@ -24,6 +24,38 @@ export default function MatchHistoryTable({
   loading,
   isPremium,
 }) {
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(totalMatches / itemsPerPage);
+
+  const [jumpToPage, setJumpToPage] = React.useState("");
+  const [showJumpInput, setShowJumpInput] = React.useState(false);
+
+  const handleJumpToPage = () => {
+    const pageNum = parseInt(jumpToPage, 10);
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      onPageChange(pageNum);
+      setJumpToPage("");
+      setShowJumpInput(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleJumpToPage();
+    } else if (e.key === "Escape") {
+      setShowJumpInput(false);
+      setJumpToPage("");
+    }
+  };
+
+  React.useEffect(() => {
+    console.log("[MatchHistoryTable] Props received:");
+    console.log("  - matches.length:", matches.length);
+    console.log("  - totalMatches:", totalMatches);
+    console.log("  - currentPage:", currentPage);
+    console.log("  - totalPages:", totalPages);
+    console.log("  - itemsPerPage:", itemsPerPage);
+  }, [matches, totalMatches, currentPage, totalPages]);
   const SortIndicator = ({ column }) => {
     if (sortBy !== column) return <span className="ml-1 text-outline/40">⇅</span>;
     return sortOrder === "desc" 
@@ -70,9 +102,6 @@ export default function MatchHistoryTable({
         return "text-outline";
     }
   };
-
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(totalMatches / itemsPerPage);
 
   return (
     <section 
@@ -261,30 +290,84 @@ export default function MatchHistoryTable({
             PREV
           </button>
 
-          {Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1).map(
-            (pageNum) => (
-              <button
-                key={pageNum}
-                onClick={() => onPageChange(pageNum)}
-                className={`px-3 py-1 text-xs active:translate-y-[2px] ${
-                  currentPage === pageNum
-                    ? "bg-primary-container text-on-primary border border-primary-container"
-                    : "bg-surface-container-highest border border-outline hover:bg-outline hover:text-on-secondary transition-all"
-                }`}
-              >
-                {String(pageNum).padStart(2, "0")}
-              </button>
-            )
-          )}
-
-          {totalPages > 3 && (
-            <button
-              disabled
-              className="px-3 py-1 text-xs text-outline/50"
-            >
-              ...
-            </button>
-          )}
+          {(() => {
+            // Generate smart pagination: [1] ... [current-1] [current] [current+1] ... [last]
+            const pages = [];
+            const range = 1; // Pages to show on each side of current page
+            
+            // Always add page 1
+            pages.push(1);
+            
+            // Calculate start and end of range around current page
+            const rangeStart = Math.max(2, currentPage - range);
+            const rangeEnd = Math.min(totalPages - 1, currentPage + range);
+            
+            // Add "..." if there's a gap between page 1 and range start
+            if (rangeStart > 2) {
+              pages.push('...');
+            }
+            
+            // Add pages around current
+            for (let i = rangeStart; i <= rangeEnd; i++) {
+              pages.push(i);
+            }
+            
+            // Add "..." if there's a gap between range end and last page
+            if (rangeEnd < totalPages - 1) {
+              pages.push('...');
+            }
+            
+            // Always add last page (if more than 1 page)
+            if (totalPages > 1 && rangeEnd < totalPages) {
+              pages.push(totalPages);
+            }
+            
+            return pages.map((pageNum, idx) => {
+              if (pageNum === '...') {
+                return showJumpInput ? (
+                  <div key={`jump-input-${idx}`}>
+                    <input
+                      autoFocus
+                      type="number"
+                      min="1"
+                      max={totalPages}
+                      value={jumpToPage}
+                      onChange={(e) => setJumpToPage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      onBlur={() => {
+                        setShowJumpInput(false);
+                        setJumpToPage("");
+                      }}
+                      className="w-9 px-2 py-1 text-xs bg-primary-container border border-primary-container text-on-primary outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                ) : (
+                  <button
+                    key={`ellipsis-${idx}`}
+                    onClick={() => setShowJumpInput(true)}
+                    className="px-3 py-1 text-xs text-outline/50 hover:text-primary transition-colors cursor-pointer hover:bg-surface-container-highest border border-outline-variant rounded"
+                    title="Click to jump to a page"
+                  >
+                    ...
+                  </button>
+                );
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => onPageChange(pageNum)}
+                  className={`px-3 py-1 text-xs active:translate-y-[2px] font-bold transition-all ${
+                    currentPage === pageNum
+                      ? "bg-primary-container text-on-primary border-2 border-primary-container shadow-[0_0_12px_rgba(76,201,240,0.6)] scale-105"
+                      : "bg-surface-container-highest border border-outline hover:bg-outline hover:text-on-secondary"
+                  }`}
+                >
+                  {String(pageNum).padStart(2, "0")}
+                </button>
+              );
+            });
+          })()}
 
           <button
             onClick={() => onPageChange(currentPage + 1)}

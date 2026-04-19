@@ -191,6 +191,8 @@ export const useProfile = () => {
     const fetchMatches = async () => {
       try {
         setLoading(true);
+        const itemsPerPage = 10;
+        
         const filters = {
           q: appliedSearchQuery,
           result: appliedFilterResult === "ALL RESULTS" ? undefined : appliedFilterResult,
@@ -200,27 +202,41 @@ export const useProfile = () => {
           sortBy: appliedSortBy,
           sortOrder: appliedSortOrder,
           page: appliedPage,
+          limit: itemsPerPage,
         };
 
+        console.log("[useProfile] Fetching matches with filters:", filters);
+
         const response = await profileService.getMatchHistory(filters);
+
+        console.log("[useProfile] Full API Response:", response);
 
         const items = response.data?.items || response?.items || [];
         let total = response.data?.total || response?.total || 0;
         
+        console.log(`[useProfile] API returned ${items.length} items, total: ${total}`);
+        console.log(`[useProfile] Page: ${appliedPage}, ItemsPerPage: ${itemsPerPage}`);
         
         // Transform backend data to frontend format
         let transformedMatches = items.map(transformMatchData);
+        
+        console.log(`[useProfile] After transformation: ${transformedMatches.length} matches`);
         
         // Apply in-memory filtering for WIN/LOSS since backend returns all FINISHED games
         // (both wins and losses have status === FINISHED)
         if (appliedFilterResult === "WIN") {
           transformedMatches = transformedMatches.filter(match => match.result === "WIN");
+          console.log(`[useProfile] After WIN filter: ${transformedMatches.length} matches`);
         } else if (appliedFilterResult === "LOSS") {
           transformedMatches = transformedMatches.filter(match => match.result === "LOSS");
+          console.log(`[useProfile] After LOSS filter: ${transformedMatches.length} matches`);
         }
         
         setMatchHistory(transformedMatches);
+        // Use the API's total count for pagination (NOT the filtered count)
+        // This ensures pagination works correctly even with WIN/LOSS filters
         setTotalMatches(total);
+        console.log(`[useProfile] State updated. Total matches: ${total} (for pagination)`);
       } catch (err) {
         console.error("Error fetching match history:", err);
         setMatchHistory([]);

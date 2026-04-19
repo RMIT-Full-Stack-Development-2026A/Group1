@@ -62,8 +62,9 @@ export const requestBodies = {
                     type: 'object',
                     required: ['currentPassword', 'newPassword'],
                     properties: {
-                        currentPassword: { type: 'string', format: 'password' },
+                        oldPassword: { type: 'string', format: 'password' },
                         newPassword:     { type: 'string', format: 'password', minLength: 8 },
+                        confirmPassword: { type: 'string', format: 'password' }
                     },
                 },
             },

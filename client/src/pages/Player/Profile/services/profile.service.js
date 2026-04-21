@@ -70,27 +70,19 @@ export const profileService = {
   // Change player password (requires old password for verification)
   async changePassword(passwordData) {
     try {
-      console.log("[profileService] changePassword called with fields:", Object.keys(passwordData));
       const payload = {
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
         confirmPassword: passwordData.confirmPassword,
       };
-      console.log("[profileService] Sending payload to /profile/password:", {
-        oldPassword: "***",
-        newPassword: "***",
-        confirmPassword: "***"
-      });
       // Skip global logout on 401 for password validation errors
       const response = await http.patch("/profile/password", payload, {
         skipGlobalAuthError: true
       });
-      console.log("[profileService] Password change response:", response);
       return response.data;
     } catch (error) {
       // Handle password validation errors without triggering global logout
       const errorData = error.response?.data;
-      console.error("[profileService] Error changing password:", errorData || error.message);
       
       // Create a new error with the backend message but don't trigger logout
       const customError = new Error(errorData?.message || error.message);

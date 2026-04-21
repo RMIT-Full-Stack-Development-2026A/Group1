@@ -22,7 +22,6 @@ class HttpHelper {
                 const skipGlobalAuthError = error.config?.skipGlobalAuthError;
                 
                 if (error.response && error.response.status === 401 && !skipGlobalAuthError) {
-                    console.log("[httpHelper] 401 Unauthorized - dispatching auth:unauthorized event");
                     window.dispatchEvent(new Event('auth:unauthorized'));
                 }
                 

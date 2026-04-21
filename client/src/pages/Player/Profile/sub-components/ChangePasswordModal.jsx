@@ -39,7 +39,6 @@ export default function ChangePasswordModal({
   // Initialize form when modal opens
   useEffect(() => {
     if (isOpen) {
-      console.log("[ChangePasswordModal] Modal opened");
       setFormData({
         oldPassword: "",
         newPassword: "",
@@ -66,9 +65,7 @@ export default function ChangePasswordModal({
   // Auto-close modal after successful password change
   useEffect(() => {
     if (saveSuccess) {
-      console.log("[ChangePasswordModal] Success state detected, starting 2.5s timer before closing");
       const timer = setTimeout(() => {
-        console.log("[ChangePasswordModal] Timer elapsed, closing modal");
         onClose();
       }, 2500);
       return () => clearTimeout(timer);
@@ -117,35 +114,29 @@ export default function ChangePasswordModal({
 
   const handleSave = async () => {
     setSaveError("");
-    console.log("[ChangePasswordModal] Save clicked");
 
     // Validate all required fields
     if (!formData.oldPassword) {
-      console.log("[ChangePasswordModal] Validation failed: oldPassword missing");
       setSaveError("Please enter your current password.");
       return;
     }
 
     if (!formData.newPassword) {
-      console.log("[ChangePasswordModal] Validation failed: newPassword missing");
       setSaveError("Please enter a new password.");
       return;
     }
 
     if (!formData.confirmNewPassword) {
-      console.log("[ChangePasswordModal] Validation failed: confirmNewPassword missing");
       setSaveError("Please confirm your new password.");
       return;
     }
 
     if (!isPasswordValid(validations.passwordValidation)) {
-      console.log("[ChangePasswordModal] Validation failed: password does not meet requirements", validations.passwordValidation);
       setSaveError("New password does not meet the requirements.");
       return;
     }
 
     if (passwordMismatch) {
-      console.log("[ChangePasswordModal] Validation failed: passwords do not match");
       setSaveError("Passwords do not match. Please check and try again.");
       return;
     }
@@ -157,24 +148,14 @@ export default function ChangePasswordModal({
       confirmPassword: formData.confirmNewPassword,
     };
 
-    console.log("[ChangePasswordModal] Sending data to parent:", {
-      oldPassword: "***",
-      newPassword: "***",
-      confirmPassword: "***"
-    });
-
     try {
       const result = await onSave(updateData);
-      console.log("[ChangePasswordModal] Result from parent:", result);
       if (result) {
-        console.log("[ChangePasswordModal] Password change successful");
         setSaveSuccess(true);
       } else {
-        console.log("[ChangePasswordModal] Password change failed");
         setSaveError("Failed to change password. Please try again or contact support.");
       }
     } catch (error) {
-      console.error("[ChangePasswordModal] Error from parent:", error.message);
       setSaveError(error.message || "Failed to change password. Please try again or contact support.");
     }
   };

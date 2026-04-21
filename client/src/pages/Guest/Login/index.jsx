@@ -130,7 +130,13 @@ export default function LoginPage() {
                                         : "bg-[#4cc9f0] text-[#003543] border-2 border-[#4cc9f0] shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none"
                                 }`}
                             >
-                                <span>{isLocked ? "🔒" : loading ? "⏳" : "▶"}</span>
+                                {isLocked ? (
+                                        <span className="material-symbols-outlined">lock</span>
+                                    ) : loading ? (
+                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                    ) : (
+                                        <span className="material-symbols-outlined">play_arrow</span>
+                                    )}
                                 {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "LOGIN"}
                             </button>
                         </form>

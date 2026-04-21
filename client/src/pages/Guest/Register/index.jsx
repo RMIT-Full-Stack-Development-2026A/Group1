@@ -121,7 +121,11 @@ export default function RegisterPage() {
                                         : "bg-[#4cc9f0] text-[#003543] border-[#003543] shadow-[2px_2px_0px_0px_#005266] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:shadow-[0px_0px_8px_#4cc9f0]"
                                 }`}
                             >
-                                <span>{form.loading ? "⏳" : "➕"}</span>
+                                {form.loading ? (
+                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                    ) : (
+                                        <span className="material-symbols-outlined">add</span>
+                                    )}
                                 {form.loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
                             </button>
                         </div>

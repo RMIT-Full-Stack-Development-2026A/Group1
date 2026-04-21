@@ -71,7 +71,9 @@ export default function GameCustomization() {
     };
 
     const handleCancel = () => {
-        navigate(gameMode === 'SINGLE_PLAYER' ? '/game-mode-select' : '/lobby');
+        // For local modes (SINGLE_PLAYER and TWO_PLAYERS), go back to game mode select
+        // For online mode, go back to lobby
+        navigate(gameMode === 'ONLINE_MATCH' ? '/lobby' : '/game-mode-select');
     };
 
     if (isCheckingAuth) {

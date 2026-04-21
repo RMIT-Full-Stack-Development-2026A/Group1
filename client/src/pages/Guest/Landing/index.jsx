@@ -109,7 +109,7 @@ export default function Landing() {
                             <div className="p-6">
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-[#292937] flex items-center justify-center border border-[#3d484d] group-hover:border-[#fad100] transition-colors flex-shrink-0">
-                                        <span className="text-[#fad100] text-3xl">⚙</span>
+                                        <span className="material-symbols-outlined text-[#fad100]">settings</span>
                                     </div>
                                     <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">3 AI Levels</h3>
                                 </div>

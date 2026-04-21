@@ -25,7 +25,7 @@ export default function MatchHistoryTable({
   loading,
   isPremium,
 }) {
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
   const totalPages = Math.ceil(totalMatches / itemsPerPage);
 
   const [jumpToPage, setJumpToPage] = React.useState("");
@@ -121,36 +121,40 @@ export default function MatchHistoryTable({
         {/* Filters */}
         <div className="flex flex-wrap gap-3 w-full md:w-auto">
           {/* Search Input */}
-          <div className="relative flex-grow md:w-64">
+          <div className="relative flex-grow md:w-64 flex flex-col gap-1">
+            <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">SEARCH</label>
             <input
               className="w-full bg-surface-container-highest border-b-2 border-outline focus:border-primary-container outline-none px-4 py-2 text-xs font-body text-on-surface placeholder:text-outline-variant uppercase"
-              placeholder="Search opponent or room..."
+              placeholder="Opponent or room..."
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
             />
-            <span className="material-symbols-outlined absolute right-2 top-2 text-outline text-sm">
-              search
-            </span>
           </div>
 
           {/* Date From Filter */}
-          <input
-            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
-            placeholder="From"
-            type="date"
-            value={dateFrom}
-            onChange={(e) => onDateFromChange(e.target.value)}
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">From</label>
+            <input
+              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+              placeholder="MM / DD / YYYY"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => onDateFromChange(e.target.value)}
+            />
+          </div>
 
           {/* Date To Filter */}
-          <input
-            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
-            placeholder="To"
-            type="date"
-            value={dateTo}
-            onChange={(e) => onDateToChange(e.target.value)}
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">To</label>
+            <input
+              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+              placeholder="MM / DD / YYYY"
+              type="date"
+              value={dateTo}
+              onChange={(e) => onDateToChange(e.target.value)}
+            />
+          </div>
 
           {/* Result Filter */}
           <select

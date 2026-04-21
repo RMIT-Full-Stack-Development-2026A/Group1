@@ -191,7 +191,7 @@ export const useProfile = () => {
     const fetchMatches = async () => {
       try {
         setLoading(true);
-        const itemsPerPage = 10;
+        const itemsPerPage = 5;
         
         const filters = {
           q: appliedSearchQuery,
@@ -260,14 +260,6 @@ export const useProfile = () => {
     try {
       setIsSavingProfile(true);
       
-      console.log("[useProfile] handleSaveProfile called with:", {
-        ...updateData,
-        oldPassword: updateData.oldPassword ? "***" : undefined,
-        newPassword: updateData.newPassword ? "***" : undefined,
-        confirmPassword: updateData.confirmPassword ? "***" : undefined,
-        password: updateData.password ? "***" : undefined,
-      });
-      
       // Call API to update profile
       if (updateData.email || updateData.username || updateData.country) {
         const profileUpdateData = {};
@@ -275,29 +267,23 @@ export const useProfile = () => {
         if (updateData.username) profileUpdateData.username = updateData.username;
         if (updateData.country) profileUpdateData.country = updateData.country;
         
-        console.log("[useProfile] Updating profile with:", profileUpdateData);
         await profileService.updateProfile(profileUpdateData);
       }
 
       // Call API to change password if provided (check for newPassword, not password)
       if (updateData.newPassword) {
-        console.log("[useProfile] Password change detected, calling profileService.changePassword");
         try {
           await profileService.changePassword({ 
             oldPassword: updateData.oldPassword,
             newPassword: updateData.newPassword,
             confirmPassword: updateData.confirmPassword,
           });
-          console.log("[useProfile] Password change successful");
         } catch (passwordError) {
-          console.error("[useProfile] Password change error:", passwordError.message);
           // Re-throw with context for caller
           const err = new Error(passwordError.message);
           err.isPasswordValidationError = true;
           throw err;
         }
-      } else {
-        console.log("[useProfile] No password change detected");
       }
 
       // Update local player data
@@ -346,13 +332,7 @@ export const useProfile = () => {
 
       return true;
     } catch (err) {
-      console.error("[useProfile] Error in handleSaveProfile:", err.message);
-      // Don't clear auth on password validation errors - let the modal show the error
-      if (err.isPasswordValidationError) {
-        console.log("[useProfile] Password validation error - not triggering logout");
-        // Re-throw so modal can catch and display the error
-        throw err;
-      }
+      // Re-throw so modal can catch and display the error
       throw err;
     } finally {
       setIsSavingProfile(false);

@@ -63,18 +63,10 @@ export default function PlayerProfile() {
   // Handle saving new password
   const handleChangePassword = async (passwordData) => {
     try {
-      console.log("[Profile] handleChangePassword called");
       setIsChangingPassword(true);
-      console.log("[Profile] Calling handleSaveProfile with:", {
-        oldPassword: "***",
-        newPassword: "***",
-        confirmPassword: "***"
-      });
       const response = await handleSaveProfile(passwordData);
-      console.log("[Profile] handleSaveProfile response:", response);
       return response;
     } catch (error) {
-      console.error("[Profile] Error changing password:", error.message);
       // Re-throw so modal can catch and display the error
       throw error;
     } finally {

@@ -1,6 +1,7 @@
 import express from 'express';
 import { ProfileController } from '../controllers/profile.controller.js';
 import { verifyToken } from '../../../middlewares/authMiddleware.js';
+import { handleAvatarUpload } from '../../../middlewares/avatarMiddleware.js';
 
 const profileRoutes = express.Router();
 profileRoutes.use(verifyToken);
@@ -87,6 +88,6 @@ profileRoutes.patch('/password', ProfileController.changePassword);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-profileRoutes.post('/avatar', ProfileController.uploadAvatar);
+profileRoutes.post('/avatar', handleAvatarUpload, ProfileController.uploadAvatar);
 
 export default profileRoutes;

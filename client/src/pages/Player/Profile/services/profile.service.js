@@ -68,18 +68,35 @@ export const profileService = {
   },
 
   // Change player password (requires old password for verification)
-  // TODO: Backend endpoint PATCH /api/v1/profile/password not yet implemented
-  // Route is defined in backend/docs/ENDPOINTS.md but commented out in backend/src/modules/profile/routes/profile.routes.js line 72
   async changePassword(passwordData) {
     try {
-      const response = await http.patch("/profile/password", {
+      console.log("[profileService] changePassword called with fields:", Object.keys(passwordData));
+      const payload = {
         oldPassword: passwordData.oldPassword,
-        newPassword: passwordData.password,
+        newPassword: passwordData.newPassword,
+        confirmPassword: passwordData.confirmPassword,
+      };
+      console.log("[profileService] Sending payload to /profile/password:", {
+        oldPassword: "***",
+        newPassword: "***",
+        confirmPassword: "***"
       });
+      // Skip global logout on 401 for password validation errors
+      const response = await http.patch("/profile/password", payload, {
+        skipGlobalAuthError: true
+      });
+      console.log("[profileService] Password change response:", response);
       return response.data;
     } catch (error) {
-      console.error("Error changing password:", error);
-      throw error;
+      // Handle password validation errors without triggering global logout
+      const errorData = error.response?.data;
+      console.error("[profileService] Error changing password:", errorData || error.message);
+      
+      // Create a new error with the backend message but don't trigger logout
+      const customError = new Error(errorData?.message || error.message);
+      customError.isPasswordValidationError = true;
+      customError.errorData = errorData;
+      throw customError;
     }
   },
 

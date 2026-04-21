@@ -18,7 +18,11 @@ class HttpHelper {
                 return response.data;
             },
             (error) => {
-                if (error.response && error.response.status === 401) {
+                // Skip global logout for password validation errors (401 from password change)
+                const skipGlobalAuthError = error.config?.skipGlobalAuthError;
+                
+                if (error.response && error.response.status === 401 && !skipGlobalAuthError) {
+                    console.log("[httpHelper] 401 Unauthorized - dispatching auth:unauthorized event");
                     window.dispatchEvent(new Event('auth:unauthorized'));
                 }
                 
@@ -53,8 +57,8 @@ class HttpHelper {
         return this.api.put(url, data);
     }
 
-    patch(url, data) {
-        return this.api.patch(url, data);
+    patch(url, data, config = {}) {
+        return this.api.patch(url, data, config);
     }
 
     delete(url, data = {}) {

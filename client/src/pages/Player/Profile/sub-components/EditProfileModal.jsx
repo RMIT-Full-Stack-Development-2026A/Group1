@@ -1,19 +1,15 @@
-// Edit Profile Modal - Allows players to update email, username, password, and country
+// Edit Profile Modal - Allows players to update email, username, and country
 import React, { useState, useEffect } from "react";
 import {
   EmailField,
-  PasswordField,
   UsernameField,
   CountrySelect,
 } from "@/components/reusable/FormFields";
 import {
   validateEmail,
   validateUsername,
-  validatePassword,
   isEmailValid,
   isUsernameValid,
-  isPasswordValid,
-  passwordsMatch,
 } from "@/utils/formValidation";
 
 export default function EditProfileModal({
@@ -28,9 +24,6 @@ export default function EditProfileModal({
   const [formData, setFormData] = useState({
     email: "",
     username: "",
-    oldPassword: "",
-    newPassword: "",
-    confirmNewPassword: "",
     country: "",
   });
 
@@ -42,19 +35,8 @@ export default function EditProfileModal({
       noProhibited: false,
     },
     usernameValidation: { validChars: false, validLength: false },
-    passwordValidation: {
-      hasLength: false,
-      hasLower: false,
-      hasNumber: false,
-      hasSpecial: false,
-      hasCapital: false,
-    },
   });
 
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [saveError, setSaveError] = useState("");
 
   // Initialize form with player data and validate existing values
@@ -66,9 +48,6 @@ export default function EditProfileModal({
       setFormData({
         email: initialEmail,
         username: initialUsername,
-        oldPassword: "",
-        newPassword: "",
-        confirmNewPassword: "",
         country: playerData.country || "",
       });
 
@@ -119,17 +98,6 @@ export default function EditProfileModal({
         ...prev,
         usernameValidation: validateUsername(value),
       }));
-    } else if (name === "newPassword") {
-      setValidations((prev) => ({
-        ...prev,
-        passwordValidation: validatePassword(value),
-      }));
-      // Check password match
-      if (formData.confirmNewPassword) {
-        setPasswordMismatch(!passwordsMatch(value, formData.confirmNewPassword));
-      }
-    } else if (name === "confirmNewPassword") {
-      setPasswordMismatch(!passwordsMatch(formData.newPassword, value));
     }
   };
 
@@ -151,23 +119,6 @@ export default function EditProfileModal({
       }
     }
 
-    // If password is being changed
-    if (formData.newPassword) {
-      if (!formData.oldPassword) {
-        setSaveError("Please enter your current password to change it.");
-        return;
-      }
-      if (
-        !isPasswordValid(validations.passwordValidation) ||
-        passwordMismatch
-      ) {
-        setSaveError(
-          "New password is invalid or passwords don't match. Please check the requirements."
-        );
-        return;
-      }
-    }
-
     // Call parent handler with only changed fields
     const updateData = {
       email: formData.email !== playerData?.email ? formData.email : undefined,
@@ -177,8 +128,6 @@ export default function EditProfileModal({
           : undefined,
       country:
         formData.country !== playerData?.country ? formData.country : undefined,
-      password: formData.newPassword || undefined,
-      oldPassword: formData.newPassword ? formData.oldPassword : undefined,
     };
 
     const result = await onSave(updateData);
@@ -240,6 +189,7 @@ export default function EditProfileModal({
           />
 
           {/* Country */}
+          {/* Country */}
           <div className="space-y-2">
             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
               Regional Sector
@@ -251,76 +201,6 @@ export default function EditProfileModal({
               loading={countriesLoading}
               countries={countries}
             />
-          </div>
-
-          {/* New Password Field */}
-          <div className="pt-4 border-t border-[#2a2a4e]">
-            <p className="text-[#4cc9f0] text-xs font-bold mb-4 uppercase tracking-widest">
-              Change Password (Optional)
-            </p>
-            
-            {/* Old Password Field */}
-            <div className="space-y-2 mb-4">
-              <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
-                Current Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showOldPassword ? "text" : "password"}
-                  name="oldPassword"
-                  value={formData.oldPassword}
-                  onChange={handleInputChange}
-                  placeholder="Enter your current password"
-                  disabled={isSaving}
-                  className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowOldPassword(!showOldPassword)}
-                  disabled={isSaving}
-                  className={`absolute right-3 top-3 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                    showOldPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
-                  } hover:text-[#4cc9f0]`}
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    {showOldPassword ? "visibility_off" : "visibility"}
-                  </span>
-                </button>
-              </div>
-            </div>
-            <div className="mb-4">
-              <PasswordField
-                value={formData.newPassword}
-                onChange={handleInputChange}
-                name="newPassword"
-                label="New Password"
-                showPassword={showPassword}
-                onToggleShow={() => setShowPassword(!showPassword)}
-                passwordValidation={validations.passwordValidation}
-                CriteriaCheckbox={CriteriaCheckbox}
-                disabled={isSaving}
-                placeholder="Leave blank if you don't want to change"
-              />
-            </div>
-
-            
-            {/* Confirm New Password Field */}
-            {formData.newPassword && (
-              <PasswordField
-                value={formData.confirmNewPassword}
-                onChange={handleInputChange}
-                name="confirmNewPassword"
-                label="Verify New Password"
-                showPassword={showConfirmPassword}
-                onToggleShow={() =>
-                  setShowConfirmPassword(!showConfirmPassword)
-                }
-                passwordMismatch={passwordMismatch}
-                CriteriaCheckbox={CriteriaCheckbox}
-                disabled={isSaving}
-                isConfirmField={true}
-              />
-            )}
           </div>
           </form>
         </div>

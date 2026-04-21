@@ -21,6 +21,7 @@ export default function MatchHistoryTable({
   onPageChange,
   onReplay,
   onApplyFilters,
+  onResetFilters,
   loading,
   isPremium,
 }) {
@@ -172,10 +173,18 @@ export default function MatchHistoryTable({
             onChange={(e) => onFilterGameTypeChange(e.target.value)}
           >
             <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ALL GAME TYPES</option>
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>SINGLE_PLAYER</option>
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>TWO_PLAYERS</option>
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ONLINE_MATCH</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>SINGLE PLAYER</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>TWO PLAYERS</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ONLINE MATCH</option>
           </select>
+
+          {/* Reset Filter Button */}
+          <button
+            onClick={onResetFilters}
+            className="bg-surface-container-highest text-outline px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-all active:translate-y-[2px]"
+          >
+            RESET
+          </button>
 
           {/* Filter Button */}
           <button

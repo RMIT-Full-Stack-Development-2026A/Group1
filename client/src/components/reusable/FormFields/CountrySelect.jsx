@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 /**
  * CountrySelect Component
  * Custom dropdown showing country flags and names
  * Uses REST Countries API flag URLs
+ * Features keyboard navigation - type to jump to countries
  */
 export const CountrySelect = ({
     value,
@@ -14,13 +15,71 @@ export const CountrySelect = ({
     countries = [],
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [highlightedIndex, setHighlightedIndex] = useState(-1);
+    const dropdownRef = useRef(null);
 
     const selectedCountry = countries.find((c) => c.name.common === value);
 
     const handleSelect = (countryName) => {
         onChange({ target: { name: "country", value: countryName } });
         setIsOpen(false);
+        setHighlightedIndex(-1);
     };
+
+    // Handle keyboard input for jumping to countries
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            // Handle Escape key
+            if (e.key === "Escape") {
+                setIsOpen(false);
+                setHighlightedIndex(-1);
+                return;
+            }
+
+            // Ignore special keys and modifiers
+            if (
+                e.ctrlKey ||
+                e.metaKey ||
+                e.altKey ||
+                e.key === "Enter" ||
+                e.key === "ArrowUp" ||
+                e.key === "ArrowDown" ||
+                e.key.length > 1
+            ) {
+                return;
+            }
+
+            // Search using single letter
+            const singleKey = e.key.toLowerCase();
+            const matchingIndex = countries.findIndex((country) =>
+                country.name.common.toLowerCase().startsWith(singleKey)
+            );
+
+            if (matchingIndex !== -1) {
+                setHighlightedIndex(matchingIndex);
+
+                // Scroll to the matching country
+                if (dropdownRef.current) {
+                    const items = dropdownRef.current.querySelectorAll("button[data-country]");
+                    if (items[matchingIndex]) {
+                        items[matchingIndex].scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                        });
+                    }
+                }
+            }
+
+            e.preventDefault();
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, countries]);
 
     return (
         <div className="relative">
@@ -66,17 +125,25 @@ export const CountrySelect = ({
 
             {/* Dropdown Menu */}
             {isOpen && !disabled && !loading && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[#3d484d] shadow-lg z-50 max-h-64 overflow-y-auto rounded-sm">
+                <div 
+                    ref={dropdownRef}
+                    className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[#3d484d] shadow-lg z-50 max-h-64 overflow-y-auto rounded-sm"
+                >
                     {error ? (
                         <div className="p-3 text-[#ffb4ab] text-[10px]">
                             Failed to load countries
                         </div>
                     ) : (
-                        countries.map((country) => (
+                        countries.map((country, index) => (
                             <button
                                 key={country.name.common}
+                                data-country={country.name.common}
                                 onClick={() => handleSelect(country.name.common)}
-                                className="w-full px-3 py-2 text-left hover:bg-[#2a2a4e] transition-colors flex items-center gap-2 text-[#e3e0f4] text-sm border-b border-[#2a2a4e] last:border-0"
+                                className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 text-sm border-b border-[#2a2a4e] last:border-0 ${
+                                    index === highlightedIndex
+                                        ? "bg-[#4cc9f0]/20"
+                                        : "hover:bg-[#2a2a4e]"
+                                } text-[#e3e0f4]`}
                             >
                                 {country.flags?.svg && (
                                     <img

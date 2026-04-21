@@ -2,14 +2,18 @@
 // Route: /profile
 // Orchestrates profile components and manages profile data fetching
 
-import React from "react";
+import React, { useState } from "react";
 import ProfileHeader from "./sub-components/ProfileHeader";
 import StatsCard from "./sub-components/StatsCard";
 import MatchHistoryTable from "./sub-components/MatchHistoryTable";
 import EditProfileModal from "./sub-components/EditProfileModal";
+import ChangePasswordModal from "./sub-components/ChangePasswordModal";
 import { useProfile } from "./hooks/useProfile";
 
 export default function PlayerProfile() {
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
   const {
     playerData,
     countryFlag,
@@ -30,6 +34,7 @@ export default function PlayerProfile() {
     appliedSortOrder,
     handleSortBy,
     handleApplyFilters,
+    handleResetFilters,
     currentPage,
     handlePageChange,
     totalMatches,
@@ -44,6 +49,38 @@ export default function PlayerProfile() {
     isSavingProfile,
     handleSaveProfile,
   } = useProfile();
+
+  // Handle opening change password modal
+  const handleOpenChangePassword = () => {
+    setIsChangePasswordModalOpen(true);
+  };
+
+  // Handle closing change password modal
+  const handleCloseChangePassword = () => {
+    setIsChangePasswordModalOpen(false);
+  };
+
+  // Handle saving new password
+  const handleChangePassword = async (passwordData) => {
+    try {
+      console.log("[Profile] handleChangePassword called");
+      setIsChangingPassword(true);
+      console.log("[Profile] Calling handleSaveProfile with:", {
+        oldPassword: "***",
+        newPassword: "***",
+        confirmPassword: "***"
+      });
+      const response = await handleSaveProfile(passwordData);
+      console.log("[Profile] handleSaveProfile response:", response);
+      return response;
+    } catch (error) {
+      console.error("[Profile] Error changing password:", error.message);
+      // Re-throw so modal can catch and display the error
+      throw error;
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   if (error) {
     return (
@@ -62,6 +99,7 @@ export default function PlayerProfile() {
         playerData={playerData}
         countryFlag={countryFlag}
         onEditProfile={handleEditProfile}
+        onChangePassword={handleOpenChangePassword}
         onAvatarUpdate={handleAvatarUpdate}
       />
 
@@ -99,6 +137,7 @@ export default function PlayerProfile() {
         totalMatches={totalMatches}
         onPageChange={handlePageChange}
         onReplay={handleReplay}
+        onResetFilters={handleResetFilters}
         onApplyFilters={handleApplyFilters}
         loading={loading}
         isPremium={playerData?.isPremium || false}
@@ -113,6 +152,14 @@ export default function PlayerProfile() {
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveProfile}
         isSaving={isSavingProfile}
+      />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={handleCloseChangePassword}
+        onSave={handleChangePassword}
+        isSaving={isChangingPassword}
       />
     </main>
   );

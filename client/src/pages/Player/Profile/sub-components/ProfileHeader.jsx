@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import { profileService } from "../services/profile.service";
 
-export default function ProfileHeader({ playerData, countryFlag, onEditProfile, onAvatarUpdate }) {
+export default function ProfileHeader({ playerData, countryFlag, onEditProfile, onChangePassword, onAvatarUpdate }) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -173,7 +173,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
         </div>
       </div>
 
-      {/* Edit and Upload Buttons */}
+      {/* Edit and Action Buttons */}
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={onEditProfile}
@@ -184,13 +184,12 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
         </button>
 
         <button
-          onClick={handleAvatarClick}
-          disabled={uploading}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Upload avatar image"
+          onClick={onChangePassword}
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0"
+          title="Change your password"
         >
-          <span className="material-symbols-outlined text-sm">image</span>
-          UPLOAD AVATAR
+          <span className="material-symbols-outlined text-sm">lock</span>
+          CHANGE PASSWORD
         </button>
       </div>
     </section>

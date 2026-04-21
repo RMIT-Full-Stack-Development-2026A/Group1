@@ -131,6 +131,10 @@ export const useAuthStore = create((set) => ({
 
 // Listen for 401 unauthorized events dispatched from Axios interceptor
 window.addEventListener('auth:unauthorized', () => {
-    useAuthStore.getState().logout();
+    const state = useAuthStore.getState();
+    // Only logout if user is actually authenticated (prevents infinite loop on logout endpoint 401)
+    if (state.isAuthenticated) {
+        state.logout();
+    }
     // Don't use window.location - let React Router handle redirects via ProtectedRoute
 });

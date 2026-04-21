@@ -66,7 +66,7 @@ export default function Landing() {
 
                     {/* Tagline */}
                     <p className="font-body text-lg md:text-xl text-[#bcc8ce] max-w-2xl mb-12 tracking-wide uppercase">
-                        The ultimate 10x10 TicTacToe arena. <span className="text-[#93e2ff]">Precision or Perish.</span>
+                        The ultimate TicTacToe arena. <span className="text-[#93e2ff]">Precision or Perish.</span>
                     </p>
 
                     {/* Action Buttons */}
@@ -95,7 +95,7 @@ export default function Landing() {
                                     <div className="w-12 h-12 bg-[#292937] flex items-center justify-center border border-[#3d484d] group-hover:border-[#4cc9f0] transition-colors flex-shrink-0">
                                         <span className="text-[#4cc9f0] text-3xl">⊞</span>
                                     </div>
-                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">10x10 Board</h3>
+                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">10x10 & 15x15 Board</h3>
                                 </div>
                                 <p className="text-xs text-[#bcc8ce] leading-relaxed">
                                     Massive tactical grid for extended strategies and unpredictable outcomes.

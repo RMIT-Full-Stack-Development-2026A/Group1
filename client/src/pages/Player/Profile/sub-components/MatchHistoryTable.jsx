@@ -154,25 +154,27 @@ export default function MatchHistoryTable({
           {/* Result Filter */}
           <select
             className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
+            style={{ backgroundColor: '#343342', color: '#e3e0f4' }}
             value={filterResult}
             onChange={(e) => onFilterResultChange(e.target.value)}
           >
-            <option>ALL RESULTS</option>
-            <option>WIN</option>
-            <option>LOSS</option>
-            <option>ABORT</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ALL RESULTS</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>WIN</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>LOSS</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ABORT</option>
           </select>
 
           {/* Game Type Filter */}
           <select
             className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
+            style={{ backgroundColor: '#343342', color: '#e3e0f4' }}
             value={filterGameType}
             onChange={(e) => onFilterGameTypeChange(e.target.value)}
           >
-            <option>GAME TYPE</option>
-            <option>SINGLE_PLAYER</option>
-            <option>TWO_PLAYERS</option>
-            <option>ONLINE_MATCH</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ALL GAME TYPES</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>SINGLE_PLAYER</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>TWO_PLAYERS</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ONLINE_MATCH</option>
           </select>
 
           {/* Filter Button */}

@@ -1,6 +1,6 @@
 import express from "express";
-import { RoomController } from "../controllers/room.controller";
-import { verifyToken } from "../../../middlewares/authMiddleware";
+import { RoomController } from "../controllers/room.controller.js";
+import { verifyToken } from "../../../middlewares/authMiddleware.js";
 
 const roomRoutes = express.Router();
 roomRoutes.use(verifyToken); // Apply auth middleware to all room snapshot APIs

@@ -15,7 +15,7 @@ export const AdminService = {
 
         // Get data from Room and Wallet modules
         const activeRooms = await RoomInterface.getActiveRoomsCount();
-        const totalRevenue = 0; // e.g., await WalletInterface.getTotalRevenue();
+        const totalRevenue = 0; // e.g., await SubscriptionInterface.getTotalRevenue();
 
         return AdminDTO.toDashboard({
             ...authMetrics,

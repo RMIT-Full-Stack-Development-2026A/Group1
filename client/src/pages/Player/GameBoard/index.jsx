@@ -29,7 +29,7 @@ const GameBoard = () => {
 
     // Global state from stores
     const { user, isCheckingAuth } = useAuthStore();
-    const { gameMode, aiDifficulty } = useModeStore();
+    const { gameMode, aiDifficulty, player2Name } = useModeStore();
     const { boardSize: displaySize, gridStyle, markerVariant, setMarkerVariant } = useCustomizationStore();
 
     // Convert the string "10x10" or "15x15" from the store into an integer of 10 or 15.
@@ -59,7 +59,11 @@ const GameBoard = () => {
         return difficultyObj ? difficultyObj.aiName : 'NEXUS-9';
     };
 
-    const p2Name = isBotMatch ? getAIName(aiDifficulty) : gameMode === 'ONLINE_MATCH' ? 'OPPONENT' : 'PLAYER_02';
+    const p2Name = isBotMatch
+        ? getAIName(aiDifficulty)
+        : gameMode === 'ONLINE_MATCH'
+            ? 'OPPONENT'
+            : (player2Name?.trim() || 'PLAYER_02');
 
     // Build player infor
     const playersInfo = useMemo(() => {

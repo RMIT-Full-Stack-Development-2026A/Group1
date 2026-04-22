@@ -2,7 +2,7 @@
 
 This document defines the **recommended server contract** for TicTacToang so that it matches the SRS, respects the team policy, and minimizes unnecessary API calls by:
 
-- using **HTTP for authentication, profile, history, wallet, subscription, and admin actions**
+- using **HTTP for authentication, profile, history, subscription, and admin actions**
 - using **WebSocket for live room lifecycle, gameplay, and in-game chat**
 - providing **aggregate/overview endpoints** for screens that would otherwise require multiple requests
 
@@ -119,7 +119,7 @@ These APIs manage user profile data and provide an optimized overview payload fo
 | POST | `/profile/avatar` | Yes | Upload avatar image | No |
 
 ### Why `GET /profile/overview`
-This endpoint is intentionally aggregated so the Profile screen does **not** need to call `/profile`, `/wallet`, `/subscription/status`, and `/games` separately.
+This endpoint is intentionally aggregated so the Profile screen does **not** need to call `/profile`, `/subscription/status`, and `/games` separately.
 
 Recommended `GET /profile/overview` payload:
 
@@ -127,7 +127,6 @@ Recommended `GET /profile/overview` payload:
 {
   "data": {
     "user": { "id": "...", "username": "...", "email": "...", "role": "PLAYER", "country": "VN", "avatar": "...", "isPremium": true, "isActive": true, "createdAt": "..." },
-    "wallet": { "balance": 35 },
     "subscription": { "isPremium": true, "premiumExpiresAt": "2026-06-01T00:00:00.000Z" },
     "stats": {
       "totalGames": 120,
@@ -202,49 +201,25 @@ To minimize API calls, the arena page should:
 1. call `GET /rooms` once for initial render
 2. subscribe to WebSocket room events for all updates thereafter
 
-## 5. Wallet APIs
-Base Path: `/api/v1/wallet`
-
-| Method | Endpoint | Auth | Description | Implemented |
-|---|---|---:|---|---|
-| GET | `/wallet` | Yes | Get current wallet balance and latest transaction summary | No |
-| POST | `/wallet/deposit` | Yes | Deposit funds into local wallet | No |
-| GET | `/wallet/transactions` | Yes | Get paginated transaction history | No |
-
-### `GET /wallet`
-Recommended response:
-
-```json
-{
-  "data": {
-    "balance": 50,
-    "recentTransactions": []
-  },
-  "message": "Wallet fetched successfully"
-}
-```
-
-This prevents a separate automatic call to `/wallet/transactions` on initial wallet screen load.
-
-## 6. Subscription APIs
+## 5. Subscription APIs
 Base Path: `/api/v1/subscription`
 
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/subscription/status` | Yes | Get premium status and expiry date | No |
-| POST | `/subscription/subscribe` | Yes | Purchase monthly premium using wallet balance | No |
-| GET | `/subscription/history` | Yes | Get subscription payment history | No |
+| POST | `/subscription/create-order` | Yes | Generate PayPal payment link/order ID | No |
+| POST | `/subscription/capture-order` | Yes | Validate PayPal successful payment and activate premium | No |
+| GET | `/subscription/history` | Yes | Get paginated payment transaction history | No |
 
 ### Notes
-- A successful subscription purchase should update premium state and trigger confirmation email.
-- Subscription history may be implemented by filtering `Transaction` records with type `SUBSCRIPTION`.
+- A successful `capture-order` request should update the `premiumExpiresAt` state and record an immutable `Transaction` invoice.
 
-## 7. Admin APIs
+## 6. Admin APIs
 Base Path: `/api/v1/admin`
 
 All endpoints require `ADMIN` role.
 
-### 7.1 Dashboard
+### 6.1 Dashboard
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | Yes |
@@ -259,7 +234,7 @@ Recommended dashboard data:
 
 This avoids multiple parallel admin summary calls.
 
-### 7.2 Player Management
+### 6.2 Player Management
 | Method | Endpoint | Auth | Description | Implememted
 |---|---|---:|---|---|
 | GET | `/admin/players` | Admin | List players with pagination and filters | Yes |
@@ -279,19 +254,19 @@ This avoids multiple parallel admin summary calls.
 | `sortOrder` | string | `asc` or `desc` |
 |
 
-### 7.3 Room Monitoring
+### 6.3 Room Monitoring
 | Method | Endpoint | Auth | Description |
 |---|---|---:|---|
 | GET | `/admin/rooms` | Admin | List active/waiting rooms |
 | GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot |
 | DELETE | `/admin/rooms/:id` | Admin | Force close a room |
 
-## 8. WebSocket Contract
+## 7. WebSocket Contract
 Namespace/Endpoint: `/ws/game`
 
 The team policy already defines the event naming format as `namespace:action` and requires object payloads.
 
-### 8.1 Client → Server
+### 7.1 Client → Server
 | Event | Payload | Description |
 |---|---|---|
 | `room:create` | `{ boardSize, marker }` | Create a room and choose host marker preference |
@@ -300,7 +275,7 @@ The team policy already defines the event naming format as `namespace:action` an
 | `game:move` | `{ roomId, row, col }` | Submit one move |
 | `chat:send` | `{ roomId, message }` | Send in-game chat message (premium only) |
 
-### 8.2 Server → Client
+### 7.2 Server → Client
 | Event | Payload | Description |
 |---|---|---|
 | `room:created` | `{ room }` | Room successfully created |
@@ -317,7 +292,7 @@ The team policy already defines the event naming format as `namespace:action` an
 - When the first move is allowed, broadcast `game:state`
 - When a player aborts, emit `game:ended` with `result: "ABORTED"` and remove/close the room
 
-## 9. Screen-to-API Mapping (Optimized)
+## 8. Screen-to-API Mapping (Optimized)
 
 ### App bootstrap
 - `GET /auth/check-auth`

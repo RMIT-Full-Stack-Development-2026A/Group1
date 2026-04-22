@@ -14,11 +14,8 @@ const toUserProfile = (user) => ({
 export const ProfileDTO = {
     toBaseProfile: (user) => toUserProfile(user),
 
-    toProfileOverview: ({ user, wallet, subscription, stats, recentGames }) => ({
+    toProfileOverview: ({ user, subscription, stats, recentGames }) => ({
         user: toUserProfile(user),
-        wallet: {
-            balance: wallet?.balance ?? 0
-        },
         subscription: {
             isPremium: subscription?.isPremium ?? false,
             premiumExpiresAt: subscription?.premiumExpiresAt ?? null

@@ -1,14 +1,49 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Eye } from 'lucide-react';
 import { useAudio } from '@/hooks/useAudio';
 import { AUDIO_FILES } from '@/config/audioConfig';
 
 let lastPlayedResultSignature = null;
 
-const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
+const RESULT_UI_CONFIG = {
+    winner: {
+        title: (winnerData) => `PLAYER ${winnerData?.player ?? 'X'} WINS!`,
+        badge: 'CONGRATULATIONS',
+        subtitle: (winnerData) => `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`,
+        color: '#fad100',
+        glow: '#fad100',
+        badgeTextColor: '#3b2f00',
+    },
+    loser: {
+        title: (winnerData) => `PLAYER ${winnerData?.player ?? 'O'} WINS!`,
+        badge: 'GAME OVER',
+        subtitle: 'BETTER LUCK NEXT TIME',
+        color: '#ef6353',
+        glow: 'rgba(255,180,171,0.6)',
+        badgeTextColor: '#3b2f00',
+    },
+    local_result: {
+        title: (winnerData) => `PLAYER ${winnerData?.player ?? 'X'} WINS!`,
+        badge: 'VICTORY',
+        subtitle: (winnerData) => `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`,
+        color: '#fad100',
+        glow: '#fad100',
+        badgeTextColor: '#3b2f00',
+    },
+    draw: {
+        title: 'DRAW',
+        badge: 'DRAW MATCH',
+        subtitle: 'YOU AND YOUR OPPONENT ARE EQUAL',
+        color: '#fad100',
+        glow: '#fad100',
+        badgeTextColor: '#3b2f00',
+    },
+};
+
+const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby }) => {
 
     const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
-    const hasPlayedResultSound = useRef(false);
+    const { play: playLoseSound } = useAudio(AUDIO_FILES.GAME_LOSE);
     const [isMinimized, setIsMinimized] = useState(false);
     
 
@@ -26,17 +61,19 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
                 ? 'draw'
                 : null;
 
-        if (resultSignature && resultSignature !== lastPlayedResultSignature && winnerData) {
-            playVictorySound();
-            hasPlayedResultSound.current = true;
+        if (resultSignature && resultSignature !== lastPlayedResultSignature) {
+            if (perspective === 'loser') {
+                playLoseSound();
+            } else if (perspective === 'winner' || perspective === 'local_result') {
+                playVictorySound();
+            }
             lastPlayedResultSignature = resultSignature;
         }
 
         if (!winnerData && !isDraw) {
-            hasPlayedResultSound.current = false;
             lastPlayedResultSignature = null;
         }
-    }, [winnerData, isDraw, playVictorySound]);
+    }, [winnerData, isDraw, perspective, playVictorySound, playLoseSound]);
 
     // Lock scroll when overlay is active
     useEffect(() => {
@@ -64,11 +101,11 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
         );
     }
 
-    const title     = isDraw ? 'DRAW' : `PLAYER ${winnerData?.player} WINS!`;
-    const badgeText = isDraw ? 'DRAW MATCH' : 'CONGRATULATIONS';
-    const subtitle  = isDraw
-        ? 'YOU AND YOUR OPPONENT ARE EQUAL'
-        : `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`;
+    const resultKey = perspective ?? (isDraw ? 'draw' : 'winner');
+    const resultConfig = RESULT_UI_CONFIG[resultKey] ?? RESULT_UI_CONFIG.winner;
+    const title = typeof resultConfig.title === 'function' ? resultConfig.title(winnerData) : resultConfig.title;
+    const subtitle = typeof resultConfig.subtitle === 'function' ? resultConfig.subtitle(winnerData) : resultConfig.subtitle;
+    const badgeText = resultConfig.badge;
 
     return (
         <div className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center animate-fade-in">
@@ -86,8 +123,11 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
             </div>
             {/* Modal */}
             <div
-                className="relative z-10 bg-[#12121f] border-4 border-[#fad100] p-10 max-w-125 w-[90%] text-center shadow-2xl"
-                style={{ boxShadow: '0 0 30px #fad100' }}
+                className="relative z-10 bg-[#12121f] border-4 p-10 max-w-125 w-[90%] text-center shadow-2xl"
+                style={{
+                    borderColor: resultConfig.color,
+                    boxShadow: `0 0 30px ${resultConfig.glow}`,
+                }}
             >
                 {/* Close (minimize) button */}
                 <button
@@ -99,14 +139,23 @@ const WinOverlay = ({ winnerData, isDraw, onRestart, onBackToLobby }) => {
                 </button>
 
                 {/* Badge */}
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#fad100] text-[#3b2f00] px-6 py-2 font-headline text-[10px] uppercase whitespace-nowrap">
+                <div
+                    className="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 font-headline text-[10px] uppercase whitespace-nowrap"
+                    style={{
+                        backgroundColor: resultConfig.color,
+                        color: resultConfig.badgeTextColor,
+                    }}
+                >
                     {badgeText}
                 </div>
 
                 {/* Title */}
                 <h1
                     className="font-headline text-3xl mb-3 leading-relaxed"
-                    style={{ color: '#fad100', textShadow: '0 0 12px #fad100' }}
+                    style={{
+                        color: resultConfig.color,
+                        textShadow: `0 0 12px ${resultConfig.glow}`,
+                    }}
                 >
                     {title}
                 </h1>

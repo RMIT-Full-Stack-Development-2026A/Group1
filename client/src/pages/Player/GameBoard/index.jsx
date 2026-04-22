@@ -101,6 +101,15 @@ const GameBoard = () => {
     } = useGame(gameMode, playersInfo, initialBoardSize);
 
     const gameOver = !!winnerData || isDraw;
+    const userMark = 'X';
+    const isLocalMatch = gameMode === 'TWO_PLAYERS' || gameMode === 'LOCAL_MULTIPLAYER';
+    const perspective = isDraw
+        ? 'draw'
+        : winnerData
+            ? (isLocalMatch
+                ? 'local_result'
+                : (winnerData.player === userMark ? 'winner' : 'loser'))
+            : null;
 
     // Handling dropdown events in the board area
     const handleMarkerChange = (val) => {
@@ -185,7 +194,13 @@ const GameBoard = () => {
             </main>
 
             {gameOver && (
-                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate(isBotMatch ? '/game-mode-select' : '/lobby')} />
+                <WinOverlay
+                    winnerData={winnerData}
+                    isDraw={isDraw}
+                    perspective={perspective}
+                    onRestart={resetGame}
+                    onBackToLobby={() => navigate(isBotMatch ? '/game-mode-select' : '/lobby')}
+                />
             )}
             <AbortModal
                 isOpen={showAbortModal}

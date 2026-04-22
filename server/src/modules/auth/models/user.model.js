@@ -58,14 +58,6 @@ const userSchema = new mongoose.Schema({
         index: true
     },
 
-    wallet: {
-        balance: {
-            type: Number, // Current wallet balance snapshot for fast reads
-            default: 0,
-            min: 0 
-        }
-    },
-
     auth: {
         lastLoginAt: {
             type: Date, 

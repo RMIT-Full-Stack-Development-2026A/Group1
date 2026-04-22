@@ -33,8 +33,6 @@ export const ProfileService = {
             };
         }
 
-        // Orchestrate data gathering for the overview
-        const wallet = { balance: user.wallet?.balance || 0 };
         const subscription = {
             isPremium: user.isPremium,
             premiumExpiresAt: user.premiumExpiresAt
@@ -46,7 +44,7 @@ export const ProfileService = {
             GameInterface.getRecentGames(userId, 5)
         ]);
 
-        return ProfileDTO.toProfileOverview({ user, wallet, subscription, stats, recentGames });
+        return ProfileDTO.toProfileOverview({ user, subscription, stats, recentGames });
     },
 
     updateProfile: async (userId, updateData) => {

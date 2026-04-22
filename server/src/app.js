@@ -11,7 +11,7 @@ import authRoutes from './modules/auth/routes/auth.routes.js';
 import adminRoutes from './modules/admin/routes/admin.routes.js';
 import profileRoutes from './modules/profile/routes/profile.routes.js';
 import gameRoutes from "./modules/game/routes/game.routes.js";
-
+import roomRoutes from "./modules/room/routes/room.routes.js";
 
 const app = express();
 
@@ -34,6 +34,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/games', gameRoutes);
+app.use('/api/v1/rooms', roomRoutes)
 
 app.use(notFoundHandler);
 app.use(errorMiddleware);

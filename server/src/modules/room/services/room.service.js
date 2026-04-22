@@ -15,6 +15,32 @@ export const RoomService = {
         });
     },
 
+    getRoomDetail: async (roomId) => {
+        if (!validateObjectId(roomId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Invalid room ID.",
+                cause: "The requested ID is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        const room = await RoomRepository.findById(roomId);
+        
+        if (!room) {
+            throw {
+                statusCode: 404,
+                error: "ROOM_NOT_FOUND",
+                message: "Room not found.",
+                cause: `No room record exists matching the ID: ${roomId}.`,
+                valid_example: "Ensure the room ID is correct and the room hasn't been closed/removed."
+            };
+        }
+
+        return RoomDTO.toRoomDetail(room);
+    },
+
     getActiveRoomSummaryByUserId: async (userId) => {
         const room = await RoomRepository.findActiveRoomByUserId(userId);
         if (!room) return null;

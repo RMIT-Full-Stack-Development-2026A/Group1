@@ -4,7 +4,7 @@ This revision keeps the Modular Monolith ownership boundaries but improves the s
 
 - SRS-required gameplay modes
 - replay/history/search
-- premium subscription lifecycle
+- premium subscription lifecycle (via direct PayPal checkout)
 - security and auditability
 - fewer API calls through better aggregation-ready data
 
@@ -103,13 +103,6 @@ const userSchema = new mongoose.Schema({
         default: null, 
         index: true
     },
-    wallet: {
-        balance: {
-            type: Number, // Current wallet balance snapshot for fast reads
-            default: 0,
-            min: 0 
-        }
-    },
     auth: {
         lastLoginAt: {
             type: Date, 
@@ -132,7 +125,6 @@ const userSchema = new mongoose.Schema({
 - JWT payload can still include `{ userId, role, isPremium }`
 - API DTO should expose the agreed user shape:
   `{ id, username, email, role, country, avatar, isPremium, isActive, createdAt }`
-- `wallet.balance` is persisted for fast reads; `Transaction` remains the audit trail
 
 ## 4. Game Session Model (`gameSession.model.js`)
 **Owned by**: game module
@@ -439,9 +431,9 @@ const gameRoomSchema = new mongoose.Schema({
 - When room ends, create `GameSession` and close/remove the room
 
 ## 6. Transaction Model (`transaction.model.js`)
-**Owned by**: wallet module
+**Owned by**: subscription module
 
-**Purpose**: Stores immutable financial history for deposits and subscriptions.
+**Purpose**: Stores immutable financial history for subscription purchases.
 
 ```js
 const transactionSchema = new mongoose.Schema({
@@ -453,15 +445,15 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String, // Business category of transaction
-        enum: ['DEPOSIT', 'SUBSCRIPTION'], 
+        enum: ['SUBSCRIPTION'], 
         required: true, 
         index: true 
     },
-    provider: {
+   provider: {
         type: String, // Payment source/provider used for this transaction
-        enum: ['LOCAL_WALLET', 'STRIPE', 'PAYPAL'], 
+        enum: ['STRIPE', 'PAYPAL'], 
         required: true, 
-        default: 'LOCAL_WALLET' 
+        default: 'PAYPAL' 
     },
 
     amount: {
@@ -486,14 +478,6 @@ const transactionSchema = new mongoose.Schema({
         index: true,
         sparse: true 
     },
-    balanceBefore: {
-        type: Number, // Wallet balance before applying this transaction
-        default: 0 
-    },
-    balanceAfter: {
-        type: Number, // Wallet balance after applying this transaction
-        default: 0 
-    },
     subscriptionPeriodStart: {
         type: Date, // Start date of premium period for subscription transactions
         default: null 
@@ -511,9 +495,8 @@ const transactionSchema = new mongoose.Schema({
 ```
 
 ### Notes
-- `Transaction` is the immutable audit log
-- `User.wallet.balance` is the fast-read balance snapshot
-- subscription history can be served from `type: 'SUBSCRIPTION'`
+- `Transaction` acts as the immutable invoice/audit log for PayPal purchases.
+- Current premium status is derived strictly from `User.premiumExpiresAt`.
 
 ## 7. DTO 
 

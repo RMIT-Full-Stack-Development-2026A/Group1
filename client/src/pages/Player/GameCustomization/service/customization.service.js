@@ -18,6 +18,24 @@ const GRID_STYLES = [
 ];
 
 // Maps frontend numeric IDs to backend enum names
+const BOARD_THEMES = {
+    classic: {
+        wrapper: 'bg-surface-card border border-outline-variant',
+        cellBorder: 'border-[#2a2a4e]',
+        boardBorder: 'border-l border-t border-[#2a2a4e]',
+    },
+    neon: {
+        wrapper: 'bg-[#0a0a1a] border border-[#4cc9f0]',
+        cellBorder: 'border-[#4cc9f0]/40',
+        boardBorder: 'border-l border-t border-[#4cc9f0]/40',
+        glow: { boxShadow: '0 0 20px rgba(76,201,240,0.15), inset 0 0 20px rgba(76,201,240,0.05)' },
+    },
+    block: {
+        wrapper: 'bg-[#0f0f0f] border-4 border-[#3a3a3a]',
+        cellBorder: 'border-[#2a2a2a]',
+        boardBorder: 'border-l-2 border-t-2 border-[#2a2a2a]',
+    },
+};
 // 'CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'
 const MARKER_VARIANTS = [
     { 

@@ -30,7 +30,7 @@ const GameBoard = () => {
     // Global state from stores
     const { user, isCheckingAuth } = useAuthStore();
     const { gameMode, aiDifficulty } = useModeStore();
-    const { boardSize: displaySize, markerVariant, setMarkerVariant } = useCustomizationStore();
+    const { boardSize: displaySize, gridStyle, markerVariant, setMarkerVariant } = useCustomizationStore();
 
     // Convert the string "10x10" or "15x15" from the store into an integer of 10 or 15.
     const initialBoardSize = useMemo(() => {
@@ -161,6 +161,7 @@ const GameBoard = () => {
 
                 <BoardArea
                     markerVariant={markerVariant}
+                    gridStyle={gridStyle}
                     board={board}
                     boardSize={boardSize}
                     matchTitle={matchTitle}

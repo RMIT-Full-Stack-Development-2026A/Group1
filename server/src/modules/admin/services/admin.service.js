@@ -1,5 +1,6 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
+import { RoomInterface } from '../../room/interfaces/room.interface.js';
 import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId } from '../validators/admin.validator.js';
 
@@ -12,8 +13,8 @@ export const AdminService = {
             GameInterface.getTotalPlatformMatches()
         ]);
 
-        // Placeholders until Room and Wallet modules are built
-        const activeRooms = 0; // e.g., await RoomInterface.getActiveRoomsCount();
+        // Get data from Room and Wallet modules
+        const activeRooms = await RoomInterface.getActiveRoomsCount();
         const totalRevenue = 0; // e.g., await WalletInterface.getTotalRevenue();
 
         return AdminDTO.toDashboard({

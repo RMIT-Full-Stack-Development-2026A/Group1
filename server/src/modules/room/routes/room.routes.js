@@ -1,6 +1,8 @@
 import express from "express";
+import { RoomController } from "../controllers/room.controller";
 
 const roomRoutes = express.Router();
+roomRoutes.use(verifyToken); // Apply auth middleware to all room snapshot APIs
 
 /**
  * @openapi
@@ -19,7 +21,7 @@ const roomRoutes = express.Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-// roomRoutes.get('/');
+roomRoutes.get('/', RoomController.getRooms);
 
 /**
  * @openapi
@@ -38,3 +40,5 @@ const roomRoutes = express.Router();
  *         $ref: '#/components/responses/NotFoundResponse'
  */
 // roomRoutes.get('/:id');
+
+export default roomRoutes;

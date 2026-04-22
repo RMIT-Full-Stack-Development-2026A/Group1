@@ -8,7 +8,6 @@ const adminRoutes = express.Router();
 const requireAdmin = authorizeMiddleware(['ADMIN']); 
 adminRoutes.use(verifyToken, requireAdmin);
 
-
 /**
  * @openapi
  * /api/v1/admin/dashboard:
@@ -23,7 +22,7 @@ adminRoutes.use(verifyToken, requireAdmin);
  *       403:
  *         $ref: '#/components/responses/ForbiddenResponse'
  */
-// adminRoutes.get('/dashboard', AdminController.getPlayerDetail);
+adminRoutes.get('/dashboard', AdminController.getDashboard);
 
 /**
  * @openapi

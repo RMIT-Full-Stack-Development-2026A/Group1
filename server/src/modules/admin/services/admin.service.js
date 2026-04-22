@@ -4,6 +4,26 @@ import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId } from '../validators/admin.validator.js';
 
 export const AdminService = {
+
+    getDashboard: async () => {
+        // Fetch all metrics concurrently for performance
+        const [authMetrics, totalMatches] = await Promise.all([
+            AuthInterface.getPlatformMetrics(),
+            GameInterface.getTotalPlatformMatches()
+        ]);
+
+        // Placeholders until Room and Wallet modules are built
+        const activeRooms = 0; // e.g., await RoomInterface.getActiveRoomsCount();
+        const totalRevenue = 0; // e.g., await WalletInterface.getTotalRevenue();
+
+        return AdminDTO.toDashboard({
+            ...authMetrics,
+            totalMatches,
+            activeRooms,
+            totalRevenue
+        });
+    },
+    
     getPlayers: async (query) => {
         const { filter, sort, pagination } = validatePlayerQuery(query);
         

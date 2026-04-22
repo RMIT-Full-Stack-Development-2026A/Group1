@@ -247,7 +247,7 @@ All endpoints require `ADMIN` role.
 ### 7.1 Dashboard
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | No |
+| GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | Yes |
 
 Recommended dashboard data:
 - totalPlayers

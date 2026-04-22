@@ -1,3 +1,4 @@
+import { AdminService } from "../../admin/services/admin.service.js";
 import { AuthService } from "../services/auth.service.js";
 
 // Interface exposes auth-owned user operations to other modules without leaking repository details.
@@ -20,5 +21,6 @@ export const AuthInterface = {
     changePassword: async (userId, oldPassword, newPassword) => AuthService.changePassword(userId, oldPassword, newPassword),
 
     // Expose data for Admin module
+    getPlatformMetrics: async () => AuthService.getPlatformMetrics(),
     getPaginatedUsers: async (filter, sort, skip, limit) => AuthService.getPaginatedUsers(filter, sort, skip, limit)
 };

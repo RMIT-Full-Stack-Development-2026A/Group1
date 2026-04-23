@@ -203,7 +203,7 @@ const GameBoard = () => {
                     isDraw={isDraw}
                     perspective={perspective}
                     onRestart={resetGame}
-                    onBackToLobby={() => navigate(isBotMatch ? '/game-mode-select' : '/lobby')}
+                    onBackToLobby={() => navigate(isBotMatch ? '/play' : '/play')}
                 />
             )}
             <AbortModal

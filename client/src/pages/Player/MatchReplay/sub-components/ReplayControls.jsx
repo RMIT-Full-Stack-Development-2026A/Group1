@@ -29,7 +29,6 @@ export default function ReplayControls({
     onSetSpeed
 }) {
     const progressPercent = totalMoves > 0 ? (currentStep / totalMoves) * 100 : 0;
-    const moveCounterLabel = currentStep === 0 ? `-- / ${totalMoves}` : `${currentStep} / ${totalMoves}`;
     const disablePlay = !isPlaying && currentStep >= totalMoves;
 
     const handleScrubBarClick = (event) => {
@@ -42,22 +41,18 @@ export default function ReplayControls({
 
     return (
         <div className="mt-6 w-full bg-surface border border-outline-variant chunky-shadow p-6">
-            <div className="mb-6 flex items-center gap-4">
-                <span className="font-body uppercase tracking-widest text-[10px] text-outline">{moveCounterLabel}</span>
-
-                <SoundButton
-                    type="button"
+            <div className="mb-5">
+                <div className="flex justify-between mb-1">
+                    <span className="font-mono text-[10px] text-[#4cc9f0]">STEP {currentStep || '--'}</span>
+                    <span className="font-mono text-[10px] text-[#879398]">{totalMoves} MOVES</span>
+                </div>
+                <div
                     onClick={handleScrubBarClick}
-                    className="relative h-3 flex-1 bg-surface-container-highest border border-outline-variant overflow-hidden"
-                    aria-label="Jump to replay step"
+                    className="relative h-4 w-full bg-[#1e1e2c] border border-[#3d484d] cursor-pointer overflow-visible"
                 >
-                    <span
-                        className="absolute left-0 top-0 h-full bg-primary-container"
-                        style={{ width: `${progressPercent}%` }}
-                    />
-                </SoundButton>
-
-                <span className="font-body uppercase tracking-widest text-[10px] text-outline">{totalMoves}</span>
+                    <div className="absolute left-0 top-0 h-full bg-[#4cc9f0] transition-all duration-100 overflow-hidden" style={{ width: `${progressPercent}%` }} />
+                    <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-[#4cc9f0] rounded-full transition-all duration-100" style={{ left: `calc(${progressPercent}% - 6px)` }} />
+                </div>
             </div>
 
             <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -75,10 +70,10 @@ export default function ReplayControls({
                             key={value}
                             type="button"
                             onClick={() => onSetSpeed(value)}
-                            className={`px-3 py-1 cursor-pointer bg-[#006780] font-body uppercase tracking-widest text-[10px] transition-colors ${
+                            className={`px-3 py-1 cursor-pointer border font-body uppercase tracking-widest text-[10px] transition-colors ${
                                 speed === value
-                                    ? 'cursor-pointer bg-secondary-container border border-secondary-container text-on-secondary chunky-shadow'
-                                    : 'cursor-pointer bg-surface-container-highest border border-outline text-outline hover:text-on-surface'
+                                    ? 'bg-[#4cc9f0] text-[#003543] border-[#4cc9f0] shadow-[2px_2px_0px_#005266] font-bold'
+                                    : 'bg-[#1e1e2c] text-[#879398] border-[#3d484d] hover:border-[#4cc9f0] hover:text-[#4cc9f0]'
                             }`}
                         >
                             {value}X

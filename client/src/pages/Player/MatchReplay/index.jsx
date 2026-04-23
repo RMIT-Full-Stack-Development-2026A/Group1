@@ -57,12 +57,12 @@ const MatchReplay = () => {
     }
 
     return (
-        <main className="flex-1 mt-16 mb-10 px-4 md:px-8 py-6 flex flex-col items-center bg-surface">
+        <main className="flex-1 mt-16 mb-10 px-6 py-6 flex flex-col items-center bg-surface">
             <MatchHeader session={sessionData} />
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">
                 <div className="col-span-12 lg:col-span-8 flex flex-col items-center w-full">
-                    <ReplayBoard boardState={boardState} boardSize={sessionData.boardSize} markerStyle={sessionData.markerStyle}/>
+                    <ReplayBoard boardState={boardState} boardSize={sessionData.boardSize} markerStyle={sessionData.markerStyle} boardStyle={sessionData.boardStyle} />
 
                     <ReplayControls
                         currentStep={currentStep}
@@ -79,7 +79,7 @@ const MatchReplay = () => {
                     />
                 </div>
 
-                <div className="col-span-12 lg:col-span-4 flex flex-col h-full min-h-[500px] w-full">
+                <div className="col-span-12 lg:col-span-4 flex flex-col h-full min-h-[500px] w-full lg:sticky lg:top-20" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
                     <MoveLog
                         moveLog={moveLog}
                         currentStep={currentStep}

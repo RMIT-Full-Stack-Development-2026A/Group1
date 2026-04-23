@@ -7,7 +7,6 @@ export const AuthInterface = {
     getUserSessionContext: async (userId) => AuthService.getUserSessionContext(userId),
     
     setPremiumExpiry: async (userId, premiumExpiresAt) => AuthService.setPremiumExpiry(userId, premiumExpiresAt),
-    updatePremiumStatus: async (userId, premiumExpiresAt) => AuthService.setPremiumExpiry(userId, premiumExpiresAt),
     
     setAccountStatus: async (userId, isActive) => AuthService.setAccountStatus(userId, isActive),
 

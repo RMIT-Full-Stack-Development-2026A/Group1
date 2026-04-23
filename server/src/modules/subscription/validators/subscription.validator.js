@@ -2,7 +2,7 @@ export const SubscriptionValidator = {
     validateCaptureOrder: (req, res, next) => {
         const { orderId } = req.body;
         
-        if (!orderId || typeof orderId !== 'string') {
+        if (!orderId || typeof orderId !== 'string' || orderId.trim() === '') {
             return res.status(400).json({
                 error: "VALIDATION_ERROR",
                 message: "Valid Order ID is required to capture payment.",
@@ -14,18 +14,18 @@ export const SubscriptionValidator = {
     },
 
     validatePagination: (req, res, next) => {
-        const page = parseInt(req.query.page);
-        const limit = parseInt(req.query.limit);
+        const page = req.query.page ? Number(req.query.page) : 1;
+        const limit = req.query.limit ? Number(req.query.limit) : 20;
 
-        if (req.query.page && (isNaN(page) || page < 1)) {
+        if (!Number.isInteger(page) || page < 1) {
             return res.status(400).json({ error: "VALIDATION_ERROR", message: "Page must be a positive integer." });
         }
-        if (req.query.limit && (isNaN(limit) || limit < 1 || limit > 100)) {
+        if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
             return res.status(400).json({ error: "VALIDATION_ERROR", message: "Limit must be between 1 and 100." });
         }
         
-        req.query.page = page || 1;
-        req.query.limit = limit || 20;
+        req.query.page = page;
+        req.query.limit = limit;
         next();
     }
 };

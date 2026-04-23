@@ -55,7 +55,7 @@ export const SubscriptionController = {
             res.status(200).send('OK'); // Acknowledge receipt to PayPal immediately
         } catch (error) {
             console.error('[PayPal Webhook Error]:', error);
-            res.status(400).send('Webhook Error');
+            res.status(500).send('Internal Server Error');
         }
     }
 };

@@ -125,7 +125,7 @@ export const SubscriptionService = {
             });
 
             // Update user's premium expiry date in Auth module
-            await AuthInterface.updatePremiumStatus(userId, endDate);
+            await AuthInterface.setPremiumExpiry(userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
 
@@ -169,7 +169,7 @@ export const SubscriptionService = {
                     await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
                     
                     // 2. Revoke premium status from user (Set expiry to null or past date)
-                    await AuthInterface.updatePremiumStatus(transaction.userId, null);
+                    await AuthInterface.setPremiumExpiry(transaction.userId, null);
                     
                     console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
                 }

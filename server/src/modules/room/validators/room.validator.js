@@ -36,14 +36,23 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
         } else if (ACTIVE_ROOM_STATUSES.includes(upperStatus)) {
             // Anyone can query specific active statuses (WAITING, READY, PLAYING)
             filter.status = upperStatus;
-        } else if (isAdmin && ALL_ROOM_STATUSES.includes(upperStatus)) {
-            // ONLY Admins can query terminal statuses (CLOSED, ABORTED)
-            filter.status = upperStatus;
+        }  else if (ALL_ROOM_STATUSES.includes(upperStatus)) {
+             if (isAdmin) {
+                 // ONLY Admins can query terminal statuses (CLOSED, ABORTED)
+                 filter.status = upperStatus;
+             } else {
+                 throw {
+                     statusCode: 403,
+                     error: "FORBIDDEN_STATUS_QUERY",
+                     message: "You do not have permission to query closed or aborted rooms.",
+                     valid_example: `Allowed statuses: 'ACTIVE' or ${ACTIVE_ROOM_STATUSES.join(', ')}`
+                 };
+             }
         } else {
             throw {
-                statusCode: isAdmin ? 400 : 403,
-                error: isAdmin ? "INVALID_QUERY" : "FORBIDDEN_STATUS_QUERY",
-                message: isAdmin ? "Invalid status parameter." : "You do not have permission to query closed or aborted rooms.",
+                statusCode: 400,
+                 error: "INVALID_QUERY",
+                 message: "Invalid status parameter.",
                 valid_example: isAdmin 
                     ? `Admin allowed statuses: 'ACTIVE' or ${ALL_ROOM_STATUSES.join(', ')}`
                     : `Allowed statuses: 'ACTIVE' or ${ACTIVE_ROOM_STATUSES.join(', ')}`

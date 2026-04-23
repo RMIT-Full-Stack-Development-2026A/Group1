@@ -3,8 +3,8 @@ import { validateRoomQuery, validateObjectId } from '../validators/room.validato
 import { RoomDTO } from '../dtos/room.dto.js';
 
 export const RoomService = {
-    getArenaRooms: async (query) => {
-        const { filter, sort, pagination } = validateRoomQuery(query);
+    getArenaRooms: async (query, requestingUser) => {
+        const { filter, sort, pagination } = validateRoomQuery(query, requestingUser);
         
         const { rooms, total } = await RoomRepository.findPaginated(filter, sort, pagination.skip, pagination.limit);
         

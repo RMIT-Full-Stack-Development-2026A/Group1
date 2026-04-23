@@ -12,7 +12,7 @@ import adminRoutes from './modules/admin/routes/admin.routes.js';
 import profileRoutes from './modules/profile/routes/profile.routes.js';
 import gameRoutes from "./modules/game/routes/game.routes.js";
 import roomRoutes from "./modules/room/routes/room.routes.js";
-import { subscriptionRoutes } from './modules/subscription/routes/subscription.routes.js';
+import subscriptionRoutes from './modules/subscription/routes/subscription.routes.js';
 
 const app = express();
 

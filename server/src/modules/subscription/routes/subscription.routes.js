@@ -108,4 +108,4 @@ router.post(
     SubscriptionController.handlePayPalWebhook
 );
 
-export const subscriptionRoutes = router;
+export default router;

@@ -18,8 +18,7 @@ export const AdminService = {
         return AdminDTO.toDashboard({
             ...authMetrics,
             totalMatches,
-            activeRooms,
-            //totalRevenue
+            activeRooms
         });
     },
     

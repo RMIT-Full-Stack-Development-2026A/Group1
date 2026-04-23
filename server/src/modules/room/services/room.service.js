@@ -38,6 +38,22 @@ export const RoomService = {
             };
         }
 
+        // Authorization check
+        const isParticipant = room.participants && room.participants.some(
+            (pId) => pId.toString() === requestingUser.id.toString()
+        );
+        const isAdmin = requestingUser.role === 'ADMIN';
+
+        if (!isParticipant && !isAdmin) {
+            throw {
+                statusCode: 403,
+                error: "FORBIDDEN_ACCESS",
+                message: "Access denied to room state.",
+                cause: "The requester is neither a participant in the room nor an administrator.",
+                valid_example: "Ensure you are logged into an account that is actively part of this room."
+            };
+        }
+
         return RoomDTO.toRoomDetail(room);
     },
 

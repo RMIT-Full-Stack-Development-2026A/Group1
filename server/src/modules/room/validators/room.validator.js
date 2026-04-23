@@ -11,16 +11,38 @@ export const validateRoomQuery = (query) => {
 
     const filter = {};
 
-    const allowedArenaStatuses = ['WAITING', 'READY', 'PLAYING'];
-    if (query.status && allowedArenaStatuses.includes(query.status)) {
-        filter.status = query.status;
-    } else {
-        // Default arena filter 
-        filter.status = { $in: allowedArenaStatuses };
+    // Filter by board size
+    if (query.boardSize) {
+        const size = parseInt(query.boardSize, 10);
+        if ([10, 15].includes(size)) {
+            filter.boardSize = size;
+        } else {
+            throw {
+                statusCode: 400,
+                error: "INVALID_QUERY",
+                message: "Invalid boardSize parameter.",
+                valid_example: "boardSize must be either 10 or 15."
+            };
+        }
     }
 
-    if (query.boardSize && [10, 15].includes(parseInt(query.boardSize))) {
-        filter.boardSize = parseInt(query.boardSize);
+    // Filter by status using your centralized constants
+    if (query.status) {
+        const upperStatus = query.status.toUpperCase();
+        
+        if (ALL_ROOM_STATUSES.includes(upperStatus)) {
+            filter.status = upperStatus;
+        } else if (upperStatus === 'ACTIVE') {
+            // Helper query
+            filter.status = { $in: ACTIVE_ROOM_STATUSES };
+        } else {
+            throw {
+                statusCode: 400,
+                error: "INVALID_QUERY",
+                message: "Invalid status parameter.",
+                valid_example: `Status must be 'ACTIVE' or one of: ${ALL_ROOM_STATUSES.join(', ')}`
+            };
+        }
     }
 
     // Sort newest created first for arena listings

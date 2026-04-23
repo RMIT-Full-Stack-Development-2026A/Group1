@@ -1,3 +1,4 @@
+import { ACTIVE_ROOM_STATUSES } from '../constants/room.constants.js';
 import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {
@@ -21,14 +22,14 @@ export const RoomRepository = {
     findActiveRoomByUserId: async (userId) => {
         return GameRoom.findOne({
             "participants.userId": userId,
-            status: { $in: ["WAITING", "READY", "PLAYING"] }
+            status: { $in: ACTIVE_ROOM_STATUSES }
         }).lean();
     },
 
     // Interface lookup for Admin dashboard
     countActiveRooms: async () => {
         return GameRoom.countDocuments({
-            status: { $in: ["WAITING", "READY", "PLAYING"] }
+            status: { $in: ACTIVE_ROOM_STATUSES }
         });
     }
 };

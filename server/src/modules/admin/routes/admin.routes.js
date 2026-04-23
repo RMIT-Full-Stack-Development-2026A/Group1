@@ -167,7 +167,7 @@ adminRoutes.get('/rooms', AdminController.getRooms);
  *       404:
  *         $ref: '#/components/responses/NotFoundResponse'
  */
-// adminRoutes.get('/rooms/:id');
+adminRoutes.get('/rooms/:id', AdminController.getRoomDetail);
 // adminRoutes.delete('/room/:id');
 
 export default adminRoutes;

@@ -16,7 +16,7 @@ export const RoomController = {
 
     getRoomDetail: async (req, res, next) => {
         try {
-            const safeData = await RoomService.getRoomDetail(req.params.id);
+            const safeData = await RoomService.getRoomDetail(req.params.id, req.user);
             
             return res.status(200).json({
                 data: safeData,

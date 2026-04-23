@@ -40,7 +40,7 @@ export const RoomService = {
 
         // Authorization check
         const isParticipant = room.participants && room.participants.some(
-            (pId) => pId.toString() === requestingUser.id.toString()
+            (participant) => participant?.userId?.toString() === requestingUser.id.toString()
         );
         const isAdmin = requestingUser.role === 'ADMIN';
 

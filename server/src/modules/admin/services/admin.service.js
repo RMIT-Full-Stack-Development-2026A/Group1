@@ -119,4 +119,30 @@ export const AdminService = {
         // Delegate to Room module
         return await RoomInterface.getRoomDetail(roomId, requestingUser);
     },
+
+    forceCloseRoom: async (roomId) => {
+        if (!validateObjectId(roomId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Failed to close room. Invalid room ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        // Delegate to Room module
+        const closed = await RoomInterface.forceCloseRoomByAdmin(roomId);
+        
+        if (!closed) {
+            throw {
+                statusCode: 404,
+                error: "ROOM_NOT_FOUND",
+                message: "Room not found or already closed.",
+                cause: `The room ID ${roomId} does not exist or is already in a CLOSED/ABORTED state.`
+            };
+        }
+
+        return closed;
+    }
 };

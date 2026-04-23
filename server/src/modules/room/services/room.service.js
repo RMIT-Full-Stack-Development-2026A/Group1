@@ -78,5 +78,39 @@ export const RoomService = {
         });
     },
 
+    forceCloseRoomByAdmin: async (roomId) => {
+        const room = await RoomRepository.findById(roomId);
+        if (!room || ['CLOSED', 'ABORTED'].includes(room.status)) {
+            return null; // Already closed or doesn't exist
+        }
 
+        // Update Room State to CLOSED by ADMIN
+        const closedRoom = await RoomRepository.updateRoomStatus(roomId, {
+            status: 'CLOSED',
+            closedBy: 'ADMIN',
+            endedAt: new Date()
+        });
+
+        // If the match was currently PLAYING
+        if (room.status === 'PLAYING') {
+            await GameInterface.createOnlineGameSessionFromRoom({
+                sessionNumber: `ONL-${room.roomNumber}`,
+                sourceRoomId: room._id,
+                gameType: 'ONLINE_MATCH',
+                boardSize: room.boardSize,
+                participants: room.participants,
+                firstTurnParticipantIndex: room.currentTurnParticipantIndex || 0,
+                status: 'ABORTED',
+                endedReason: 'ADMIN_FORCE_CLOSE', // Explicitly marked as admin intervention
+                moves: room.moves,
+                totalMoves: room.moveCount,
+                startedAt: room.startedAt,
+                endedAt: new Date()
+            });
+        }
+
+        // Note: In your socket namespace, you would also need to emit `game:ended` to connected clients using an event emitter function called here.
+
+        return true;
+    }
 };

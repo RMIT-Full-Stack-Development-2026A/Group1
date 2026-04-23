@@ -13,4 +13,7 @@ export const RoomInterface = {
 
     // For Admin: Get full room details
     getRoomDetail: async (roomId, requestingUser) => RoomService.getRoomDetail(roomId, requestingUser),
+
+    // For Admin: Force close room and signal Game module
+    forceCloseRoomByAdmin: async (roomId) => RoomService.forceCloseRoomByAdmin(roomId)
 };

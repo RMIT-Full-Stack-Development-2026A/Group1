@@ -43,5 +43,12 @@ export const RoomRepository = {
         return GameRoom.countDocuments({
             status: { $in: ACTIVE_ROOM_STATUSES }
         });
+    },
+    updateRoomStatus: async (roomId, updateFields) => {
+        return GameRoom.findByIdAndUpdate(
+            roomId, 
+            { $set: updateFields }, 
+            { new: true }
+        );
     }
 };

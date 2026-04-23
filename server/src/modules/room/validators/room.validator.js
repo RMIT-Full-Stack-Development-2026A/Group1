@@ -6,18 +6,17 @@ export const validateObjectId = (id) => {
 
 export const validateRoomQuery = (query) => {
     const page = Math.max(1, parseInt(query.page) || 1);
-    const limit = Math.max(1, Math.min(50, parseInt(query.limit) || 20));
+    const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
     const skip = (page - 1) * limit;
 
     const filter = {};
 
-    if (query.status) {
-        if (['WAITING', 'READY', 'PLAYING'].includes(query.status)) {
-            filter.status = query.status;
-        }
+    const allowedArenaStatuses = ['WAITING', 'READY', 'PLAYING'];
+    if (query.status && allowedArenaStatuses.includes(query.status)) {
+        filter.status = query.status;
     } else {
-        // Default arena filter
-        filter.status = { $in: ['WAITING', 'READY', 'PLAYING'] };
+        // Default arena filter 
+        filter.status = { $in: allowedArenaStatuses };
     }
 
     if (query.boardSize && [10, 15].includes(parseInt(query.boardSize))) {

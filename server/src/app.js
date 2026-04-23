@@ -13,7 +13,6 @@ import profileRoutes from './modules/profile/routes/profile.routes.js';
 import gameRoutes from "./modules/game/routes/game.routes.js";
 import roomRoutes from "./modules/room/routes/room.routes.js";
 
-
 const app = express();
 
 app.use(cors({

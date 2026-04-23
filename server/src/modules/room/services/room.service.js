@@ -1,6 +1,7 @@
 import { RoomRepository } from '../repositories/room.repository.js';
 import { validateRoomQuery, validateObjectId } from '../validators/room.validator.js';
 import { RoomDTO } from '../dtos/room.dto.js';
+import { GameInterface } from '../../game/interfaces/game.interface.js';
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {
@@ -84,28 +85,39 @@ export const RoomService = {
             return null; // Already closed or doesn't exist
         }
 
+        // Create a single timestamp 
+        const closedAt = new Date();
+
         // Update Room State to CLOSED by ADMIN
         const closedRoom = await RoomRepository.updateRoomStatus(roomId, {
             status: 'CLOSED',
             closedBy: 'ADMIN',
-            endedAt: new Date()
+            endedAt: closedAt
         });
+
+        // Abort if the update failed
+        if (!closedRoom) {
+            return false; 
+        }
 
         // If the match was currently PLAYING
         if (room.status === 'PLAYING') {
+            const firstTurnParticipantIndex = room.moves?.length
+                ? (room.moves[0]?.byParticipantIndex ?? 0)
+                : (room.currentTurnParticipantIndex || 0);
+
             await GameInterface.createOnlineGameSessionFromRoom({
-                sessionNumber: `ONL-${room.roomNumber}`,
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
                 participants: room.participants,
-                firstTurnParticipantIndex: room.currentTurnParticipantIndex || 0,
+                firstTurnParticipantIndex,
                 status: 'ABORTED',
                 endedReason: 'ADMIN_FORCE_CLOSE', // Explicitly marked as admin intervention
                 moves: room.moves,
                 totalMoves: room.moveCount,
                 startedAt: room.startedAt,
-                endedAt: new Date()
+                endedAt: closedAt
             });
         }
 

@@ -235,6 +235,7 @@ HTTP never becomes the primary online gameplay channel. The frontend should:
 - Check current premium state from `User.premiumExpiresAt`
 - Handle direct checkout flow via external payment providers (PayPal)
 - Validate webhooks/capture orders from payment providers
+- Handle async payment events (e.g., Refunds, Chargebacks) to revoke premium access
 - Extend premium period upon successful payment
 - Maintain immutable transaction (payment invoice) history
 - Expose revenue metrics for the admin dashboard
@@ -243,6 +244,7 @@ HTTP never becomes the primary online gameplay channel. The frontend should:
 - `GET /api/v1/subscription/status`
 - `POST /api/v1/subscription/create-order`
 - `POST /api/v1/subscription/capture-order`
+- `POST /api/v1/subscription/paypal-events `
 - `GET /api/v1/subscription/history`
 
 ### Architectural note

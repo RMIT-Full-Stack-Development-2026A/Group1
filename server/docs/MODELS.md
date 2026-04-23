@@ -467,9 +467,9 @@ const transactionSchema = new mongoose.Schema({
     },
     status: {
         type: String, // Processing outcome of the transaction
-        enum: ['PENDING', 'SUCCESS', 'FAILED'], 
+        enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], 
         required: true, 
-        default: 'SUCCESS', 
+        default: 'PENDING', 
         index: true 
     },
     externalTransactionId: {

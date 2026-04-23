@@ -16,7 +16,7 @@ export const RoomRepository = {
 
         const [rooms, total] = await Promise.all([
             GameRoom.find(filter)
-                .select(summaryProjection) // <-- Added Projection
+                .select(summaryProjection)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)

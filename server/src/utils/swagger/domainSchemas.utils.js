@@ -203,7 +203,7 @@ export const domainSchemas = {
             premiumPlayers: { type: 'integer', example: 89 },
             activeRooms:    { type: 'integer', example: 14 },
             totalMatches:   { type: 'integer', example: 18500 },
-            // totalRevenue:   { type: 'number',  example: 4321.50 },
+            totalRevenue:   { type: 'number',  example: 4321.50 },
         },
     },
 

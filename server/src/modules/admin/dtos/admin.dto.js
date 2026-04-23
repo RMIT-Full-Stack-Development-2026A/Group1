@@ -18,7 +18,7 @@ export const AdminDTO = {
         premiumPlayers: metrics.premiumPlayers ?? 0,
         activeRooms: metrics.activeRooms ?? 0,
         totalMatches: metrics.totalMatches ?? 0,
-        // totalRevenue: metrics.totalRevenue ?? 0
+        totalRevenue: metrics.totalRevenue ?? 0
     }),
 
     toPlayerItem: toAdminPlayerItem,

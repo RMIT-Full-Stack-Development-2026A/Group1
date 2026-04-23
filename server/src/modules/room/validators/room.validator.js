@@ -6,7 +6,7 @@ export const validateObjectId = (id) => {
 
 export const validateRoomQuery = (query) => {
     const page = Math.max(1, parseInt(query.page) || 1);
-    const limit = Math.max(1, Math.min(50, parseInt(query.limit) || 20));
+    const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
     const skip = (page - 1) * limit;
 
     const filter = {};

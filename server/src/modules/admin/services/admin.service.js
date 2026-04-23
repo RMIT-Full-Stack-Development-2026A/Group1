@@ -12,15 +12,14 @@ export const AdminService = {
             GameInterface.getTotalPlatformMatches()
         ]);
 
-        // Placeholders until Room and Wallet modules are built
         const activeRooms = 0; // e.g., await RoomInterface.getActiveRoomsCount();
-        const totalRevenue = 0; // e.g., await SubscriptionInterface.getTotalRevenue();
+        // const totalRevenue = 0; // e.g., await SubscriptionInterface.getTotalRevenue();
 
         return AdminDTO.toDashboard({
             ...authMetrics,
             totalMatches,
             activeRooms,
-            totalRevenue
+            //totalRevenue
         });
     },
     

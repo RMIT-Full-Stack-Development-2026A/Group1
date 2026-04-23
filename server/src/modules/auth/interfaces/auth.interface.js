@@ -1,4 +1,3 @@
-import { AdminService } from "../../admin/services/admin.service.js";
 import { AuthService } from "../services/auth.service.js";
 
 // Interface exposes auth-owned user operations to other modules without leaking repository details.

@@ -244,7 +244,7 @@ HTTP never becomes the primary online gameplay channel. The frontend should:
 - `GET /api/v1/subscription/status`
 - `POST /api/v1/subscription/create-order`
 - `POST /api/v1/subscription/capture-order`
-- `POST /api/v1/subscription/webhook` 
+- `POST /api/v1/subscription/paypal-events `
 - `GET /api/v1/subscription/history`
 
 ### Architectural note

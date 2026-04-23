@@ -134,7 +134,8 @@ export const AdminService = {
         // Delegate to Room module
         const closed = await RoomInterface.forceCloseRoomByAdmin(roomId);
         
-        if (!closed) {
+        // (Not Found / Already Closed)
+        if (closed === null) {
             throw {
                 statusCode: 404,
                 error: "ROOM_NOT_FOUND",
@@ -143,6 +144,16 @@ export const AdminService = {
             };
         }
 
+        // (Update Failed / Concurrency Issue)
+        if (closed === false) {
+            throw {
+                statusCode: 500,
+                error: "UPDATE_FAILED",
+                message: "Failed to force close the room.",
+                cause: "The room status update failed unexpectedly due to a concurrent modification or database error.",
+                valid_example: "Try the request again."
+            };
+        }
         return closed;
     }
 };

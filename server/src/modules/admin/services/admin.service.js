@@ -8,13 +8,12 @@ export const AdminService = {
 
     getDashboard: async () => {
         // Fetch all metrics concurrently for performance
-        const [authMetrics, totalMatches] = await Promise.all([
+        const [authMetrics, totalMatches, activeRooms] = await Promise.all([
             AuthInterface.getPlatformMetrics(),
-            GameInterface.getTotalPlatformMatches()
+            GameInterface.getTotalPlatformMatches(),
+            RoomInterface.getActiveRoomsCount()
         ]);
 
-        // Get data from Room and Wallet modules
-        const activeRooms = await RoomInterface.getActiveRoomsCount();
         //const totalRevenue = 0; // e.g., await Subscription.getTotalRevenue();
 
         return AdminDTO.toDashboard({

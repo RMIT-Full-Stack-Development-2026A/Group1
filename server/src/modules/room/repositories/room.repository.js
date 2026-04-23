@@ -2,13 +2,14 @@ import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {
     findPaginated: async (filter, sort, skip, limit) => {
-        const rooms = await GameRoom.find(filter)
-            .sort(sort)
-            .skip(skip)
-            .limit(limit)
-            .lean();
-        
-        const total = await GameRoom.countDocuments(filter);
+         const [rooms, total] = await Promise.all([
+            GameRoom.find(filter)
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            GameRoom.countDocuments(filter)
+        ]);
         return { rooms, total };
     },
 

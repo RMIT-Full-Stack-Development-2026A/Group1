@@ -34,7 +34,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/games', gameRoutes);
-app.use('/api/v1/rooms', roomRoutes)
+app.use('/api/v1/rooms', roomRoutes);
 
 app.use(notFoundHandler);
 app.use(errorMiddleware);

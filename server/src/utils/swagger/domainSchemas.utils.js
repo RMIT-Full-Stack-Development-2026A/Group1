@@ -165,7 +165,7 @@ export const domainSchemas = {
             id:           { type: 'string' },
             roomNumber:   { type: 'string', example: 'RM-01HXXXX' },
             boardSize:    { type: 'integer', enum: [10, 15] },
-            status:       { type: 'string', enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED', 'ACTIVE'], default: 'ACTIVE' },
+            status:       { type: 'string', enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'] },
             participants: { type: 'array', items: { $ref: '#/components/schemas/RoomParticipant' }, maxItems: 2 },
             moveCount:    { type: 'integer', example: 7 },
             lastMove:     { $ref: '#/components/schemas/LastMove' },

@@ -1,8 +1,7 @@
-// import { WalletService } from "../services/wallet.service.js";
-import { WalletDTO } from "../dtos/wallet.dto.js";
+import { SubscriptionDTO } from "../dtos/subscription.dto.js";
 
 // Interface exposes wallet summary and transaction flows to other modules.
-export const WalletInterface = {
+export const SubscriptionInterface = {
     getWalletSummary: async (userId) => {
         // const result = await WalletService.getWalletSummary(userId);
         // return WalletDTO.toWalletSummary(result);
@@ -28,5 +27,9 @@ export const WalletInterface = {
     getCurrentBalance: async (userId) => {
         // const result = await WalletService.getWalletSummary(userId);
         // return result?.balance ?? 0;
+    },
+
+    getTotalRevenue: async () => {
+        // return 0
     }
 };

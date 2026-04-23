@@ -235,7 +235,7 @@ Recommended dashboard data:
 This avoids multiple parallel admin summary calls.
 
 ### 6.2 Player Management
-| Method | Endpoint | Auth | Description | Implememted
+| Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/admin/players` | Admin | List players with pagination and filters | Yes |
 | GET | `/admin/player/:id` | Admin | Get one player's admin detail | Yes |
@@ -255,11 +255,11 @@ This avoids multiple parallel admin summary calls.
 |
 
 ### 6.3 Room Monitoring
-| Method | Endpoint | Auth | Description |
-|---|---|---:|---|
-| GET | `/admin/rooms` | Admin | List active/waiting rooms |
-| GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot |
-| DELETE | `/admin/rooms/:id` | Admin | Force close a room |
+| Method | Endpoint | Auth | Description | Implememted |
+|---|---|---:|---|---|
+| GET | `/admin/rooms` | Admin | List active/waiting rooms | Yes |
+| GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot | No |
+| DELETE | `/admin/rooms/:id` | Admin | Force close a room | No |
 
 ## 7. WebSocket Contract
 Namespace/Endpoint: `/ws/game`

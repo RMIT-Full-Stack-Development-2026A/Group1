@@ -5,6 +5,9 @@ export const RoomInterface = {
     // Used by auth check-auth to restore unfinished room context.
     getActiveRoomSummaryByUserId: async (userId) => RoomService.getActiveRoomSummaryByUserId(userId),
 
-    // Used by Admin module to render active rooms on the dashboard
-    getActiveRoomsCount: async () => RoomService.getActiveRoomsCount()
+    // For Admin module to render active rooms on the dashboard
+    getActiveRoomsCount: async () => RoomService.getActiveRoomsCount(),
+
+    // For Admin: Fetch paginated rooms
+    getPaginatedRooms: async (filter, sort, skip, limit) => RoomService.getPaginatedRooms(filter, sort, skip, limit),
 };

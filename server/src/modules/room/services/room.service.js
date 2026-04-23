@@ -65,5 +65,14 @@ export const RoomService = {
 
     getActiveRoomsCount: async () => {
         return RoomRepository.countActiveRooms();
-    }
+    },
+
+
+    getPaginatedRooms: async (filter, sort, skip, limit) => {
+        const { rooms, total } = await RoomRepository.findPaginated(filter, sort, skip, limit);
+        return {
+            items: rooms.map(room => RoomDTO.toRoomSummary(room)),
+            total
+        };
+    },
 };

@@ -60,8 +60,8 @@ export const SubscriptionService = {
                 application_context: {
                 brand_name: "Premium Subscription", 
                 user_action: "PAY_NOW", 
-                return_url: "http://localhost:8000/success", 
-                cancel_url: "http://localhost:8000/cancel"  
+                return_url: `${process.env.CLIENT_URL}/success`,
+                cancel_url: `${process.env.CLIENT_URL}/cancel`
             }
             })
         });

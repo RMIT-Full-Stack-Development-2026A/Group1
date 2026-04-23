@@ -6,12 +6,13 @@ import { swaggerSpec } from "./config/swagger.config.js";
 import { generalRateLimit } from './middlewares/rateLimitMiddleware.js';
 import { errorMiddleware, notFoundHandler } from './middlewares/errorMiddleware.js';
 
-// inport module router
+// import module router
 import authRoutes from './modules/auth/routes/auth.routes.js';
 import adminRoutes from './modules/admin/routes/admin.routes.js';
 import profileRoutes from './modules/profile/routes/profile.routes.js';
 import gameRoutes from "./modules/game/routes/game.routes.js";
 import roomRoutes from "./modules/room/routes/room.routes.js";
+import { subscriptionRoutes } from './modules/subscription/routes/subscription.routes.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/games', gameRoutes);
 app.use('/api/v1/rooms', roomRoutes);
+app.use('/api/v1/subscription', subscriptionRoutes);
 
 app.use(notFoundHandler);
 app.use(errorMiddleware);

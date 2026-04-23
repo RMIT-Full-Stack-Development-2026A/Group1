@@ -17,7 +17,7 @@ export const SubscriptionRepository = {
         return await Transaction.findOneAndUpdate(
             { externalTransactionId: orderId },
             { $set: updateData },
-            { new: true }
+            { returnDocument: 'after' }
         );
     },
 

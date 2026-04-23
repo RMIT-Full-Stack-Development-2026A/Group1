@@ -56,7 +56,13 @@ export const SubscriptionService = {
                 intent: 'CAPTURE',
                 purchase_units: [{
                     amount: { currency_code: 'USD', value: PREMIUM_PRICE }
-                }]
+                }],
+                application_context: {
+                brand_name: "Premium Subscription", 
+                user_action: "PAY_NOW", 
+                return_url: "http://localhost:8000/success", 
+                cancel_url: "http://localhost:8000/cancel"  
+            }
             })
         });
 

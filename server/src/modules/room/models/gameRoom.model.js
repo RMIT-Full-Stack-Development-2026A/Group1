@@ -3,6 +3,7 @@ import { ulid } from 'ulid';
 import { roomMoveSchema } from './roomMove.model.js';
 import { roomParticipantSchema } from './roomParticipant.model.js';
 import { baseSchemaOptions } from '../../../utils/baseSchemaOptions.js';
+import { ALL_ROOM_STATUSES, ROOM_STATUS } from '../constants/room.constants.js';
 
 const gameRoomSchema = new mongoose.Schema({
     roomNumber: {
@@ -22,8 +23,8 @@ const gameRoomSchema = new mongoose.Schema({
 
     status: {
         type: String, // Current lifecycle state of the room
-        enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'],
-        default: 'WAITING', 
+        enum: ALL_ROOM_STATUSES,
+        default: ROOM_STATUS.WAITING, 
         index: true 
     },
 

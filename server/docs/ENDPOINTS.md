@@ -115,8 +115,8 @@ These APIs manage user profile data and provide an optimized overview payload fo
 | GET | `/profile` | Yes | Get current user's base profile | Yes |
 | GET | `/profile/overview` | Yes | Get profile + subscription + wallet summary + recent game stats in one call | Yes |
 | PUT | `/profile/update` | Yes | Update username, email, or country | Yes |
-| PATCH | `/profile/password` | Yes | Change current user's password | No |
-| POST | `/profile/avatar` | Yes | Upload avatar image | No |
+| PATCH | `/profile/password` | Yes | Change current user's password | Yes |
+| POST | `/profile/avatar` | Yes | Upload avatar image | Yes |
 
 ### Why `GET /profile/overview`
 This endpoint is intentionally aggregated so the Profile screen does **not** need to call `/profile`, `/subscription/status`, and `/games` separately.
@@ -183,8 +183,8 @@ Room creation/join/leave/gameplay happen through WebSocket. HTTP is used only fo
 
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/rooms` | Yes | Get current arena snapshot (all joinable or active rooms) | No |
-| GET | `/rooms/:id` | Yes | Get one room snapshot for reconnect/recovery | No |
+| GET | `/rooms` | Yes | Get current arena snapshot (all joinable or active rooms) | Yes |
+| GET | `/rooms/:id` | Yes | Get one room snapshot for reconnect/recovery | Yes |
 |
 
 ### `GET /rooms` query params
@@ -222,7 +222,7 @@ All endpoints require `ADMIN` role.
 ### 6.1 Dashboard
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | No |
+| GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | Yes |
 
 Recommended dashboard data:
 - totalPlayers

@@ -1,6 +1,20 @@
 import { AdminService } from '../services/admin.service.js';
 
 export const AdminController = {
+
+    getDashboard: async (req, res, next) => {
+        try {
+            const safeData = await AdminService.getDashboard();
+            
+            return res.status(200).json({
+                data: safeData,
+                message: "Admin dashboard metrics fetched successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
+    },
+    
     getPlayers: async (req, res, next) => {
         try {
             const safeData = await AdminService.getPlayers(req.query);

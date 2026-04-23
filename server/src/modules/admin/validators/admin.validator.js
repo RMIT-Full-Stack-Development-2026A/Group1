@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+// Define constants 
+export const ACTIVE_ROOM_STATUSES = ['WAITING', 'READY', 'PLAYING'];
+export const ALL_ROOM_STATUSES = [...ACTIVE_ROOM_STATUSES, 'ABORTED', 'CLOSED'];
+
 export const validateObjectId = (id) => {
     return mongoose.Types.ObjectId.isValid(id);
 };
@@ -47,16 +51,36 @@ export const validateAdminRoomQuery = (query) => {
     
     // Status Filter
     if (query.status) {
-        filter.status = query.status;
+        const status = String(query.status).toUpperCase();
+        
+        if (!ALL_ROOM_STATUSES.includes(status)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_STATUS",
+                message: "Invalid room status parameter.",
+                cause: `The provided status is not recognized. Allowed values are: ${ALL_ROOM_STATUSES.join(', ')}.`,
+                valid_example: "WAITING"
+            };
+        }
+        filter.status = status;
     } else {
-        // By default
-        filter.status = { $in: ['WAITING', 'READY', 'PLAYING'] };
+        // Default to active rooms for monitoring
+        filter.status = { $in: ACTIVE_ROOM_STATUSES };
     }
 
     // Board Size Filter
     if (query.boardSize) {
-        const size = parseInt(query.boardSize);
-        if ([10, 15].includes(size)) filter.boardSize = size;
+        const size = parseInt(query.boardSize, 10);
+        if (![10, 15].includes(size)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_BOARD_SIZE",
+                message: "Invalid board size parameter.",
+                cause: "The provided board size is unsupported.",
+                valid_example: "15"
+            };
+        }
+        filter.boardSize = size;
     }
 
     // Sort newest first

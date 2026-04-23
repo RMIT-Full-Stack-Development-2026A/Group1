@@ -255,7 +255,7 @@ This avoids multiple parallel admin summary calls.
 |
 
 ### 6.3 Room Monitoring
-| Method | Endpoint | Auth | Description | Implememted |
+| Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/admin/rooms` | Admin | List active/waiting rooms | Yes |
 | GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot | No |

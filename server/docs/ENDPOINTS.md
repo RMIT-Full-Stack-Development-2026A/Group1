@@ -210,10 +210,10 @@ Base Path: `/api/v1/subscription`
 | POST | `/subscription/create-order` | Yes | Generate PayPal payment link/order ID | No |
 | POST | `/subscription/capture-order` | Yes | Validate PayPal successful payment and activate premium | No |
 | GET | `/subscription/history` | Yes | Get paginated payment transaction history | No |
-
+| POST | `/subscription/webhook` | No | Listen for PayPal async events (e.g., PAYMENT.CAPTURE.REFUNDED) to revoke premium | No |
 ### Notes
 - A successful `capture-order` request should update the `premiumExpiresAt` state and record an immutable `Transaction` invoice.
-
+- If a `REFUND` or `CHARGEBACK` webhook event is received from PayPal, the system must update the corresponding `Transaction` status to `REFUNDED` and reset the user's `premiumExpiresAt` to null/past.
 ## 6. Admin APIs
 Base Path: `/api/v1/admin`
 

@@ -3,8 +3,20 @@ import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {
     findPaginated: async (filter, sort, skip, limit) => {
-         const [rooms, total] = await Promise.all([
+        const summaryProjection = {
+            roomNumber: 1,
+            boardSize: 1,
+            status: 1,
+            participants: 1,
+            moveCount: 1,
+            startedAt: 1,
+            endedAt: 1,
+            lastMove: 1
+        };
+
+        const [rooms, total] = await Promise.all([
             GameRoom.find(filter)
+                .select(summaryProjection) // <-- Added Projection
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)

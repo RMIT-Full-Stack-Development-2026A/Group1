@@ -44,6 +44,8 @@ export const validateRoomQuery = (query) => {
                 valid_example: `Status must be 'ACTIVE' or one of: ${ALL_ROOM_STATUSES.join(', ')}`
             };
         }
+    } else {
+        filter.status = { $in: ACTIVE_ROOM_STATUSES };
     }
 
     // Sort newest created first for arena listings

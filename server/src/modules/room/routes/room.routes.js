@@ -40,6 +40,6 @@ roomRoutes.get('/', RoomController.getRooms);
  *       404:
  *         $ref: '#/components/responses/NotFoundResponse'
  */
-roomRoutes.get('/:id',RoomController.getRoomDetail);
+roomRoutes.get('/:id', RoomController.getRoomDetail);
 
 export default roomRoutes;

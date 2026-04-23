@@ -15,7 +15,7 @@ export const RoomService = {
         });
     },
 
-    getRoomDetail: async (roomId) => {
+    getRoomDetail: async (roomId, requestingUser) => {
         if (!validateObjectId(roomId)) {
             throw {
                 statusCode: 400,

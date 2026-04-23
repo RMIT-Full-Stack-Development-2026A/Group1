@@ -18,10 +18,20 @@ export const SubscriptionValidator = {
         const limit = req.query.limit ? Number(req.query.limit) : 20;
 
         if (!Number.isInteger(page) || page < 1) {
-            return res.status(400).json({ error: "VALIDATION_ERROR", message: "Page must be a positive integer." });
+            return res.status(400).json({ 
+                error: "VALIDATION_ERROR", 
+                message: "Page must be a positive integer.",
+                cause: "The 'page' query parameter must be an integer >= 1.",
+                valid_example: "?page=1&limit=20"
+            });
         }
         if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
-            return res.status(400).json({ error: "VALIDATION_ERROR", message: "Limit must be between 1 and 100." });
+            return res.status(400).json({ 
+                error: "VALIDATION_ERROR", 
+                message: "Limit must be between 1 and 100.",
+                cause: "The 'limit' query parameter must be an integer between 1 and 100.",
+                valid_example: "?page=1&limit=20"
+            });
         }
         
         req.query.page = page;

@@ -52,7 +52,7 @@ export const SubscriptionController = {
     handlePayPalWebhook: async (req, res, next) => {
         try {
             await SubscriptionService.processWebhook(req.body, req.headers);
-            res.status(200).send('OK'); // Acknowledge receipt to PayPal immediately
+            res.status(200).send('OK'); // Acknowledge to PayPal after successful processing
         } catch (error) {
             console.error('[PayPal Webhook Error]:', error);
             res.status(500).send('Internal Server Error');

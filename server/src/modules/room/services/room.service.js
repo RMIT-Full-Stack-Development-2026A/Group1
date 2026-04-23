@@ -70,9 +70,11 @@ export const RoomService = {
 
     getPaginatedRooms: async (filter, sort, skip, limit) => {
         const { rooms, total } = await RoomRepository.findPaginated(filter, sort, skip, limit);
-        return {
-            items: rooms.map(room => RoomDTO.toRoomSummary(room)),
-            total
-        };
+        const page = limit > 0 ? Math.floor(skip / limit) + 1 : 1;
+        return RoomDTO.toRoomListResponse(rooms, {
+            total,
+            page,
+            limit
+        });
     },
 };

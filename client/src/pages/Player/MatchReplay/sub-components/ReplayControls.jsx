@@ -1,16 +1,17 @@
 import React from 'react';
+import SoundButton from '@/components/reusable/SoundButton';
 
 function IconBtn({ icon, onClick, size = 'sm', disabled = false }) {
     const dimensionClass = size === 'md' ? 'w-12 h-12' : 'w-10 h-10';
 
     return (
-        <button
+        <SoundButton
             onClick={onClick}
             disabled={disabled}
             className={`${dimensionClass} cursor-pointer bg-surface-container bg-[#006780] border border-outline text-on-surface flex items-center justify-center chunky-shadow hover:bg-surface-container-high active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed`}
         >
             <span className="material-symbols-outlined">{icon}</span>
-        </button>
+        </SoundButton>
     );
 }
 
@@ -44,7 +45,7 @@ export default function ReplayControls({
             <div className="mb-6 flex items-center gap-4">
                 <span className="font-body uppercase tracking-widest text-[10px] text-outline">{moveCounterLabel}</span>
 
-                <button
+                <SoundButton
                     type="button"
                     onClick={handleScrubBarClick}
                     className="relative h-3 flex-1 bg-surface-container-highest border border-outline-variant overflow-hidden"
@@ -54,7 +55,7 @@ export default function ReplayControls({
                         className="absolute left-0 top-0 h-full bg-primary-container"
                         style={{ width: `${progressPercent}%` }}
                     />
-                </button>
+                </SoundButton>
 
                 <span className="font-body uppercase tracking-widest text-[10px] text-outline">{totalMoves}</span>
             </div>
@@ -70,7 +71,7 @@ export default function ReplayControls({
 
                 <div className="flex items-center gap-2">
                     {[1, 2, 4].map((value) => (
-                        <button
+                        <SoundButton
                             key={value}
                             type="button"
                             onClick={() => onSetSpeed(value)}
@@ -81,7 +82,7 @@ export default function ReplayControls({
                             }`}
                         >
                             {value}X
-                        </button>
+                        </SoundButton>
                     ))}
                 </div>
             </div>

@@ -64,9 +64,9 @@ const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty, avatarUrl,
 
                 <div className="flex items-center justify-center">
                     {markerVariantData ? (
-                        <Marker variantData={markerVariantData} className="w-20 h-20 flex items-center justify-center" />
+                        <Marker variantData={markerVariantData} className="w-10 h-10 flex items-center justify-center" />
                     ) : (
-                        <span className="font-headline text-5xl" style={{ color: markerColor, textShadow: markerGlow }}>
+                        <span className="font-headline text-6xl" style={{ color: markerColor, textShadow: markerGlow }}>
                             {role}
                         </span>
                     )}

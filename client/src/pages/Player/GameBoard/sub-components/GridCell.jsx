@@ -21,8 +21,8 @@ const GridCell = ({ value, markerVariant, gridStyle = 'classic', isWinCell, onCl
             style={isWinCell ? { boxShadow: 'inset 0 0 8px rgba(250,209,0,0.25)' } : {}}
             onClick={disabled ? undefined : onClick}
         >
-            {value === 'X' && renderXMarker(markerVariant, "w-10 h-10 flex items-center justify-center")}
-            {value === 'O' && renderOMarker(markerVariant, "w-10 h-10 flex items-center justify-center")}
+            {value === 'X' && renderXMarker(markerVariant, "w-28 h-20 flex items-center justify-center")}
+            {value === 'O' && renderOMarker(markerVariant, "w-28 h-20 flex items-center justify-center")}
         </div>
     );
 };

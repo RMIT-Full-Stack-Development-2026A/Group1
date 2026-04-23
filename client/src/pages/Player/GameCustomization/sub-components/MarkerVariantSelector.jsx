@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getMarkerVariants } from "../service/customization.service";
-
+import SoundButton from "@/components/reusable/SoundButton";
 export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
     const markerVariants = getMarkerVariants();
 
@@ -15,7 +15,7 @@ export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
             </div>
             <div className="bg-[#1e1e2c] border border-[#3d484d] p-6 grid grid-cols-3 md:grid-cols-6 gap-6">
                 {markerVariants.map((variant) => (
-                    <button
+                    <SoundButton
                         key={variant.displayId}
                         onClick={() => onSelect(variant.displayId)}
                         className="flex flex-col items-center gap-2 group cursor-pointer transition-all"
@@ -60,7 +60,7 @@ export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
                                     : "opacity-0 group-hover:opacity-100"
                             }`}
                         ></div>
-                    </button>
+                    </SoundButton>
                 ))}
             </div>
         </section>

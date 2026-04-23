@@ -116,28 +116,7 @@ export const AdminService = {
     },
 
     getRoomDetail: async (roomId, requestingUser) => {
-        if (!validateObjectId(roomId)) {
-            throw {
-                statusCode: 400,
-                error: "INVALID_IDENTIFIER",
-                message: "Failed to fetch room. Invalid room ID format.",
-                cause: "The provided ID string is not a valid MongoDB ObjectId.",
-                valid_example: "Use a valid 24-character hex string."
-            };
-        }
-
         // Delegate to Room module
-        const room = await RoomInterface.getRoomDetail(roomId, requestingUser);
-        if (!room) {
-            throw {
-                statusCode: 404,
-                error: "ROOM_NOT_FOUND",
-                message: "Room not found.",
-                cause: `No room record exists in the database matching ID: ${roomId}.`,
-                valid_example: "Ensure the room ID exists before requesting details."
-            };
-        }
-
-        return room;
+        return await RoomInterface.getRoomDetail(roomId, requestingUser);
     },
 };

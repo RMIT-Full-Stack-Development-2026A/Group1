@@ -3,7 +3,7 @@ import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { SubscriptionDTO } from '../dtos/subscription.dto.js';
 import nodemailer from 'nodemailer';
 
-//function to clean HTML and avoid XSS Injection (Copilot suggest)
+// Function to clean HTML and avoid XSS injection
 const escapeHtml = (unsafe) => {
     if (!unsafe) return '';
     return String(unsafe)
@@ -242,10 +242,22 @@ export const SubscriptionService = {
                     // Prevent revoking VIP if user has a newer valid subscription
                     if (user && user.premiumExpiresAt) {
                         const userExpiry = new Date(user.premiumExpiresAt).getTime();
-                        const transactionExpiry = new Date(transaction.subscriptionPeriodEnd).getTime();
                         
-                        // If the user's current premium came from this transaction (or an older one)
-                        if (userExpiry <= transactionExpiry) {
+                        //Guard against missing/null subscriptionPeriodEnd
+                        const rawTransactionExpiry = transaction.subscriptionPeriodEnd;
+                        const transactionExpiry = rawTransactionExpiry ? new Date(rawTransactionExpiry).getTime() : NaN;
+                        
+                        // If the date data is invalid/missing, the safest fallback is to revoke premium
+                        if (!Number.isFinite(transactionExpiry)) {
+                            console.warn(`[Webhook] Missing or invalid subscriptionPeriodEnd for refunded transaction ${orderId}. Revoking premium as a safe fallback.`);
+                            await AuthInterface.setPremiumExpiry(transaction.userId, null);
+                            if (user.email) {
+                                SubscriptionService.sendRevokeEmail(user.email, user.username);
+                            }
+                            console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund (Fallback).`);
+                        } 
+                        // If date data is valid, compare expiration timestamps as normal
+                        else if (userExpiry <= transactionExpiry) {
                             // 2. Revoke premium status from user
                             await AuthInterface.setPremiumExpiry(transaction.userId, null);
                             
@@ -254,8 +266,9 @@ export const SubscriptionService = {
                                 SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
-                        } else {
-                            // The user has purchased a newer plan, so keep premium active
+                        } 
+                        // If premium came from a newer transaction, keep premium active
+                        else {
                             console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. VIP NOT revoked.`);
                         }
                     }

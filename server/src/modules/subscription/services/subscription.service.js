@@ -1,6 +1,7 @@
 import { SubscriptionRepository } from '../repositories/subscription.repository.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { SubscriptionDTO } from '../dtos/subscription.dto.js';
+import nodemailer from 'nodemailer';
 
 // Determine PayPal API Base URL based on environment
 const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live' 
@@ -149,7 +150,7 @@ export const SubscriptionService = {
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
-
+            SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
             return SubscriptionDTO.toPurchaseResponse({ 
                 isPremium: user.isPremium, 
                 premiumExpiresAt: user.premiumExpiresAt, 
@@ -191,10 +192,76 @@ export const SubscriptionService = {
                     
                     // 2. Revoke premium status from user (Set expiry to null or past date)
                     await AuthInterface.setPremiumExpiry(transaction.userId, null);
-                    
+                    // send email notification about revocation
+                    const user = await AuthInterface.getUserById(transaction.userId);
+                    if (user && user.email) {
+                        SubscriptionService.sendRevokeEmail(user.email, user.username);
+                    }
+                    // console log for debugging
                     console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
                 }
             }
+        }
+    },
+    sendConfirmationEmail: async (toEmail, username, expiryDate) => {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.SMTP_EMAIL,
+                    pass: process.env.SMTP_PASSWORD
+                }
+            });
+
+            const mailOptions = {
+                from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
+                to: toEmail,
+                subject: 'Premium Activation Successful!',
+                html: `
+                    <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+                        <h2>Hello ${username || 'there'},</h2>
+                        <p>Congratulations! Your account has been successfully upgraded to <b>Premium</b>.</p>
+                        <p>Your subscription is valid until: <b>${expiryDate.toLocaleDateString('en-US')}</b>.</p>
+                        <p>You can now enjoy all premium features of TicTacToang.</p>
+                        <hr />
+                        <p>If you have any questions, feel free to contact us.</p>
+                        <p>Best regards,<br>The TicTacToang Femboys Team</p>
+                    </div>
+                `
+            };
+
+            await transporter.sendMail(mailOptions);
+            console.log(`[Email] Confirmation sent to: ${toEmail}`);
+        } catch (error) {
+            console.error('[Email Error] Failed to send email:', error);
+        }
+    },
+    sendRevokeEmail: async (toEmail, username) => {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD }
+            });
+
+            const mailOptions = {
+                from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
+                to: toEmail,
+                subject: 'Premium Subscription Revoked',
+                html: `
+                    <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+                        <h2>Hello ${username || 'there'},</h2>
+                        <p>Our system has detected that your transaction was refunded by PayPal.</p>
+                        <p>As a result, the <b>Premium</b> benefits for this account have been revoked.</p>
+                        <p>If you believe this is a mistake, please contact support.</p>
+                        <hr />
+                        <p>Best regards,<br>The TicTacToang Femboys Team</p>
+                    </div>
+                `
+            };
+
+            await transporter.sendMail(mailOptions);
+        } catch (error) {
+            console.error('[Email Error] Failed to send revoke email:', error);
         }
     }
 };

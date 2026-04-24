@@ -5,6 +5,8 @@ import nodemailer from 'nodemailer';
 
 //Initialize transporter lazily to ensure env vars are loaded
 let mailTransporter = null;
+let isMailerWarningLogged = false; // flag to prevent repeated warnings about missing SMTP credentials
+
 const getTransporter = () => {
     if (mailTransporter) return mailTransporter;
 
@@ -18,8 +20,11 @@ const getTransporter = () => {
         });
         return mailTransporter;
     }
-    
-    console.warn('[WARNING] SMTP credentials missing in .env! Emails will NOT be sent.');
+    // Log a warning only once if SMTP credentials are missing
+    if (!isMailerWarningLogged) {
+        console.warn('[WARNING] SMTP credentials missing in .env! Emails will NOT be sent.');
+        isMailerWarningLogged = true;
+    }
     return null;
 };
 // Determine PayPal API Base URL based on environment
@@ -169,19 +174,21 @@ export const SubscriptionService = {
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
-            if (!user) {
-                throw {
-                    statusCode: 404,
-                    error: "USER_NOT_FOUND",
-                    message: "User not found."
-                };
+            if (user) {
+                SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
+                return SubscriptionDTO.toPurchaseResponse({ 
+                    isPremium: user.isPremium, 
+                    premiumExpiresAt: user.premiumExpiresAt, 
+                    transaction: updatedTransaction 
+                });
+            } else {
+                console.warn(`[CaptureOrder] Payment success but user ${userId} not found in DB!`);
+                return SubscriptionDTO.toPurchaseResponse({ 
+                    isPremium: true, 
+                    premiumExpiresAt: endDate, 
+                    transaction: updatedTransaction 
+                });
             }
-            SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
-            return SubscriptionDTO.toPurchaseResponse({ 
-                isPremium: user.isPremium, 
-                premiumExpiresAt: user.premiumExpiresAt, 
-                transaction: updatedTransaction 
-            });
         } else {
             // Handle failure scenario
             await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'FAILED' });
@@ -256,7 +263,7 @@ export const SubscriptionService = {
                     <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
                         <h2>Hello ${username || 'there'},</h2>
                         <p>Congratulations! Your account has been successfully upgraded to <b>Premium</b>.</p>
-                        <p>Your subscription is valid until: <b>${expiryDate.toLocaleDateString('en-US')}</b>.</p>
+                        <p>Your subscription is valid until: <b>${expiryDate.toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'long' })} (UTC)</b>.</p>
                         <p>You can now enjoy all premium features of TicTacToang.</p>
                         <hr />
                         <p>If you have any questions, feel free to contact us.</p>
@@ -282,7 +289,7 @@ export const SubscriptionService = {
                 html: `
                     <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
                         <h2>Hello ${username || 'there'},</h2>
-                        <p>Our system has detected that your transaction was refunded by PayPal.</p>
+                        <p>Our system has detected that your payment was refunded, reversed, or otherwise canceled by PayPal.</p>
                         <p>As a result, the <b>Premium</b> benefits for this account have been revoked.</p>
                         <p>If you believe this is a mistake, please contact support.</p>
                         <hr />

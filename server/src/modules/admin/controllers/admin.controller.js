@@ -92,4 +92,17 @@ export const AdminController = {
             return next(error);
         }
     },
+
+    forceCloseRoom: async (req, res, next) => {
+        try {
+            await AdminService.forceCloseRoom(req.params.id);
+            
+            return res.status(200).json({
+                data: null,
+                message: "Room force closed successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
+    }
 };

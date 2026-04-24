@@ -168,6 +168,6 @@ adminRoutes.get('/rooms', AdminController.getRooms);
  *         $ref: '#/components/responses/NotFoundResponse'
  */
 adminRoutes.get('/rooms/:id', AdminController.getRoomDetail);
-// adminRoutes.delete('/room/:id');
+adminRoutes.delete('/rooms/:id', AdminController.forceCloseRoom);
 
 export default adminRoutes;

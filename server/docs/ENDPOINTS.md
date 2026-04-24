@@ -259,7 +259,7 @@ This avoids multiple parallel admin summary calls.
 |---|---|---:|---|---|
 | GET | `/admin/rooms` | Admin | List active/waiting rooms | Yes |
 | GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot | Yes |
-| DELETE | `/admin/rooms/:id` | Admin | Force close a room | No |
+| DELETE | `/admin/rooms/:id` | Admin | Force close a room | Yes |
 
 ## 7. WebSocket Contract
 Namespace/Endpoint: `/ws/game`

@@ -3,6 +3,16 @@ import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { SubscriptionDTO } from '../dtos/subscription.dto.js';
 import nodemailer from 'nodemailer';
 
+let mailTransporter = null;
+if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
+    mailTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.SMTP_EMAIL,
+            pass: process.env.SMTP_PASSWORD
+        }
+    });
+} 
 // Determine PayPal API Base URL based on environment
 const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live' 
     ? 'https://api-m.paypal.com' 
@@ -150,6 +160,13 @@ export const SubscriptionService = {
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
+            if (!user) {
+                throw {
+                    statusCode: 404,
+                    error: "USER_NOT_FOUND",
+                    message: "User not found."
+                };
+            }
             SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
             return SubscriptionDTO.toPurchaseResponse({ 
                 isPremium: user.isPremium, 
@@ -171,8 +188,14 @@ export const SubscriptionService = {
 
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
-        // Note: In production, verify the webhook signature here using PayPal SDK or crypto.
-        // Skipping strict verification logic here for brevity, focusing on business rules.
+        // TODO: In production, verify the webhook signature using PayPal SDK
+        // Currently skipped for development/sandbox simplicity.
+        
+        // Basic poor-man's check: Reject if there's no PayPal specific header (if applicable)
+        // if (!headers || !headers['paypal-transmission-id']) {
+        //     console.warn('[Webhook] Rejected: Missing PayPal headers');
+        //     return;
+        // }
 
         const eventType = payload.event_type;
 
@@ -204,15 +227,8 @@ export const SubscriptionService = {
         }
     },
     sendConfirmationEmail: async (toEmail, username, expiryDate) => {
+        if (!mailTransporter) return;
         try {
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: process.env.SMTP_EMAIL,
-                    pass: process.env.SMTP_PASSWORD
-                }
-            });
-
             const mailOptions = {
                 from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
                 to: toEmail,
@@ -230,19 +246,15 @@ export const SubscriptionService = {
                 `
             };
 
-            await transporter.sendMail(mailOptions);
-            console.log(`[Email] Confirmation sent to: ${toEmail}`);
+            await mailTransporter.sendMail(mailOptions);
+            console.log('[Email] Confirmation email sent successfully');
         } catch (error) {
             console.error('[Email Error] Failed to send email:', error);
         }
     },
     sendRevokeEmail: async (toEmail, username) => {
+        if (!mailTransporter) return;
         try {
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD }
-            });
-
             const mailOptions = {
                 from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
                 to: toEmail,
@@ -259,7 +271,8 @@ export const SubscriptionService = {
                 `
             };
 
-            await transporter.sendMail(mailOptions);
+            await mailTransporter.sendMail(mailOptions);
+            console.log('[Email] Revoke email sent successfully');
         } catch (error) {
             console.error('[Email Error] Failed to send revoke email:', error);
         }

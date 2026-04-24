@@ -56,14 +56,25 @@ export const SubscriptionService = {
                 intent: 'CAPTURE',
                 purchase_units: [{
                     amount: { currency_code: 'USD', value: PREMIUM_PRICE }
-                }]
+                }],
+                application_context: {
+                brand_name: "Premium Subscription", 
+                user_action: "PAY_NOW", 
+                return_url: `${process.env.CLIENT_URL}/success`,
+                cancel_url: `${process.env.CLIENT_URL}/cancel`
+            }
             })
         });
 
         const orderData = await response.json();
-        
-        if (orderData.error) {
-            throw { statusCode: 500, error: "PAYPAL_ERROR", message: "Failed to create PayPal order." };
+
+        if (!response.ok || !orderData?.id) {
+            throw {
+                statusCode: 502,
+                error: "PAYPAL_ERROR",
+                message: "Failed to create PayPal order.",
+                details: orderData
+            };
         }
 
         // Save pending transaction to database
@@ -78,7 +89,16 @@ export const SubscriptionService = {
         });
 
         // Extract the approval link for the frontend to redirect the user
-        const approveLink = orderData.links.find(link => link.rel === 'approve')?.href;
+        const approveLink = orderData?.links?.find((link) => link.rel === 'approve')?.href;
+
+        if (!approveLink) {
+            throw {
+                statusCode: 502,
+                error: "PAYPAL_ERROR",
+                message: "PayPal order created without an approval link.",
+                details: orderData
+            };
+        }
 
         return { orderId: orderData.id, approveLink };
     },
@@ -88,6 +108,13 @@ export const SubscriptionService = {
         const transaction = await SubscriptionRepository.findByExternalId(orderId);
         if (!transaction) {
             throw { statusCode: 404, error: "ORDER_NOT_FOUND", message: "Transaction record not found." };
+        }
+        if (transaction.userId.toString() !== userId.toString()) {
+            throw {
+                statusCode: 403,
+                error: "ORDER_ACCESS_DENIED",
+                message: "You are not allowed to capture this order."
+            };
         }
         if (transaction.status === 'SUCCESS') {
             throw { statusCode: 400, error: "ALREADY_CAPTURED", message: "This order has already been captured." };
@@ -119,7 +146,7 @@ export const SubscriptionService = {
             });
 
             // Update user's premium expiry date in Auth module
-            await AuthInterface.updatePremiumStatus(userId, endDate);
+            await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
 
@@ -163,7 +190,7 @@ export const SubscriptionService = {
                     await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
                     
                     // 2. Revoke premium status from user (Set expiry to null or past date)
-                    await AuthInterface.updatePremiumStatus(transaction.userId, null);
+                    await AuthInterface.setPremiumExpiry(transaction.userId, null);
                     
                     console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
                 }

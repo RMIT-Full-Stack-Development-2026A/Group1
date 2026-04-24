@@ -185,7 +185,7 @@ export const SubscriptionService = {
 
             const user = await AuthInterface.getUserById(userId);
             
-            // check if users exist
+            // check if user exists
             if (!user) {
                 console.error(`[CaptureOrder] CRITICAL: Payment captured but user ${userId} is missing!`);
                 throw { 

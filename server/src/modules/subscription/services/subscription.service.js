@@ -68,6 +68,40 @@ const generateAccessToken = async () => {
         throw error;
     }
 };
+/**
+ * Helper function to verify Webhook Signature with PayPal API (Copilot's final boss requirement)
+ */
+const verifyPayPalWebhook = async (headers, payload) => {
+    if (!process.env.PAYPAL_WEBHOOK_ID) {
+        console.warn('[Webhook Security] PAYPAL_WEBHOOK_ID missing in .env. Verification may fail.');
+    }
+
+    try {
+        const accessToken = await generateAccessToken();
+        const response = await fetch(`${PAYPAL_API_BASE}/v1/notifications/verify-webhook-signature`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                transmission_id: headers['paypal-transmission-id'],
+                transmission_time: headers['paypal-transmission-time'],
+                cert_url: headers['paypal-cert-url'],
+                auth_algo: headers['paypal-auth-algo'],
+                transmission_sig: headers['paypal-transmission-sig'],
+                webhook_id: process.env.PAYPAL_WEBHOOK_ID || 'dummy_id_for_local_dev',
+                webhook_event: payload
+            })
+        });
+
+        const data = await response.json();
+        return data.verification_status === 'SUCCESS';
+    } catch (error) {
+        console.error('[Webhook Security] Error verifying signature with PayPal:', error);
+        return false;
+    }
+};
 
 export const SubscriptionService = {
     // 1. Get current premium status
@@ -216,11 +250,15 @@ export const SubscriptionService = {
 
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
-        /**
-         * TODO: In production, verify the webhook signature using PayPal SDK.
-         * Real verification is skipped here for development/sandbox simplicity.
-         * DO NOT rely on header presence for security in a live environment.
-         */
+        const isVerified = await verifyPayPalWebhook(headers, payload);
+        
+        if (!isVerified && process.env.NODE_ENV === 'production') {
+            console.error('[Webhook Security] CRITICAL: Fake PayPal webhook payload detected and rejected!');
+            throw { statusCode: 401, error: "UNAUTHORIZED", message: "Invalid webhook signature" };
+        } else if (!isVerified) {
+            console.warn('[Webhook Security] Signature validation failed, but allowing in non-production environment.');
+        }
+
         const eventType = payload.event_type;
 
         // Listen specifically for refunds or reversed payments

@@ -161,7 +161,7 @@ const GameBoard = () => {
             </main>
 
             {gameOver && (
-                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate(isBotMatch ? '/game-mode-select' : '/lobby')} />
+                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate(gameMode === 'ONLINE_MATCH' ? '/lobby' : '/play')} />
             )}
         </div>
     );

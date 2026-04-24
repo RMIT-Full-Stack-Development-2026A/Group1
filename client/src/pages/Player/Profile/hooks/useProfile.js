@@ -222,14 +222,19 @@ export const useProfile = () => {
         
         console.log(`[useProfile] After transformation: ${transformedMatches.length} matches`);
         
-        // Apply in-memory filtering for WIN/LOSS since backend returns all FINISHED games
-        // (both wins and losses have status === FINISHED)
+        // Apply in-memory filtering for WIN/LOSS/DRAW/ABORT since backend returns all games
         if (appliedFilterResult === "WIN") {
           transformedMatches = transformedMatches.filter(match => match.result === "WIN");
           console.log(`[useProfile] After WIN filter: ${transformedMatches.length} matches`);
         } else if (appliedFilterResult === "LOSS") {
           transformedMatches = transformedMatches.filter(match => match.result === "LOSS");
           console.log(`[useProfile] After LOSS filter: ${transformedMatches.length} matches`);
+        } else if (appliedFilterResult === "DRAW") {
+          transformedMatches = transformedMatches.filter(match => match.result === "DRAW");
+          console.log(`[useProfile] After DRAW filter: ${transformedMatches.length} matches`);
+        } else if (appliedFilterResult === "ABORT") {
+          transformedMatches = transformedMatches.filter(match => match.result === "ABORT");
+          console.log(`[useProfile] After ABORT filter: ${transformedMatches.length} matches`);
         }
         
         setMatchHistory(transformedMatches);

@@ -68,12 +68,15 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
       
       <div className="flex items-center gap-6 flex-1">
         {/* Avatar with Edit Overlay */}
-        <div className="relative w-20 h-20 flex-shrink-0 group cursor-pointer">
+        <div 
+          className="relative w-20 h-20 flex-shrink-0 group cursor-pointer"
+          onClick={handleAvatarClick}
+        >
           <div className="w-full h-full border-2 border-primary-container p-1 bg-surface-container-lowest flex items-center justify-center relative overflow-hidden">
             {playerData?.avatarUrl ? (
               <img
                 alt="Player Avatar"
-                className="w-full h-full group-hover:opacity-75 transition-all duration-200"
+                className="w-full h-full group-hover:opacity-75 transition-all duration-200 cursor-pointer"
                 src={playerData.avatarUrl}
               />
             ) : (
@@ -84,12 +87,15 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
             
             {/* Hover Overlay with Pen Icon */}
             <div 
-              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
             >
               <button
-                onClick={handleAvatarClick}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAvatarClick();
+                }}
                 disabled={uploading || !playerData}
-                className="p-2 text-primary-cyan hover:text-opacity-70 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-primary-cyan hover:text-opacity-70 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 title="Change avatar"
               >
                 <span className="material-symbols-outlined text-xl">edit</span>

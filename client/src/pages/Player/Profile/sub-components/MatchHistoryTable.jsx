@@ -78,6 +78,11 @@ export default function MatchHistoryTable({
           borderColor: "#93000a",
         };
       case "ABORT":
+        return {
+          backgroundColor: "#879398",
+          color: "#000000",
+          borderColor: "#879398",
+        };
       case "DRAW":
         return {
           backgroundColor: "#879398",
@@ -167,6 +172,7 @@ export default function MatchHistoryTable({
             <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>WIN</option>
             <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>LOSS</option>
             <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ABORT</option>
+            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>DRAW</option>
           </select>
 
           {/* Game Type Filter */}

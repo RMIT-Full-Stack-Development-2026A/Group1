@@ -20,16 +20,27 @@ let isMailerWarningLogged = false; // flag to prevent repeated warnings about mi
 const getTransporter = () => {
     if (mailTransporter) return mailTransporter;
 
-    if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
+    // Support generic SMTP configuration instead of hardcoding Gmail
+    const smtpUser = process.env.SMTP_USER || process.env.SMTP_EMAIL;
+    const smtpPassword = process.env.SMTP_PASSWORD;
+
+    if (smtpUser && smtpPassword) {
+        const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+        const smtpPort = Number(process.env.SMTP_PORT || 465);
+        const smtpSecure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : smtpPort === 465;
+
         mailTransporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpSecure,
             auth: {
-                user: process.env.SMTP_EMAIL,
-                pass: process.env.SMTP_PASSWORD
+                user: smtpUser,
+                pass: smtpPassword
             }
         });
         return mailTransporter;
     }
+    
     // Log a warning only once if SMTP credentials are missing
     if (!isMailerWarningLogged) {
         console.warn('[WARNING] SMTP credentials missing in .env! Emails will NOT be sent.');
@@ -69,7 +80,7 @@ const generateAccessToken = async () => {
     }
 };
 /**
- * Helper function to verify Webhook Signature with PayPal API (Copilot's final boss requirement)
+ * Helper function to verify Webhook Signature with PayPal API
  */
 const verifyPayPalWebhook = async (headers, payload) => {
     if (!process.env.PAYPAL_WEBHOOK_ID) {
@@ -95,11 +106,17 @@ const verifyPayPalWebhook = async (headers, payload) => {
             })
         });
 
+        // COPILOT FIX: Distinguish API/network errors from invalid signature failures
+        if (!response.ok) {
+            console.error(`[Webhook Security] PayPal API returned ${response.status} during verification.`);
+            return 'ERROR'; 
+        }
+
         const data = await response.json();
-        return data.verification_status === 'SUCCESS';
+        return data.verification_status === 'SUCCESS' ? 'VALID' : 'INVALID';
     } catch (error) {
         console.error('[Webhook Security] Error verifying signature with PayPal:', error);
-        return false;
+        return 'ERROR';
     }
 };
 
@@ -250,12 +267,18 @@ export const SubscriptionService = {
 
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
-        const isVerified = await verifyPayPalWebhook(headers, payload);
+        // Handle 3 signature states (network error, fake, or valid)
+        const verificationStatus = await verifyPayPalWebhook(headers, payload);
         
-        if (!isVerified && process.env.NODE_ENV === 'production') {
+        if (verificationStatus === 'ERROR') {
+            // Return 502 so PayPal knows this is a server/network issue and retries later
+            throw { statusCode: 502, error: "WEBHOOK_VERIFICATION_FAILED", message: "Failed to verify signature with PayPal API. Please retry." };
+        }
+
+        if (verificationStatus === 'INVALID' && process.env.NODE_ENV === 'production') {
             console.error('[Webhook Security] CRITICAL: Fake PayPal webhook payload detected and rejected!');
             throw { statusCode: 401, error: "UNAUTHORIZED", message: "Invalid webhook signature" };
-        } else if (!isVerified) {
+        } else if (verificationStatus === 'INVALID') {
             console.warn('[Webhook Security] Signature validation failed, but allowing in non-production environment.');
         }
 

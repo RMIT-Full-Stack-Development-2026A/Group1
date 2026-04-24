@@ -12,7 +12,9 @@ if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
             pass: process.env.SMTP_PASSWORD
         }
     });
-} 
+} else {
+    console.warn('[WARNING] SMTP credentials missing in .env! Emails will NOT be sent.');
+}
 // Determine PayPal API Base URL based on environment
 const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live' 
     ? 'https://api-m.paypal.com' 
@@ -192,11 +194,10 @@ export const SubscriptionService = {
         // Currently skipped for development/sandbox simplicity.
         
         // Basic poor-man's check: Reject if there's no PayPal specific header (if applicable)
-        // if (!headers || !headers['paypal-transmission-id']) {
-        //     console.warn('[Webhook] Rejected: Missing PayPal headers');
-        //     return;
-        // }
-
+        if (!headers || !headers['paypal-transmission-id']) {
+            console.error('[Webhook Security] Rejected: Missing PayPal transmission headers');
+            throw { statusCode: 401, error: "UNAUTHORIZED", message: "Invalid webhook signature" };
+        }
         const eventType = payload.event_type;
 
         // Listen specifically for refunds or reversed payments
@@ -213,21 +214,37 @@ export const SubscriptionService = {
                     // 1. Mark transaction as refunded
                     await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
                     
-                    // 2. Revoke premium status from user (Set expiry to null or past date)
-                    await AuthInterface.setPremiumExpiry(transaction.userId, null);
-                    // send email notification about revocation
                     const user = await AuthInterface.getUserById(transaction.userId);
-                    if (user && user.email) {
-                        SubscriptionService.sendRevokeEmail(user.email, user.username);
+                    
+                    // Prevent revoking VIP if user has a newer valid subscription
+                    if (user && user.premiumExpiresAt) {
+                        const userExpiry = new Date(user.premiumExpiresAt).getTime();
+                        const transactionExpiry = new Date(transaction.subscriptionPeriodEnd).getTime();
+                        
+                        // If the user's current premium came from this transaction (or an older one)
+                        if (userExpiry <= transactionExpiry) {
+                            // 2. Revoke premium status from user
+                            await AuthInterface.setPremiumExpiry(transaction.userId, null);
+                            
+                            // 3. Send email notification
+                            if (user.email) {
+                                SubscriptionService.sendRevokeEmail(user.email, user.username);
+                            }
+                            console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
+                        } else {
+                            // The user has purchased a newer plan, so keep premium active
+                            console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. VIP NOT revoked.`);
+                        }
                     }
-                    // console log for debugging
-                    console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
                 }
-            }
         }
-    },
+    }
+},
     sendConfirmationEmail: async (toEmail, username, expiryDate) => {
-        if (!mailTransporter) return;
+        if (!mailTransporter) {
+            console.warn('[Email] Skipping email send: Mailer not configured.');
+            return;
+            }
         try {
             const mailOptions = {
                 from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
@@ -253,7 +270,10 @@ export const SubscriptionService = {
         }
     },
     sendRevokeEmail: async (toEmail, username) => {
-        if (!mailTransporter) return;
+        if (!mailTransporter) {
+            console.warn('[Email] Skipping email send: Mailer not configured.');
+             return;
+            }
         try {
             const mailOptions = {
                 from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,

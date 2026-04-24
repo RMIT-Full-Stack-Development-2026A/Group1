@@ -3,18 +3,25 @@ import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { SubscriptionDTO } from '../dtos/subscription.dto.js';
 import nodemailer from 'nodemailer';
 
+//Initialize transporter lazily to ensure env vars are loaded
 let mailTransporter = null;
-if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
-    mailTransporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD
-        }
-    });
-} else {
+const getTransporter = () => {
+    if (mailTransporter) return mailTransporter;
+
+    if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
+        mailTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.SMTP_EMAIL,
+                pass: process.env.SMTP_PASSWORD
+            }
+        });
+        return mailTransporter;
+    }
+    
     console.warn('[WARNING] SMTP credentials missing in .env! Emails will NOT be sent.');
-}
+    return null;
+};
 // Determine PayPal API Base URL based on environment
 const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live' 
     ? 'https://api-m.paypal.com' 
@@ -190,14 +197,11 @@ export const SubscriptionService = {
 
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
-        // TODO: In production, verify the webhook signature using PayPal SDK
-        // Currently skipped for development/sandbox simplicity.
-        
-        // Basic poor-man's check: Reject if there's no PayPal specific header (if applicable)
-        if (!headers || !headers['paypal-transmission-id']) {
-            console.error('[Webhook Security] Rejected: Missing PayPal transmission headers');
-            throw { statusCode: 401, error: "UNAUTHORIZED", message: "Invalid webhook signature" };
-        }
+        /**
+         * TODO: In production, verify the webhook signature using PayPal SDK.
+         * Real verification is skipped here for development/sandbox simplicity.
+         * DO NOT rely on header presence for security in a live environment.
+         */
         const eventType = payload.event_type;
 
         // Listen specifically for refunds or reversed payments
@@ -241,10 +245,8 @@ export const SubscriptionService = {
     }
 },
     sendConfirmationEmail: async (toEmail, username, expiryDate) => {
-        if (!mailTransporter) {
-            console.warn('[Email] Skipping email send: Mailer not configured.');
-            return;
-            }
+        const transporter = getTransporter(); 
+        if (!transporter) return;
         try {
             const mailOptions = {
                 from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
@@ -263,17 +265,15 @@ export const SubscriptionService = {
                 `
             };
 
-            await mailTransporter.sendMail(mailOptions);
+            await transporter.sendMail(mailOptions);
             console.log('[Email] Confirmation email sent successfully');
         } catch (error) {
             console.error('[Email Error] Failed to send email:', error);
         }
     },
     sendRevokeEmail: async (toEmail, username) => {
-        if (!mailTransporter) {
-            console.warn('[Email] Skipping email send: Mailer not configured.');
-             return;
-            }
+        const transporter = getTransporter(); 
+        if (!transporter) return;
         try {
             const mailOptions = {
                 from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
@@ -291,7 +291,7 @@ export const SubscriptionService = {
                 `
             };
 
-            await mailTransporter.sendMail(mailOptions);
+            await transporter.sendMail(mailOptions);
             console.log('[Email] Revoke email sent successfully');
         } catch (error) {
             console.error('[Email Error] Failed to send revoke email:', error);

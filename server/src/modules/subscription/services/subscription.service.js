@@ -3,6 +3,16 @@ import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { SubscriptionDTO } from '../dtos/subscription.dto.js';
 import nodemailer from 'nodemailer';
 
+//function to clean HTML and avoid XSS Injection (Copilot suggest)
+const escapeHtml = (unsafe) => {
+    if (!unsafe) return '';
+    return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
 //Initialize transporter lazily to ensure env vars are loaded
 let mailTransporter = null;
 let isMailerWarningLogged = false; // flag to prevent repeated warnings about missing SMTP credentials
@@ -174,21 +184,23 @@ export const SubscriptionService = {
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
-            if (user) {
-                SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
-                return SubscriptionDTO.toPurchaseResponse({ 
-                    isPremium: user.isPremium, 
-                    premiumExpiresAt: user.premiumExpiresAt, 
-                    transaction: updatedTransaction 
-                });
-            } else {
-                console.warn(`[CaptureOrder] Payment success but user ${userId} not found in DB!`);
-                return SubscriptionDTO.toPurchaseResponse({ 
-                    isPremium: true, 
-                    premiumExpiresAt: endDate, 
-                    transaction: updatedTransaction 
-                });
+            
+            // check if users exist
+            if (!user) {
+                console.error(`[CaptureOrder] CRITICAL: Payment captured but user ${userId} is missing!`);
+                throw { 
+                    statusCode: 404, 
+                    error: "USER_DELETED_POST_PAYMENT", 
+                    message: "Payment succeeded but your account data is missing. Please contact support." 
+                };
             }
+
+            SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
+            return SubscriptionDTO.toPurchaseResponse({ 
+                isPremium: user.isPremium, 
+                premiumExpiresAt: user.premiumExpiresAt, 
+                transaction: updatedTransaction 
+            });
         } else {
             // Handle failure scenario
             await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'FAILED' });
@@ -261,7 +273,7 @@ export const SubscriptionService = {
                 subject: 'Premium Activation Successful!',
                 html: `
                     <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-                        <h2>Hello ${username || 'there'},</h2>
+                        <h2>Hello ${escapeHtml(username) || 'there'},</h2>
                         <p>Congratulations! Your account has been successfully upgraded to <b>Premium</b>.</p>
                         <p>Your subscription is valid until: <b>${expiryDate.toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'long' })} (UTC)</b>.</p>
                         <p>You can now enjoy all premium features of TicTacToang.</p>
@@ -288,7 +300,7 @@ export const SubscriptionService = {
                 subject: 'Premium Subscription Revoked',
                 html: `
                     <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-                        <h2>Hello ${username || 'there'},</h2>
+                        <h2>Hello ${escapeHtml(username) || 'there'},</h2>
                         <p>Our system has detected that your payment was refunded, reversed, or otherwise canceled by PayPal.</p>
                         <p>As a result, the <b>Premium</b> benefits for this account have been revoked.</p>
                         <p>If you believe this is a mistake, please contact support.</p>

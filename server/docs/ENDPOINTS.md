@@ -258,7 +258,7 @@ This avoids multiple parallel admin summary calls.
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/admin/rooms` | Admin | List active/waiting rooms | Yes |
-| GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot | No |
+| GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot | Yes |
 | DELETE | `/admin/rooms/:id` | Admin | Force close a room | No |
 
 ## 7. WebSocket Contract

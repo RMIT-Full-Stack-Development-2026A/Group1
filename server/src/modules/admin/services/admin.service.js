@@ -114,4 +114,9 @@ export const AdminService = {
             limit: pagination.limit
         };
     },
+
+    getRoomDetail: async (roomId, requestingUser) => {
+        // Delegate to Room module
+        return await RoomInterface.getRoomDetail(roomId, requestingUser);
+    },
 };

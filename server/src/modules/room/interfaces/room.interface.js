@@ -10,4 +10,7 @@ export const RoomInterface = {
 
     // For Admin: Fetch paginated rooms
     getPaginatedRooms: async (filter, sort, skip, limit) => RoomService.getPaginatedRooms(filter, sort, skip, limit),
+
+    // For Admin: Get full room details
+    getRoomDetail: async (roomId, requestingUser) => RoomService.getRoomDetail(roomId, requestingUser),
 };

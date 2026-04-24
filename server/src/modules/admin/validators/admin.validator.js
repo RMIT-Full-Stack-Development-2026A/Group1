@@ -53,16 +53,16 @@ export const validateAdminRoomQuery = (query) => {
     if (query.status) {
         const status = String(query.status).toUpperCase();
         
-        if (!ALL_ROOM_STATUSES.includes(status)) {
+        if (status !== 'ACTIVE' && !ALL_ROOM_STATUSES.includes(status)) {
             throw {
                 statusCode: 400,
                 error: "INVALID_STATUS",
                 message: "Invalid room status parameter.",
-                cause: `The provided status is not recognized. Allowed values are: ${ALL_ROOM_STATUSES.join(', ')}.`,
-                valid_example: "WAITING"
+                cause: `The provided status is not recognized. Allowed values are: ACTIVE, ${ALL_ROOM_STATUSES.join(', ')}.`,
+                valid_example: "ACTIVE"
             };
         }
-        filter.status = status;
+        filter.status = status === 'ACTIVE' ? { $in: ACTIVE_ROOM_STATUSES } : status;
     } else {
         // Default to active rooms for monitoring
         filter.status = { $in: ACTIVE_ROOM_STATUSES };

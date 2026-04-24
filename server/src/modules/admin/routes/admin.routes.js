@@ -127,7 +127,7 @@ adminRoutes.patch('/player/:id/reactivate', AdminController.reactivatePlayer);
  *       403:
  *         $ref: '#/components/responses/ForbiddenResponse'
  */
-// adminRoutes.get('/rooms');
+adminRoutes.get('/rooms', AdminController.getRooms);
 
 /**
  * @openapi

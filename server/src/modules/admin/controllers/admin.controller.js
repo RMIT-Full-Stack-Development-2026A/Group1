@@ -65,5 +65,18 @@ export const AdminController = {
         } catch (error) {
             return next(error);
         }
+    },
+
+    getRooms: async (req, res, next) => {
+        try {
+            const safeData = await AdminService.getRooms(req.query);
+            
+            return res.status(200).json({
+                data: safeData,
+                message: "Rooms fetched successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
     }
 };

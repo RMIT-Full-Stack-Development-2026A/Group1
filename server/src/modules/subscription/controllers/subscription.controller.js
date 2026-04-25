@@ -49,7 +49,7 @@ export const SubscriptionController = {
         }
     },
 
-    handlePayPalWebhook: async (req, res, next) => {
+    handlePayPalWebhook: async (req, res) => {
         try {
             await SubscriptionService.processWebhook(req.body, req.headers);
             res.status(200).send('OK'); // Acknowledge to PayPal after successful processing

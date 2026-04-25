@@ -85,8 +85,11 @@ const generateAccessToken = async () => {
 const verifyPayPalWebhook = async (headers, payload) => {
     if (!process.env.PAYPAL_WEBHOOK_ID) {
         console.error('[Webhook Security] CRITICAL: PAYPAL_WEBHOOK_ID is missing in .env!');
-        //Fail fast if Webhook ID is missing (except in dev where bypass might be active)
-        return 'ERROR'; 
+        //Permanent misconfiguration. Throw 500 immediately instead of 502 retry.
+        throw Object.assign(
+            new Error("Server misconfiguration: PAYPAL_WEBHOOK_ID is missing."),
+            { statusCode: 500, error: "WEBHOOK_MISCONFIGURED" }
+        );
     }
 
     try {

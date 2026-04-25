@@ -331,19 +331,17 @@ export const SubscriptionService = {
                 const transaction = await SubscriptionRepository.findByExternalId(orderId);
 
                 if (transaction && transaction.status === 'SUCCESS') {
-                    // 1. Mark transaction as refunded
-                    await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
-
+                    // COPILOT FIX: Fetch user and process revoke FIRST before marking transaction as REFUNDED
                     const user = await AuthInterface.getUserById(transaction.userId);
-
-                    // Prevent revoking Premium if user has a newer valid subscription
+                    
+                    // Prevent revoking VIP if user has a newer valid subscription
                     if (user && user.premiumExpiresAt) {
                         const userExpiry = new Date(user.premiumExpiresAt).getTime();
-
+                        
                         //Guard against missing/null subscriptionPeriodEnd
                         const rawTransactionExpiry = transaction.subscriptionPeriodEnd;
                         const transactionExpiry = rawTransactionExpiry ? new Date(rawTransactionExpiry).getTime() : NaN;
-
+                        
                         // If the date data is invalid/missing, the safest fallback is to revoke premium
                         if (!Number.isFinite(transactionExpiry)) {
                             console.warn(`[Webhook] Missing or invalid subscriptionPeriodEnd for refunded transaction ${orderId}. Revoking premium as a safe fallback.`);
@@ -352,23 +350,26 @@ export const SubscriptionService = {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund (Fallback).`);
-                        }
+                        } 
                         // If date data is valid, compare expiration timestamps as normal
                         else if (userExpiry <= transactionExpiry) {
                             // 2. Revoke premium status from user
                             await AuthInterface.setPremiumExpiry(transaction.userId, null);
-
+                            
                             // 3. Send email notification
                             if (user.email) {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
-                        }
+                        } 
                         // If premium came from a newer transaction, keep premium active
                         else {
-                            console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. Premium NOT revoked.`);
+                            console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. VIP NOT revoked.`);
                         }
                     }
+
+                    // COPILOT FIX: 1. Mark transaction as refunded (MOVED TO BOTTOM FOR SAFETY/IDEMPOTENCY)
+                    await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
                 }
             }
         }

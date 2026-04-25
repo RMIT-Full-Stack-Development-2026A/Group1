@@ -287,16 +287,16 @@ export const SubscriptionService = {
         if (verificationStatus === 'ERROR' || verificationStatus === 'INVALID') {
             if (!allowUnverifiedWebhookBypass) {
                 if (verificationStatus === 'ERROR') {
-                    // Throw an Error object with HTTP metadata so upstream handlers can return a 502 response for PayPal verification failures.
+                    // Throw a service-layer error without HTTP status metadata; the controller is responsible for mapping this to an HTTP response.
                     throw Object.assign(
                         new Error("Failed to verify signature with PayPal API. Please retry."),
-                        { statusCode: 502, error: "WEBHOOK_VERIFICATION_FAILED" }
+                        { code: "WEBHOOK_VERIFICATION_FAILED", error: "WEBHOOK_VERIFICATION_FAILED" }
                     );
                 }
                 console.error('[Webhook Security] CRITICAL: Fake PayPal webhook payload detected and rejected!');
                 throw Object.assign(
                     new Error("Invalid webhook signature"),
-                    { statusCode: 401, error: "UNAUTHORIZED" }
+                    { code: "UNAUTHORIZED", error: "UNAUTHORIZED" }
                 );
             }
             

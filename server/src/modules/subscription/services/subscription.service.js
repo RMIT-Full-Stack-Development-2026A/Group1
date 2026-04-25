@@ -342,7 +342,7 @@ export const SubscriptionService = {
                 const transaction = await SubscriptionRepository.findByExternalId(orderId);
 
                 if (transaction && transaction.status === 'SUCCESS') {
-                    // COPILOT FIX: Fetch user and process revoke FIRST before marking transaction as REFUNDED
+                    //Fetch user and process revoke FIRST before marking transaction as REFUNDED
                     const user = await AuthInterface.getUserById(transaction.userId);
                     
                     // Prevent revoking VIP if user has a newer valid subscription
@@ -379,7 +379,7 @@ export const SubscriptionService = {
                         }
                     }
 
-                    // COPILOT FIX: 1. Mark transaction as refunded (MOVED TO BOTTOM FOR SAFETY/IDEMPOTENCY)
+                    //1. Mark transaction as refunded (MOVED TO BOTTOM FOR SAFETY/IDEMPOTENCY)
                     await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
                 }
             }

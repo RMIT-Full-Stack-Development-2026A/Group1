@@ -339,7 +339,7 @@ export const SubscriptionService = {
                             console.warn(`[Webhook] Missing or invalid subscriptionPeriodEnd for refunded transaction ${orderId}. Revoking premium as a safe fallback.`);
                             await AuthInterface.setPremiumExpiry(transaction.userId, null);
                             if (user.email) {
-                                SubscriptionService.sendRevokeEmail(user.email, user.username);
+                                void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund (Fallback).`);
                         } 

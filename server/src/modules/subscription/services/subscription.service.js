@@ -299,7 +299,7 @@ export const SubscriptionService = {
                 console.error('[Webhook Security] CRITICAL: Fake PayPal webhook payload detected and rejected!');
                 throw Object.assign(
                     new Error("Invalid webhook signature"),
-                    { code: "UNAUTHORIZED", error: "UNAUTHORIZED" }
+                    { code: "INVALID_WEBHOOK_SIGNATURE", error: "INVALID_WEBHOOK_SIGNATURE" }
                 );
             }
             

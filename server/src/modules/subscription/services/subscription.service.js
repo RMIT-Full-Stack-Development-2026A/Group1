@@ -326,7 +326,7 @@ export const SubscriptionService = {
                     
                     const user = await AuthInterface.getUserById(transaction.userId);
                     
-                    // Prevent revoking VIP if user has a newer valid subscription
+                    // Prevent revoking Premium if user has a newer valid subscription
                     if (user && user.premiumExpiresAt) {
                         const userExpiry = new Date(user.premiumExpiresAt).getTime();
                         

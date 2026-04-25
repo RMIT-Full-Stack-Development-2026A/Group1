@@ -297,13 +297,18 @@ export const SubscriptionService = {
 
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
-        const verificationStatus = await verifyPayPalWebhook(headers, payload);
-
         // Gating the bypass behind an explicit env flag for development
         const allowUnverifiedWebhookBypass =
             process.env.NODE_ENV === 'development' &&
             process.env.ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS === 'true';
 
+        let verificationStatus = 'BYPASSED';
+
+        if (allowUnverifiedWebhookBypass) {
+            console.warn('[Webhook Security] PayPal webhook signature verification is being bypassed because ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true in development.');
+        } else {
+            verificationStatus = await verifyPayPalWebhook(headers, payload);
+        }
         // Allow bypass to cover BOTH network errors and invalid signatures for local dev
         if (verificationStatus === 'ERROR' || verificationStatus === 'INVALID') {
             if (!allowUnverifiedWebhookBypass) {

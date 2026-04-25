@@ -54,8 +54,23 @@ export const SubscriptionController = {
             await SubscriptionService.processWebhook(req.body, req.headers);
             res.status(200).send('OK'); // Acknowledge to PayPal after successful processing
         } catch (error) {
-            console.error('[PayPal Webhook Error]:', error);
-            res.status(500).send('Internal Server Error');
+            console.error('[Webhook Controller] Error processing webhook:', error);
+
+            // Map service error codes to HTTP status codes (401, 502, 500)
+            let httpStatus = 500;
+            if (error.code === 'UNAUTHORIZED') {
+                httpStatus = 401;
+            } else if (error.code === 'WEBHOOK_VERIFICATION_FAILED') {
+                httpStatus = 502; // Return 502 so PayPal can retry later
+            } else if (error.statusCode) {
+                // Fallback for other errors that already provide a statusCode
+                httpStatus = error.statusCode; 
+            }
+
+            return res.status(httpStatus).json({
+                error: error.error || 'INTERNAL_SERVER_ERROR',
+                message: error.message || 'An unexpected error occurred while processing webhook.'
+            });
         }
     }
 };

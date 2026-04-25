@@ -255,7 +255,7 @@ export const SubscriptionService = {
                 };
             }
 
-            SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
+            void SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
             return SubscriptionDTO.toPurchaseResponse({ 
                 isPremium: user.isPremium, 
                 premiumExpiresAt: user.premiumExpiresAt, 
@@ -350,7 +350,7 @@ export const SubscriptionService = {
                             
                             // 3. Send email notification
                             if (user.email) {
-                                SubscriptionService.sendRevokeEmail(user.email, user.username);
+                                void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
                         } 

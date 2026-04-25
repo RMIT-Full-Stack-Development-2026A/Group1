@@ -345,7 +345,7 @@ export const SubscriptionService = {
                     //Fetch user and process revoke FIRST before marking transaction as REFUNDED
                     const user = await AuthInterface.getUserById(transaction.userId);
                     
-                    // Prevent revoking VIP if user has a newer valid subscription
+                    // Prevent revoking premium if user has a newer valid subscription
                     if (user && user.premiumExpiresAt) {
                         const userExpiry = new Date(user.premiumExpiresAt).getTime();
                         

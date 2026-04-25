@@ -267,19 +267,23 @@ export const SubscriptionService = {
 
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
-        // Handle 3 signature states (network error, fake, or valid)
         const verificationStatus = await verifyPayPalWebhook(headers, payload);
         
+        //Gating the bypass behind an explicit env flag for development
+        const allowUnverifiedWebhookBypass = 
+            process.env.NODE_ENV === 'development' && 
+            process.env.ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS === 'true';
+
         if (verificationStatus === 'ERROR') {
             // Return 502 so PayPal knows this is a server/network issue and retries later
             throw { statusCode: 502, error: "WEBHOOK_VERIFICATION_FAILED", message: "Failed to verify signature with PayPal API. Please retry." };
         }
 
-        if (verificationStatus === 'INVALID' && process.env.NODE_ENV === 'production') {
+        if (verificationStatus === 'INVALID' && !allowUnverifiedWebhookBypass) {
             console.error('[Webhook Security] CRITICAL: Fake PayPal webhook payload detected and rejected!');
             throw { statusCode: 401, error: "UNAUTHORIZED", message: "Invalid webhook signature" };
         } else if (verificationStatus === 'INVALID') {
-            console.warn('[Webhook Security] Signature validation failed, but allowing in non-production environment.');
+            console.warn('[Webhook Security] Signature validation failed, but bypass is explicitly enabled for development via ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true.');
         }
 
         const eventType = payload.event_type;
@@ -340,9 +344,13 @@ export const SubscriptionService = {
     sendConfirmationEmail: async (toEmail, username, expiryDate) => {
         const transporter = getTransporter(); 
         if (!transporter) return;
+
+        //Safely fallback to SMTP_USER or SMTP_EMAIL
+        const senderEmail = process.env.SMTP_FROM || process.env.SMTP_EMAIL || process.env.SMTP_USER || 'noreply@tictactoang.com';
+
         try {
             const mailOptions = {
-                from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
+                from: `"TicTacToang Team" <${senderEmail}>`,
                 to: toEmail,
                 subject: 'Premium Activation Successful!',
                 html: `
@@ -367,9 +375,13 @@ export const SubscriptionService = {
     sendRevokeEmail: async (toEmail, username) => {
         const transporter = getTransporter(); 
         if (!transporter) return;
+
+        //Safely fallback to SMTP_USER or SMTP_EMAIL
+        const senderEmail = process.env.SMTP_FROM || process.env.SMTP_EMAIL || process.env.SMTP_USER || 'noreply@tictactoang.com';
+
         try {
             const mailOptions = {
-                from: `"TicTacToang Team" <${process.env.SMTP_EMAIL}>`,
+                from: `"TicTacToang Team" <${senderEmail}>`,
                 to: toEmail,
                 subject: 'Premium Subscription Revoked',
                 html: `

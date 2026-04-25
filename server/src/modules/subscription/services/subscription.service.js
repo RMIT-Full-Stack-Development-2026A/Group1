@@ -287,7 +287,7 @@ export const SubscriptionService = {
         if (verificationStatus === 'ERROR' || verificationStatus === 'INVALID') {
             if (!allowUnverifiedWebhookBypass) {
                 if (verificationStatus === 'ERROR') {
-                    // COPILOT FIX: Throw actual Error objects with appended status codes
+                    // Throw an Error object with HTTP metadata so upstream handlers can return a 502 response for PayPal verification failures.
                     throw Object.assign(
                         new Error("Failed to verify signature with PayPal API. Please retry."),
                         { statusCode: 502, error: "WEBHOOK_VERIFICATION_FAILED" }

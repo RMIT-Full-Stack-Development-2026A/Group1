@@ -49,13 +49,32 @@ export const SubscriptionController = {
         }
     },
 
-    handlePayPalWebhook: async (req, res, next) => {
+    handlePayPalWebhook: async (req, res) => {
         try {
             await SubscriptionService.processWebhook(req.body, req.headers);
             res.status(200).send('OK'); // Acknowledge to PayPal after successful processing
         } catch (error) {
-            console.error('[PayPal Webhook Error]:', error);
-            res.status(500).send('Internal Server Error');
+            console.error('[Webhook Controller] Error processing webhook:', error);
+
+            // Map webhook-specific service error codes to HTTP status codes and response error codes.
+            const webhookErrorCode = error.error || error.code;
+            let httpStatus = 500;
+            let responseErrorCode = webhookErrorCode || 'INTERNAL_SERVER_ERROR';
+
+            if (webhookErrorCode === 'UNAUTHORIZED' || webhookErrorCode === 'INVALID_WEBHOOK_SIGNATURE') {
+                httpStatus = 403;
+                responseErrorCode = 'INVALID_WEBHOOK_SIGNATURE';
+            } else if (webhookErrorCode === 'WEBHOOK_VERIFICATION_FAILED') {
+                httpStatus = 502; // Return 502 so PayPal can retry later
+            } else if (error.statusCode) {
+                // Fallback for other errors that already provide a statusCode
+                httpStatus = error.statusCode;
+            }
+
+            return res.status(httpStatus).json({
+                error: responseErrorCode,
+                message: error.message || 'An unexpected error occurred while processing webhook.'
+            });
         }
     }
 };

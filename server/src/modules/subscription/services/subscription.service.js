@@ -134,6 +134,17 @@ const verifyPayPalWebhook = async (headers, payload) => {
         const data = await response.json();
         return data.verification_status === 'SUCCESS' ? 'VALID' : 'INVALID';
     } catch (error) {
+        if (error?.message === "MISSING_API_CREDENTIALS") {
+            console.error('[Webhook Security] CRITICAL: PayPal API credentials are missing in .env!', error);
+            throw Object.assign(
+                new Error("Server misconfiguration: PayPal API credentials are missing."),
+                { statusCode: 500, error: "PAYPAL_API_MISCONFIGURED" }
+            );
+        }
+
+        if (error?.statusCode === 500) {
+            throw error;
+        }
         console.error('[Webhook Security] Error verifying signature with PayPal:', error);
         return 'ERROR';
     }

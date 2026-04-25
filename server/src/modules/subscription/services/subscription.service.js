@@ -356,7 +356,7 @@ export const SubscriptionService = {
                         } 
                         // If premium came from a newer transaction, keep premium active
                         else {
-                            console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. VIP NOT revoked.`);
+                            console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. Premium NOT revoked.`);
                         }
                     }
                 }

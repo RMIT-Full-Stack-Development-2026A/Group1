@@ -111,17 +111,24 @@ const verifyPayPalWebhook = async (headers, payload) => {
             })
         });
 
-        //Distinguish transient errors (429, 408, 5xx) from permanent failures (other 4xx)
+        // Distinguish transient errors (429, 408, 5xx), auth/configuration issues (401/403),
+        // and permanent verification failures (other 4xx).
         if (!response.ok) {
             if (response.status === 429 || response.status === 408 || response.status >= 500) {
-                 console.error(`[Webhook Security] PayPal API returned transient error ${response.status}. Retrying later.`);
-                 return 'ERROR';
+                console.error(`[Webhook Security] PayPal API returned transient error ${response.status}. Retrying later.`);
+                return 'ERROR';
+            }
+            if (response.status === 401 || response.status === 403) {
+                console.error(
+                    `[Webhook Security] PayPal API returned ${response.status}; this likely indicates invalid access token, credentials, or webhook verification permissions. Treating as server error instead of invalid webhook.`
+                );
+                return 'ERROR';
             }
             if (response.status >= 400 && response.status < 500) {
                 console.warn(`[Webhook Security] PayPal API returned ${response.status}; treating webhook as invalid.`);
                 return 'INVALID';
             }
-            return 'ERROR'; // safe fallback 
+            return 'ERROR'; // safe fallback
         }
 
         const data = await response.json();

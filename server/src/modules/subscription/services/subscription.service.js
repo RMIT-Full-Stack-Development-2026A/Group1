@@ -40,7 +40,7 @@ const getTransporter = () => {
         });
         return mailTransporter;
     }
-    
+
     // Log a warning only once if SMTP credentials are missing
     if (!isMailerWarningLogged) {
         console.warn('[WARNING] SMTP credentials missing in .env! Emails will NOT be sent.');
@@ -49,8 +49,8 @@ const getTransporter = () => {
     return null;
 };
 // Determine PayPal API Base URL based on environment
-const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live' 
-    ? 'https://api-m.paypal.com' 
+const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live'
+    ? 'https://api-m.paypal.com'
     : 'https://api-m.sandbox.paypal.com';
 
 // Subscription configuration
@@ -71,7 +71,7 @@ const generateAccessToken = async () => {
             body: 'grant_type=client_credentials',
             headers: { Authorization: `Basic ${auth}` }
         });
-        
+
         const data = await response.json();
         return data.access_token;
     } catch (error) {
@@ -106,7 +106,7 @@ const verifyPayPalWebhook = async (headers, payload) => {
                 cert_url: headers['paypal-cert-url'],
                 auth_algo: headers['paypal-auth-algo'],
                 transmission_sig: headers['paypal-transmission-sig'],
-                webhook_id: process.env.PAYPAL_WEBHOOK_ID, 
+                webhook_id: process.env.PAYPAL_WEBHOOK_ID,
                 webhook_event: payload
             })
         });
@@ -144,7 +144,7 @@ export const SubscriptionService = {
     getStatus: async (userId) => {
         const user = await AuthInterface.getUserById(userId);
         if (!user) throw { statusCode: 404, error: "USER_NOT_FOUND", message: "User not found." };
-        
+
         return SubscriptionDTO.toStatus(user);
     },
 
@@ -163,11 +163,11 @@ export const SubscriptionService = {
                     amount: { currency_code: 'USD', value: PREMIUM_PRICE }
                 }],
                 application_context: {
-                brand_name: "Premium Subscription", 
-                user_action: "PAY_NOW", 
-                return_url: `${process.env.CLIENT_URL}/success`,
-                cancel_url: `${process.env.CLIENT_URL}/cancel`
-            }
+                    brand_name: "Premium Subscription",
+                    user_action: "PAY_NOW",
+                    return_url: `${process.env.CLIENT_URL}/success`,
+                    cancel_url: `${process.env.CLIENT_URL}/cancel`
+                }
             })
         });
 
@@ -254,22 +254,22 @@ export const SubscriptionService = {
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
 
             const user = await AuthInterface.getUserById(userId);
-            
+
             // check if user exists
             if (!user) {
                 console.error(`[CaptureOrder] CRITICAL: Payment captured but user ${userId} is missing!`);
-                throw { 
-                    statusCode: 404, 
-                    error: "USER_DELETED_POST_PAYMENT", 
-                    message: "Payment succeeded but your account data is missing. Please contact support." 
+                throw {
+                    statusCode: 404,
+                    error: "USER_DELETED_POST_PAYMENT",
+                    message: "Payment succeeded but your account data is missing. Please contact support."
                 };
             }
 
             void SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
-            return SubscriptionDTO.toPurchaseResponse({ 
-                isPremium: user.isPremium, 
-                premiumExpiresAt: user.premiumExpiresAt, 
-                transaction: updatedTransaction 
+            return SubscriptionDTO.toPurchaseResponse({
+                isPremium: user.isPremium,
+                premiumExpiresAt: user.premiumExpiresAt,
+                transaction: updatedTransaction
             });
         } else {
             // Handle failure scenario
@@ -287,10 +287,10 @@ export const SubscriptionService = {
     // 5. Process Webhook (Refunds/Chargebacks)
     processWebhook: async (payload, headers) => {
         const verificationStatus = await verifyPayPalWebhook(headers, payload);
-        
+
         // Gating the bypass behind an explicit env flag for development
-        const allowUnverifiedWebhookBypass = 
-            process.env.NODE_ENV === 'development' && 
+        const allowUnverifiedWebhookBypass =
+            process.env.NODE_ENV === 'development' &&
             process.env.ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS === 'true';
 
         // Allow bypass to cover BOTH network errors and invalid signatures for local dev
@@ -309,7 +309,7 @@ export const SubscriptionService = {
                     { code: "INVALID_WEBHOOK_SIGNATURE", error: "INVALID_WEBHOOK_SIGNATURE" }
                 );
             }
-            
+
             //  If bypass allowed (local dev)
             if (verificationStatus === 'ERROR') {
                 console.warn('[Webhook Security] Signature verification could not be completed, but bypass is explicitly enabled for development via ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true.');
@@ -322,28 +322,28 @@ export const SubscriptionService = {
 
         // Listen specifically for refunds or reversed payments
         if (eventType === 'PAYMENT.CAPTURE.REFUNDED' || eventType === 'PAYMENT.CAPTURE.REVERSED') {
-            
+
             // Extract the original Order ID from the webhook payload
             // PayPal structure: resource -> supplementary_data -> related_ids -> order_id
             const orderId = payload.resource?.supplementary_data?.related_ids?.order_id;
-            
+
             if (orderId) {
                 const transaction = await SubscriptionRepository.findByExternalId(orderId);
-                
+
                 if (transaction && transaction.status === 'SUCCESS') {
                     // 1. Mark transaction as refunded
                     await SubscriptionRepository.updateTransactionStatus(orderId, { status: 'REFUNDED' });
-                    
+
                     const user = await AuthInterface.getUserById(transaction.userId);
-                    
+
                     // Prevent revoking Premium if user has a newer valid subscription
                     if (user && user.premiumExpiresAt) {
                         const userExpiry = new Date(user.premiumExpiresAt).getTime();
-                        
+
                         //Guard against missing/null subscriptionPeriodEnd
                         const rawTransactionExpiry = transaction.subscriptionPeriodEnd;
                         const transactionExpiry = rawTransactionExpiry ? new Date(rawTransactionExpiry).getTime() : NaN;
-                        
+
                         // If the date data is invalid/missing, the safest fallback is to revoke premium
                         if (!Number.isFinite(transactionExpiry)) {
                             console.warn(`[Webhook] Missing or invalid subscriptionPeriodEnd for refunded transaction ${orderId}. Revoking premium as a safe fallback.`);
@@ -352,29 +352,29 @@ export const SubscriptionService = {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund (Fallback).`);
-                        } 
+                        }
                         // If date data is valid, compare expiration timestamps as normal
                         else if (userExpiry <= transactionExpiry) {
                             // 2. Revoke premium status from user
                             await AuthInterface.setPremiumExpiry(transaction.userId, null);
-                            
+
                             // 3. Send email notification
                             if (user.email) {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
-                        } 
+                        }
                         // If premium came from a newer transaction, keep premium active
                         else {
                             console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. Premium NOT revoked.`);
                         }
                     }
                 }
+            }
         }
-    }
-},
+    },
     sendConfirmationEmail: async (toEmail, username, expiryDate) => {
-        const transporter = getTransporter(); 
+        const transporter = getTransporter();
         if (!transporter) return;
 
         //Safely fallback to SMTP_USER or SMTP_EMAIL
@@ -405,7 +405,7 @@ export const SubscriptionService = {
         }
     },
     sendRevokeEmail: async (toEmail, username) => {
-        const transporter = getTransporter(); 
+        const transporter = getTransporter();
         if (!transporter) return;
 
         //Safely fallback to SMTP_USER or SMTP_EMAIL

@@ -84,7 +84,9 @@ const generateAccessToken = async () => {
  */
 const verifyPayPalWebhook = async (headers, payload) => {
     if (!process.env.PAYPAL_WEBHOOK_ID) {
-        console.warn('[Webhook Security] PAYPAL_WEBHOOK_ID missing in .env. Verification may fail.');
+        console.error('[Webhook Security] CRITICAL: PAYPAL_WEBHOOK_ID is missing in .env!');
+        //Fail fast if Webhook ID is missing (except in dev where bypass might be active)
+        return 'ERROR'; 
     }
 
     try {
@@ -101,20 +103,24 @@ const verifyPayPalWebhook = async (headers, payload) => {
                 cert_url: headers['paypal-cert-url'],
                 auth_algo: headers['paypal-auth-algo'],
                 transmission_sig: headers['paypal-transmission-sig'],
-                webhook_id: process.env.PAYPAL_WEBHOOK_ID || 'dummy_id_for_local_dev',
+                webhook_id: process.env.PAYPAL_WEBHOOK_ID, 
                 webhook_event: payload
             })
         });
 
-        //Distinguish API/network errors from invalid signature failures
+        //Distinguish transient errors (429, 408, 5xx) from permanent failures (other 4xx)
         if (!response.ok) {
+            if (response.status === 429 || response.status === 408 || response.status >= 500) {
+                 console.error(`[Webhook Security] PayPal API returned transient error ${response.status}. Retrying later.`);
+                 return 'ERROR';
+            }
             if (response.status >= 400 && response.status < 500) {
-                console.warn(`[Webhook Security] PayPal API returned ${response.status} during verification; treating webhook as invalid.`);
+                console.warn(`[Webhook Security] PayPal API returned ${response.status}; treating webhook as invalid.`);
                 return 'INVALID';
             }
-            console.error(`[Webhook Security] PayPal API returned ${response.status} during verification.`);
-            return 'ERROR';
+            return 'ERROR'; // safe fallback 
         }
+
         const data = await response.json();
         return data.verification_status === 'SUCCESS' ? 'VALID' : 'INVALID';
     } catch (error) {
@@ -281,13 +287,20 @@ export const SubscriptionService = {
         if (verificationStatus === 'ERROR' || verificationStatus === 'INVALID') {
             if (!allowUnverifiedWebhookBypass) {
                 if (verificationStatus === 'ERROR') {
-                    // Return 502 so PayPal knows this is a server/network issue and retries later
-                    throw { statusCode: 502, error: "WEBHOOK_VERIFICATION_FAILED", message: "Failed to verify signature with PayPal API. Please retry." };
+                    // COPILOT FIX: Throw actual Error objects with appended status codes
+                    throw Object.assign(
+                        new Error("Failed to verify signature with PayPal API. Please retry."),
+                        { statusCode: 502, error: "WEBHOOK_VERIFICATION_FAILED" }
+                    );
                 }
                 console.error('[Webhook Security] CRITICAL: Fake PayPal webhook payload detected and rejected!');
-                throw { statusCode: 401, error: "UNAUTHORIZED", message: "Invalid webhook signature" };
+                throw Object.assign(
+                    new Error("Invalid webhook signature"),
+                    { statusCode: 401, error: "UNAUTHORIZED" }
+                );
             }
             
+            //  If bypass allowed (local dev)
             if (verificationStatus === 'ERROR') {
                 console.warn('[Webhook Security] Signature verification could not be completed, but bypass is explicitly enabled for development via ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true.');
             } else {

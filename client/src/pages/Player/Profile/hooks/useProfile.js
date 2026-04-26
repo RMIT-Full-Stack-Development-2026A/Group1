@@ -157,7 +157,7 @@ export const useProfile = () => {
 
     // Map API viewerResult to display format
     const mapResult = (viewerResult) => {
-      if (!viewerResult) return "ABORT";
+      if (viewerResult === "ABORTED") return "ABORT";
       if (viewerResult === "WIN") return "WIN";
       if (viewerResult === "LOSE") return "LOSS";
       return "DRAW";

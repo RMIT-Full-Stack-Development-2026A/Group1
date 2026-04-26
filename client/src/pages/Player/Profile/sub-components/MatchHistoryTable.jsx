@@ -79,9 +79,9 @@ export default function MatchHistoryTable({
         };
       case "ABORT":
         return {
-          backgroundColor: "#879398",
+          backgroundColor: "#f5a623",
           color: "#000000",
-          borderColor: "#879398",
+          borderColor: "#f5a623",
         };
       case "DRAW":
         return {

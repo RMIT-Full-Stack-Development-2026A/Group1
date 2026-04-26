@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { Volume2, VolumeX } from "lucide-react";
 import { useAuthStore } from "../../stores/AuthStore";
 import { useAudioStore } from "../../stores/AudioStore";
+import SoundButton from '@/components/reusable/SoundButton';
 
 export default function Navigation() {
     const navigate = useNavigate();
@@ -46,7 +47,7 @@ export default function Navigation() {
                     <div className="flex items-center gap-4">
                         {isAdmin ? (
                             /* Admin Navigation */
-                            <button
+                            <SoundButton
                                 onClick={() => navigate("/admin")}
                                 className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
                                     location.pathname.startsWith("/admin")
@@ -55,11 +56,11 @@ export default function Navigation() {
                                 }`}
                             >
                                 ADMIN DASHBOARD
-                            </button>
+                            </SoundButton>
                         ) : (
                             /* Player Navigation */
                             <>
-                                <button
+                                <SoundButton
                                     onClick={() => navigate("/play")}
                                     className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
                                         location.pathname === "/play"
@@ -68,8 +69,8 @@ export default function Navigation() {
                                     }`}
                                 >
                                     GAME MODES
-                                </button>
-                                <button
+                                </SoundButton>
+                                <SoundButton
                                     onClick={() => navigate("/profile")}
                                     className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
                                         location.pathname === "/profile"
@@ -78,7 +79,7 @@ export default function Navigation() {
                                     }`}
                                 >
                                     PROFILE
-                                </button>
+                                </SoundButton>
                             </>
                         )}
                     </div>
@@ -86,7 +87,7 @@ export default function Navigation() {
             </div>
 
             <div className="flex items-center gap-3">
-                <button
+                <SoundButton
                     onClick={toggleBackgroundMusic}
                     className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs px-4 py-2 border transition-all shadow-[2px_2px_0px_#1e1e2c] ${
                         isBackgroundMusicEnabled
@@ -98,29 +99,29 @@ export default function Navigation() {
                 >
                     {isBackgroundMusicEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
                     {isBackgroundMusicEnabled ? 'MUSIC ON' : 'MUSIC OFF'}
-                </button>
+                </SoundButton>
 
                 {!isLoading && isAuthenticated ? (
-                    <button
+                    <SoundButton
                         onClick={handleLogout}
                         className="font-mono uppercase tracking-widest text-xs bg-[#ffb4ab] cursor-pointer text-[#690005] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#ffb4ab] transition-all"
                     >
                         LOGOUT
-                    </button>
+                    </SoundButton>
                 ) : (
                     <>
-                        <button
+                        <SoundButton
                             onClick={() => navigate("/login")}
                             className="font-mono uppercase tracking-widest text-xs text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] transition-all px-4 py-2"
                         >
                             LOGIN
-                        </button>
-                        <button
+                        </SoundButton>
+                        <SoundButton
                             onClick={() => navigate("/register")}
                             className="font-mono uppercase tracking-widest text-xs bg-primary-cyan text-[#003543] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#4cc9f0] transition-all"
                         >
                             REGISTER
-                        </button>
+                        </SoundButton>
                     </>
                 )}
             </div>

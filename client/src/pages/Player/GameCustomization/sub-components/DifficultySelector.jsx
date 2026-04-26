@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getDifficultyLevels } from "../service/customization.service";
-
+import SoundButton from "@/components/reusable/SoundButton";
 export default function DifficultySelector({ selectedDifficulty, onSelect }) {
     const difficulties = getDifficultyLevels();
 
@@ -15,7 +15,7 @@ export default function DifficultySelector({ selectedDifficulty, onSelect }) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {difficulties.map((difficulty) => (
-                    <button
+                    <SoundButton
                         key={difficulty.id}
                         onClick={() => onSelect(difficulty.id)}
                         className={`bg-[#1e1e2c] border-2 p-6 flex flex-col items-center cursor-pointer transition-all ${
@@ -38,7 +38,7 @@ export default function DifficultySelector({ selectedDifficulty, onSelect }) {
                         <p className="text-[16px] text-center leading-relaxed text-[#b0b0b8]">
                             {difficulty.description}
                         </p>
-                    </button>
+                    </SoundButton>
                 ))}
             </div>
         </section>

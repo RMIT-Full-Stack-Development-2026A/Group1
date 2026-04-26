@@ -33,7 +33,7 @@ export default function Navigation() {
     };
 
     return (
-        <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0d0d1a] border-b-2 border-[#3d484d]">
+        <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-deep-bg border-b-2 border-[#3d484d]">
             <div className="flex items-center gap-8">
                 <span
                     onClick={handleLogoClick}
@@ -117,7 +117,7 @@ export default function Navigation() {
                         </button>
                         <button
                             onClick={() => navigate("/register")}
-                            className="font-mono uppercase tracking-widest text-xs bg-[#4cc9f0] text-[#003543] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#4cc9f0] transition-all"
+                            className="font-mono uppercase tracking-widest text-xs bg-primary-cyan text-[#003543] px-4 py-2 active:translate-y-px shadow-[2px_2px_0px_#1e1e2c] hover:shadow-[0px_0px_8px_#4cc9f0] transition-all"
                         >
                             REGISTER
                         </button>

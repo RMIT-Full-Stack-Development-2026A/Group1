@@ -109,6 +109,29 @@ export default function MatchHistoryTable({
     }
   };
 
+  const calculateDuration = (startTime, endTime) => {
+    if (!startTime || !endTime) return "--";
+    
+    try {
+      // Parse time strings in format "HH:MM"
+      const [startHour, startMin] = startTime.split(":").map(Number);
+      const [endHour, endMin] = endTime.split(":").map(Number);
+      
+      let startTotalMin = startHour * 60 + startMin;
+      let endTotalMin = endHour * 60 + endMin;
+      
+      // Handle case where end time is next day (e.g., 01:00 to 23:00)
+      if (endTotalMin < startTotalMin) {
+        endTotalMin += 24 * 60;
+      }
+      
+      const durationMin = endTotalMin - startTotalMin;
+      return `${durationMin} minutes`;
+    } catch (error) {
+      return "--";
+    }
+  };
+
   return (
     <section 
       className="border border-outline-variant flex flex-col"
@@ -212,30 +235,31 @@ export default function MatchHistoryTable({
           <thead>
             <tr className="bg-surface-container-lowest text-outline text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant">
               <th className="px-6 py-4">#</th>
+              <th className="px-6 py-4">GAME TYPE</th>
+              <th className="px-6 py-4">OPPONENT</th>
+              <th className="px-6 py-4">RESULT</th>
               <th 
                 className="px-6 py-4 cursor-pointer hover:text-primary-container transition-colors" 
                 onClick={() => onSortBy("endedAt")}
               >
                 DATE <SortIndicator column="endedAt" />
               </th>
-              <th className="px-6 py-4">GAME TYPE</th>
-              <th className="px-6 py-4">OPPONENT</th>
-              <th className="px-6 py-4">RESULT</th>
               <th className="px-6 py-4">START TIME</th>
               <th className="px-6 py-4">END TIME</th>
+              <th className="px-6 py-4">DURATION</th>
               <th className="px-6 py-4 text-right">REPLAY</th>
             </tr>
           </thead>
           <tbody className="text-xs font-medium uppercase tracking-tight divide-y divide-outline-variant/30">
             {loading ? (
               <tr>
-                <td colSpan="8" className="px-6 py-8 text-center text-outline/50">
+                <td colSpan="9" className="px-6 py-8 text-center text-outline/50">
                   Loading matches...
                 </td>
               </tr>
             ) : matches.length === 0 ? (
               <tr>
-                <td colSpan="8" className="px-6 py-8 text-center text-outline/50">
+                <td colSpan="9" className="px-6 py-8 text-center text-outline/50">
                   No matches found
                 </td>
               </tr>
@@ -248,7 +272,6 @@ export default function MatchHistoryTable({
                   <td className="px-6 py-4 text-outline font-arcade text-[8px]">
                     {match.id}
                   </td>
-                  <td className="px-6 py-4">{match.date}</td>
                   <td className="px-6 py-4">{match.gameType}</td>
                   <td className={`px-6 py-4 ${getOpponentColor(match.result)}`}>
                     {match.opponent}
@@ -265,8 +288,10 @@ export default function MatchHistoryTable({
                       {match.result}
                     </span>
                   </td>
+                  <td className="px-6 py-4">{match.date}</td>
                   <td className="px-6 py-4">{match.startTime}</td>
                   <td className="px-6 py-4">{match.endTime}</td>
+                  <td className="px-6 py-4">{calculateDuration(match.startTime, match.endTime)}</td>
                   <td className="px-6 py-4 text-right">
                     {isPremium ? (
                       <span

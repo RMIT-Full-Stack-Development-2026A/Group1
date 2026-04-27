@@ -12,8 +12,13 @@ const subscriptionService = {
         return data;
     },
 
-    createCheckoutSession: async () => {
-        const data = await http.post(API_ENDPOINTS.SUBSCRIPTION.SUBSCRIBE);
+    createOrder: async () => {
+        const data = await http.post(API_ENDPOINTS.SUBSCRIPTION.CREATE_ORDER);
+        return data;
+    },
+
+    captureOrder: async (orderId) => {
+        const data = await http.post(API_ENDPOINTS.SUBSCRIPTION.CAPTURE_ORDER, { orderId });
         return data;
     },
 };

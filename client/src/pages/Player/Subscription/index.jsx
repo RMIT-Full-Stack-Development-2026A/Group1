@@ -42,7 +42,7 @@ const Subscription = () => {
                 onCancel={handleCancelSubscription}
             />
             
-            <TransactionHistory transactions={transactions} />
+            <TransactionHistory transactions={transactions?.items || []} />
         </main>
     );
 };

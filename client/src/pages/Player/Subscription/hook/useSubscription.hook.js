@@ -38,13 +38,14 @@ export const useSubscription = () => {
         setIsRedirecting(true);
         setError(null);
         try {
-            const result = await subscriptionService.createCheckoutSession();
-            if (result?.checkoutUrl) {
-                window.location.href = result.checkoutUrl;
+            const result = await subscriptionService.createOrder();
+            const approveLink = result?.data?.approveLink;
+            if (approveLink) {
+                window.location.href = approveLink;
                 return;
             }
 
-            throw new Error('Missing checkout URL from subscription response.');
+            throw new Error('Missing approval link from subscription response.');
         } catch (err) {
             console.error('[useSubscription] handleSubscribe error:', err);
             setError(err?.data?.message ?? err?.message ?? 'Subscription redirect failed.');

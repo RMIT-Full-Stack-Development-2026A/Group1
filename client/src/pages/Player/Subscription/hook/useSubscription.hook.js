@@ -6,26 +6,24 @@ import subscriptionService from '../service/subscription.service';
  * consumed by: pages/Player/Subscription/index.jsx
  */
 export const useSubscription = () => {
-    const [walletBalance, setWalletBalance] = useState(0);
     const [isPremium, setIsPremium] = useState(false);
     const [transactions, setTransactions] = useState([]);
-    const [depositAmount, setDepositAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
     const [error, setError] = useState(null);
 
-    const loadInitialData = useCallback(async () => {
+    const loadData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const [walletData, txData] = await Promise.all([
-                subscriptionService.getWalletStatus(),
+            const [statusData, txData] = await Promise.all([
+                subscriptionService.getStatus(),
                 subscriptionService.getTransactions(),
             ]);
-            setWalletBalance(walletData.walletBalance ?? 0);
-            setIsPremium(walletData.isPremium ?? false);
+            setIsPremium(statusData?.isPremium ?? false);
             setTransactions(txData ?? []);
         } catch (err) {
-            console.error('[useSubscription] loadInitialData error:', err);
+            console.error('[useSubscription] loadData error:', err);
             setError(err?.data?.message ?? 'Failed to load subscription data.');
         } finally {
             setIsLoading(false);
@@ -33,63 +31,34 @@ export const useSubscription = () => {
     }, []);
 
     useEffect(() => {
-        loadInitialData();
-    }, [loadInitialData]);
-
-    const handleDeposit = useCallback(async () => {
-        const amount = parseFloat(depositAmount);
-        if (!amount || amount <= 0) return;
-
-        setIsLoading(true);
-        setError(null);
-        try {
-            const result = await subscriptionService.deposit(amount);
-            setWalletBalance(result.walletBalance);
-            setDepositAmount('');
-            // Refresh transaction log sau khi nạp
-            const txData = await subscriptionService.getTransactions();
-            setTransactions(txData ?? []);
-        } catch (err) {
-            console.error('[useSubscription] handleDeposit error:', err);
-            setError(err?.data?.message ?? 'Deposit failed.');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [depositAmount]);
+        loadData();
+    }, [loadData]);
 
     const handleSubscribe = useCallback(async () => {
-        if (walletBalance < 10) return;
-
-        setIsLoading(true);
+        setIsRedirecting(true);
         setError(null);
         try {
-            const result = await subscriptionService.subscribe();
-            setIsPremium(result.isPremium);
-            // Wallet bị trừ $10 — reload lại để sync balance chính xác
-            const walletData = await subscriptionService.getWalletStatus();
-            setWalletBalance(walletData.walletBalance ?? 0);
-            const txData = await subscriptionService.getTransactions();
-            setTransactions(txData ?? []);
+            const result = await subscriptionService.createOrder();
+            const approveLink = result?.data?.approveLink;
+            if (approveLink) {
+                window.location.href = approveLink;
+                return;
+            }
+
+            throw new Error('Missing approval link from subscription response.');
         } catch (err) {
             console.error('[useSubscription] handleSubscribe error:', err);
-            setError(err?.data?.message ?? 'Subscription failed.');
-        } finally {
-            setIsLoading(false);
+            setError(err?.data?.message ?? err?.message ?? 'Subscription redirect failed.');
+            setIsRedirecting(false);
         }
-    }, [walletBalance]);
+    }, []);
 
     return {
-        // State
-        walletBalance,
         isPremium,
         transactions,
-        depositAmount,
         isLoading,
+        isRedirecting,
         error,
-        // Setters
-        setDepositAmount,
-        // Handlers
-        handleDeposit,
         handleSubscribe,
     };
 };

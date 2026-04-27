@@ -57,6 +57,7 @@ export const useFormValidation = (initialData = {}) => {
     });
 
     const [passwordMismatch, setPasswordMismatch] = useState(false);
+    const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
 
     // Validation handlers
     const calculatePasswordStrength = (password) => {
@@ -96,6 +97,9 @@ export const useFormValidation = (initialData = {}) => {
             [name]: value,
         }));
 
+        // Reset mismatch visibility on change
+        setShowPasswordMismatch(false);
+
         // Validate specific fields
         if (name === "email") {
             handleEmailChange(value);
@@ -130,6 +134,7 @@ export const useFormValidation = (initialData = {}) => {
             hasCapital: false,
         });
         setPasswordMismatch(false);
+        setShowPasswordMismatch(false);
         setPasswordStrength(0);
         setMessage({ type: "", text: "" });
         setShowPassword(false);
@@ -156,6 +161,8 @@ export const useFormValidation = (initialData = {}) => {
         showConfirmPassword,
         setShowConfirmPassword,
         passwordStrength,
+        showPasswordMismatch,
+        setShowPasswordMismatch,
 
         // Validation states
         emailValidation,

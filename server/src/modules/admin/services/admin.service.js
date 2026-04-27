@@ -1,9 +1,29 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
+import { RoomInterface } from '../../room/interfaces/room.interface.js';
+import { SubscriptionInterface } from '../../subscription/interfaces/subscription.interface.js';
 import { AdminDTO } from '../dtos/admin.dto.js';
-import { validatePlayerQuery, validateObjectId } from '../validators/admin.validator.js';
+import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery } from '../validators/admin.validator.js';
 
 export const AdminService = {
+
+    getDashboard: async () => {
+        // Fetch all metrics concurrently for performance
+        const [authMetrics, totalMatches, activeRooms, totalRevenue] = await Promise.all([
+            AuthInterface.getPlatformMetrics(),
+            GameInterface.getTotalPlatformMatches(),
+            RoomInterface.getActiveRoomsCount(),
+            SubscriptionInterface.getTotalRevenue(),
+        ]);
+
+        return AdminDTO.toDashboard({
+            ...authMetrics,
+            totalMatches,
+            activeRooms,
+            totalRevenue
+        });
+    },
+    
     getPlayers: async (query) => {
         const { filter, sort, pagination } = validatePlayerQuery(query);
         
@@ -79,5 +99,61 @@ export const AdminService = {
 
         const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
         return AdminDTO.toPlayerDetail(updatedUser);
+    },
+
+    getRooms: async (query) => {
+        const { filter, sort, pagination } = validateAdminRoomQuery(query);
+        
+        // Delegate to Room module
+        const result = await RoomInterface.getPaginatedRooms(filter, sort, pagination.skip, pagination.limit);
+        
+        return {
+            items: result.items,
+            total: result.total,
+            page: pagination.page,
+            limit: pagination.limit
+        };
+    },
+
+    getRoomDetail: async (roomId, requestingUser) => {
+        // Delegate to Room module
+        return await RoomInterface.getRoomDetail(roomId, requestingUser);
+    },
+
+    forceCloseRoom: async (roomId) => {
+        if (!validateObjectId(roomId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Failed to close room. Invalid room ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        // Delegate to Room module
+        const closed = await RoomInterface.forceCloseRoomByAdmin(roomId);
+        
+        // (Not Found / Already Closed)
+        if (closed === null) {
+            throw {
+                statusCode: 404,
+                error: "ROOM_NOT_FOUND",
+                message: "Room not found or already closed.",
+                cause: `The room ID ${roomId} does not exist or is already in a CLOSED/ABORTED state.`
+            };
+        }
+
+        // (Update Failed / Concurrency Issue)
+        if (closed === false) {
+            throw {
+                statusCode: 500,
+                error: "UPDATE_FAILED",
+                message: "Failed to force close the room.",
+                cause: "The room status update failed unexpectedly due to a concurrent modification or database error.",
+                valid_example: "Try the request again."
+            };
+        }
+        return closed;
     }
 };

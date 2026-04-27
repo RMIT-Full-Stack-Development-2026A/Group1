@@ -4,7 +4,7 @@ const getPlayerLabel = (player) => {
     if (!player) return 'Unknown';
 
     if (player.role === 'AI') {
-        return `${player.usernameSnapshot || 'AI'} (${player.aiDifficulty || 'N/A'})`;
+        return `${player.usernameSnapshot || 'AI'}`;
     }
 
     return player.usernameSnapshot || 'Unknown';

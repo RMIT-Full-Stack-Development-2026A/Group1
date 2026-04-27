@@ -1,5 +1,5 @@
 export const validateProfileUpdate = (data) => {
-    const { username, email, country, avatar } = data;
+    const { username, email, country } = data;
     const errors = [];
 
     // Validate Username 
@@ -33,21 +33,9 @@ export const validateProfileUpdate = (data) => {
         if (typeof country !== 'string' || country.trim().length === 0) {
             errors.push({
                 error: "INVALID_COUNTRY",
-                message: "Profile update failed. Password is not strong enough.",
+                message: "Profile update failed. Invalid contry.",
                 cause: "Country must be provided as a valid, non-empty string.",
                 valid_example: "Australia"
-            });
-        }
-    }
-
-    // Validate avatar URL
-    if (avatar !== undefined) {
-        if (typeof avatar !== 'string' || avatar.trim().length === 0) {
-            errors.push({
-                error: "INVALID_AVATAR",
-                message: "Profile update failed. Invalid avatar format.",
-                cause: "Avatar must be a non-empty string URL or Base64.",
-                valid_example: "https://example.com/avatar.png"
             });
         }
     }

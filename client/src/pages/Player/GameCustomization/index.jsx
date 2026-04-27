@@ -11,6 +11,7 @@ import {
     GridStyleSelector,
     MarkerVariantSelector,
     DifficultySelector,
+    Player2NameInput,
     ActionButtons,
 } from "./sub-components";
 
@@ -18,7 +19,7 @@ export default function GameCustomization() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setCustomization } = useCustomizationStore();
-    const { gameMode, setAiDifficulty } = useModeStore();
+    const { gameMode, player2Name, setAiDifficulty, setPlayer2Name } = useModeStore();
     const {
         selectedBoardSize,
         setSelectedBoardSize,
@@ -139,6 +140,14 @@ export default function GameCustomization() {
                             <DifficultySelector
                                 selectedDifficulty={selectedDifficulty}
                                 onSelect={setSelectedDifficulty}
+                            />
+                        )}
+
+                        {/* Section 5: Player 2 Name (Only for Local Two Players) */}
+                        {gameMode === 'TWO_PLAYERS' && (
+                            <Player2NameInput
+                                value={player2Name}
+                                onChange={setPlayer2Name}
                             />
                         )}
 

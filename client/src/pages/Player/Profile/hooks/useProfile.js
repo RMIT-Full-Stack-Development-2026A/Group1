@@ -80,8 +80,8 @@ export const useProfile = () => {
             wins: apiData?.stats?.wins || 0,
             losses: apiData?.stats?.losses || 0,
             draws: apiData?.stats?.draws || 0,
-            winRate: apiData?.stats?.totalGames > 0 
-              ? ((apiData.stats.wins / apiData.stats.totalGames) * 100).toFixed(1)
+            winRate: (apiData?.stats?.totalGames - (apiData?.stats?.aborted || 0)) > 0 
+              ? ((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1)
               : 0,
           },
         };
@@ -157,7 +157,7 @@ export const useProfile = () => {
 
     // Map API viewerResult to display format
     const mapResult = (viewerResult) => {
-      if (!viewerResult) return "ABORT";
+      if (viewerResult === "ABORTED") return "ABORT";
       if (viewerResult === "WIN") return "WIN";
       if (viewerResult === "LOSE") return "LOSS";
       return "DRAW";
@@ -222,14 +222,19 @@ export const useProfile = () => {
         
         console.log(`[useProfile] After transformation: ${transformedMatches.length} matches`);
         
-        // Apply in-memory filtering for WIN/LOSS since backend returns all FINISHED games
-        // (both wins and losses have status === FINISHED)
+        // Apply in-memory filtering for WIN/LOSS/DRAW/ABORT since backend returns all games
         if (appliedFilterResult === "WIN") {
           transformedMatches = transformedMatches.filter(match => match.result === "WIN");
           console.log(`[useProfile] After WIN filter: ${transformedMatches.length} matches`);
         } else if (appliedFilterResult === "LOSS") {
           transformedMatches = transformedMatches.filter(match => match.result === "LOSS");
           console.log(`[useProfile] After LOSS filter: ${transformedMatches.length} matches`);
+        } else if (appliedFilterResult === "DRAW") {
+          transformedMatches = transformedMatches.filter(match => match.result === "DRAW");
+          console.log(`[useProfile] After DRAW filter: ${transformedMatches.length} matches`);
+        } else if (appliedFilterResult === "ABORT") {
+          transformedMatches = transformedMatches.filter(match => match.result === "ABORT");
+          console.log(`[useProfile] After ABORT filter: ${transformedMatches.length} matches`);
         }
         
         setMatchHistory(transformedMatches);
@@ -322,8 +327,8 @@ export const useProfile = () => {
           wins: apiData?.stats?.wins || 0,
           losses: apiData?.stats?.losses || 0,
           draws: apiData?.stats?.draws || 0,
-          winRate: apiData?.stats?.totalGames > 0 
-            ? ((apiData.stats.wins / apiData.stats.totalGames) * 100).toFixed(1)
+          winRate: (apiData?.stats?.totalGames - (apiData?.stats?.aborted || 0)) > 0 
+            ? ((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1)
             : 0,
         },
       };

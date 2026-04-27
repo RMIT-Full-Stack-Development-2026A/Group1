@@ -1,6 +1,7 @@
 // PricingPlans.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
+import SoundButton from '@/components/reusable/SoundButton';
 
 export default function PricingPlans({ isPremium, onSubscribe }) {
     return (
@@ -23,9 +24,9 @@ export default function PricingPlans({ isPremium, onSubscribe }) {
                     <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> CUSTOM MARKERS</li>
                     <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> PRIORITY MATCHMAKING</li>
                 </ul>
-                <button className="w-full border border-[#4cc9f0] text-[#ffb4ab] font-headline text-xs py-4 hover:bg-[#292937] transition-colors">
+                <SoundButton className="w-full border border-[#4cc9f0] text-[#ffb4ab] font-headline text-xs py-4 hover:bg-[#292937] transition-colors">
                     {isPremium ? 'DOWNGRADE' : 'CURRENT STATUS'}
-                </button>
+                </SoundButton>
             </div>
 
             {/* PREMIUM CARD */}
@@ -47,12 +48,12 @@ export default function PricingPlans({ isPremium, onSubscribe }) {
                     <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> CUSTOM MARKERS</li>
                     <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> PRIORITY MATCHMAKING</li>
                 </ul>
-                <button 
+                <SoundButton 
                     onClick={onSubscribe}
                     className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 active:translate-x-[2px] active:translate-y-[2px] transition-transform"
                 >
                     {isPremium ? 'ACTIVE SUBSCRIBER' : 'SELECT PACKAGE'}
-                </button>
+                </SoundButton>
             </div>
         </div>
     );

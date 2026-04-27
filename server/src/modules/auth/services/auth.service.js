@@ -229,6 +229,10 @@ export const AuthService = {
         return null;
     },
 
+    getPlatformMetrics: async () => {
+        return AuthRepository.getPlatformMetrics();
+    },
+    
     getPaginatedUsers: async (filter, sort, skip, limit) => {
         return AuthRepository.findUsersPaginated(filter, sort, skip, limit);
     }

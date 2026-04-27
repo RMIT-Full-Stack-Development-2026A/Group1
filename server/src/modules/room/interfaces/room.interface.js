@@ -1,18 +1,19 @@
-import { GameRoom } from "../models/gameRoom.model.js";
-import { RoomDTO } from "../dtos/room.dto.js";
+import { RoomService } from "../services/room.service.js";
 
-// Minimal room interface used by auth check-auth bootstrap to restore unfinished room context.
+// Minimal interface exposing room snapshot/admin operations to other modules
 export const RoomInterface = {
-    getActiveRoomSummaryByUserId: async (userId) => {
-        const room = await GameRoom.findOne({
-            "participants.userId": userId,
-            status: { $in: ["WAITING", "READY", "PLAYING"] }
-        }).lean();
+    // Used by auth check-auth to restore unfinished room context.
+    getActiveRoomSummaryByUserId: async (userId) => RoomService.getActiveRoomSummaryByUserId(userId),
 
-        if (!room) {
-            return null;
-        }
+    // For Admin module to render active rooms on the dashboard
+    getActiveRoomsCount: async () => RoomService.getActiveRoomsCount(),
 
-        return RoomDTO.toActiveRoomSummary(room);
-    }
+    // For Admin: Fetch paginated rooms
+    getPaginatedRooms: async (filter, sort, skip, limit) => RoomService.getPaginatedRooms(filter, sort, skip, limit),
+
+    // For Admin: Get full room details
+    getRoomDetail: async (roomId, requestingUser) => RoomService.getRoomDetail(roomId, requestingUser),
+
+    // For Admin: Force close room and signal Game module
+    forceCloseRoomByAdmin: async (roomId) => RoomService.forceCloseRoomByAdmin(roomId)
 };

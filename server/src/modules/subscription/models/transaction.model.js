@@ -11,16 +11,16 @@ const transactionSchema = new mongoose.Schema({
 
     type: {
         type: String, // Business category of transaction
-        enum: ['DEPOSIT', 'SUBSCRIPTION'], 
+        enum: ['SUBSCRIPTION'], 
         required: true, 
         index: true 
     },
 
     provider: {
         type: String, // Payment source/provider used for this transaction
-        enum: ['LOCAL_WALLET', 'STRIPE', 'PAYPAL'], 
+        enum: ['STRIPE', 'PAYPAL'], 
         required: true, 
-        default: 'LOCAL_WALLET' 
+        default: 'PAYPAL' 
     },
 
     amount: {
@@ -36,9 +36,9 @@ const transactionSchema = new mongoose.Schema({
 
     status: {
         type: String, // Processing outcome of the transaction
-        enum: ['PENDING', 'SUCCESS', 'FAILED'], 
+        enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], 
         required: true, 
-        default: 'SUCCESS', 
+        default: 'PENDING', 
         index: true 
     },
 
@@ -47,16 +47,6 @@ const transactionSchema = new mongoose.Schema({
         default: null, 
         index: true,
         sparse: true 
-    },
-
-    balanceBefore: {
-        type: Number, // Wallet balance before applying this transaction
-        default: 0 
-    },
-
-    balanceAfter: {
-        type: Number, // Wallet balance after applying this transaction
-        default: 0 
     },
 
     subscriptionPeriodStart: {

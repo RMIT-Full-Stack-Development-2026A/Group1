@@ -154,6 +154,16 @@ export const AuthRepository = {
         return null; // No conflicts found
     },
 
+    getPlatformMetrics: async () => {
+        const [totalPlayers, activePlayers, premiumPlayers] = await Promise.all([
+            User.countDocuments({ role: 'PLAYER' }),
+            User.countDocuments({ role: 'PLAYER', isActive: true }),
+            User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: new Date() } })
+        ]);
+
+        return { totalPlayers, activePlayers, premiumPlayers };
+    },
+    
     findUsersPaginated: async (filter, sort, skip, limit) => {
         const users = await User.find(filter)
             .sort(sort)

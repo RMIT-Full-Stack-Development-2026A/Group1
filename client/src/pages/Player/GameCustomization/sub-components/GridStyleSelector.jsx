@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getGridStyles } from "../service/customization.service";
+import SoundButton from "../../../../components/reusable/SoundButton";
 
 export default function GridStyleSelector({ selectedStyle, onSelect }) {
     const gridStyles = getGridStyles();
@@ -15,7 +16,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {gridStyles.map((style) => (
-                    <button
+                    <SoundButton
                         key={style.id}
                         onClick={() => onSelect(style.displayId)}
                         className={`bg-[#12121f] border p-1 cursor-pointer transition-all ${
@@ -78,7 +79,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                 {style.name}
                             </span>
                         </div>
-                    </button>
+                    </SoundButton>
                 ))}
             </div>
         </section>

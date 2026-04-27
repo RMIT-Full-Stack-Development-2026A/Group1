@@ -8,7 +8,6 @@ const adminRoutes = express.Router();
 const requireAdmin = authorizeMiddleware(['ADMIN']); 
 adminRoutes.use(verifyToken, requireAdmin);
 
-
 /**
  * @openapi
  * /api/v1/admin/dashboard:
@@ -23,7 +22,7 @@ adminRoutes.use(verifyToken, requireAdmin);
  *       403:
  *         $ref: '#/components/responses/ForbiddenResponse'
  */
-// adminRoutes.get('/dashboard', AdminController.getPlayerDetail);
+adminRoutes.get('/dashboard', AdminController.getDashboard);
 
 /**
  * @openapi
@@ -128,7 +127,7 @@ adminRoutes.patch('/player/:id/reactivate', AdminController.reactivatePlayer);
  *       403:
  *         $ref: '#/components/responses/ForbiddenResponse'
  */
-// adminRoutes.get('/rooms');
+adminRoutes.get('/rooms', AdminController.getRooms);
 
 /**
  * @openapi
@@ -168,7 +167,7 @@ adminRoutes.patch('/player/:id/reactivate', AdminController.reactivatePlayer);
  *       404:
  *         $ref: '#/components/responses/NotFoundResponse'
  */
-// adminRoutes.get('/rooms/:id');
-// adminRoutes.delete('/room/:id');
+adminRoutes.get('/rooms/:id', AdminController.getRoomDetail);
+adminRoutes.delete('/rooms/:id', AdminController.forceCloseRoom);
 
 export default adminRoutes;

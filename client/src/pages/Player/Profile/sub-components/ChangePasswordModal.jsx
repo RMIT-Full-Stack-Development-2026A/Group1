@@ -97,18 +97,16 @@ export default function ChangePasswordModal({
       [name]: value,
     }));
 
-    // Real-time validation
+    // Real-time validation for password strength only
     if (name === "newPassword") {
       setValidations((prev) => ({
         ...prev,
         passwordValidation: validatePassword(value),
       }));
-      // Check password match
-      if (formData.confirmNewPassword) {
-        setPasswordMismatch(!passwordsMatch(value, formData.confirmNewPassword));
-      }
-    } else if (name === "confirmNewPassword") {
-      setPasswordMismatch(!passwordsMatch(formData.newPassword, value));
+    }
+    // Clear error message when typing
+    if (saveError) {
+      setSaveError("");
     }
   };
 
@@ -136,7 +134,9 @@ export default function ChangePasswordModal({
       return;
     }
 
-    if (passwordMismatch) {
+    // Check password match only on submit
+    if (!passwordsMatch(formData.newPassword, formData.confirmNewPassword)) {
+      setPasswordMismatch(true);
       setSaveError("Passwords do not match. Please check and try again.");
       return;
     }
@@ -248,7 +248,7 @@ export default function ChangePasswordModal({
             </div>
 
             {/* Confirm New Password Field */}
-            {formData.newPassword && (
+            {isPasswordValid(validations.passwordValidation) && (
               <PasswordField
                 value={formData.confirmNewPassword}
                 onChange={handleInputChange}

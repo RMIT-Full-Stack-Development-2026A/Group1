@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getBoardSizes } from "../service/customization.service";
+import SoundButton from "@/components/reusable/SoundButton"; 
 
 export default function BoardSizeSelector({ selectedSize, onSelect }) {
     const boardSizes = getBoardSizes();
@@ -15,7 +16,7 @@ export default function BoardSizeSelector({ selectedSize, onSelect }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
                 {boardSizes.map((size) => (
-                    <button
+                    <SoundButton
                         key={size.id}
                         onClick={() => onSelect(size.displayId)}
                         className={`bg-[#1e1e2c] border p-6 flex flex-col items-center cursor-pointer justify-center transition-all ${
@@ -30,7 +31,7 @@ export default function BoardSizeSelector({ selectedSize, onSelect }) {
                         <span className="text-[10px] tracking-widest opacity-50 font-bold">
                             {size.subtitle}
                         </span>
-                    </button>
+                    </SoundButton>
                 ))}
             </div>
         </section>

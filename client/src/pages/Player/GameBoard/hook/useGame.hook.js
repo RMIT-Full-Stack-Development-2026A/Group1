@@ -18,12 +18,13 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
     // Initialize with the dynamic size provided by CustomizationStore
     const [boardSize, setBoardSizeState] = useState(initialBoardSize);
     const [isLocked, setIsLocked] = useState(false);
-    
+
     // Lazy initialization for board performance using initialBoardSize
     const [board, setBoard] = useState(() => initBoard(initialBoardSize));
     const [currentPlayer, setCurrentPlayer] = useState('X');
     const [winnerData, setWinnerData] = useState(null);
     const [isDraw, setIsDraw] = useState(false);
+    const [isAborting, setIsAborting] = useState(false);
     const [moveHistory, setMoveHistory] = useState([]);
 
     // Tracking turns and time for Backend Payload
@@ -48,7 +49,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
     const setBoardSize = useCallback((size) => {
         const activeGame = moveHistory.length > 0 && !winnerData && !isDraw;
         if (activeGame) return; // Lock changing size when game is playing
-        
+
         setBoardSizeState(size);
         setBoard(initBoard(size));
         setCurrentPlayer('X');
@@ -57,10 +58,10 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         setMoveHistory([]);
         setParticipantIndex(firstTurnIndex);
         setStartedAt(new Date().toISOString()); // Reset start time
-    }, [moveHistory.length, winnerData, isDraw, firstTurnIndex]); 
+    }, [moveHistory.length, winnerData, isDraw, firstTurnIndex]);
 
     // Handle move upgraded with exact BE Schema
-const handleMove = useCallback(async (row, col) => {
+    const handleMove = useCallback(async (row, col) => {
         if (isLocked || board[row][col] !== null || winnerData || isDraw) {
             return;
         }
@@ -70,7 +71,7 @@ const handleMove = useCallback(async (row, col) => {
         setBoard(newBoard);
 
         const timestamp = new Date().toISOString();
-        
+
         const newMove = {
             moveNumber: moveHistory.length + 1,
             byParticipantIndex: participantIndex,
@@ -78,7 +79,7 @@ const handleMove = useCallback(async (row, col) => {
             col: col,
             coordinate: toAlgebraic(row, col)
         };
-        
+
         const updatedHistory = [...moveHistory, newMove];
         setMoveHistory(updatedHistory);
 
@@ -99,13 +100,13 @@ const handleMove = useCallback(async (row, col) => {
                 status: winningCells ? "FINISHED" : "DRAW",
                 boardSize: boardSize,
                 // Thêm 2 trường này để lưu đúng giao diện đã chọn
-                boardStyle: boardStyle, 
+                boardStyle: boardStyle,
                 markerStyle: markerStyle,
                 firstTurnParticipantIndex: firstTurnIndex,
                 winnerParticipantIndex: winningCells ? participantIndex : null,
                 startedAt: startedAt,
                 endedAt: timestamp,
-                participants: playersInfo, 
+                participants: playersInfo,
                 winningLine: winningCells ? winningCells.map(([r, c]) => ({
                     row: r, col: c, coordinate: toAlgebraic(r, c)
                 })) : [],
@@ -127,15 +128,15 @@ const handleMove = useCallback(async (row, col) => {
     // Handle AI move or wait for opponent move in online mode
     useEffect(() => {
 
-        if (winnerData || isDraw) return; 
+        if (winnerData || isDraw) return;
 
         const processAutoMove = async () => {
             // SINGLE_PLAYER bot logic
             if (gameMode === 'SINGLE_PLAYER' && currentPlayer === 'O') {
                 console.log("[DEBUG] Bot is waking up! Triggering AI calculation...");
-                
+
                 setIsLocked(true); // Lock UI while Bot is playing
-                
+
                 // 1. Extract data from global stores and info of AI
                 const botPlayer = playersInfo.find(p => p.role === 'AI');
                 console.log("[DEBUG] Found Bot Player Info:", botPlayer);
@@ -143,21 +144,21 @@ const handleMove = useCallback(async (row, col) => {
                 // 2. Create a small delay to simulate AI thinking like human
                 setTimeout(() => {
                     console.log("[DEBUG] Calculating best move for board with difficulty:", aiDifficulty);
-                    
+
                     // 3. Call getBestAIMove to take the coordinate that AI will go
                     const [bestRow, bestCol] = getBestAIMove(board, aiDifficulty, 'O');
                     console.log(`[DEBUG] Bot calculated move: [${bestRow}, ${bestCol}]`);
-                    
+
                     // 4. Let bot play
                     handleMove(bestRow, bestCol);
-                    
+
                     // 5. Unlock UI
-                    setIsLocked(false); 
+                    setIsLocked(false);
                 }, 1300); // 1300ms delay
             }
             // ONLINE_MATCH logic
             else if (gameMode === 'ONLINE_MATCH' && currentPlayer === 'O') {
-                setIsLocked(true); 
+                setIsLocked(true);
                 // Listen to socket.io here
             }
             // Local match - no lock needed
@@ -167,8 +168,8 @@ const handleMove = useCallback(async (row, col) => {
         };
 
         processAutoMove();
-    
-    }, [currentPlayer, gameMode, winnerData, isDraw, board, handleMove, aiDifficulty, playersInfo]); 
+
+    }, [currentPlayer, gameMode, winnerData, isDraw, board, handleMove, aiDifficulty, playersInfo]);
 
     const resetGame = useCallback(() => {
         setBoard(initBoard(boardSize));
@@ -180,6 +181,37 @@ const handleMove = useCallback(async (row, col) => {
         setStartedAt(new Date().toISOString()); // Reset start time for the new match
     }, [boardSize, firstTurnIndex]);
 
+    // unction to handle aborting the game and saving progress
+    const abortGame = useCallback(async () => {
+        setIsAborting(true);
+        try {
+            const customization = useCustomizationStore.getState();
+            const { boardStyle, markerStyle } = transformToBackendFormat(customization);
+            const timestamp = new Date().toISOString();
+
+            const payload = {
+                gameType: gameMode,
+                status: 'ABORTED',
+                boardSize,
+                boardStyle,
+                markerStyle,
+                firstTurnParticipantIndex: firstTurnIndex,
+                winnerParticipantIndex: null,
+                startedAt,
+                endedAt: timestamp,
+                participants: playersInfo,
+                winningLine: [],
+                moves: moveHistory,
+            };
+
+            await gameService.saveGameResult(payload);
+        } catch (err) {
+            console.error('Abort save failed:', err);
+        } finally {
+            setIsAborting(false);
+        }
+    }, [gameMode, boardSize, firstTurnIndex, startedAt, playersInfo, moveHistory]);
+
     return {
         board,
         boardSize,
@@ -190,5 +222,7 @@ const handleMove = useCallback(async (row, col) => {
         handleMove,
         resetGame,
         setBoardSize,
+        abortGame,
+        isAborting, // <-- thêm 2 cái này
     };
 };

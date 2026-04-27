@@ -4,7 +4,7 @@ import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { ProfileDTO } from '../dtos/profile.dto.js'
 import { validateProfileUpdate, validatePasswordChange } from '../validators/profile.validator.js';
-import { getPublicIdFromUrl } from '../utils/getImageUrl.js';
+import { getPublicIdFromUrl } from '../../../utils/getImageUrl.util.js';
 
 export const ProfileService = {
     getProfile: async (userId) => {
@@ -33,8 +33,6 @@ export const ProfileService = {
             };
         }
 
-        // Orchestrate data gathering for the overview
-        const wallet = { balance: user.wallet?.balance || 0 };
         const subscription = {
             isPremium: user.isPremium,
             premiumExpiresAt: user.premiumExpiresAt
@@ -46,7 +44,7 @@ export const ProfileService = {
             GameInterface.getRecentGames(userId, 5)
         ]);
 
-        return ProfileDTO.toProfileOverview({ user, wallet, subscription, stats, recentGames });
+        return ProfileDTO.toProfileOverview({ user, subscription, stats, recentGames });
     },
 
     updateProfile: async (userId, updateData) => {
@@ -66,7 +64,6 @@ export const ProfileService = {
         if (updateData.username) allowedUpdates.username = String(updateData.username).trim();
         if (updateData.email) allowedUpdates.email = String(updateData.email).trim().toLowerCase();
         if (updateData.country) allowedUpdates.country = String(updateData.country).trim();
-        if (updateData.avatar) allowedUpdates.avatar = String(updateData.avatar).trim();
 
         if (Object.keys(allowedUpdates).length === 0) {
             throw {
@@ -74,7 +71,7 @@ export const ProfileService = {
                 error: "BAD_REQUEST",
                 message: "Profile update failed. No valid fields provided.",
                 cause: "The request body did not contain 'username', 'email', 'country', or 'avatar'.",
-                valid_example: "{\"username\": \"New_Name_123\", \"country\": \"VN\", \"avatar\": \"https://link-photo.jpg\"}"
+                valid_example: "{\"username\": \"New_Name_123\", \"country\": \"VN\"}"
             };
         }
 
@@ -89,17 +86,17 @@ export const ProfileService = {
 
     uploadAvatar: async (userId, file) => {
         try {
-            // 1. Fetch current user to get the OLD avatar URL before overwriting it
+            // Fetch current user to get the OLD avatar URL
             const currentUser = await AuthInterface.getUserById(userId);
             const oldAvatarUrl = currentUser?.avatar;
 
-            // 2. Process image with sharp: resize and convert to webp
+            // Process image with sharp: resize and convert to webp
             const processedImageBuffer = await sharp(file.buffer)
                 .resize(200, 200, { fit: 'cover' })
                 .webp({ quality: 80 })
                 .toBuffer();
 
-            // 3. Upload to Cloudinary using Promise wrapper for upload_stream
+            // Upload to Cloudinary 
             const uploadToCloudinary = (buffer) => {
                 return new Promise((resolve, reject) => {
                     const uploadStream = cloudinary.uploader.upload_stream(
@@ -120,7 +117,7 @@ export const ProfileService = {
             const cloudinaryResult = await uploadToCloudinary(processedImageBuffer);
             const newAvatarUrl = cloudinaryResult.secure_url;
 
-            // 4. CLEANUP: Delete the old avatar from Cloudinary (fire-and-forget)
+            // Delete the old avatar from Cloudinary
             if (oldAvatarUrl && oldAvatarUrl.includes('cloudinary')) {
                 const oldPublicId = getPublicIdFromUrl(oldAvatarUrl);
                 if (oldPublicId) {
@@ -130,7 +127,7 @@ export const ProfileService = {
                 }
             }
 
-            // 5. Update user profile in the database with the new secure URL
+            // Update user profile in the database 
             const updatedUser = await AuthInterface.updateUserProfile(userId, { avatar: newAvatarUrl });
             
             return ProfileDTO.toBaseProfile(updatedUser);
@@ -145,7 +142,7 @@ export const ProfileService = {
                 valid_example: "Ensure your API keys are correct and the image is valid."
             };
         }
-    }, 
+    },
 
     changePassword: async (userId, passwordData) => {
         const validationErrors = validatePasswordChange(passwordData);

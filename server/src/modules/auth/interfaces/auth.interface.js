@@ -20,5 +20,6 @@ export const AuthInterface = {
     changePassword: async (userId, oldPassword, newPassword) => AuthService.changePassword(userId, oldPassword, newPassword),
 
     // Expose data for Admin module
+    getPlatformMetrics: async () => AuthService.getPlatformMetrics(),
     getPaginatedUsers: async (filter, sort, skip, limit) => AuthService.getPaginatedUsers(filter, sort, skip, limit)
 };

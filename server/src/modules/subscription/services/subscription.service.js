@@ -349,15 +349,15 @@ export const SubscriptionService = {
                 if (transaction && transaction.status === 'SUCCESS') {
                     //Fetch user and process revoke FIRST before marking transaction as REFUNDED
                     const user = await AuthInterface.getUserById(transaction.userId);
-                    
+
                     // Prevent revoking premium if user has a newer valid subscription
                     if (user && user.premiumExpiresAt) {
                         const userExpiry = new Date(user.premiumExpiresAt).getTime();
-                        
+
                         //Guard against missing/null subscriptionPeriodEnd
                         const rawTransactionExpiry = transaction.subscriptionPeriodEnd;
                         const transactionExpiry = rawTransactionExpiry ? new Date(rawTransactionExpiry).getTime() : NaN;
-                        
+
                         // If the date data is invalid/missing, the safest fallback is to revoke premium
                         if (!Number.isFinite(transactionExpiry)) {
                             console.warn(`[Webhook] Missing or invalid subscriptionPeriodEnd for refunded transaction ${orderId}. Revoking premium as a safe fallback.`);
@@ -366,18 +366,18 @@ export const SubscriptionService = {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund (Fallback).`);
-                        } 
+                        }
                         // If date data is valid, compare expiration timestamps as normal
                         else if (userExpiry <= transactionExpiry) {
                             // 2. Revoke premium status from user
                             await AuthInterface.setPremiumExpiry(transaction.userId, null);
-                            
+
                             // 3. Send email notification
                             if (user.email) {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
                             console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
-                        } 
+                        }
                         // If premium came from a newer transaction, keep premium active
                         else {
                             console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. Premium not revoked.`);
@@ -401,16 +401,56 @@ export const SubscriptionService = {
             const mailOptions = {
                 from: `"TicTacToang Team" <${senderEmail}>`,
                 to: toEmail,
-                subject: 'Premium Activation Successful!',
+                subject: 'NEURO-ELITE ACTIVATED - Welcome to the Future!',
                 html: `
-                    <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-                        <h2>Hello ${escapeHtml(username) || 'there'},</h2>
-                        <p>Congratulations! Your account has been successfully upgraded to <b>Premium</b>.</p>
-                        <p>Your subscription is valid until: <b>${expiryDate.toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'long' })} (UTC)</b>.</p>
-                        <p>You can now enjoy all premium features of TicTacToang.</p>
-                        <hr />
-                        <p>If you have any questions, feel free to contact us.</p>
-                        <p>Best regards,<br>The TicTacToang Femboys Team</p>
+                    <div style="background-color: #0f172a; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #f8fafc; text-align: center;">
+                        <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border: 2px solid #facc15; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);">
+                            
+                            <!-- Header with Neon Effect -->
+                            <div style="background-color: #0f172a; padding: 30px; border-bottom: 1px solid #334155;">
+                                <h1 style="margin: 0; color: #facc15; text-transform: uppercase; letter-spacing: 4px; font-size: 28px; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);">
+                                    TICTACTOANG
+                                </h1>
+                                <p style="color: #94a3b8; font-size: 14px; margin-top: 5px;">SYSTEM UPGRADE SUCCESSFUL</p>
+                            </div>
+
+                            <!-- Main Content -->
+                            <div style="padding: 40px 30px;">
+                                <div style="background: rgba(250, 204, 21, 0.1); border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin: 0 auto 20px auto; border: 2px solid #facc15;">
+                                    <span style="font-size: 40px;">⚡</span>
+                                </div>
+                                
+                                <h2 style="color: #f8fafc; margin-bottom: 20px;">Hello, ${escapeHtml(username) || 'Operator'}!</h2>
+                                
+                                <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 25px;">
+                                    Congratulations! Your neural link has been upgraded. You are now officially a member of the <b style="color: #facc15;">NEURO-ELITE</b> division.
+                                </p>
+
+                                <!-- Subscription Card -->
+                                <div style="background-color: #0f172a; border-radius: 8px; padding: 20px; margin-bottom: 30px; border-left: 4px solid #facc15;">
+                                    <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase;">License Valid Until</p>
+                                    <p style="margin: 5px 0 0 0; font-size: 20px; color: #facc15; font-weight: bold;">
+                                        ${expiryDate.toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'long' })}
+                                    </p>
+                                </div>
+
+                                <!-- Call to Action -->
+                                <a href="${process.env.CLIENT_URL}" style="display: inline-block; background-color: #facc15; color: #0f172a; padding: 16px 32px; font-weight: bold; text-decoration: none; border-radius: 6px; text-transform: uppercase; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(250, 204, 21, 0.3);">
+                                    Return to Battlefield
+                                </a>
+                            </div>
+
+                            <!-- Footer -->
+                            <div style="background-color: #0f172a; padding: 20px; font-size: 12px; color: #64748b; border-top: 1px solid #334155;">
+                                <p style="margin-bottom: 10px;">You are receiving this because your account was upgraded to Premium.</p>
+                                <p style="margin: 0;">Best regards,<br>
+                                <b style="color: #cbd5e1;">The TicTacToang Team</b></p>
+                            </div>
+                        </div>
+                        
+                        <p style="margin-top: 20px; font-size: 11px; color: #475569;">
+                            &copy; 2026 TicTacToang Interactive. All rights reserved.
+                        </p>
                     </div>
                 `
             };
@@ -432,17 +472,58 @@ export const SubscriptionService = {
             const mailOptions = {
                 from: `"TicTacToang Team" <${senderEmail}>`,
                 to: toEmail,
-                subject: 'Premium Subscription Revoked',
+                subject: '⚠️ [URGENT] NEURO-ELITE Access Revoked',
                 html: `
-                    <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-                        <h2>Hello ${escapeHtml(username) || 'there'},</h2>
-                        <p>Our system has detected that your payment was refunded, reversed, or otherwise canceled by PayPal.</p>
-                        <p>As a result, the <b>Premium</b> benefits for this account have been revoked.</p>
-                        <p>If you believe this is a mistake, please contact support.</p>
-                        <hr />
-                        <p>Best regards,<br>The TicTacToang Femboys Team</p>
-                    </div>
-                `
+                    <div style="background-color: #020617; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #f8fafc; text-align: center;">
+                        <div style="max-width: 600px; margin: 0 auto; background-color: #0f172a; border: 2px solid #06b6d4; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.2);">
+                            
+                            <!-- Header with Cyan Accent -->
+                            <div style="background-color: #020617; padding: 30px; border-bottom: 1px solid #1e293b;">
+                                <h1 style="margin: 0; color: #06b6d4; text-transform: uppercase; letter-spacing: 4px; font-size: 24px;">
+                                    TICTACTOANG
+                                </h1>
+                                <p style="color: #94a3b8; font-size: 12px; margin-top: 5px;">SECURITY & SUBSCRIPTION ALERT</p>
+                            </div>
+
+                            <!-- Main Content -->
+                            <div style="padding: 40px 30px;">
+                                <div style="background: rgba(239, 68, 68, 0.1); border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin: 0 auto 20px auto; border: 2px solid #ef4444;">
+                                    <span style="font-size: 40px;">⚠️</span>
+                                </div>
+                                
+                                <h2 style="color: #f8fafc; margin-bottom: 20px;">System Notice, ${escapeHtml(username) || 'Operator'}</h2>
+                                
+                                <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 25px; line-height: 1.6;">
+                                    Our system has detected that your payment was <b style="color: #ef4444;">refunded, reversed, or canceled</b> via PayPal.
+                                </p>
+
+                                <!-- Alert Box -->
+                                <div style="background-color: #020617; border-radius: 8px; padding: 20px; margin-bottom: 30px; border-left: 4px solid #facc15;">
+                                    <p style="margin: 0; font-size: 14px; color: #facc15; font-weight: bold; text-transform: uppercase;">
+                                        Action Taken: NEURO-ELITE Access Revoked
+                                    </p>
+                                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #94a3b8;">
+                                        Your account has been downgraded to <b>Normal</b> status. Premium features like Match Replays and Pro Skins are no longer accessible.
+                                    </p>
+                                </div>
+
+                                <p style="font-size: 14px; color: #64748b; margin-bottom: 30px;">
+                                    If you believe this is a technical error, please contact our support team immediately to restore your link.
+                                </p>
+
+                                <!-- CTA Button -->
+                                <a href="${process.env.CLIENT_URL}/subscription" style="display: inline-block; background-color: #06b6d4; color: #020617; padding: 16px 32px; font-weight: bold; text-decoration: none; border-radius: 6px; text-transform: uppercase; font-size: 14px;">
+                                    Manage Subscription
+                                </a>
+                            </div>
+
+                            <!-- Footer -->
+                            <div style="background-color: #020617; padding: 20px; font-size: 12px; color: #475569; border-top: 1px solid #1e293b;">
+                                <p style="margin: 0;">Best regards,<br>
+                                <b style="color: #cbd5e1;">The TicTacToang Team</b></p>
+                            </div>
+                        </div>
+                    </div>`
             };
 
             await transporter.sendMail(mailOptions);

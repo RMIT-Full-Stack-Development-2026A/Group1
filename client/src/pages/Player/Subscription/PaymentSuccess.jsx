@@ -22,8 +22,14 @@ export default function PaymentSuccess() {
             const result = await subscriptionService.captureOrder(token);
             const expiresAt = result?.data?.status?.premiumExpiresAt;
             setPremiumExpiresAt(expiresAt ? new Date(expiresAt).toLocaleDateString() : null);
+            // After confirming capture is successful, update AuthStore immediately
+            const { setUser, user } = useAuthStore.getState();
+            setUser({
+                ...user,
+                isPremium: true,
+                premiumExpiresAt: expiresAt
+            });
             setStatus('success');
-            await useAuthStore.getState().refreshUser();
         } catch (err) {
             const errorCode = err?.data?.error ?? err?.data?.code ?? null;
             if (errorCode === 'ALREADY_CAPTURED') {

@@ -161,6 +161,19 @@ export const SubscriptionService = {
 
     // 2. Generate PayPal Order
     createOrder: async (userId) => {
+        // GUARD: Block premium users from creating a new order
+        const user = await AuthInterface.getUserById(userId);
+        if (!user) {
+            throw { statusCode: 404, error: 'USER_NOT_FOUND', message: 'User not found.' };
+        }
+        if (user.isPremium) {
+            throw {
+                statusCode: 409,
+                error: 'ALREADY_PREMIUM',
+                message: 'You are already an active premium subscriber.'
+            };
+        }
+
         const accessToken = await generateAccessToken();
         const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
             method: 'POST',

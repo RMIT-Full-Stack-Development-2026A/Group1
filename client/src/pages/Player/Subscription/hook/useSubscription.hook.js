@@ -54,9 +54,12 @@ export const useSubscription = () => {
 
             throw new Error('Missing approval link from subscription response.');
         } catch (err) {
-            console.error('[useSubscription] handleSubscribe error:', err);
-            setError(err?.data?.message ?? err?.message ?? 'Subscription redirect failed.');
             setIsRedirecting(false);
+            // Detect the ALREADY_PREMIUM rejection from the backend
+            if (err?.data?.error === 'ALREADY_PREMIUM' || err?.status === 409) {
+                return 'ALREADY_PREMIUM'; // signal to the caller to show the modal
+            }
+            setError(err?.data?.message ?? err?.message ?? 'Subscription redirect failed.');
         }
     }, []);
 

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 
 // Stores
 import { useAuthStore } from '@/stores/AuthStore';
@@ -103,6 +103,36 @@ const GameBoard = () => {
     } = useGame(gameMode, playersInfo, initialBoardSize);
 
     const gameOver = !!winnerData || isDraw;
+    const isAbortingRef = useRef(false); // prevent double-firing
+
+    useEffect(() => {
+        // Push a sentinel entry so the user has something to "go back" from,
+        // which we can intercept before they actually leave /game/:roomId.
+        window.history.pushState(null, '', window.location.href);
+
+        const handlePopState = async () => {
+            if (gameOver) {
+                // Game finished, allow normal navigation
+                navigate(isBotMatch ? '/game-mode-select' : '/lobby');
+                return;
+            }
+
+            if (isAbortingRef.current) return; // guard against double-fire
+            isAbortingRef.current = true;
+
+            // Re-push so the page stays put while aborting
+            window.history.pushState(null, '', window.location.href);
+
+            await abortGame();
+            navigate('/profile');
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [gameOver, abortGame, navigate, isBotMatch]);
+
     const userMark = 'X';
     const isLocalMatch = gameMode === 'TWO_PLAYERS' || gameMode === 'LOCAL_MULTIPLAYER';
     const perspective = isDraw

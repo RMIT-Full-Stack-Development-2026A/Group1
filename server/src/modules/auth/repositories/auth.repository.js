@@ -155,13 +155,30 @@ export const AuthRepository = {
     },
 
     getPlatformMetrics: async () => {
-        const [totalPlayers, activePlayers, premiumPlayers] = await Promise.all([
+        const now = new Date();
+        
+        // Start of Today (00:00:00)
+        const startOfToday = new Date(now);
+        startOfToday.setHours(0, 0, 0, 0);
+
+        // Start of This Week (Sunday 00:00:00)
+        const startOfWeek = new Date(startOfToday);
+        startOfWeek.setDate(startOfToday.getDate() - startOfToday.getDay()); 
+
+        // Start of This Month (1st Day 00:00:00)
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Execute queries concurrently 
+        const [totalPlayers, activePlayers, premiumPlayers,registeredToday, registeredThisWeek, registeredThisMonth] = await Promise.all([
             User.countDocuments({ role: 'PLAYER' }),
             User.countDocuments({ role: 'PLAYER', isActive: true }),
-            User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: new Date() } })
+            User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: now } }),
+            User.countDocuments({ role: 'PLAYER', createdAt: { $gte: startOfToday } }),
+            User.countDocuments({ role: 'PLAYER', createdAt: { $gte: startOfWeek } }),
+            User.countDocuments({ role: 'PLAYER', createdAt: { $gte: startOfMonth } })
         ]);
 
-        return { totalPlayers, activePlayers, premiumPlayers };
+        return { totalPlayers, activePlayers, premiumPlayers, registeredToday, registeredThisWeek, registeredThisMonth };
     },
     
     findUsersPaginated: async (filter, sort, skip, limit) => {

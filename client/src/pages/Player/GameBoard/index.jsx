@@ -15,8 +15,6 @@ import { useGame } from './hook/useGame.hook';
 
 // Components
 import AbortModal from './sub-components/AbortModal';
-import Navigation from '@/components/reusable/Navigation';
-import Footer from '@/components/reusable/Footer';
 import ScanLines from '@/components/reusable/ScanLines';
 import PlayerPanel from './sub-components/PlayerPanel';
 import BoardArea from './sub-components/BoardArea';
@@ -148,8 +146,6 @@ const GameBoard = () => {
 
             <div className="fixed inset-0 scanlines z-100" />
             <div className="fixed inset-0 pixel-grid z-99" />
-
-            <Navigation />
 
             <main className="flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
                 {!gameOver && (

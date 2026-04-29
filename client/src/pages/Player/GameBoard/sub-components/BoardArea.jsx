@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import GridCell from './GridCell';
 import ScanLines from '../../../../components/reusable/ScanLines';
+import { useButtonSound } from '@/hooks/useButtonSound';
+import { AUDIO_FILES } from '@/config/audioConfig';
 
 const COL_LETTERS = Array.from({ length: 15 }, (_, i) => String.fromCharCode(65 + i));
 
@@ -43,6 +45,7 @@ const BoardArea = ({
 }) => {
     const gameOver = !!winnerData || isDraw;
     const theme = BOARD_THEMES[gridStyle] ?? BOARD_THEMES.classic;
+    const { play: playMoveSound } = useButtonSound(AUDIO_FILES.BUTTON_CLICK, 0.5);
 
     const columns = useMemo(() => COL_LETTERS.slice(0, boardSize), [boardSize]);
     const rows = useMemo(
@@ -87,7 +90,11 @@ const BoardArea = ({
                                 markerVariant={markerVariant}
                                 gridStyle={gridStyle}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
-                                onClick={() => onCellClick?.(rowIndex, colIndex)}
+                                onClick={() => {
+                                    if (cellValue !== null || gameOver || isLocked) return;
+                                    playMoveSound();
+                                    onCellClick?.(rowIndex, colIndex);
+                                }}
                                 disabled={cellValue !== null || gameOver || isLocked}
                             />
                         ))

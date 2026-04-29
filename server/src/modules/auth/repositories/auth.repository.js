@@ -169,7 +169,7 @@ export const AuthRepository = {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
         // Execute queries concurrently 
-        const [totalPlayers, activePlayers, premiumPlayers,registeredToday, registeredThisWeek, registeredThisMonth] = await Promise.all([
+        const [totalPlayers, activePlayers, premiumPlayers, registeredToday, registeredThisWeek, registeredThisMonth] = await Promise.all([
             User.countDocuments({ role: 'PLAYER' }),
             User.countDocuments({ role: 'PLAYER', isActive: true }),
             User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: now } }),

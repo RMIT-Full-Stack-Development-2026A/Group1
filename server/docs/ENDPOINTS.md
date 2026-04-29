@@ -228,8 +228,8 @@ Recommended dashboard data:
 - totalPlayers
 - activePlayers
 - premiumPlayers
-- registedToday
-- registedThisWeek
+- registeredToday
+- registeredThisWeek
 - registeredThisMonth
 - activeRooms
 - totalMatches

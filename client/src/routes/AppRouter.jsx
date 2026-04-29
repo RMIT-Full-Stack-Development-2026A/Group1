@@ -15,6 +15,8 @@ const GameCustomization = lazy(() => import("@/pages/Player/GameCustomization/in
 const GameBoard = lazy(() => import("@/pages/Player/GameBoard/index"));
 const MatchReplay = lazy(() => import("@/pages/Player/MatchReplay/index"));
 const SubscriptionPage = lazy(() => import("@/pages/Player/Subscription/index"));
+const PaymentSuccess = lazy(() => import("@/pages/Player/Subscription/PaymentSuccess"));
+const PaymentCancel = lazy(() => import("@/pages/Player/Subscription/PaymentCancel"));
 
 const AdminDashboard = lazy(() => import("@/pages/Admin/AdminDashboard/index"));
 const PlayerManagement = lazy(() => import("@/pages/Admin/PlayerManagement/index"));
@@ -47,6 +49,8 @@ export default function AppRouter() {
                 <Route path="/game/:roomId" element={<ProtectedRoute><GameBoard /></ProtectedRoute>} />
                 <Route path="/replay/:gameId" element={<ProtectedRoute><MatchReplay /></ProtectedRoute>} />
                 <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
+                <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+                <Route path="/cancel"  element={<ProtectedRoute><PaymentCancel  /></ProtectedRoute>} />
 
                 {/* 3. Admin Pages */}
                 <Route path="/admin" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDashboard /></ProtectedRoute>} />

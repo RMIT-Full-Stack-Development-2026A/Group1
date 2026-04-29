@@ -1,16 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import subscriptionService from '../service/subscription.service';
+import { useAuthStore } from '@/stores/AuthStore';
+
+const isPremiumActive = (expiresAt) => {
+    if (!expiresAt) return false;
+    return new Date(expiresAt).getTime() > Date.now();
+};
 
 /**
  * hook for managing subscription state and actions
  * consumed by: pages/Player/Subscription/index.jsx
  */
 export const useSubscription = () => {
-    const [isPremium, setIsPremium] = useState(false);
     const [transactions, setTransactions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isRedirecting, setIsRedirecting] = useState(false);
     const [error, setError] = useState(null);
+    const user = useAuthStore((state) => state.user);
+    const isPremium = isPremiumActive(user?.premiumExpiresAt);
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
@@ -20,7 +27,7 @@ export const useSubscription = () => {
                 subscriptionService.getStatus(),
                 subscriptionService.getTransactions(),
             ]);
-            setIsPremium(statusData?.isPremium ?? false);
+            // statusData still fetched for completeness but isPremium derived from AuthStore
             setTransactions(txData ?? []);
         } catch (err) {
             console.error('[useSubscription] loadData error:', err);

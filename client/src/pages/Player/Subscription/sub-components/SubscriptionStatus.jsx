@@ -1,12 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import SoundButton from '@/components/reusable/SoundButton';
+import { useAuthStore } from '@/stores/AuthStore';
 
-export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscribe, onCancel }) {
+export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscribe, onCancel, premiumExpiresAt }) {
+    const storeExpires = useAuthStore((s) => s.user?.premiumExpiresAt);
+    const expires = premiumExpiresAt ?? storeExpires;
+    const isStillActive = isPremium && expires
+        ? new Date(expires).getTime() > Date.now()
+        : isPremium;
+
     return (
         <div className="grid lg:grid-cols-3 gap-8 mb-16">
             <div className="lg:col-span-2 bg-[#1e1e2c] border border-[#3d484d] p-6 relative">
-                {isPremium ? (
+                {isStillActive ? (
                     <>
                         <div className="flex items-center gap-3 mb-6">
                             <span className="font-mono text-[#a8ff78]">●</span>
@@ -60,4 +67,5 @@ SubscriptionStatus.propTypes = {
     isRedirecting: PropTypes.bool.isRequired,
     onSubscribe: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    premiumExpiresAt: PropTypes.string,
 };

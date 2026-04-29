@@ -14,6 +14,7 @@ import { getMarkerVariant } from '@/utils/markerRenderer';
 import { useGame } from './hook/useGame.hook';
 
 // Components
+import Footer from '@/components/reusable/Footer';
 import AbortModal from './sub-components/AbortModal';
 import ScanLines from '@/components/reusable/ScanLines';
 import PlayerPanel from './sub-components/PlayerPanel';
@@ -239,6 +240,7 @@ const GameBoard = () => {
                 onConfirm={handleAbortConfirm}
                 onCancel={() => setShowAbortModal(false)}
             />
+            <Footer/>
         </div>
     );
 }

@@ -13,6 +13,7 @@ import { getDifficultyLevels } from '@/pages/Player/GameCustomization/service/cu
 import { getMarkerVariant } from '@/utils/markerRenderer';
 import { getTheme } from '@/config/gameThemes.config';
 import { useGame } from './hook/useGame.hook';
+import { useChatManager } from './hook/useChatManager.hook';
 
 // Components
 import Footer from '@/components/reusable/Footer';
@@ -22,6 +23,7 @@ import PlayerPanel from './sub-components/PlayerPanel';
 import BoardArea from './sub-components/BoardArea';
 import ParticleLayer from './sub-components/ParticleLayer';
 import WinOverlay from './sub-components/WinOverlay';
+import ChatOverlay from './sub-components/ChatOverlay';
 
 const GameBoard = () => {
     const navigate = useNavigate();
@@ -108,6 +110,10 @@ const GameBoard = () => {
     } = useGame(gameMode, playersInfo, initialBoardSize);
 
     const gameOver = !!winnerData || isDraw;
+
+    // Chat manager hook for all chat state and bot behaviour
+    const { messages, typingPlayer, chatOpen, unreadCount, isChatEnabled, sendMessage, setTyping, toggleChat } = useChatManager(gameMode, 'X', gameOver);
+
     const isAbortingRef = useRef(false); // prevent double-firing
 
     useEffect(() => {
@@ -184,7 +190,6 @@ const GameBoard = () => {
 
             <ParticleLayer theme={theme} className="z-10" />
 
-            <ScanLines />
 
             <div className="fixed inset-0 scanlines z-[2] pointer-events-none" aria-hidden="true" />
             <div className="fixed inset-0 pixel-grid z-[1] pointer-events-none" aria-hidden="true" />
@@ -208,6 +213,7 @@ const GameBoard = () => {
                     isActive={currentPlayer === 'X' && !gameOver}
                     avatarUrl={userAvatarUrl}
                     markerVariantData={markerVariantData}
+                    gameOver={gameOver}
                 />
 
                 <BoardArea
@@ -226,6 +232,23 @@ const GameBoard = () => {
                     onMarkerChange={handleMarkerChange}
                 />
 
+                {isChatEnabled && (
+                    <ChatOverlay
+                        isOpen={chatOpen}
+                        onClose={toggleChat}
+                        onToggle={toggleChat}
+                        messages={messages}
+                        typingPlayer={typingPlayer}
+                        playerMark="X"
+                        playerName={playersInfo[0].usernameSnapshot}
+                        opponentName={playersInfo[1].usernameSnapshot}
+                        onSend={sendMessage}
+                        onTyping={(isTyping) => setTyping('X', isTyping)}
+                        gameOver={gameOver}
+                        unreadCount={unreadCount}
+                    />
+                )}
+
                 <PlayerPanel
                     role="O"
                     playerName={playersInfo[1].usernameSnapshot}
@@ -233,6 +256,7 @@ const GameBoard = () => {
                     isActive={currentPlayer === 'O' && !gameOver}
                     difficulty={isBotMatch ? aiDifficulty : undefined}
                     markerVariantData={markerVariantData}
+                    gameOver={gameOver}
                 />
             </main>
 

@@ -17,8 +17,12 @@ const difficultyConfig = {
  * difficulty         string | undefined  — shown as badge if isBot
  * avatarUrl          string | undefined  — player's avatar image URL
  * markerVariantData  object | undefined  — marker variant with colors and styles
+ * gameOver           boolean             — whether the game has ended
  */
-const PlayerPanel = ({ role, playerName, isBot, isActive, difficulty, avatarUrl, markerVariantData }) => {
+const PlayerPanel = ({
+    role, playerName, isBot, isActive, difficulty, avatarUrl, markerVariantData,
+    gameOver          = false,
+}) => {
     const isX = role === 'X';
     const markerColor = isX ? '#ffb4ab' : '#93e2ff';
     const markerGlow  = isX ? '0 0 10px #93000a' : '0 0 10px #4cc9f0';

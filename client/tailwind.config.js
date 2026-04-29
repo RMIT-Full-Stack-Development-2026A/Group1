@@ -69,13 +69,38 @@ export default {
         "arcade": ["'Press Start 2P'", "cursive"]
       },
       animation: {
-        fadeOut: "fadeOut 4s ease-in-out forwards"
+        fadeOut: "fadeOut 4s ease-in-out forwards",
+        'particle-drift': 'particleDrift 10s linear infinite',
+        'particle-fall': 'particleFall 7s linear infinite',
+        'particle-swing': 'particleSwing 9s linear infinite',
+        'typing-bounce': 'typingBounce 1.2s ease-in-out infinite'
       },
       keyframes: {
         fadeOut: {
           "0%": { opacity: "1" },
           "75%": { opacity: "1" },
           "100%": { opacity: "0" }
+        },
+        particleDrift: {
+          '0%': { transform: 'translateY(-20px) rotate(0deg)', opacity: '0' },
+          '10%': { opacity: '1' },
+          '90%': { opacity: '0.6' },
+          '100%': { transform: 'translateY(110vh) rotate(360deg)', opacity: '0' }
+        },
+        particleFall: {
+          '0%': { transform: 'translateY(-20px) scale(1)', opacity: '0' },
+          '10%': { opacity: '1' },
+          '100%': { transform: 'translateY(110vh) scale(0.4)', opacity: '0' }
+        },
+        particleSwing: {
+          '0%': { transform: 'translateY(-20px) translateX(0px)', opacity: '0' },
+          '10%': { opacity: '1' },
+          '50%': { transform: 'translateY(55vh) translateX(28px)' },
+          '100%': { transform: 'translateY(110vh) translateX(-20px)', opacity: '0' }
+        },
+        typingBounce: {
+          '0%, 80%, 100%': { transform: 'translateY(0)', opacity: '0.4' },
+          '40%': { transform: 'translateY(-4px)', opacity: '1' }
         }
       }
     }

@@ -201,9 +201,21 @@ export const domainSchemas = {
             totalPlayers:   { type: 'integer', example: 4200 },
             activePlayers:  { type: 'integer', example: 312 },
             premiumPlayers: { type: 'integer', example: 89 },
-            registeredToday:     { type: 'integer', example: 5 },
-            registeredThisWeek:  { type: 'integer', example: 10 },
-            registeredThisMonth: { type: 'integer',  example: 50 },
+            registeredToday: { 
+                type: 'array', 
+                items: { type: 'integer' }, 
+                example: [10, 25, 40] 
+            },
+            registeredThisWeek: { 
+                type: 'array', 
+                items: { type: 'integer' }, 
+                example: [150, 230, 180] 
+            },
+            registeredThisMonth: { 
+                type: 'array', 
+                items: { type: 'integer' }, 
+                example: [1200, 1500] 
+            },
             activeRooms:    { type: 'integer', example: 14 },
             totalMatches:   { type: 'integer', example: 18500 },
             totalRevenue:   { type: 'number',  example: 4321.50 },

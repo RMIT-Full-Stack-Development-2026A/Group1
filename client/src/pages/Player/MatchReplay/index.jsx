@@ -63,7 +63,7 @@ const MatchReplay = () => {
     }
 
     return (
-        <main className="flex-1 mt-16 mb-10 px-6 py-6 flex flex-col items-center bg-surface">
+        <main className="flex-1 mt-16 mb-10 pb-32 px-6 py-6 flex flex-col items-center bg-surface">
             <MatchHeader session={sessionData} />
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">

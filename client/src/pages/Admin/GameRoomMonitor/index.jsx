@@ -1,1 +1,1 @@
-// Route: /admin/players
+// Route: /rooms

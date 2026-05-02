@@ -84,7 +84,7 @@ export const useLogin = () => {
         if (isLocked && lockoutCountdown > 0) {
             setMessage({
                 type: "error",
-                text: `Account locked due to too many failed attempts. Try again in ${lockoutCountdown} seconds.`,
+                text: `Login locked due to too many failed attempts. Try again in ${lockoutCountdown} seconds.`,
             });
         }
     }, [lockoutCountdown, isLocked]);
@@ -147,25 +147,32 @@ export const useLogin = () => {
                 // Redirect is handled by login page's useEffect when auth state updates
 
             } catch (error) {
-                // Handle specific error codes
-                if (error.response?.status === 403) {
+                const errorCode = error.response?.data?.error;
+                const errorMessage = error.response?.data?.message || error.message || "Login failed. Please try again.";
+
+                if (error.response?.status === 403 && errorCode === "ACCOUNT_DEACTIVATED") {
+                    setMessage({
+                        type: "error",
+                        text: errorMessage,
+                    });
+                } else if (error.response?.status === 403) {
                     // Account locked by backend
                     setIsLocked(true);
                     setLockoutCountdown(60);
-                    
+					
                     const lockUntil = new Date(Date.now() + 60 * 1000);
                     localStorage.setItem("login_lock_until", lockUntil.toISOString());
 
                     setMessage({
                         type: "error",
-                        text: error.response?.data?.message || "Account locked due to too many failed attempts.",
+                        text: errorMessage || "Account locked due to too many failed attempts.",
                     });
                 } else if (error.response?.status === 401) {
                     // Invalid credentials
                     // Purely client-side tracking
                     const newAttempts = failedAttempts + 1;
                     setFailedAttempts(newAttempts);
-                    
+					
                     if (newAttempts >= 5) {
                         setIsLocked(true);
                         setLockoutCountdown(60);
@@ -173,7 +180,7 @@ export const useLogin = () => {
                         localStorage.setItem("login_lock_until", lockUntil.toISOString());
                         setMessage({
                             type: "error",
-                            text: "ACCOUNT LOCKED: 5 failed attempts. Try again in 60 seconds.",
+                            text: "LOGIN LOCKED: 5 failed attempts. Try again in 60 seconds.",
                         });
                     } else {
                         const attemptsRemaining = 5 - newAttempts;
@@ -185,7 +192,7 @@ export const useLogin = () => {
                 } else {
                     setMessage({
                         type: "error",
-                        text: error.message || "Login failed. Please try again.",
+                        text: errorMessage,
                     });
                 }
             } finally {

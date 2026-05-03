@@ -3,8 +3,9 @@ import React from "react";
 export default function RecentActivity({ activities }) {
     return (
         <section className="bg-[#1a1a2e] border-2 border-[#2a2a4e] p-6">
-            <h4 className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#879398] mb-4">
-                📜 RECENT ACTIVITY
+            <h4 className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#879398] mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">history</span>
+                RECENT ACTIVITY
             </h4>
             <div className="space-y-3">
                 {activities.map((activity, idx) => (

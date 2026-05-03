@@ -1,33 +1,60 @@
+import { useMemo } from 'react';
 import GridCell from './GridCell';
 import ScanLines from '../../../../components/reusable/ScanLines';
 
 const COL_LETTERS = Array.from({ length: 15 }, (_, i) => String.fromCharCode(65 + i));
 
-const BOARD_SIZES   = [10, 15];
-const MARKER_STYLES = [
-    { value: 'default',  label: 'Default (X / O)' },
-    { value: 'custom_1', label: 'Custom 1' },
-];
+const BOARD_THEMES = {
+    classic: {
+        wrapper: 'bg-[#0c0f2a] border border-[#7b61ff]',
+        cellBorder: 'border-[#7b61ff]/35',
+        boardBorder: 'border-l border-t border-[#7b61ff]/40',
+        glowStyle: { 
+            boxShadow: '0 0 20px rgba(123, 97, 255, 0.18), inset 0 0 14px rgba(123, 97, 255, 0.08)' 
+        },
+    },
+
+    neon: {
+        wrapper: 'bg-[#0a0a1a] border border-[#4cc9f0]',
+        cellBorder: 'border-[#4cc9f0]/40',
+        boardBorder: 'border-l border-t border-[#4cc9f0]/40',
+        glowStyle: { boxShadow: '0 0 24px rgba(76, 201, 240, 0.18), inset 0 0 18px rgba(76, 201, 240, 0.08)' },
+    },
+
+    block: {
+        wrapper: 'bg-[#0a0a0a] border-4 border-[#ff3d00]',
+        cellBorder: 'border-[#ff3d00]/30',
+        boardBorder: 'border-l-2 border-t-2 border-[#ff3d00]/40',
+        glowStyle: { 
+            boxShadow: '0 0 18px rgba(255, 61, 0, 0.2), inset 0 0 10px rgba(255, 61, 0, 0.06)' 
+        },
+    },
+};
 
 const BoardArea = ({
-    board, boardSize, matchTitle, markerVariant,
-    winnerData, isDraw, isLocked,
-    onCellClick, onReset, onSizeChange, onMarkerChange,
+    board,
+    boardSize,
+    markerVariant,
+    gridStyle = 'classic',
+    winnerData,
+    isDraw,
+    isLocked,
+    onCellClick,
 }) => {
     const gameOver = !!winnerData || isDraw;
-    const moveCount = board.flat().filter(v => v !== null).length;
+    const theme = BOARD_THEMES[gridStyle] ?? BOARD_THEMES.classic;
 
-    const columns = COL_LETTERS.slice(0, boardSize);
-    const rows    = Array.from({ length: boardSize }, (_, i) => String(i + 1).padStart(2, '0'));
-
-    const selectClass = "bg-[#1e1e2c] border border-[#3d484d] text-[#e3e0f4] font-mono text-[10px] uppercase px-2 py-1 focus:outline-none focus:border-[#4cc9f0]";
+    const columns = useMemo(() => COL_LETTERS.slice(0, boardSize), [boardSize]);
+    const rows = useMemo(
+        () => Array.from({ length: boardSize }, (_, i) => String(i + 1).padStart(2, '0')),
+        [boardSize]
+    );
 
     return (
-        <section className="h-[75vh] flex flex-col max-w-[100vh] mx-3">
+        <section className="flex-1 flex items-center justify-center">
             <ScanLines />
-            {/* Coordinate grid */}
             <div
-                className="bg-surface-card p-3 border border-outline-variant grid z-101 aspect-square h-full overflow-hidden"
+                className={`${theme.wrapper} p-3 grid aspect-square w-full max-w-[600px]`}
                 style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
             >
                 {/* Top labels */}
@@ -46,8 +73,11 @@ const BoardArea = ({
 
                 {/* Main cell grid */}
                 <div
-                    className="col-start-2 row-start-2 grid border-l border-t border-[#2a2a4e]"
-                    style={{ gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))` }}
+                    className={`col-start-2 row-start-2 grid ${theme.boardBorder}`}
+                    style={{
+                        gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))`,
+                        ...(theme.glowStyle ?? {}),
+                    }}
                 >
                     {board.map((row, rowIndex) =>
                         row.map((cellValue, colIndex) => (
@@ -55,11 +85,10 @@ const BoardArea = ({
                                 key={`${rowIndex}-${colIndex}`}
                                 value={cellValue}
                                 markerVariant={markerVariant}
+                                gridStyle={gridStyle}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
-                                onClick={() => onCellClick(rowIndex, colIndex)}
-                                
-                                // UPDATED: Add isLocked to disable condition
-                                disabled={cellValue !== null || gameOver || isLocked} 
+                                onClick={() => onCellClick?.(rowIndex, colIndex)}
+                                disabled={cellValue !== null || gameOver || isLocked}
                             />
                         ))
                     )}

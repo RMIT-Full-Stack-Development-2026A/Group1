@@ -25,8 +25,8 @@ export default function RoomCard({ room, onJoin }) {
             <div className="p-5 grow flex flex-col gap-4">
                 {/* Host Info */}
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 border-2 border-[#4cc9f0] flex items-center justify-center bg-[#0d0d1a] text-base">
-                        👾
+                    <div className="w-12 h-12 border-2 border-[#4cc9f0] flex items-center justify-center bg-[#0d0d1a]">
+                        <span className="material-symbols-outlined text-[#4cc9f0]">person</span>
                     </div>
                     <div className="flex flex-col">
                         <span className="font-mono text-[10px] text-[#879398] uppercase tracking-wide">
@@ -44,13 +44,15 @@ export default function RoomCard({ room, onJoin }) {
                 {/* Status */}
                 <div className="flex items-center justify-center py-3 bg-[#0d0d1a] border border-dashed border-[#2a2a4e]">
                     {room.status === "waiting" && (
-                        <span className="font-mono text-xs text-[#fad100] animate-pulse uppercase tracking-widest">
-                            ⏳ WAITING FOR PLAYER...
+                        <span className="font-mono text-xs text-[#fad100] animate-pulse uppercase tracking-widest flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm">hourglass_empty</span>
+                            WAITING FOR PLAYER...
                         </span>
                     )}
                     {room.status === "full" && (
-                        <span className="font-mono text-xs text-[#ffb4ab] uppercase tracking-widest">
-                            🔴 MATCH IN PROGRESS
+                        <span className="font-mono text-xs text-[#ffb4ab] uppercase tracking-widest flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm">fiber_manual_record</span>
+                            MATCH IN PROGRESS
                         </span>
                     )}
                 </div>

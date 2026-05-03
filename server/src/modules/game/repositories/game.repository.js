@@ -1,4 +1,5 @@
 import { GameSession } from '../models/gameSession.model.js';
+import mongoose from 'mongoose';
 
 export const GameRepository = {
     createSession: async (sessionData) => {
@@ -22,12 +23,15 @@ export const GameRepository = {
 
     // Data provided to Profile module
     calculateUserStats: async (userId) => {
+        // Convert userId string to MongoDB ObjectId for proper aggregation matching
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        
         const stats = await GameSession.aggregate([
-            { $match: { 'participants.userId': userId } },
+            { $match: { 'participants.userId': userObjectId } },
             {
                 // Find out if the user was participant 0 or 1
                 $addFields: {
-                    userIndex: { $indexOfArray: ["$participants.userId", userId] }
+                    userIndex: { $indexOfArray: ["$participants.userId", userObjectId] }
                 }
             },
             {

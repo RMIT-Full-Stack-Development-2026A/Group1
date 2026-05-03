@@ -9,7 +9,6 @@ import { LobbyService } from "../service/lobby.service";
 
 export const useLobby = () => {
     const [rooms, setRooms] = useState([]);
-    const [playerStats, setPlayerStats] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
     const [onlineCount, setOnlineCount] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -27,15 +26,13 @@ export const useLobby = () => {
                 console.log('[useLobby] Initializing lobby data...');
                 
                 // Fetch all data in parallel
-                const [roomsData, statsData, activityData] = await Promise.all([
+                const [roomsData, activityData] = await Promise.all([
                     LobbyService.getRooms(),
-                    LobbyService.getPlayerStats(),
                     LobbyService.getRecentActivity(),
                 ]);
 
                 console.log('[useLobby] Data fetched:', {
                     roomsData,
-                    statsData,
                     activityData,
                 });
 
@@ -45,13 +42,11 @@ export const useLobby = () => {
                 setUsingMockData(isMockData);
 
                 setRooms(roomsData || []);
-                setPlayerStats(statsData || null);
                 setRecentActivity(activityData || []);
                 setOnlineCount(LobbyService.getOnlineCount(roomsData || []));
                 
                 console.log('[useLobby] Lobby initialized:', {
                     roomsCount: (roomsData || []).length,
-                    stats: statsData,
                     activityCount: (activityData || []).length,
                     usingMock: isMockData,
                 });
@@ -59,7 +54,6 @@ export const useLobby = () => {
                 console.error("[useLobby] Failed to load lobby data:", err);
                 setError(err.message || "Failed to load lobby data");
                 setRooms([]);
-                setPlayerStats(null);
                 setRecentActivity([]);
                 setUsingMockData(true);
             } finally {
@@ -77,14 +71,12 @@ export const useLobby = () => {
     const refreshLobby = async () => {
         try {
             setLoading(true);
-            const [roomsData, statsData, activityData] = await Promise.all([
+            const [roomsData, activityData] = await Promise.all([
                 LobbyService.getRooms(),
-                LobbyService.getPlayerStats(),
                 LobbyService.getRecentActivity(),
             ]);
 
             setRooms(roomsData);
-            setPlayerStats(statsData);
             setRecentActivity(activityData);
             setOnlineCount(LobbyService.getOnlineCount(roomsData));
             setError(null);
@@ -98,7 +90,6 @@ export const useLobby = () => {
 
     return {
         rooms,
-        playerStats,
         recentActivity,
         onlineCount,
         availableRooms,

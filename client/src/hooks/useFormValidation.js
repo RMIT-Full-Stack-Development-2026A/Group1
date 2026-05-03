@@ -4,12 +4,14 @@ import {
     validateUsername,
     validatePassword,
     passwordsMatch,
-} from "@/utils/validationUtils";
+} from "@/utils/formValidation";
 
 /**
  * Custom hook for managing form validation state
  * Handles email, username, password validation and password strength
+ * Shared hook used across Register and Profile pages
  * 
+ * @param {Object} initialData - Optional initial form data
  * @returns {Object} - { formData, setFormData, validation states, handlers, etc. }
  */
 export const useFormValidation = (initialData = {}) => {
@@ -55,6 +57,7 @@ export const useFormValidation = (initialData = {}) => {
     });
 
     const [passwordMismatch, setPasswordMismatch] = useState(false);
+    const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
 
     // Validation handlers
     const calculatePasswordStrength = (password) => {
@@ -94,6 +97,9 @@ export const useFormValidation = (initialData = {}) => {
             [name]: value,
         }));
 
+        // Reset mismatch visibility on change
+        setShowPasswordMismatch(false);
+
         // Validate specific fields
         if (name === "email") {
             handleEmailChange(value);
@@ -128,6 +134,7 @@ export const useFormValidation = (initialData = {}) => {
             hasCapital: false,
         });
         setPasswordMismatch(false);
+        setShowPasswordMismatch(false);
         setPasswordStrength(0);
         setMessage({ type: "", text: "" });
         setShowPassword(false);
@@ -154,6 +161,8 @@ export const useFormValidation = (initialData = {}) => {
         showConfirmPassword,
         setShowConfirmPassword,
         passwordStrength,
+        showPasswordMismatch,
+        setShowPasswordMismatch,
 
         // Validation states
         emailValidation,

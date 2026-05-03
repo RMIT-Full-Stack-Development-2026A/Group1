@@ -65,7 +65,8 @@ export default {
       fontFamily: {
         "headline": ["'Press Start 2P'", "cursive"],
         "body": ["'IBM Plex Mono'", "monospace"],
-        "label": ["'IBM Plex Mono'", "monospace"]
+        "label": ["'IBM Plex Mono'", "monospace"],
+        "arcade": ["'Press Start 2P'", "cursive"]
       },
       animation: {
         fadeOut: "fadeOut 4s ease-in-out forwards"

@@ -23,11 +23,13 @@ export default function LoginPage() {
         handleRegisterNav,
     } = useLogin();
 
-    // Redirect to game mode select after successful login
+    // Redirect based on user role after successful login
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
-            console.log('[Login] User authenticated, redirecting to /play');
-            navigate("/play", { replace: true });
+            const { user } = useAuthStore.getState();
+            const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/play';
+            console.log(`[Login] User authenticated with role: ${user?.role}, redirecting to ${redirectPath}`);
+            navigate(redirectPath, { replace: true });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);
 
@@ -109,7 +111,9 @@ export default function LoginPage() {
                                             showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
                                         } hover:text-[#4cc9f0]`}
                                     >
-                                        👁
+                                        <span className="material-symbols-outlined text-sm">
+                                            {showPassword ? "visibility_off" : "visibility"}
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -126,7 +130,13 @@ export default function LoginPage() {
                                         : "bg-[#4cc9f0] text-[#003543] border-2 border-[#4cc9f0] shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 active:shadow-none"
                                 }`}
                             >
-                                <span>{isLocked ? "🔒" : loading ? "⏳" : "▶"}</span>
+                                {isLocked ? (
+                                        <span className="material-symbols-outlined">lock</span>
+                                    ) : loading ? (
+                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                    ) : (
+                                        <span className="material-symbols-outlined">play_arrow</span>
+                                    )}
                                 {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "LOGIN"}
                             </button>
                         </form>

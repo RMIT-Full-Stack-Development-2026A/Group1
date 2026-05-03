@@ -107,7 +107,7 @@ export const GameService = {
     },
 
     // Get game detail 
-    getGameSessionDetail: async (userId, gameId) => {
+    getGameSessionDetail: async (userId, gameId, viewerContext = {}) => {
         if (!validateObjectId(gameId)) {
             throw {
                 statusCode: 400,
@@ -129,9 +129,11 @@ export const GameService = {
             };
         }
 
-        // Prevents users from fetching random replays belonging to others
+        // Premium users can open shared replay links; non-premium users remain participant-only.
         const isParticipant = session.participants.some(p => String(p.userId) === String(userId));
-        if (!isParticipant) {
+        const canViewReplay = isParticipant || viewerContext.isPremium === true || viewerContext.role === 'ADMIN';
+
+        if (!canViewReplay) {
              throw {
                 statusCode: 403,
                 error: "FORBIDDEN",

@@ -44,11 +44,51 @@ export const RoomRepository = {
             status: { $in: ACTIVE_ROOM_STATUSES }
         });
     },
+    
+    createRoom: async (roomData) => {
+        const room = new GameRoom(roomData);
+        return room.save();
+    },
+
+    addParticipantAndStart: async (roomId, participant, newStatus) => {
+        return GameRoom.findByIdAndUpdate(
+            roomId,
+            { 
+                $push: { participants: participant },
+                $set: { 
+                    status: newStatus,
+                    startedAt: new Date(),
+                    currentTurnParticipantIndex: 0 // Player 1 always starts first per typical rules
+                }
+            },
+            { new: true }
+        ).lean();
+    },
+
+    pushMove: async (roomId, move, nextTurnIndex) => {
+        return GameRoom.findByIdAndUpdate(
+            roomId,
+            {
+                $push: { moves: move },
+                $inc: { moveCount: 1 },
+                $set: { 
+                    currentTurnParticipantIndex: nextTurnIndex,
+                    lastMove: { row: move.row, col: move.col, coordinate: move.coordinate }
+                }
+            },
+            { new: true }
+        ).lean();
+    },
+
     updateRoomStatus: async (roomId, updateFields) => {
         return GameRoom.findByIdAndUpdate(
             roomId, 
             { $set: updateFields }, 
             { new: true }
-        );
+        ).lean();
+    },
+
+    deleteRoom: async (roomId) => {
+        return GameRoom.findByIdAndDelete(roomId);
     }
 };

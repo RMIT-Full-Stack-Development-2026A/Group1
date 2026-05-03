@@ -67,3 +67,45 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
 
     return { filter, sort, pagination: { page, limit, skip } };
 };
+
+export const validateRoomCreate = (payload) => {
+    const boardSize = parseInt(payload?.boardSize);
+    const marker = payload?.marker?.toUpperCase();
+
+    if (![10, 15].includes(boardSize)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_SIZE", message: "Board size must be 10 or 15." };
+    }
+    if (!['X', 'O'].includes(marker)) {
+        throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
+    }
+    return { boardSize, marker };
+};
+
+export const validateRoomJoin = (payload) => {
+    if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    return { roomId: payload.roomId };
+};
+
+export const validateGameMove = (payload) => {
+    const { roomId, row, col } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (row === undefined || col === undefined || row < 0 || col < 0) {
+        throw { statusCode: 400, error: "INVALID_COORDINATES", message: "Valid row and column indices are required." };
+    }
+    return { roomId, row: parseInt(row), col: parseInt(col) };
+};
+
+export const validateChatSend = (payload) => {
+    const { roomId, message } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (!message || typeof message !== 'string' || message.trim().length === 0 || message.length > 500) {
+        throw { statusCode: 400, error: "INVALID_MESSAGE", message: "Message must be a string between 1 and 500 characters." };
+    }
+    return { roomId, message: message.trim() };
+};

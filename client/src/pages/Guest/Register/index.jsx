@@ -1,6 +1,6 @@
 // Route: /register
 import React from "react";
-import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/components/reusable/FormFields";
+import { EmailField, PasswordField, UsernameField, CountrySelect } from "@/components/reusable/form";
 import { useRegister } from "./hook/useRegister.hook.js";
 
 export default function RegisterPage() {

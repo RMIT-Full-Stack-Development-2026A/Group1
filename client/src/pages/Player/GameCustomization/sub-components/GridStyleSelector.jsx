@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getGridStyles } from "../service/customization.service";
-import SoundButton from "../../../../components/reusable/SoundButton";
+import SoundButton from "../../../../components/reusable/sound/SoundButton";
 
 export default function GridStyleSelector({ selectedStyle, onSelect }) {
     const gridStyles = getGridStyles();

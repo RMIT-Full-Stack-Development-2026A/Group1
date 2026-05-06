@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SoundButton from '@/components/reusable/SoundButton';
+import SoundButton from '@/components/reusable/sound/SoundButton';
 
 export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscribe, onCancel }) {
     return (

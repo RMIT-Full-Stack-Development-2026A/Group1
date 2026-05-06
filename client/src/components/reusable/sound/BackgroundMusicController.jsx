@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AUDIO_FILES } from '@/config/audioConfig';
-import { useAudioStore } from '@/stores/AudioStore';
+import { useAudioStore } from '@/stores/audio/AudioStore';
 
 const userGestureEvents = ['pointerdown', 'keydown', 'touchstart'];
 

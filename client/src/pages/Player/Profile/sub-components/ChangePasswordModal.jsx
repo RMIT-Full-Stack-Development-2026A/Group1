@@ -1,6 +1,6 @@
 // Change Password Modal - Allows players to change their password
 import React, { useState, useEffect } from "react";
-import { PasswordField } from "@/components/reusable/FormFields";
+import { PasswordField } from "@/components/reusable/form";
 import {
   validatePassword,
   isPasswordValid,

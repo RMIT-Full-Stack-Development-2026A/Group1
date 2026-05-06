@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 
 // Stores
-import { useAuthStore } from '@/stores/AuthStore';
-import { useModeStore } from '@/stores/ModeStore';
-import { useCustomizationStore } from '@/stores/CustomizationStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
+import { useModeStore } from '@/stores/ai/ModeStore';
+import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 
 // Services
 import { getDifficultyLevels } from '@/pages/Player/GameCustomization/service/customization.service';
@@ -17,7 +17,7 @@ import { useGame } from './hook/useGame.hook';
 import AbortModal from './sub-components/AbortModal';
 import Navigation from '@/components/reusable/Navigation';
 import Footer from '@/components/reusable/Footer';
-import ScanLines from '@/components/reusable/ScanLines';
+import ScanLines from '@/components/reusable/custom/ScanLines';
 import PlayerPanel from './sub-components/PlayerPanel';
 import BoardArea from './sub-components/BoardArea';
 import WinOverlay from './sub-components/WinOverlay';

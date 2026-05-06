@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
 import { loginService } from "../service/login.service";
 
 export const useLogin = () => {

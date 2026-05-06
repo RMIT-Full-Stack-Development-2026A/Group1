@@ -5,8 +5,8 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../../../stores/AuthStore';
-import { useModeStore } from '../../../../stores/ModeStore'; 
+import { useAuthStore } from '../../../../stores/auth/AuthStore';
+import { useModeStore } from '../../../../stores/ai/ModeStore'; 
 import { getGameModes, getGameModeRoute } from '../service/gameModeSelect.service';
 
 export const useGameModeSelect = () => {

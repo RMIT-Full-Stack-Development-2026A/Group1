@@ -1,5 +1,5 @@
 import { User, Bot } from 'lucide-react';
-import { MarkerX, MarkerO } from '@/components/reusable/CustomMarkers';
+import { MarkerX, MarkerO } from '@/components/reusable/custom/CustomMarkers';
 
 const difficultyConfig = {
     EASY: 'bg-green-400 text-green-950',

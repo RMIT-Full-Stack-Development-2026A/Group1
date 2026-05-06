@@ -1,8 +1,8 @@
 // Route: /replay/:gameId
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import PremiumRequiredModal from '@/components/reusable/PremiumBannerOverlay';
-import { useAuthStore } from '@/stores/AuthStore';
+import PremiumRequiredModal from '@/components/reusable/overlay/PremiumBannerOverlay';
+import { useAuthStore } from '@/stores/auth/AuthStore';
 import { useMatchReplay } from './hook/useMatchReplay.hook';
 import MatchHeader from './sub-components/MatchHeader';
 import ReplayBoard from './sub-components/ReplayBoard';

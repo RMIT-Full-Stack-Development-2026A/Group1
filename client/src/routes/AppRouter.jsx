@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
 import ProtectedRoute from "./ProtectedRoute";
 
 // Lazy-loaded pages

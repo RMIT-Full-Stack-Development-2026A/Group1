@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import subscriptionService from '../service/subscription.service';
 import { useAuthStore } from '@/stores/AuthStore';
+import http from '@/utils/httpHelper';
+import { notifyDismiss, notifyError, notifyLoading, notifyUpdate } from '@/utils/toast.util';
 
 const isPremiumActive = (expiresAt) => {
     if (!expiresAt) return false;
@@ -44,24 +46,77 @@ export const useSubscription = () => {
     const handleSubscribe = useCallback(async () => {
         setIsRedirecting(true);
         setError(null);
+        let loadingToastId;
+        let verifyingToastId;
+        let pollIntervalId;
         try {
-            const result = await subscriptionService.createOrder();
-            const approveLink = result?.data?.approveLink;
-            if (approveLink) {
-                window.location.href = approveLink;
+            loadingToastId = notifyLoading('Connecting to PayPal...');
+            const createOrderResponse = await http.post('/subscription/create-order', {}, { silent: true });
+            const createOrderData = createOrderResponse?.data ?? createOrderResponse;
+            const approveLink = createOrderData?.approveLink;
+            const orderId = createOrderData?.orderId;
+
+            if (!approveLink || !orderId) {
+                throw new Error('Missing approval link from subscription response.');
+            }
+
+            notifyUpdate(loadingToastId, 'success', 'Redirecting to PayPal. Complete payment in the popup.');
+
+            const left = (window.screen.width / 2) - 300;
+            const top = (window.screen.height / 2) - 350;
+            const popup = window.open(
+                approveLink,
+                'paypal-subscription',
+                `width=600,height=700,left=${left},top=${top},resizable=yes,scrollbars=yes`
+            );
+
+            if (!popup || popup.closed) {
+                notifyDismiss(loadingToastId);
+                notifyError('Popup was blocked. Please allow popups.');
+                setError('Popup was blocked. Please allow popups.');
+                setIsRedirecting(false);
                 return;
             }
 
-            throw new Error('Missing approval link from subscription response.');
+            popup.focus();
+
+            pollIntervalId = window.setInterval(async () => {
+                if (!popup || popup.closed) {
+                    window.clearInterval(pollIntervalId);
+                    notifyDismiss(loadingToastId);
+                    verifyingToastId = notifyLoading('Verifying your payment...');
+
+                    try {
+                        await http.post('/subscription/capture-order', { orderId }, { silent: true });
+                        notifyUpdate(verifyingToastId, 'success', '🎉 Congratulations! Your NEURO-ELITE subscription is now active.');
+                        await loadData();
+                    } catch (captureError) {
+                        console.error('[useSubscription] capture-order error:', captureError);
+                        notifyUpdate(verifyingToastId, 'error', '⚠️ Payment was canceled or declined. No charges were made.');
+                        setError(captureError?.data?.message ?? captureError?.message ?? 'Subscription verification failed.');
+                    } finally {
+                        setIsRedirecting(false);
+                    }
+                }
+            }, 1000);
         } catch (err) {
+            if (pollIntervalId) {
+                window.clearInterval(pollIntervalId);
+            }
             setIsRedirecting(false);
+            if (loadingToastId) {
+                notifyUpdate(loadingToastId, 'error', err?.message ?? 'Subscription redirect failed.');
+            }
+            if (verifyingToastId) {
+                notifyDismiss(verifyingToastId);
+            }
             // Detect the ALREADY_PREMIUM rejection from the backend
             if (err?.data?.error === 'ALREADY_PREMIUM' || err?.status === 409) {
                 return 'ALREADY_PREMIUM'; // signal to the caller to show the modal
             }
             setError(err?.data?.message ?? err?.message ?? 'Subscription redirect failed.');
         }
-    }, []);
+    }, [loadData]);
 
     return {
         isPremium,

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
 import { loginService } from "../service/login.service";
+import { notifySuccess } from "@/utils/toast.util";
 
 export const useLogin = () => {
     const navigate = useNavigate();
@@ -134,6 +135,7 @@ export const useLogin = () => {
                 // await authService.clearFailedAttempts();
 
                 // Show success message before redirect
+                notifySuccess("Welcome back! Redirecting...");
                 setMessage({
                     type: "success",
                     text: "Login successful! Redirecting to lobby...",

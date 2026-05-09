@@ -807,14 +807,14 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
         "isReady": true,
         "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
-        "username": "opponent456",
+        "usernameSnapshot": "opponent456",
         "mark": "O",
         "isReady": true,
         "isHost": false

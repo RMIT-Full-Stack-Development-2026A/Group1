@@ -213,7 +213,7 @@ export const RoomService = {
 
         const gameState = RoomDTO.toGameStatePayload({
             room: updatedRoom,
-            board: [] 
+            board: updatedRoom.moves
         });
 
         return { room: RoomDTO.toRoomSummary(updatedRoom), gameState };

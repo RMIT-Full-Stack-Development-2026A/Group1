@@ -1661,8 +1661,6 @@ All WebSocket events use `namespace:action` format and accept/return object payl
       }
     ],
     "moveCount": 0,
-    "currentTurnParticipantIndex": 0,
-    "startedAt": "2026-04-12T11:04:30.000Z",
     "createdAt": "2026-04-12T11:00:00.000Z"
   }
 }

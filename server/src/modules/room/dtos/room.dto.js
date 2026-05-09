@@ -37,7 +37,7 @@ export const RoomDTO = {
         startedAt: room.startedAt ?? null,
         endedAt: room.endedAt ?? null,
         lastMove: room.lastMove ?? null,
-        createdAt: room.createdAt
+        createdAt: room.createdAt ?? null
     }),
 
     // Summary shape used by arena/listing pages.
@@ -53,7 +53,7 @@ export const RoomDTO = {
         startedAt: room.startedAt ?? null,
         endedAt: room.endedAt ?? null,
         lastMove: room.lastMove ?? null,
-        createdAt: room.createdAt
+        createdAt: room.createdAt ?? null
     }),
 
     toRoomListResponse: (rooms, pagination) => ({

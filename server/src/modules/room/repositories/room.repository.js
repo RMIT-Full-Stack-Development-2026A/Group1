@@ -13,7 +13,8 @@ export const RoomRepository = {
             moveCount: 1,
             startedAt: 1,
             endedAt: 1,
-            lastMove: 1
+            lastMove: 1,
+            createdAt: 1
         };
 
         const [rooms, total] = await Promise.all([

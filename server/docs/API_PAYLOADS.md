@@ -761,7 +761,7 @@ GET /api/v1/rooms?status=WAITING&boardSize=10
         "participants": [
           {
             "userId": "507f1f77bcf86cd799439017",
-            "username": "waitingplayer",
+            "usernameSnapshot": "waitingplayer",
             "mark": "X",
             "isReady": true,
             "isHost": true

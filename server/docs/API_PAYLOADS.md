@@ -1517,8 +1517,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 |---|---|---|---|
 | `boardSize` | number | Yes | Enum: `10`, `15` |
 | `marker` | string | Yes | Enum: `X`, `O` (host's preferred marker) |
-| `boardStyle` | string | No | Enum: `CLASSIC`, `DARK`, `NEON (Default: CLASSIC)` |
-| `markerStyle` | string | No | Enum: `CLASSIC`, `GLOW`, `SKETCH`, `etc. (Default: CLASSIC)` |
+| `boardStyle` | string | No | Enum: `CLASSIC`, `DARK`, `NEON`. Default: CLASSIC |
+| `markerStyle` | string | No | Enum: `CLASSIC`, `GLOW`, `SKETCH`, `etc.` Default: CLASSIC |
 
 **Notes:**
 - Creates a new room with status `WAITING`
@@ -1868,7 +1868,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "gameType": "SINGLE_PLAYER | TWO_PLAYERS | ONLINE_MATCH",
   "boardSize": 10 | 15,
   "boardStyle": "string",
-  "markerStyle": "string"
+  "markerStyle": "string",
   "startedAt": "ISO 8601 date string",
   "endedAt": "ISO 8601 date string",
   "status": "COMPLETED | ABORTED",

@@ -1,13 +1,8 @@
 import React from 'react';
 import { renderOMarker, renderXMarker } from '../../../../utils/markerRenderer';
 
-const GridCell = ({ value, markerVariant, gridStyle = 'classic', isWinCell, onClick, disabled }) => {
-    const borderClass =
-        gridStyle === 'neon'
-            ? 'border-r border-b border-[#4cc9f0]/40'
-            : gridStyle === 'block'
-                ? 'border-r-2 border-b-2 border-[#2a2a2a]'
-                : 'border-r border-b border-[#2a2a4e]';
+const GridCell = ({ value, markerVariant, cellBorderClass, isWinCell, onClick, disabled }) => {
+    const borderClass = cellBorderClass ?? 'border-r border-b border-[#2a2a4e]';
 
     return (
         <div

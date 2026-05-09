@@ -13,7 +13,13 @@ const MatchReplay = () => {
     const { gameId: rawGameId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
-    const isUserPremium = true
+    const isUserPremium = (() => {
+        if (!user) return false;
+        if (user.premiumExpiresAt) {
+            return new Date(user.premiumExpiresAt).getTime() > Date.now();
+        }
+        return user.isPremium || false;
+    })();
 
     const {
         sessionData,
@@ -38,12 +44,12 @@ const MatchReplay = () => {
     }
 
     if (isLoading) {
-        return <div className="min-h-screen flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
+        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
     }
 
     if (errorMessage) {
         return (
-            <main className="min-h-screen flex items-center justify-center px-6">
+            <main className="flex-1 flex items-center justify-center px-6">
                 <div className="max-w-md w-full border border-outline-variant bg-surface-container p-8 text-center chunky-shadow">
                     <h1 className="font-headline text-lg text-secondary-container mb-4">REPLAY ACCESS DENIED</h1>
                     <p className="font-body text-sm text-on-surface">{errorMessage}</p>
@@ -53,11 +59,11 @@ const MatchReplay = () => {
     }
 
     if (!sessionData) {
-        return <div className="min-h-screen flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
+        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
     }
 
     return (
-        <main className="flex-1 mt-16 mb-10 px-6 py-6 flex flex-col items-center bg-surface">
+        <main className="flex-1 mt-16 mb-10 pb-32 px-6 py-6 flex flex-col items-center bg-surface">
             <MatchHeader session={sessionData} />
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">

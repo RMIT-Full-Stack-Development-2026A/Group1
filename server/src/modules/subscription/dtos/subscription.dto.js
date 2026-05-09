@@ -6,6 +6,7 @@ const toHistoryItem = (transaction) => ({
     amount: transaction.amount,
     currency: transaction.currency,
     status: transaction.status,
+    externalTransactionId: transaction.externalTransactionId ?? null,
     subscriptionPeriodStart: transaction.subscriptionPeriodStart ?? null,
     subscriptionPeriodEnd: transaction.subscriptionPeriodEnd ?? null,
     createdAt: transaction.createdAt

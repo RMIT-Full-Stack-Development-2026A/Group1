@@ -80,8 +80,8 @@ export const useProfile = () => {
             wins: apiData?.stats?.wins || 0,
             losses: apiData?.stats?.losses || 0,
             draws: apiData?.stats?.draws || 0,
-            winRate: apiData?.stats?.totalGames > 0 
-              ? ((apiData.stats.wins / apiData.stats.totalGames) * 100).toFixed(1)
+            winRate: (apiData?.stats?.totalGames - (apiData?.stats?.aborted || 0)) > 0 
+              ? ((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1)
               : 0,
           },
         };
@@ -327,8 +327,8 @@ export const useProfile = () => {
           wins: apiData?.stats?.wins || 0,
           losses: apiData?.stats?.losses || 0,
           draws: apiData?.stats?.draws || 0,
-          winRate: apiData?.stats?.totalGames > 0 
-            ? ((apiData.stats.wins / apiData.stats.totalGames) * 100).toFixed(1)
+          winRate: (apiData?.stats?.totalGames - (apiData?.stats?.aborted || 0)) > 0 
+            ? ((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1)
             : 0,
         },
       };

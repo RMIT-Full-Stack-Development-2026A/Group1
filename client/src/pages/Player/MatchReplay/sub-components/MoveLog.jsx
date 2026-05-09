@@ -23,7 +23,7 @@ export default function MoveLog({ moveLog, currentStep, boardSize, onJumpToStep,
 
     return (
         <div className="h-full min-h-[500px] flex flex-col bg-surface border border-outline-variant chunky-shadow overflow-hidden">
-            <div className="h-10 bg-primary-container flex items-center px-4 justify-between shrink-0">
+            <div className="h-15 bg-primary-container flex items-center px-4 justify-between shrink-0">
                 <span className="text-[#5bd5fc] font-bold text-[10px] uppercase tracking-widest font-body">
                     MOVE_LOG
                 </span>
@@ -113,17 +113,6 @@ export default function MoveLog({ moveLog, currentStep, boardSize, onJumpToStep,
                         </div>
                     );
                 })}
-            </div>
-
-            <div className="p-4 bg-surface-container-low border-t border-outline-variant shrink-0">
-                <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] text-outline font-body uppercase tracking-wider">
-                        AUTO-SCROLL
-                    </span>
-                    <div className="w-8 h-4 bg-primary-container/30 border border-primary-container flex items-center px-0.5">
-                        <div className="w-2.5 h-2.5 bg-primary-container" />
-                    </div>
-                </div>
             </div>
         </div>
     );

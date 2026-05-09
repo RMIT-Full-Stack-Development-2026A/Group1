@@ -52,7 +52,7 @@ export default function PricingPlans({ isPremium, onSubscribe }) {
                     onClick={onSubscribe}
                     className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 active:translate-x-[2px] active:translate-y-[2px] transition-transform"
                 >
-                    {isPremium ? 'ACTIVE SUBSCRIBER' : 'SELECT PACKAGE'}
+                    {isPremium ? 'CURRENT STATUS' : 'SELECT PACKAGE'}
                 </SoundButton>
             </div>
         </div>

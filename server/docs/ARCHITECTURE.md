@@ -2,7 +2,9 @@
 
 This backend architecture follows a **Modular Monolith** structure with a strict **N-Tier** dependency flow and a **socket-first online game flow**.
 
-It is aligned with the revised API contract, revised MongoDB models, the team policy, and the SRS requirements for authentication, profile management, game history/replay, premium subscription, wallet, admin monitoring, and real-time online TicTacToe gameplay.
+It is aligned with the revised API contract, revised MongoDB models, the team policy, and the SRS requirements for authentication, profile management, game history/replay, premium subscription, admin monitoring, and real-time online TicTacToe gameplay.
+
+(Note: The legacy Wallet system has been explicitly removed in favor of direct PayPal checkouts to reduce friction).
 
 ## 1. Architectural Principles
 
@@ -33,7 +35,7 @@ Rules:
 ### 1.3 API Strategy: HTTP for snapshot/persistence, WebSocket for live state
 To minimize API calls and match the SRS real-time requirements:
 
-- **HTTP** is used for authentication, profile, history, wallet, subscription, admin operations, initial room snapshots, and reconnect recovery.
+- **HTTP** is used for authentication, profile, history, subscription, admin operations, initial room snapshots, and reconnect recovery.
 - **WebSocket** is used for room creation, room joining, room leaving, move submission, room updates, game state sync, and premium chat.
 
 This means the backend is intentionally **socket-first** for online multiplayer.
@@ -96,7 +98,7 @@ backend/
 │   │   │   ├── validators/
 │   │   │   └── interfaces/                # Exposes room snapshot/admin operations
 │   │   │
-│   │   ├── wallet/
+│   │   ├── subscription/
 │   │   │   ├── routes/
 │   │   │   ├── controllers/
 │   │   │   ├── services/
@@ -104,14 +106,7 @@ backend/
 │   │   │   ├── models/                    # OWNS Transaction model
 │   │   │   ├── dtos/
 │   │   │   ├── validators/
-│   │   │   └── interfaces/                # Exposes wallet balance and transaction summary
-│   │   │
-│   │   ├── subscription/
-│   │   │   ├── routes/
-│   │   │   ├── controllers/
-│   │   │   ├── services/
-│   │   │   ├── dtos/
-│   │   │   └── validators/               
+│   │   │   └── interfaces/                # Exposes subscription history and revenue metrics
 │   │   │
 │   │   └── admin/
 │   │       ├── routes/
@@ -161,9 +156,7 @@ This module is an **application orchestration layer** around current-user operat
 - Update username, email, country, and password
 - Handle avatar upload flow
 - Build an aggregated profile overview response using:
-  - `auth` interface for user data
-  - `wallet` interface for balance summary
-  - `subscription` or `auth` premium-expiry info
+  - `auth` interface for user data and premium-expiry info
   - `game` interface for recent games and stats
 
 ### Public HTTP endpoints
@@ -174,7 +167,7 @@ This module is an **application orchestration layer** around current-user operat
 - `POST /api/v1/profile/avatar`
 
 ### Why this module has no own model
-The team policy defines one consistent user shape, and the data already belongs primarily to `auth`, `wallet`, and `game`. Therefore `profile` should aggregate instead of duplicating persistence.
+The team policy defines one consistent user shape, and the data already belongs primarily to `auth`, and `game`. Therefore `profile` should aggregate instead of duplicating persistence.
 
 ## 3.3 `game` module
 **Owns:** `GameSession` model.
@@ -235,46 +228,29 @@ HTTP never becomes the primary online gameplay channel. The frontend should:
 2. subscribe to socket events for all subsequent updates
 3. call `GET /rooms/:id` only for reconnect/recovery if needed
 
-## 3.5 `wallet` module
+## 3.5 `subscription` module
 **Owns:** `Transaction` model.
 
 ### Responsibilities
-- Maintain transaction audit trail
-- Process deposits
-- Return current wallet snapshot and recent transaction summary
-- Support transaction history pagination
-- Expose wallet summary data to `profile` and `subscription`
-
-### Public HTTP endpoints
-- `GET /api/v1/wallet`
-- `POST /api/v1/wallet/deposit`
-- `GET /api/v1/wallet/transactions`
-
-### Important design note
-The current balance is stored in `User.wallet.balance` for fast reads, while `Transaction` remains the immutable audit history.
-
-## 3.6 `subscription` module
-**Owns:** No standalone model. Uses `User` + `Transaction` data.
-
-### Responsibilities
-- Check current premium state from `premiumExpiresAt`
-- Purchase premium using wallet funds
-- Extend premium period
-- Create subscription transactions
-- Trigger confirmation email after successful purchase
-- Provide subscription history
+- Check current premium state from `User.premiumExpiresAt`
+- Handle direct checkout flow via external payment providers (PayPal)
+- Validate webhooks/capture orders from payment providers
+- Handle async payment events (e.g., Refunds, Chargebacks) to revoke premium access
+- Extend premium period upon successful payment
+- Maintain immutable transaction (payment invoice) history
+- Expose revenue metrics for the admin dashboard
 
 ### Public HTTP endpoints
 - `GET /api/v1/subscription/status`
-- `POST /api/v1/subscription/subscribe`
+- `POST /api/v1/subscription/create-order`
+- `POST /api/v1/subscription/capture-order`
+- `POST /api/v1/subscription/paypal-events `
 - `GET /api/v1/subscription/history`
 
 ### Architectural note
-The source of truth for premium state is:
-- `User.premiumExpiresAt` for current status
-- `Transaction` records of type `SUBSCRIPTION` for audit/history
+- The source of truth for premium state is `User.premiumExpiresAt`. The `Transaction` model acts strictly as a financial audit log for successful payments.
 
-## 3.7 `admin` module
+## 3.6 `admin` module
 **Owns:** No standalone model. It orchestrates other modules.
 
 ### Responsibilities
@@ -299,7 +275,7 @@ The source of truth for premium state is:
 - `auth` for player listing and account state
 - `room` for live room monitoring and force close
 - `game` for match metrics
-- `wallet` for revenue summaries if included in dashboard
+- `subscription` for revenue summaries if included in dashboard
 
 ## 4. Data Ownership and Model Boundaries
 
@@ -311,13 +287,11 @@ Owned only by `auth`.
 - security: `passwordHash`, `auth.lastLoginAt`, `auth.loginAttempts`, `auth.lockUntil`
 - account state: `isActive`
 - premium state: `premiumExpiresAt` and derived `isPremium`
-- wallet snapshot: `wallet.balance`
 - media: `avatar`
 
 ### Why this shape is better
 - avoids exposing plain `password`
 - keeps premium as a date-driven state instead of a stale boolean
-- supports fast wallet reads without losing transaction auditability
 
 
 ## 4.2 `GameSession` model ownership
@@ -366,21 +340,20 @@ Owned only by `room`.
 - online room can be converted into `GameSession` cleanly when completed
 
 ## 4.4 `Transaction` model ownership
-Owned only by `wallet`.
+Owned only by `subscription`.
 
 ### Main fields
 - `userId`
-- `type` = `DEPOSIT | SUBSCRIPTION`
-- `provider`
+- `type` = `SUBSCRIPTION`
+- `provider` = `PAYPAL` | `STRIPE`
 - `amount`, `currency`
 - `status`
 - `externalTransactionId`
-- `balanceBefore`, `balanceAfter`
 - `subscriptionPeriodStart`, `subscriptionPeriodEnd`
 - `metadata`
 
 ### Why this shape is better
-- supports wallet and subscription audit with one model
+- supports subscription audit with one model
 - enables payment-provider traceability
 - keeps premium history queryable without separate subscription table
 
@@ -427,10 +400,10 @@ The online game flow is centered in the `room` module and delivered through `/ws
 
 To keep module boundaries clean:
 
-- `profile` uses `auth`, `wallet`, `game`, and possibly `subscription` interfaces
+- `profile` uses `auth`, `game`, and possibly `subscription` interfaces
 - `room` uses `auth` interface for user/session validation and `game` interface to persist finished online matches
-- `subscription` uses `auth` and `wallet` interfaces
-- `admin` uses `auth`, `room`, `game`, and `wallet` interfaces
+- `subscription` uses `auth`  interfaces
+- `admin` uses `auth`, `room`, and `game` interfaces
 
 No module should directly import another module's service or model.
 
@@ -467,7 +440,7 @@ The backend must obey the policy response contract everywhere.
 ### Aggregated DTOs encouraged
 To reduce calls, the architecture explicitly supports:
 - `GET /auth/check-auth` returning `user + activeRoom`
-- `GET /profile/overview` returning profile + wallet + subscription + stats + recent games
+- `GET /profile/overview` returning profile + subscription + stats + recent games
 - `GET /games/:id` returning full replay payload
 - `GET /admin/dashboard` returning admin summary metrics
 

@@ -1,5 +1,6 @@
 // Profile Service - API calls for profile data and match history
 import http from "@/utils/httpHelper";
+import { notifySuccess } from "@/utils/toast.util";
 
 export const profileService = {
   // Fetch aggregated profile overview (recommended for profile page)
@@ -48,7 +49,8 @@ export const profileService = {
       if (updateData.username) payload.username = updateData.username;
       if (updateData.country) payload.country = updateData.country;
 
-      const response = await http.put("/profile/update", payload);
+      const response = await http.put("/profile/update", payload, { silent: true });
+      notifySuccess("Profile saved.");
       return response.data;
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -77,8 +79,10 @@ export const profileService = {
       };
       // Skip global logout on 401 for password validation errors
       const response = await http.patch("/profile/password", payload, {
-        skipGlobalAuthError: true
+        skipGlobalAuthError: true,
+        silent: true,
       });
+      notifySuccess("Password changed successfully.");
       return response.data;
     } catch (error) {
       // Handle password validation errors without triggering global logout
@@ -102,7 +106,8 @@ export const profileService = {
       // When passing FormData to axios, it automatically detects and sets:
       // Content-Type: multipart/form-data with the correct boundary
       // Do NOT manually set Content-Type header as it interferes with FormData
-      const response = await http.post("/profile/avatar", formData);
+      const response = await http.post("/profile/avatar", formData, { silent: true });
+      notifySuccess("Avatar updated successfully!");
       return response;
     } catch (error) {
       console.error("Error uploading avatar:", error);

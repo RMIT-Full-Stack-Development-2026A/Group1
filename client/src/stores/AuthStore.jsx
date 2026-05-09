@@ -108,6 +108,7 @@ export const useAuthStore = create((set) => ({
                 username: userData.username,
                 role: userData.role || 'PLAYER',
                 isPremium: userData.isPremium || false,
+                premiumExpiresAt: userData.premiumExpiresAt ?? null,
                 avatar: userData.avatar,
                 country: userData.country,
             } : null;
@@ -127,6 +128,34 @@ export const useAuthStore = create((set) => ({
 
     // Clear error messages from state
     clearError: () => set({ error: null })
+,
+
+    // Refresh user info explicitly even if checkAuth was already run
+    refreshUser: async () => {
+        try {
+            const checkAuthPromise = authService.checkAuth();
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('refreshUser timeout')), 5000)
+            );
+            const response = await Promise.race([checkAuthPromise, timeoutPromise]);
+            const userData = response.data?.user;
+            if (!userData) return;
+            const userIdentity = {
+                id: userData.id,
+                userId: userData.userId,
+                email: userData.email,
+                username: userData.username,
+                role: userData.role || 'PLAYER',
+                isPremium: userData.isPremium || false,
+                premiumExpiresAt: userData.premiumExpiresAt ?? null,
+                avatar: userData.avatar,
+                country: userData.country,
+            };
+            set({ user: userIdentity, isAuthenticated: true });
+        } catch (err) {
+            console.debug('[Auth] refreshUser failed:', err.message);
+        }
+    }
 }));
 
 // Listen for 401 unauthorized events dispatched from Axios interceptor

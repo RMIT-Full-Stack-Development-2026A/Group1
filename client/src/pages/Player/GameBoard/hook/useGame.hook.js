@@ -5,6 +5,7 @@ import { getBestAIMove } from '../../../../utils/ai';
 import { useModeStore } from '../../../../stores/ModeStore';
 import { transformToBackendFormat } from '../../GameCustomization/service/customization.service';
 import { useCustomizationStore } from '../../../../stores/CustomizationStore'; // Import the store to access current customization settings
+import { notifySuccess } from '@/utils/toast.util';
 
 // Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));
@@ -114,7 +115,8 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
             };
 
             try {
-                await gameService.saveGameResult(payload);
+                await gameService.saveGameResult(payload, { silent: true });
+                notifySuccess('Match saved.');
             } catch (error) {
                 console.error("Save match result failed:", error);
             }
@@ -204,7 +206,8 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                 moves: moveHistory,
             };
 
-            await gameService.saveGameResult(payload);
+            await gameService.saveGameResult(payload, { silent: true });
+            notifySuccess('Match saved.');
         } catch (err) {
             console.error('Abort save failed:', err);
         } finally {

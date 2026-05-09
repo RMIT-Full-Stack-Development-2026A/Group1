@@ -23,7 +23,30 @@ function App() {
         <Layout>
             <BackgroundMusicController />
             <AppRouter />
-            <Toaster position="bottom-right" reverseOrder={false} />
+            <Toaster
+                position="bottom-right"
+                reverseOrder={false}
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#1a1a2e',
+                        color: '#e3e0f4',
+                        border: '1px solid #3d484d',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: '#4cc9f0',
+                            secondary: '#1a1a2e',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: '#ffb4ab',
+                            secondary: '#1a1a2e',
+                        },
+                    },
+                }}
+            />
         </Layout>
     );
 }

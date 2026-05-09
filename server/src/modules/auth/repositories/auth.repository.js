@@ -154,6 +154,72 @@ export const AuthRepository = {
         return null; // No conflicts found
     },
 
+    getPlatformMetrics: async () => {
+        const now = new Date();
+        
+        // Time Boundaries
+        const startOfToday = new Date(now);
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const startOfWeek = new Date(startOfToday);
+        const day = startOfWeek.getDay(); 
+        // JS getDay() is 0 (Sun) to 6 (Sat)
+        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+        startOfWeek.setDate(diff);
+
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Calculate days in the current month (28, 29, 30, or 31)
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+        // Execute queries concurrently 
+        const [totalPlayers, activePlayers, premiumPlayers, todayAgg, weekAgg, monthAgg] = await Promise.all([
+            User.countDocuments({ role: 'PLAYER' }),
+            User.countDocuments({ role: 'PLAYER', isActive: true }),
+            User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: now } }),
+            
+            // Today (Group by Hour: 0-23)
+            User.aggregate([
+                { $match: { role: 'PLAYER', createdAt: { $gte: startOfToday } } },
+                { $group: { _id: { $hour: "$createdAt" }, count: { $sum: 1 } } }
+            ]),
+            
+            // This Week (Group by Day of Week: 1=Sun ... 7=Sat)
+            User.aggregate([
+                { $match: { role: 'PLAYER', createdAt: { $gte: startOfWeek } } },
+                { $group: { _id: { $dayOfWeek: "$createdAt" }, count: { $sum: 1 } } }
+            ]),
+            
+            // This Month (Group by Day of Month: 1 to 31)
+            User.aggregate([
+                { $match: { role: 'PLAYER', createdAt: { $gte: startOfMonth } } },
+                { $group: { _id: { $dayOfMonth: "$createdAt" }, count: { $sum: 1 } } }
+            ])
+        ]);
+
+        // Format the arrays
+        // Today: Array of 24 hours [0, 0, ..., 0]
+        const registeredToday = Array(24).fill(0);
+        todayAgg.forEach(item => {
+            registeredToday[item._id] = item.count;
+        });
+
+        // This Week: Array of 7 days (Monday -> Sunday)
+        const registeredThisWeek = Array(7).fill(0);
+        weekAgg.forEach(item => {
+            const index = item._id === 1 ? 6 : item._id - 2;
+            registeredThisWeek[index] = item.count;
+        });
+
+        // This Month: Array of X days based on current month
+        const registeredThisMonth = Array(daysInMonth).fill(0);
+        monthAgg.forEach(item => {
+            registeredThisMonth[item._id - 1] = item.count;
+        });
+
+        return { totalPlayers, activePlayers, premiumPlayers, registeredToday, registeredThisWeek, registeredThisMonth };
+    },
+    
     findUsersPaginated: async (filter, sort, skip, limit) => {
         const users = await User.find(filter)
             .sort(sort)

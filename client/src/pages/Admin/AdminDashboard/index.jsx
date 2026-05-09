@@ -5,13 +5,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminDashboard } from "./hooks/useAdminDashboard";
-import MetricCard from "./components/MetricCard";
-import RegistrationStats from "./components/RegistrationStats";
-import ActionButton from "./components/ActionButton";
+import MetricCard from "./sub-components/MetricCard";
+import RegistrationBarChart from "./sub-components/RegistrationBarChart";
+import RegistrationLineChart from "./sub-components/RegistrationLineChart";
+import ActionButton from "./sub-components/ActionButton";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const { metrics, loading, error, formatNumber, getPercentageChange } =
+  const { metrics, loading, error, formatNumber } =
     useAdminDashboard();
 
   if (error) {
@@ -42,19 +43,30 @@ export default function AdminDashboard() {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <MetricCard
           title="Total Players"
-          value={formatNumber(metrics?.totalPlayers || 0)}
+          value={metrics?.totalPlayers || 0}
           icon="groups"
           colorScheme="blue"
-          footer={loading ? "Loading..." : `${getPercentageChange(metrics?.totalPlayers)} vs last cycle`}
+          footer="Total players count"
           loading={loading}
         />
 
         <MetricCard
-          title="Active Players"
+          title={
+            <>
+              ACTIVE<span className="text-[#ff5c5c]">/DEACTIVATED</span> PLAYERS
+            </>
+          }
           value={metrics?.activePlayers || 0}
           icon="bolt"
           colorScheme="skin"
-          footer="Current Live Sessions"
+          secondaryValue={metrics?.deactivatedPlayers || 0}
+          secondaryColorScheme="red"
+          inlineSecondary={true}
+          footer={
+            <>
+              Current Active<span className="text-[#ff5c5c]">/Inactive</span> Players
+            </>
+          }
           loading={loading}
         />
 
@@ -88,7 +100,7 @@ export default function AdminDashboard() {
 
         <MetricCard
           title="Total Matches"
-          value={formatNumber(metrics?.totalMatches || 0)}
+          value={metrics?.totalMatches || 0}
           icon="videogame_asset"
           colorScheme="skin"
           footer="Historical Record"
@@ -105,28 +117,60 @@ export default function AdminDashboard() {
         />
       </section>
 
-      {/* New Players Stats & Navigation */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <RegistrationStats metrics={metrics} loading={loading} />
-
-        {/* Navigation Links */}
-        <div className="flex flex-col gap-4">
-          <ActionButton
-            label="PLAYER MANAGEMENT"
-            path="/admin/players"
-            description="View and manage all player accounts"
-            icon="groups"
-            onClick={() => navigate("/admin/players")}
+      {/* Registration Charts */}
+      <section className="mb-12">
+        <h3 className="font-headline text-primary text-xs uppercase tracking-[0.3em] mb-6">
+          Registration Analytics
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Today - Line Chart */}
+          <RegistrationLineChart
+            data={metrics?.registrationsByHour || []}
+            title="REGISTERED TODAY"
+            xAxisTitle="Hour (UTC+7)"
+            xAxisKey="hour"
+            xAxisLabels={Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))}
+            tooltipLabelPrefix="Hour"
           />
 
-          <ActionButton
-            label="GAME ROOM MONITOR"
-            path="/admin/rooms"
-            description="Monitor and control online game rooms"
-            icon="meeting_room"
-            onClick={() => navigate("/admin/rooms")}
+          {/* This Week - Bar Chart */}
+          <RegistrationBarChart
+            data={metrics?.registrationsByDay || []}
+            title="REGISTERED THIS WEEK"
+            xAxisTitle="Weekday"
+            labels={["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]}
+          />
+
+          {/* This Month - Line Chart (spans 2 cols on desktop) */}
+          <RegistrationLineChart
+            data={metrics?.registrationsByMonth || []}
+            title="REGISTERED THIS MONTH"
+            xAxisTitle="Day"
+            xAxisKey="day"
+            xAxisLabels={Array.from({ length: 30 }, (_, i) => String(i).padStart(2, "0"))}
+            tooltipLabelPrefix="Day"
           />
         </div>
+      </section>
+
+      {/* Navigation Links */}
+      <section className="flex flex-col md:flex-row gap-6">
+        <ActionButton
+          label="PLAYER MANAGEMENT"
+          path="/admin/players"
+          description="View and manage all player accounts"
+          icon="groups"
+          onClick={() => navigate("/admin/players")}
+        />
+
+        <ActionButton
+          label="GAME ROOM MONITOR"
+          path="/admin/rooms"
+          description="Monitor and control online game rooms"
+          icon="meeting_room"
+          onClick={() => navigate("/admin/rooms")}
+        />
       </section>
     </main>
   );

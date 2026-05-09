@@ -23,11 +23,15 @@ export default function PaymentSuccess() {
             const expiresAt = result?.data?.status?.premiumExpiresAt;
             setPremiumExpiresAt(expiresAt ? new Date(expiresAt).toLocaleDateString() : null);
             // After confirming capture is successful, update AuthStore immediately
-            const { setUser, user } = useAuthStore.getState();
-            setUser({
-                ...user,
-                isPremium: true,
-                premiumExpiresAt: expiresAt
+            const { user } = useAuthStore.getState();
+
+            // Sử dụng hàm setState mặc định của Zustand
+            useAuthStore.setState({
+                user: {
+                    ...user,
+                    isPremium: true,
+                    premiumExpiresAt: expiresAt
+                }
             });
             setStatus('success');
         } catch (err) {

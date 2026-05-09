@@ -55,14 +55,14 @@ export const RoomRepository = {
         return GameRoom.findOneAndUpdate(
             { 
                 _id: roomId, 
-                status: 'WAITING',
-                'participants.1': { $exists: false } // ensure that there is only 1 participant (the host) before adding the joiner
+                status: ROOM_STATUS.WAITING, 
+                'participants.1': { $exists: false } 
             },
             { 
                 $push: { participants: participant },
                 $set: { status: newStatus } 
             },
-            { returnDocument: 'after' }
+            { returnDocument: 'after' } 
         ).lean();
     },
 

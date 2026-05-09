@@ -16,6 +16,11 @@ export const AdminDTO = {
         totalPlayers: metrics.totalPlayers ?? 0,
         activePlayers: metrics.activePlayers ?? 0,
         premiumPlayers: metrics.premiumPlayers ?? 0,
+        
+        registeredToday: Array.isArray(metrics.registeredToday) ? metrics.registeredToday : [],
+        registeredThisWeek: Array.isArray(metrics.registeredThisWeek) ? metrics.registeredThisWeek : [],
+        registeredThisMonth: Array.isArray(metrics.registeredThisMonth) ? metrics.registeredThisMonth : [],
+        
         activeRooms: metrics.activeRooms ?? 0,
         totalMatches: metrics.totalMatches ?? 0,
         totalRevenue: metrics.totalRevenue ?? 0

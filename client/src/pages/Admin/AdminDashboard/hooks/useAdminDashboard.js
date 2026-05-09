@@ -6,20 +6,29 @@ import { adminDashboardService } from "../services/adminDashboard.service";
 const MOCK_METRICS = {
   totalPlayers: 4200,
   activePlayers: 312,
+  deactivatedPlayers: 3888,
   premiumPlayers: 892,
+  registeredToday: [5, 8, 12, 15, 10, 8, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 24 hours
+  registeredThisWeek: [25, 35, 42, 38, 45, 60, 40], // Mon-Sun
+  registeredThisMonth: Array(29).fill(0).map((_, i) => Math.floor(Math.random() * 80) + 20), // 29 days (example)
   activeRooms: 24,
   totalMatches: 18500,
   totalRevenue: 12850.50,
-  revenueThisMonth: 3425.75,
-  newPlayersToday: 42,
-  newPlayersThisWeek: 285,
-  newPlayersThisMonth: 1240,
 };
 
 export const useAdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const shiftHourlySeriesToVietnamTime = (series = []) => {
+    if (!Array.isArray(series) || series.length !== 24) {
+      return [];
+    }
+
+    // Convert UTC buckets to Vietnam local time (UTC+7).
+    return [...series.slice(17), ...series.slice(0, 17)];
+  };
 
   // Fetch dashboard metrics on mount
   useEffect(() => {
@@ -33,18 +42,29 @@ export const useAdminDashboard = () => {
 
         console.log("[useAdminDashboard] Fetched metrics:", dashboardData);
 
+        // Helper: sum array values
+        const sumArray = (arr) => (Array.isArray(arr) ? arr.reduce((a, b) => a + b, 0) : 0);
+
         // Format metrics for display
         const formattedMetrics = {
           totalPlayers: dashboardData?.totalPlayers || 0,
           activePlayers: dashboardData?.activePlayers || 0,
+          deactivatedPlayers: Math.max((dashboardData?.totalPlayers || 0) - (dashboardData?.activePlayers || 0), 0),
           premiumPlayers: dashboardData?.premiumPlayers || 0,
+          
+          // Summary numbers (sums from time-series arrays)
+          newPlayersToday: sumArray(dashboardData?.registeredToday),
+          newPlayersThisWeek: sumArray(dashboardData?.registeredThisWeek),
+          newPlayersThisMonth: sumArray(dashboardData?.registeredThisMonth),
+          
+          // Raw time-series data (for charts)
+          registrationsByHour: shiftHourlySeriesToVietnamTime(dashboardData?.registeredToday),
+          registrationsByDay: dashboardData?.registeredThisWeek || [],
+          registrationsByMonth: dashboardData?.registeredThisMonth || [],
+          
           activeRooms: dashboardData?.activeRooms || 0,
           totalMatches: dashboardData?.totalMatches || 0,
           totalRevenue: dashboardData?.totalRevenue || 0,
-          revenueThisMonth: dashboardData?.revenueThisMonth || 0,
-          newPlayersToday: dashboardData?.newPlayersToday || 0,
-          newPlayersThisWeek: dashboardData?.newPlayersThisWeek || 0,
-          newPlayersThisMonth: dashboardData?.newPlayersThisMonth || 0,
         };
 
         setMetrics(formattedMetrics);
@@ -70,18 +90,10 @@ export const useAdminDashboard = () => {
     return num.toLocaleString();
   };
 
-  // Calculate percentage change (mock data for demo)
-  const getPercentageChange = (current, previous = 0) => {
-    if (previous === 0) return "+12%";
-    const change = ((current - previous) / previous) * 100;
-    return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
-  };
-
   return {
     metrics,
     loading,
     error,
     formatNumber,
-    getPercentageChange,
   };
 };

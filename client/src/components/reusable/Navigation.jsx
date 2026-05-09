@@ -47,15 +47,40 @@ export default function Navigation() {
                     <div className="flex items-center gap-4">
                         {isAdmin ? (
                             /* Admin Navigation */
-                            <SoundButton
-                                onClick={() => navigate("/admin")}
-                                className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${location.pathname.startsWith("/admin")
-                                        ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
-                                        : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                            <div className="flex items-center gap-3">
+                                <SoundButton
+                                    onClick={() => navigate("/admin")}
+                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
+                                        location.pathname === "/admin"
+                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
                                     }`}
-                            >
-                                ADMIN DASHBOARD
-                            </SoundButton>
+                                >
+                                    ADMIN DASHBOARD
+                                </SoundButton>
+
+                                <SoundButton
+                                    onClick={() => navigate("/admin/players")}
+                                    className={`font-mono uppercase tracking-widest text-xs px-3 py-2 border-b-2 transition-all ${
+                                        location.pathname === "/admin/players"
+                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                    }`}
+                                >
+                                    PLAYERS
+                                </SoundButton>
+
+                                <SoundButton
+                                    onClick={() => navigate("/admin/rooms")}
+                                    className={`font-mono uppercase tracking-widest text-xs px-3 py-2 border-b-2 transition-all ${
+                                        location.pathname === "/admin/rooms"
+                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                    }`}
+                                >
+                                    ROOMS
+                                </SoundButton>
+                            </div>
                         ) : (
                             /* Player Navigation */
                             <>

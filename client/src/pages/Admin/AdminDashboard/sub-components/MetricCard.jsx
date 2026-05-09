@@ -7,8 +7,22 @@ export default function MetricCard({
   footer, 
   colorScheme = "blue", // blue, skin, yellow
   loading = false,
-  isPremium = false
+  isPremium = false,
+  secondaryValue,
+  secondaryColorScheme = "red",
+  inlineSecondary = false,
 }) {
+  const formatCompactNumber = (input) => {
+    if (typeof input !== "number" || Number.isNaN(input)) {
+      return input;
+    }
+
+    return new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(input);
+  };
+
   const getSchemeStyles = () => {
     switch (colorScheme) {
       case "blue":
@@ -29,6 +43,12 @@ export default function MetricCard({
           glow: "hover:shadow-[0_0_20px_rgba(255,214,10,0.4)] hover:border-[#ffd60a]",
           text: "text-[#ffd60a]"
         };
+      case "red":
+        return {
+          border: "border-l-4 border-l-[#ff5c5c]",
+          glow: "hover:shadow-[0_0_20px_rgba(255,92,92,0.35)] hover:border-[#ff5c5c]",
+          text: "text-[#ff5c5c]"
+        };
       default:
         return {
           border: "border-l-4 border-l-[#4cc9f0]",
@@ -38,10 +58,18 @@ export default function MetricCard({
     }
   };
 
+  const secondaryScheme = secondaryColorScheme === "red"
+    ? {
+        text: "text-[#ff5c5c]",
+      }
+    : getSchemeStyles();
+
   const scheme = getSchemeStyles();
+  const displayValue = formatCompactNumber(value);
+  const displaySecondaryValue = formatCompactNumber(secondaryValue);
 
   return (
-    <div className={`bg-[#1a1a2e] border-circuit p-6 relative transition-all duration-300 ${scheme.border} ${scheme.glow}`}>
+    <div className={`bg-surface-card border-circuit p-6 relative transition-all duration-300 ${scheme.border} ${scheme.glow}`}>
       <div className="flex justify-between items-start mb-4">
         <p className={`text-[10px] font-bold uppercase tracking-widest font-mono ${scheme.text}`}>
           {title}
@@ -54,9 +82,22 @@ export default function MetricCard({
           {icon}
         </span>
       </div>
-      <p className={`text-3xl font-headline ${scheme.text}`}>
-        {loading ? "..." : value}
-      </p>
+      {inlineSecondary && secondaryValue !== undefined ? (
+        <p className={`text-3xl font-headline ${scheme.text}`}>
+          {loading ? (
+            "..."
+          ) : (
+            <>
+              {displayValue}
+              <span className={secondaryScheme.text}>/{displaySecondaryValue}</span>
+            </>
+          )}
+        </p>
+      ) : (
+        <p className={`text-3xl font-headline ${scheme.text}`}>
+          {loading ? "..." : displayValue}
+        </p>
+      )}
       {footer && (
         <p className={`text-[9px] mt-2 uppercase font-mono ${scheme.text}`}>
           {footer}

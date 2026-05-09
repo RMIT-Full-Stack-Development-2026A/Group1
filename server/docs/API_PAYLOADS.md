@@ -1690,8 +1690,14 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "roomId": "507f1f77bcf86cd799439016",
   "board": [
-    ["X", null, null, null, null, null, null, null, null, null],
-    ["O", null, null, null, null, null, null, null, null, null]
+    {
+      "moveNumber": 1,
+      "byParticipantIndex": 0,
+      "row": 1,
+      "col": 0,
+      "coordinate": "A2",
+      "placedAt": "2026-04-12T11:04:30.000Z"
+    }
   ],
   "currentTurn": 0,
   "lastMove": {

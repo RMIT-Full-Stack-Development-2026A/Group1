@@ -353,7 +353,10 @@ export const RoomService = {
 
         return RoomDTO.toChatMessagePayload({
             roomId,
-            sender: user.username,
+            sender: {
+                userId: String(user._id),
+                usernameSnapshot: user.username
+            },
             message,
             timestamp: new Date()
         });

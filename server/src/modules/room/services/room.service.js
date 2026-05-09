@@ -207,6 +207,10 @@ export const RoomService = {
             isReady: false
         }, ROOM_STATUS.READY);
 
+        if (!updatedRoom) {
+            throw { statusCode: 409, error: "ROOM_FULL", message: "Room is no longer waiting or already full." };
+        }
+
         const gameState = RoomDTO.toGameStatePayload({
             room: updatedRoom,
             board: [] 
@@ -323,7 +327,7 @@ export const RoomService = {
                 abortedByUserId: userId,
                 moves: room.moves,
                 totalMoves: room.moveCount,
-                startedAt: room.startedAt,
+                startedAt: room.startedAt ?? room.createdAt ?? endedAt,
                 endedAt
             });
 

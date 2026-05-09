@@ -226,13 +226,13 @@ This document defines the **complete request and response payload schemas** for 
       "participants": [
         {
           "userId": "507f1f77bcf86cd799439011",
-          "username": "player123",
+          "usernameSnapshot": "player123",
           "mark": "X",
           "isReady": true
         },
         {
           "userId": "507f1f77bcf86cd799439013",
-          "username": "opponent456",
+          "usernameSnapshot": "opponent456",
           "mark": "O",
           "isReady": true
         }
@@ -307,9 +307,7 @@ This document defines the **complete request and response payload schemas** for 
       "isActive": true,
       "createdAt": "2026-03-21T14:30:00.000Z"
     },
-    "wallet": {
-      "balance": 35
-    },
+    
     "subscription": {
       "isPremium": true,
       "premiumExpiresAt": "2026-06-01T00:00:00.000Z"
@@ -1368,12 +1366,12 @@ GET /api/v1/admin/rooms?status=PLAYING&page=1&limit=20
         "participants": [
           {
             "userId": "507f1f77bcf86cd799439011",
-            "username": "player123",
+            "usernameSnapshot": "player123",
             "mark": "X"
           },
           {
             "userId": "507f1f77bcf86cd799439013",
-            "username": "opponent456",
+            "usernameSnapshot": "opponent456",
             "mark": "O"
           }
         ],
@@ -1413,13 +1411,13 @@ GET /api/v1/admin/rooms/507f1f77bcf86cd799439016
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
         "isReady": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
-        "username": "opponent456",
+        "usernameSnapshot": "opponent456",
         "mark": "O",
         "isReady": true
       }
@@ -1750,7 +1748,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "roomId": "507f1f77bcf86cd799439016",
   "sender": {
     "userId": "507f1f77bcf86cd799439011",
-    "username": "player123"
+    "usernameSnapshot": "player123"
   },
   "message": "Good game!",
   "timestamp": "2026-04-12T11:10:00.000Z"

@@ -3,7 +3,9 @@ const toParticipant = (participant) => ({
     userId: participant.userId,
     usernameSnapshot: participant.usernameSnapshot,
     mark: participant.mark ?? null,
-    joinedAt: participant.joinedAt ?? null
+    joinedAt: participant.joinedAt ?? null,
+    isHost: participant.isHost ?? false,
+    isReady: participant.isReady ?? false
 });
 
 const toMove = (move) => ({
@@ -27,6 +29,8 @@ export const RoomDTO = {
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
+        boardStyle: room.boardStyle ?? 'CLASSIC',
+        markerStyle: room.markerStyle ?? 'CLASSIC',
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         moveCount: room.moveCount ?? 0,
@@ -40,6 +44,8 @@ export const RoomDTO = {
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
+        boardStyle: room.boardStyle ?? 'CLASSIC',
+        markerStyle: room.markerStyle ?? 'CLASSIC',
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         moveCount: room.moveCount ?? 0,
@@ -60,6 +66,8 @@ export const RoomDTO = {
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
+        boardStyle: room.boardStyle ?? 'CLASSIC',
+        markerStyle: room.markerStyle ?? 'CLASSIC',
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,

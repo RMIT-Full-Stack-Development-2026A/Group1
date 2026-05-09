@@ -6,6 +6,8 @@ export const RoomRepository = {
         const summaryProjection = {
             roomNumber: 1,
             boardSize: 1,
+            boardStyle: 1,
+            markerStyle: 1,
             status: 1,
             participants: 1,
             moveCount: 1,

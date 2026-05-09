@@ -71,6 +71,8 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
 export const validateRoomCreate = (payload) => {
     const boardSize = parseInt(payload?.boardSize);
     const marker = payload?.marker?.toUpperCase();
+    const boardStyle = payload?.boardStyle?.trim() || 'CLASSIC';
+    const markerStyle = payload?.markerStyle?.trim() || 'CLASSIC';
 
     if (![10, 15].includes(boardSize)) {
         throw { statusCode: 400, error: "INVALID_BOARD_SIZE", message: "Board size must be 10 or 15." };
@@ -78,7 +80,7 @@ export const validateRoomCreate = (payload) => {
     if (!['X', 'O'].includes(marker)) {
         throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
     }
-    return { boardSize, marker };
+    return { boardSize, marker, boardStyle, markerStyle };
 };
 
 export const validateRoomJoin = (payload) => {

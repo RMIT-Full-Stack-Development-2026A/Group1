@@ -15,14 +15,32 @@ const gameRoomSchema = new mongoose.Schema({
     },
 
     boardSize: {
-        type: Number, // Board size selected for this online room
+        type: Number, 
         enum: [10, 15],
         required: true,
         index: true 
     },
 
+    boardStyle: {
+        type: String, 
+        enum: ['CLASSIC', 'DARK', 'NEON'], 
+        default: 'CLASSIC'
+    },
+
+    markerStyle: {
+        type: String, 
+        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], 
+        default: 'CLASSIC'
+    },
+
+    firstTurnParticipantIndex: {
+        type: Number, 
+        enum: [0, 1],
+        default: 0 
+    },
+
     status: {
-        type: String, // Current lifecycle state of the room
+        type: String, 
         enum: ALL_ROOM_STATUSES,
         default: ROOM_STATUS.WAITING, 
         index: true 

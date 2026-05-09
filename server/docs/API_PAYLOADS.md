@@ -755,13 +755,16 @@ GET /api/v1/rooms?status=WAITING&boardSize=10
         "id": "507f1f77bcf86cd799439016",
         "roomNumber": "ROOM-2026-001235",
         "boardSize": 10,
+        "boardStyle": "CLASSIC",
+        "markerStyle": "CLASSIC",
         "status": "WAITING",
         "participants": [
           {
             "userId": "507f1f77bcf86cd799439017",
             "username": "waitingplayer",
             "mark": "X",
-            "isReady": true
+            "isReady": true,
+            "isHost": true
           }
         ],
         "moveCount": 0,
@@ -798,19 +801,23 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
     "id": "507f1f77bcf86cd799439016",
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
+    "boardStyle": "CLASSIC",
+    "markerStyle": "CLASSIC",
     "status": "PLAYING",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
         "username": "player123",
         "mark": "X",
-        "isReady": true
+        "isReady": true,
+        "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "username": "opponent456",
         "mark": "O",
-        "isReady": true
+        "isReady": true,
+        "isHost": false
       }
     ],
     "currentTurnParticipantIndex": 1,
@@ -1499,7 +1506,9 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```json
 {
   "boardSize": 10,
-  "marker": "X"
+  "marker": "X",
+  "boardStyle": "CLASSIC",
+  "markerStyle": "CLASSIC"
 }
 ```
 
@@ -1508,6 +1517,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 |---|---|---|---|
 | `boardSize` | number | Yes | Enum: `10`, `15` |
 | `marker` | string | Yes | Enum: `X`, `O` (host's preferred marker) |
+| `boardStyle` | string | No | Enum: `CLASSIC`, `DARK`, `NEON (Default: CLASSIC)` |
+| `markerStyle` | string | No | Enum: `CLASSIC`, `GLOW`, `SKETCH`, `etc. (Default: CLASSIC)` |
 
 **Notes:**
 - Creates a new room with status `WAITING`
@@ -1602,12 +1613,15 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "id": "507f1f77bcf86cd799439016",
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
+    "boardStyle": "CLASSIC",
+    "markerStyle": "CLASSIC",
     "status": "WAITING",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
         "username": "player123",
         "mark": "X",
+        "isHost": true,
         "isReady": true
       }
     ],
@@ -1629,19 +1643,23 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "id": "507f1f77bcf86cd799439016",
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
+    "boardStyle": "CLASSIC",
+    "markerStyle": "CLASSIC",
     "status": "PLAYING",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
         "username": "player123",
         "mark": "X",
-        "isReady": true
+        "isReady": true,
+        "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "username": "opponent456",
         "mark": "O",
-        "isReady": true
+        "isReady": true,
+        "isHost": false
       }
     ],
     "moveCount": 0,
@@ -1793,7 +1811,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "userId": "string",
   "username": "string",
   "mark": "X | O",
-  "isReady": "boolean"
+  "isReady": "boolean",
+  "isHost": "boolean"
 }
 ```
 
@@ -1848,6 +1867,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "sessionNumber": "string",
   "gameType": "SINGLE_PLAYER | TWO_PLAYERS | ONLINE_MATCH",
   "boardSize": 10 | 15,
+  "boardStyle": "string",
+  "markerStyle": "string"
   "startedAt": "ISO 8601 date string",
   "endedAt": "ISO 8601 date string",
   "status": "COMPLETED | ABORTED",

@@ -152,7 +152,7 @@ export const RoomService = {
     // --- WEBSOCKET METHODS ---
 
     handleRoomCreate: async (userId, payload) => {
-        const { boardSize, marker } = validateRoomCreate(payload);
+        const { boardSize, marker, boardStyle, markerStyle } = validateRoomCreate(payload);
 
         // Ensure user doesn't already have an active room
         const existingRoom = await RoomRepository.findActiveRoomByUserId(userId);
@@ -164,12 +164,17 @@ export const RoomService = {
         
         const newRoomData = {
             boardSize,
+            boardStyle,
+            markerStyle,
+            firstTurnParticipantIndex: 0,
             status: ROOM_STATUS.WAITING,
             participants: [{
                 userId: user._id,
                 usernameSnapshot: user.username,
                 mark: marker,
-                joinedAt: new Date()
+                joinedAt: new Date(),
+                isHost: true,
+                isReady: false
             }]
         };
 
@@ -197,12 +202,14 @@ export const RoomService = {
             userId: user._id,
             usernameSnapshot: user.username,
             mark: joinerMark,
-            joinedAt: new Date()
-        }, ROOM_STATUS.PLAYING);
+            joinedAt: new Date(),
+            isHost: false,
+            isReady: false
+        }, ROOM_STATUS.WAITING);
 
         const gameState = RoomDTO.toGameStatePayload({
             room: updatedRoom,
-            board: updatedRoom.moves // Minimal board representation via move list
+            board: [] 
         });
 
         return { room: RoomDTO.toRoomSummary(updatedRoom), gameState };
@@ -251,6 +258,8 @@ export const RoomService = {
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
+                boardStyle: room.boardStyle,
+                markerStyle: room.markerStyle,
                 participants: room.participants,
                 firstTurnParticipantIndex: 0,
                 status: isWin ? 'FINISHED' : 'DRAW',
@@ -305,6 +314,8 @@ export const RoomService = {
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
+                boardStyle: room.boardStyle,
+                markerStyle: room.markerStyle,
                 participants: room.participants,
                 firstTurnParticipantIndex: room.currentTurnParticipantIndex || 0,
                 status: 'ABORTED',

@@ -51,6 +51,16 @@ export const RoomRepository = {
         const room = new GameRoom(roomData);
         return room.save();
     },
+    addParticipant: async (roomId, participant, newStatus) => {
+        return GameRoom.findByIdAndUpdate(
+            roomId,
+            { 
+                $push: { participants: participant },
+                $set: { status: newStatus } 
+            },
+            { new: true }
+        ).lean();
+    },
 
     addParticipantAndStart: async (roomId, participant, newStatus) => {
         return GameRoom.findByIdAndUpdate(

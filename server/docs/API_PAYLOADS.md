@@ -1809,7 +1809,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```json
 {
   "userId": "string",
-  "username": "string",
+  "usernameSnapshot": "string",
   "mark": "X | O",
   "isReady": "boolean",
   "isHost": "boolean"

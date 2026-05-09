@@ -198,14 +198,14 @@ export const RoomService = {
         const hostMark = room.participants[0].mark;
         const joinerMark = hostMark === 'X' ? 'O' : 'X';
 
-        const updatedRoom = await RoomRepository.addParticipantAndStart(roomId, {
+        const updatedRoom = await RoomRepository.addParticipant(roomId, {
             userId: user._id,
             usernameSnapshot: user.username,
             mark: joinerMark,
             joinedAt: new Date(),
             isHost: false,
             isReady: false
-        }, ROOM_STATUS.WAITING);
+        }, ROOM_STATUS.READY);
 
         const gameState = RoomDTO.toGameStatePayload({
             room: updatedRoom,

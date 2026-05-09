@@ -1,4 +1,4 @@
-import { ACTIVE_ROOM_STATUSES } from '../constants/room.constants.js';
+import { ACTIVE_ROOM_STATUSES, ROOM_STATUS } from '../constants/room.constants.js';
 import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {

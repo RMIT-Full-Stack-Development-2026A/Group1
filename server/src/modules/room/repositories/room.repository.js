@@ -52,13 +52,17 @@ export const RoomRepository = {
         return room.save();
     },
     addParticipant: async (roomId, participant, newStatus) => {
-        return GameRoom.findByIdAndUpdate(
-            roomId,
+        return GameRoom.findOneAndUpdate(
+            { 
+                _id: roomId, 
+                status: 'WAITING',
+                'participants.1': { $exists: false } // ensure that there is only 1 participant (the host) before adding the joiner
+            },
             { 
                 $push: { participants: participant },
                 $set: { status: newStatus } 
             },
-            { new: true }
+            { returnDocument: 'after' }
         ).lean();
     },
 

@@ -73,8 +73,8 @@ export const validateRoomCreate = (payload) => {
     const marker = payload?.marker?.toUpperCase();
     
     // Uppercase and default styles if not provided
-    const boardStyle = payload?.boardStyle?.trim().toUpperCase() || 'CLASSIC';
-    const markerStyle = payload?.markerStyle?.trim().toUpperCase() || 'CLASSIC';
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
 
     if (![10, 15].includes(boardSize)) {
         throw { statusCode: 400, error: "INVALID_BOARD_SIZE", message: "Board size must be 10 or 15." };

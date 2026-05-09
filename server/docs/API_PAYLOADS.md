@@ -1649,14 +1649,14 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
         "isReady": true,
         "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
-        "username": "opponent456",
+        "usernameSnapshot": "opponent456",
         "mark": "O",
         "isReady": true,
         "isHost": false

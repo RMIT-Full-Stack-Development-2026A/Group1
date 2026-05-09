@@ -36,7 +36,8 @@ export const RoomDTO = {
         moveCount: room.moveCount ?? 0,
         startedAt: room.startedAt ?? null,
         endedAt: room.endedAt ?? null,
-        lastMove: room.lastMove ?? null
+        lastMove: room.lastMove ?? null,
+        createdAt: room.createdAt
     }),
 
     // Summary shape used by arena/listing pages.
@@ -51,7 +52,8 @@ export const RoomDTO = {
         moveCount: room.moveCount ?? 0,
         startedAt: room.startedAt ?? null,
         endedAt: room.endedAt ?? null,
-        lastMove: room.lastMove ?? null
+        lastMove: room.lastMove ?? null,
+        createdAt: room.createdAt
     }),
 
     toRoomListResponse: (rooms, pagination) => ({

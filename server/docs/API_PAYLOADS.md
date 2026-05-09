@@ -1868,7 +1868,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "gameType": "SINGLE_PLAYER | TWO_PLAYERS | ONLINE_MATCH",
   "boardSize": 10 | 15,
   "boardStyle": "string",
-  "markerStyle": "string"
+  "markerStyle": "string",
   "startedAt": "ISO 8601 date string",
   "endedAt": "ISO 8601 date string",
   "status": "COMPLETED | ABORTED",

@@ -1620,7 +1620,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
         "usernameSnapshot": "player123",
         "mark": "X",
         "isHost": true,
-        "isReady": true
+        "isReady": false
       }
     ],
     "moveCount": 0,

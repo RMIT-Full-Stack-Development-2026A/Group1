@@ -1518,7 +1518,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 | `boardSize` | number | Yes | Enum: `10`, `15` |
 | `marker` | string | Yes | Enum: `X`, `O` (host's preferred marker) |
 | `boardStyle` | string | No | Enum: `CLASSIC`, `DARK`, `NEON`. Default: CLASSIC |
-| `markerStyle` | string | No | Enum: `CLASSIC`, `GLOW`, `SKETCH`, `etc.` Default: CLASSIC |
+| `markerStyle` | string | No | Enum: `CLASSIC`, `GLOW`, `SKETCH`, `STONE`, `PIXEL`, `MINIMAL`. Default: CLASSIC |
 
 **Notes:**
 - Creates a new room with status `WAITING`

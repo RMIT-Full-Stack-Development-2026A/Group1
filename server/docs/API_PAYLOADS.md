@@ -1699,13 +1699,13 @@ All WebSocket events use `namespace:action` format and accept/return object payl
       "placedAt": "2026-04-12T11:04:30.000Z"
     }
   ],
-  "currentTurn": 0,
+  "currentTurnParticipantIndex": 0,
   "lastMove": {
     "row": 1,
     "col": 0,
     "coordinate": "A2"
   },
-  "moveCount": 2,
+  "moveCount": 1,
   "status": "PLAYING"
 }
 ```

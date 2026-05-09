@@ -1614,6 +1614,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "boardStyle": "CLASSIC",
     "markerStyle": "CLASSIC",
     "status": "WAITING",
+    "createdAt": "2026-01-15T10:30:00.000Z",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",

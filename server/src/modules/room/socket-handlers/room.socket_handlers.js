@@ -1,7 +1,7 @@
 import { RoomService } from '../services/room.service.js';
 
 export const registerRoomSocketHandlers = (io, socket) => {
-    // We assume socket.user is populated by a socketAuthMiddleware
+    // socket.user is populated by a socketAuthMiddleware
     const user = socket.user;
 
     // Helper to format and send errors

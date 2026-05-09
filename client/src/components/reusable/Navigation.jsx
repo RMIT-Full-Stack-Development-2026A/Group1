@@ -42,18 +42,17 @@ export default function Navigation() {
                 >
                     TicTacToang
                 </span>
-                
+
                 {isAuthenticated && !isLoading && (
                     <div className="flex items-center gap-4">
                         {isAdmin ? (
                             /* Admin Navigation */
                             <SoundButton
                                 onClick={() => navigate("/admin")}
-                                className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
-                                    location.pathname.startsWith("/admin")
-                                        ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
-                                        : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
-                                }`}
+                                className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${location.pathname.startsWith("/admin")
+                                    ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                    : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                    }`}
                             >
                                 ADMIN DASHBOARD
                             </SoundButton>
@@ -62,23 +61,30 @@ export default function Navigation() {
                             <>
                                 <SoundButton
                                     onClick={() => navigate("/play")}
-                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
-                                        location.pathname === "/play"
-                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
-                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
-                                    }`}
+                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${location.pathname === "/play"
+                                        ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                        : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                        }`}
                                 >
                                     GAME MODES
                                 </SoundButton>
                                 <SoundButton
                                     onClick={() => navigate("/profile")}
-                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${
-                                        location.pathname === "/profile"
-                                            ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
-                                            : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
-                                    }`}
+                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${location.pathname === "/profile"
+                                        ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                        : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                        }`}
                                 >
                                     PROFILE
+                                </SoundButton>
+                                <SoundButton
+                                    onClick={() => navigate("/subscription")}
+                                    className={`font-mono uppercase tracking-widest text-xs px-4 py-2 border-b-2 transition-all ${location.pathname === "/subscription"
+                                        ? "text-[#4cc9f0] font-bold border-b-[#4cc9f0]"
+                                        : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
+                                        }`}
+                                >
+                                    SUBSCRIPTION
                                 </SoundButton>
                             </>
                         )}
@@ -89,11 +95,10 @@ export default function Navigation() {
             <div className="flex items-center gap-3">
                 <SoundButton
                     onClick={toggleBackgroundMusic}
-                    className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs px-4 py-2 border transition-all shadow-[2px_2px_0px_#1e1e2c] ${
-                        isBackgroundMusicEnabled
-                            ? "bg-[#052e32] text-[#4cc9f0] border-[#4cc9f0] hover:shadow-[0px_0px_8px_#4cc9f0]"
-                            : "bg-[#2b1515] text-[#ffb4ab] border-[#ffb4ab] hover:shadow-[0px_0px_8px_#ffb4ab]"
-                    }`}
+                    className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs px-4 py-2 border transition-all shadow-[2px_2px_0px_#1e1e2c] ${isBackgroundMusicEnabled
+                        ? "bg-[#052e32] text-[#4cc9f0] border-[#4cc9f0] hover:shadow-[0px_0px_8px_#4cc9f0]"
+                        : "bg-[#2b1515] text-[#ffb4ab] border-[#ffb4ab] hover:shadow-[0px_0px_8px_#ffb4ab]"
+                        }`}
                     aria-pressed={!isBackgroundMusicEnabled}
                     title={isBackgroundMusicEnabled ? 'Turn background music off' : 'Turn background music on'}
                 >

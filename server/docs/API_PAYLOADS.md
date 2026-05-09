@@ -228,13 +228,13 @@ This document defines the **complete request and response payload schemas** for 
           "userId": "507f1f77bcf86cd799439011",
           "usernameSnapshot": "player123",
           "mark": "X",
-          "isReady": true
+          "isReady": false
         },
         {
           "userId": "507f1f77bcf86cd799439013",
           "usernameSnapshot": "opponent456",
           "mark": "O",
-          "isReady": true
+          "isReady": false
         }
       ]
     }
@@ -807,14 +807,14 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
         "userId": "507f1f77bcf86cd799439011",
         "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true,
+        "isReady": false,
         "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "usernameSnapshot": "opponent456",
         "mark": "O",
-        "isReady": true,
+        "isReady": false,
         "isHost": false
       }
     ],
@@ -1413,13 +1413,13 @@ GET /api/v1/admin/rooms/507f1f77bcf86cd799439016
         "userId": "507f1f77bcf86cd799439011",
         "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true
+        "isReady": false
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "usernameSnapshot": "opponent456",
         "mark": "O",
-        "isReady": true
+        "isReady": false
       }
     ],
     "currentTurnParticipantIndex": 1,
@@ -1623,8 +1623,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
         "isReady": false
       }
     ],
-    "moveCount": 0,
-    "createdAt": "2026-04-12T11:00:00.000Z"
+    "moveCount": 0
   }
 }
 ```
@@ -1649,14 +1648,14 @@ All WebSocket events use `namespace:action` format and accept/return object payl
         "userId": "507f1f77bcf86cd799439011",
         "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true,
+        "isReady": false,
         "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "usernameSnapshot": "opponent456",
         "mark": "O",
-        "isReady": true,
+        "isReady": false,
         "isHost": false
       }
     ],

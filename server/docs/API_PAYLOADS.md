@@ -1639,7 +1639,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "room": {
     "id": "507f1f77bcf86cd799439016",
-    "roomNumber": "ROOM-2026-001235",
+    "roomNumber": "RM-01HZX3J8N4YQ7K6M5P2R9T1VWX",
     "boardSize": 10,
     "boardStyle": "CLASSIC",
     "markerStyle": "CLASSIC",

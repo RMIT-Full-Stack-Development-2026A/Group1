@@ -72,7 +72,7 @@ export const validateRoomCreate = (payload) => {
     const boardSize = parseInt(payload?.boardSize);
     const marker = payload?.marker?.toUpperCase();
     
-    // Check type befoire trim() & toUpperCase()
+    // Check type before trim() & toUpperCase()
     const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
     const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
 

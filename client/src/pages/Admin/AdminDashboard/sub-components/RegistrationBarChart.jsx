@@ -2,22 +2,26 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Label } from "recharts";
 
-export default function RegistrationBarChart({ data, title, labels, xAxisTitle = "Time" }) {
+export default function RegistrationBarChart({ data, title, labels, xAxisTitle = "Time", showPanel = true }) {
   const totalRegistrations = data.reduce((sum, value) => sum + value, 0);
   const chartData = data.map((value, index) => ({
     name: labels[index] || index,
     registrations: value,
   }));
 
+  const containerClasses = showPanel
+    ? "bg-surface-card border border-cyan-500/30 rounded-lg p-6 glow-container"
+    : "";
+
   return (
-    <div className="bg-surface-card border border-cyan-500/30 rounded-lg p-6 glow-container">
-      <div className="mb-6 min-h-12 flex items-start">
+    <div className={containerClasses}>
+      <div className="mb-2 min-h-12 flex items-start">
         <h3 className="font-headline text-cyan-400 text-xs uppercase tracking-[0.2em] leading-tight glow-text-cyan">
           {title}: {totalRegistrations}
         </h3>
       </div>
 
-      <div className="w-full h-64">
+      <div className="w-full h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 10, right: 20, left: 24, bottom: 38 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 255, 255, 0.1)" />

@@ -118,12 +118,12 @@ export default function AdminDashboard() {
       </section>
 
       {/* Registration Charts */}
-      <section className="mb-12">
+      <section className="mb-12 bg-surface-card border border-cyan-500/30 rounded-lg p-6 glow-container">
         <h3 className="font-headline text-primary text-xs uppercase tracking-[0.3em] mb-6">
           Registration Analytics
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Today - Line Chart */}
           <RegistrationLineChart
             data={metrics?.registrationsByHour || []}
@@ -132,6 +132,7 @@ export default function AdminDashboard() {
             xAxisKey="hour"
             xAxisLabels={Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))}
             tooltipLabelPrefix="Hour"
+            showPanel={false}
           />
 
           {/* This Week - Bar Chart */}
@@ -140,9 +141,10 @@ export default function AdminDashboard() {
             title="REGISTERED THIS WEEK"
             xAxisTitle="Weekday"
             labels={["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]}
+            showPanel={false}
           />
 
-          {/* This Month - Line Chart (spans 2 cols on desktop) */}
+          {/* This Month - Line Chart */}
           <RegistrationLineChart
             data={metrics?.registrationsByMonth || []}
             title="REGISTERED THIS MONTH"
@@ -150,6 +152,7 @@ export default function AdminDashboard() {
             xAxisKey="day"
             xAxisLabels={Array.from({ length: 30 }, (_, i) => String(i).padStart(2, "0"))}
             tooltipLabelPrefix="Day"
+            showPanel={false}
           />
         </div>
       </section>

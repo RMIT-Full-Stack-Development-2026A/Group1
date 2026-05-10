@@ -23,21 +23,33 @@ export default function RoomCard({ room, onJoin }) {
 
             {/* Room Content */}
             <div className="p-5 grow flex flex-col gap-4">
-                {/* Host Info */}
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 border-2 border-[#4cc9f0] flex items-center justify-center bg-[#0d0d1a]">
-                        <span className="material-symbols-outlined text-[#4cc9f0]">person</span>
+                {/* Host vs Opponent */}
+                <div className="flex items-center justify-between w-full">
+                    {/* Host */}
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 border-2 border-[#4cc9f0] flex items-center justify-center bg-[#0d0d1a]">
+                            <span className="material-symbols-outlined text-[#4cc9f0]">person</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-mono text-[10px] text-[#879398] uppercase tracking-wide">{room.host}</span>
+                            <span className="font-mono text-[10px] text-[#fad100]">{room.hostRank}</span>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="font-mono text-[10px] text-[#879398] uppercase tracking-wide">
-                            HOST
-                        </span>
-                        <span className="font-mono text-sm font-bold text-[#4cc9f0]">
-                            {room.host}
-                        </span>
-                        <span className="font-mono text-[10px] text-[#fad100]">
-                            {room.hostRank}
-                        </span>
+
+                    {/* VS */}
+                    <div className="text-center">
+                        <span className="font-mono text-sm text-[#4cc9f0] font-bold">VS</span>
+                    </div>
+
+                    {/* Opponent */}
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 border-2 border-[#4cc9f0] flex items-center justify-center bg-[#0d0d1a]">
+                            <span className="material-symbols-outlined text-[#4cc9f0]">person</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="font-mono text-[10px] text-[#4cc9f0] font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>
+                            <span className="font-mono text-[10px] text-[#fad100]">{room.opponentRank}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -57,13 +69,6 @@ export default function RoomCard({ room, onJoin }) {
                     )}
                 </div>
 
-                {/* Players Count */}
-                <div className="flex items-center gap-2 text-[10px] text-[#879398] font-mono">
-                    <span>PLAYERS:</span>
-                    <span className="text-[#4cc9f0]">
-                        {room.players}/{room.maxPlayers}
-                    </span>
-                </div>
             </div>
 
             {/* Join Button */}

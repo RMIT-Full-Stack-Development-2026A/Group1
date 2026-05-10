@@ -4,6 +4,9 @@
  * Connects to real backend endpoints for game/room data
  */
 
+// DEV toggle: set VITE_USE_MOCK_ROOMS=true in a .env or set localStorage key `USE_MOCK_ROOMS` to '1' to force mock data
+const FORCE_USE_MOCK = (typeof import.meta !== 'undefined' && import.meta.env && String(import.meta.env.VITE_USE_MOCK_ROOMS) === 'true') || (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('USE_MOCK_ROOMS') === '1');
+
 import { gameLobbyService } from "./gameLobby.service";
 
 export const LobbyService = {
@@ -17,14 +20,35 @@ export const LobbyService = {
             // Fetch rooms with status filter for waiting/available rooms
             const rooms = await gameLobbyService.getRooms({ status: "WAITING" });
             
-            // Normalize status to lowercase for UI consistency
-            const normalizedRooms = rooms.map(room => ({
-                ...room,
-                status: room.status?.toLowerCase() || 'waiting'
-            }));
+            // If developer explicitly requested mock rooms, return them immediately
+            if (FORCE_USE_MOCK) {
+                console.log('[Lobby Service] FORCE_USE_MOCK enabled, returning mock rooms');
+                return LobbyService._getMockRooms();
+            }
             
-            console.log('[Lobby Service] Fetched rooms from backend:', normalizedRooms);
-            
+            // Map backend room shape to UI-friendly shape and normalize status
+            const normalizedRooms = (rooms || []).map((room) => {
+                const participants = Array.isArray(room.participants) ? room.participants : [];
+                const hostUser = participants[0] || {};
+
+                const opponentUser = participants[1] || {};
+
+                return {
+                    id: room.id || room._id || room.roomNumber || Math.random().toString(36).slice(2, 9),
+                    roomNumber: room.roomNumber || room.id || (room.roomNumber ? String(room.roomNumber) : undefined),
+                    boardSize: typeof room.boardSize === 'number' ? `${room.boardSize}x${room.boardSize}` : (room.boardSize || '10x10'),
+                    host: hostUser.usernameSnapshot || hostUser.username || hostUser.name || room.host || 'HOST',
+                    hostRank: hostUser.rank ? `#${hostUser.rank}` : (room.hostRank || '#000'),
+                    opponent: opponentUser.usernameSnapshot || opponentUser.username || opponentUser.name || (participants.length > 1 ? 'PLAYER' : 'WAITING'),
+                    opponentRank: opponentUser.rank ? `#${opponentUser.rank}` : (room.opponentRank || (participants.length > 1 ? '#000' : '')),
+                    status: String(room.status || 'waiting').toLowerCase(),
+                    players: participants.length || room.players || 0,
+                    maxPlayers: room.maxPlayers || 2,
+                };
+            });
+
+            console.log('[Lobby Service] Fetched rooms from backend (normalized):', normalizedRooms);
+
             return normalizedRooms;
         } catch (error) {
             console.error('[Lobby Service] Failed to fetch rooms:', error);
@@ -95,7 +119,7 @@ export const LobbyService = {
      * Get available rooms (filter by status)
      */
     getAvailableRooms: (rooms) => {
-        return rooms.filter((r) => r.status === "WAITING" || r.status === "waiting");
+        return (rooms || []).filter((r) => String(r.status || '').toLowerCase() === 'waiting');
     },
 
     /**
@@ -116,8 +140,10 @@ export const LobbyService = {
                 boardSize: "10x10",
                 host: "PLAYER_ONE",
                 hostRank: "#085",
-                status: "WAITING",
-                players: 1,
+                    status: "waiting",
+                    opponent: 'WAITING',
+                    opponentRank: '',
+                    players: 1,
                 maxPlayers: 2,
             },
             {
@@ -126,7 +152,7 @@ export const LobbyService = {
                 boardSize: "15x15",
                 host: "NEON_PHANTOM",
                 hostRank: "#042",
-                status: "WAITING",
+                status: "waiting",
                 players: 1,
                 maxPlayers: 2,
             },
@@ -136,8 +162,10 @@ export const LobbyService = {
                 boardSize: "10x10",
                 host: "HOST_X",
                 hostRank: "#151",
-                status: "FULL",
-                players: 2,
+                    status: "full",
+                    opponent: 'RIVAL_007',
+                    opponentRank: '#204',
+                    players: 2,
                 maxPlayers: 2,
             },
             {
@@ -146,7 +174,17 @@ export const LobbyService = {
                 boardSize: "10x10",
                 host: "CYBER_KING",
                 hostRank: "#037",
-                status: "WAITING",
+                status: "waiting",
+                players: 1,
+                maxPlayers: 2,
+            },
+            {
+                id: 5,
+                roomNumber: 47,
+                boardSize: "15x15",
+                host: "PIXEL_RANGER",
+                hostRank: "#099",
+                status: "waiting",
                 players: 1,
                 maxPlayers: 2,
             },

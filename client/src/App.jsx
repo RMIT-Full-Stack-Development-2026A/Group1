@@ -2,8 +2,8 @@ import { React, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import Layout from "./Layout";
 import AppRouter from "./routes/AppRouter";
-import { useAuthStore } from "./stores/AuthStore";
-import BackgroundMusicController from "@/components/reusable/BackgroundMusicController";
+import { useAuthStore } from "./stores/auth/AuthStore";
+import BackgroundMusicController from "@/components/reusable/sound/BackgroundMusicController";
 
 function App() {
     const checkAuth = useAuthStore((state) => state.checkAuth);

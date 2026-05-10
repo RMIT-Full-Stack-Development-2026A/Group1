@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore } from '@/stores/AuthStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
 import { notifyError } from '@/utils/toast.util';
 
 /**

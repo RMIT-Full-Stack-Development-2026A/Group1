@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getMarkerVariants } from "../service/customization.service";
-import SoundButton from "@/components/reusable/SoundButton";
+import SoundButton from "@/components/reusable/sound/SoundButton";
 export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
     const markerVariants = getMarkerVariants();
 

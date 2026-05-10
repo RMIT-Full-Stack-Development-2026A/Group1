@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navigation from "@/components/reusable/Navigation";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import Footer from "@/components/reusable/Footer";
 

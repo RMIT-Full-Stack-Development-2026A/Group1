@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { authService } from "../services/auth/auth.service";
+import { authService } from "../../services/auth/auth.service";
 
 // Global flag to ensure checkAuth is only called once per app lifecycle
 let hasInitializedAuth = false;

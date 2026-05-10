@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import GridCell from './GridCell';
-import ScanLines from '../../../../components/reusable/ScanLines';
 import { useButtonSound } from '@/hooks/useButtonSound';
 import { AUDIO_FILES } from '@/config/audioConfig';
 import { getTheme } from '@/config/gameThemes.config';
+import ScanLines from '../../../../components/reusable/custom/ScanLines';
 
 const COL_LETTERS = Array.from({ length: 15 }, (_, i) => String.fromCharCode(65 + i));
 

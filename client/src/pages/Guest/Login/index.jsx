@@ -1,7 +1,7 @@
 // Route: /login
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useLogin } from "@/pages/Guest/Login/hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
 

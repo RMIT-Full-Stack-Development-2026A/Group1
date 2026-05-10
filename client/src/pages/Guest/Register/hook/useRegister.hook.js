@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useCountries } from "@/hooks/useCountries";
 import { registerService } from "../service/register.service";

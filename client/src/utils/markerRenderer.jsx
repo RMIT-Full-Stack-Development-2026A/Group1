@@ -3,7 +3,7 @@
  * Renders X and O with the selected marker variant styling
  * Uses displayId (numeric 1-6) from CustomizationStore
  */
-import { MarkerX, MarkerO } from "@/components/reusable/CustomMarkers";
+import { MarkerX, MarkerO } from "@/components/reusable/custom/CustomMarkers";
 import { getMarkerVariants } from "@/pages/Player/GameCustomization/service/customization.service";
 
 /**

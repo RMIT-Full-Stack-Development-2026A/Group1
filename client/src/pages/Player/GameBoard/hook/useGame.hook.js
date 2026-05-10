@@ -2,10 +2,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { checkWin, checkDraw } from './gameLogic';
 import { gameService } from '../service/game.service';
 import { getBestAIMove } from '../../../../utils/ai';
-import { useModeStore } from '../../../../stores/ModeStore';
+import { useModeStore } from '../../../../stores/ai/ModeStore';
 import { transformToBackendFormat } from '../../GameCustomization/service/customization.service';
-import { useCustomizationStore } from '../../../../stores/CustomizationStore'; // Import the store to access current customization settings
 import { notifySuccess } from '@/utils/toast.util';
+import { useCustomizationStore } from '../../../../stores/game/CustomizationStore'; // Import the store to access current customization settings
 
 // Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));
@@ -84,7 +84,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         const updatedHistory = [...moveHistory, newMove];
         setMoveHistory(updatedHistory);
 
-        // Kiểm tra thắng/hòa để gửi kết quả
+        // Check win/draw to send data
         const winningCells = checkWin(newBoard, row, col, currentPlayer);
         const drawDetected = !winningCells && checkDraw(newBoard);
 
@@ -92,7 +92,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
             if (winningCells) setWinnerData({ player: currentPlayer, cells: winningCells });
             if (drawDetected) setIsDraw(true);
 
-            // LOGIC FIX: Lấy state hiện tại từ CustomizationStore và transform sang định dạng Backend
+            // Take current state of game customization and transform to BE format
             const customization = useCustomizationStore.getState();
             const { boardStyle, markerStyle } = transformToBackendFormat(customization);
 
@@ -100,7 +100,6 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                 gameType: gameMode,
                 status: winningCells ? "FINISHED" : "DRAW",
                 boardSize: boardSize,
-                // Thêm 2 trường này để lưu đúng giao diện đã chọn
                 boardStyle: boardStyle,
                 markerStyle: markerStyle,
                 firstTurnParticipantIndex: firstTurnIndex,
@@ -158,6 +157,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                     setIsLocked(false);
                 }, 1300); // 1300ms delay
             }
+            
             // ONLINE_MATCH logic
             else if (gameMode === 'ONLINE_MATCH' && currentPlayer === 'O') {
                 setIsLocked(true);

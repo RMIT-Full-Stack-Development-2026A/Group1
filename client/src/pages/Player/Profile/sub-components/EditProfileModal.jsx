@@ -4,7 +4,7 @@ import {
   EmailField,
   UsernameField,
   CountrySelect,
-} from "@/components/reusable/FormFields";
+} from "@/components/reusable/form";
 import {
   validateEmail,
   validateUsername,

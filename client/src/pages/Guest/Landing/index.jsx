@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanding } from "./hook/useLanding.hook.js";
 import { BoardVisualizer } from "./sub-components";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
 
 export default function Landing() {
     const navigate = useNavigate();

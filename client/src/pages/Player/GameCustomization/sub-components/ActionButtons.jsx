@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import SoundButton from "@/components/reusable/SoundButton";
+import SoundButton from "@/components/reusable/sound/SoundButton";
 export default function ActionButtons({ onCreateRoom, onCancel, isLoading }) {
     return (
         <div className="flex flex-col md:flex-row gap-4 pt-6">

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getDifficultyLevels } from "../service/customization.service";
-import SoundButton from "@/components/reusable/SoundButton";
+import SoundButton from "@/components/reusable/sound/SoundButton";
 export default function DifficultySelector({ selectedDifficulty, onSelect }) {
     const difficulties = getDifficultyLevels();
 

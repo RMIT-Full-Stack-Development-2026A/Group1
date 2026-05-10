@@ -2,9 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Volume2, VolumeX } from "lucide-react";
-import { useAuthStore } from "../../stores/AuthStore";
-import { useAudioStore } from "../../stores/AudioStore";
-import SoundButton from '@/components/reusable/SoundButton';
+import { useAuthStore } from "../../stores/auth/AuthStore";
+import { useAudioStore } from "../../stores/audio/AudioStore";
+import SoundButton from '@/components/reusable/sound/SoundButton';
 
 export default function Navigation() {
     const navigate = useNavigate();

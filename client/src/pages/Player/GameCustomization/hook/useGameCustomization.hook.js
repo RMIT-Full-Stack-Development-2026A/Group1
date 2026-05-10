@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useModeStore } from "@/stores/ModeStore";
+import { useModeStore } from "@/stores/ai/ModeStore";
 
 export const useGameCustomization = () => {
     const { gameMode } = useModeStore();

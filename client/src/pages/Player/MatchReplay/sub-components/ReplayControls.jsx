@@ -1,5 +1,5 @@
 import React from 'react';
-import SoundButton from '@/components/reusable/SoundButton';
+import SoundButton from '@/components/reusable/sound/SoundButton';
 
 function IconBtn({ icon, onClick, size = 'sm', disabled = false }) {
     const dimensionClass = size === 'md' ? 'w-12 h-12' : 'w-10 h-10';

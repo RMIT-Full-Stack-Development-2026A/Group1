@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect, useRef } from 'react';
 
 // Stores
-import { useAuthStore } from '@/stores/AuthStore';
-import { useModeStore } from '@/stores/ModeStore';
-import { useCustomizationStore } from '@/stores/CustomizationStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
+import { useModeStore } from '@/stores/ai/ModeStore';
+import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 
 // Services
 import { getDifficultyLevels } from '@/pages/Player/GameCustomization/service/customization.service';
@@ -18,7 +18,7 @@ import { useChatManager } from './hook/useChatManager.hook';
 // Components
 import Footer from '@/components/reusable/Footer';
 import AbortModal from './sub-components/AbortModal';
-import ScanLines from '@/components/reusable/ScanLines';
+import ScanLines from '@/components/reusable/custom/ScanLines';
 import PlayerPanel from './sub-components/PlayerPanel';
 import BoardArea from './sub-components/BoardArea';
 import ParticleLayer from './sub-components/ParticleLayer';

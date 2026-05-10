@@ -1,9 +1,9 @@
 // Route: /play/customize
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/AuthStore";
-import { useCustomizationStore } from "@/stores/CustomizationStore";
-import { useModeStore } from "@/stores/ModeStore";
+import { useAuthStore } from "@/stores/auth/AuthStore";
+import { useCustomizationStore } from "@/stores/game/CustomizationStore";
+import { useModeStore } from "@/stores/ai/ModeStore";
 import { useGameCustomization } from "./hook/useGameCustomization.hook";
 import { createGameRoom } from "./service/customization.service";
 import {

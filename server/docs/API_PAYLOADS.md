@@ -1643,7 +1643,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "boardSize": 10,
     "boardStyle": "CLASSIC",
     "markerStyle": "CLASSIC",
-    "status": "PLAYING",
+    "status": "READY",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",

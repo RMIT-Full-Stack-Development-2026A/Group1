@@ -67,11 +67,16 @@ export const useProfile = () => {
         console.log('[useProfile] Extracted data:', apiData);
         
         // Map API response to player data structure
+        const premiumExpiresAt =
+          apiData?.user?.premiumExpiresAt ||
+          apiData?.subscription?.premiumExpiresAt ||
+          apiData?.premiumExpiresAt;
+
         const mappedData = {
           id: apiData?.user?.id || apiData?.id,
           username: apiData?.user?.username || apiData?.username,
           email: apiData?.user?.email || apiData?.email,
-          isPremium: isPremiumActive(apiData?.user?.premiumExpiresAt || apiData?.premiumExpiresAt),
+          isPremium: isPremiumActive(premiumExpiresAt),
           country: apiData?.user?.country || apiData?.country,
           level: apiData?.user?.level || apiData?.level || 1,
           playerId: apiData?.user?.id || apiData?.id,

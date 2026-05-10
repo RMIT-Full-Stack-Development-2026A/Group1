@@ -10,6 +10,7 @@ import {
     BoardSizeSelector,
     GridStyleSelector,
     MarkerVariantSelector,
+    FirstPlayerSelector,
     DifficultySelector,
     Player2NameInput,
     ActionButtons,
@@ -19,7 +20,7 @@ export default function GameCustomization() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setCustomization } = useCustomizationStore();
-    const { gameMode, player2Name, setAiDifficulty, setPlayer2Name } = useModeStore();
+    const { gameMode, player2Name, startingPlayer, setAiDifficulty, setPlayer2Name, setStartingPlayer } = useModeStore();
     const {
         selectedBoardSize,
         setSelectedBoardSize,
@@ -45,6 +46,7 @@ export default function GameCustomization() {
         try {
             // Save customization to global store (accessible from GameBoard)
             setCustomization(selectedBoardSize, selectedStyle, selectedMarker);
+            setStartingPlayer(startingPlayer);
 
             // Prepare room data payload
             const roomPayload = {
@@ -147,7 +149,16 @@ export default function GameCustomization() {
                             onSelect={setSelectedMarker}
                         />
 
-                        {/* Section 4: AI Difficulty (Only for Single Player) */}
+                        {/* Section 4: First Player (Only for Local and Single Player) */}
+                        {gameMode !== 'ONLINE_MATCH' && (
+                            <FirstPlayerSelector
+                                gameMode={gameMode}
+                                selectedPlayer={startingPlayer}
+                                onSelect={setStartingPlayer}
+                            />
+                        )}
+
+                        {/* Section 5: AI Difficulty (Only for Single Player) */}
                         {gameMode === 'SINGLE_PLAYER' && (
                             <DifficultySelector
                                 selectedDifficulty={selectedDifficulty}

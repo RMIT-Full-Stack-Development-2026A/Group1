@@ -10,7 +10,7 @@ export default function DifficultySelector({ selectedDifficulty, onSelect }) {
             <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-[#fad100]"></div>
                 <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
-                    04. AI DIFFICULTY
+                    05. AI DIFFICULTY
                 </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

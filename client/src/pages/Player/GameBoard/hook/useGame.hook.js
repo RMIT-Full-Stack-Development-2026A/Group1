@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { checkWin, checkDraw } from './gameLogic';
 import { gameService } from '../service/game.service';
 import { getBestAIMove } from '../../../../utils/ai';
@@ -14,7 +14,9 @@ const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(nu
 const toAlgebraic = (r, c) => `${String.fromCharCode(65 + c)}${r + 1}`;
 
 // Hook gets playersInfo array and initialBoardSize from the UI layer
-export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoardSize = 10) => {
+export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoardSize = 10, initialFirstPlayer = 'X') => {
+    const normalizedFirstPlayer = initialFirstPlayer === 'O' ? 'O' : 'X';
+    const initialParticipantIndex = normalizedFirstPlayer === 'O' ? 1 : 0;
 
     // Initialize with the dynamic size provided by CustomizationStore
     const [boardSize, setBoardSizeState] = useState(initialBoardSize);
@@ -22,15 +24,16 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
 
     // Lazy initialization for board performance using initialBoardSize
     const [board, setBoard] = useState(() => initBoard(initialBoardSize));
-    const [currentPlayer, setCurrentPlayer] = useState('X');
+    const [currentPlayer, setCurrentPlayer] = useState(normalizedFirstPlayer);
     const [winnerData, setWinnerData] = useState(null);
     const [isDraw, setIsDraw] = useState(false);
     const [isAborting, setIsAborting] = useState(false);
     const [moveHistory, setMoveHistory] = useState([]);
+    const aiMoveTimeoutRef = useRef(null);
 
     // Tracking turns and time for Backend Payload
-    const [participantIndex, setParticipantIndex] = useState(0);
-    const [firstTurnIndex, setFirstTurnIndex] = useState(0); // Track who goes first (default 0)
+    const [participantIndex, setParticipantIndex] = useState(initialParticipantIndex);
+    const [firstTurnIndex, setFirstTurnIndex] = useState(initialParticipantIndex); // Track who goes first (default 0)
     const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
 
     const { aiDifficulty } = useModeStore();
@@ -53,13 +56,13 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
 
         setBoardSizeState(size);
         setBoard(initBoard(size));
-        setCurrentPlayer('X');
+        setCurrentPlayer(normalizedFirstPlayer);
         setWinnerData(null);
         setIsDraw(false);
         setMoveHistory([]);
         setParticipantIndex(firstTurnIndex);
         setStartedAt(new Date().toISOString()); // Reset start time
-    }, [moveHistory.length, winnerData, isDraw, firstTurnIndex]);
+    }, [moveHistory.length, winnerData, isDraw, firstTurnIndex, normalizedFirstPlayer]);
 
     // Handle move upgraded with exact BE Schema
     const handleMove = useCallback(async (row, col) => {
@@ -134,6 +137,8 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
         const processAutoMove = async () => {
             // SINGLE_PLAYER bot logic
             if (gameMode === 'SINGLE_PLAYER' && currentPlayer === 'O') {
+                if (aiMoveTimeoutRef.current) return;
+
                 console.log("[DEBUG] Bot is waking up! Triggering AI calculation...");
 
                 setIsLocked(true); // Lock UI while Bot is playing
@@ -143,7 +148,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                 console.log("[DEBUG] Found Bot Player Info:", botPlayer);
 
                 // 2. Create a small delay to simulate AI thinking like human
-                setTimeout(() => {
+                aiMoveTimeoutRef.current = setTimeout(() => {
                     console.log("[DEBUG] Calculating best move for board with difficulty:", aiDifficulty);
 
                     // 3. Call getBestAIMove to take the coordinate that AI will go
@@ -151,10 +156,9 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                     console.log(`[DEBUG] Bot calculated move: [${bestRow}, ${bestCol}]`);
 
                     // 4. Let bot play
-                    handleMove(bestRow, bestCol);
-
-                    // 5. Unlock UI
+                    aiMoveTimeoutRef.current = null;
                     setIsLocked(false);
+                    handleMove(bestRow, bestCol);
                 }, 1300); // 1300ms delay
             }
             
@@ -173,15 +177,24 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
 
     }, [currentPlayer, gameMode, winnerData, isDraw, board, handleMove, aiDifficulty, playersInfo]);
 
+    useEffect(() => {
+        return () => {
+            if (aiMoveTimeoutRef.current) {
+                clearTimeout(aiMoveTimeoutRef.current);
+                aiMoveTimeoutRef.current = null;
+            }
+        };
+    }, []);
+
     const resetGame = useCallback(() => {
         setBoard(initBoard(boardSize));
-        setCurrentPlayer('X');
+        setCurrentPlayer(normalizedFirstPlayer);
         setWinnerData(null);
         setIsDraw(false);
         setMoveHistory([]);
         setParticipantIndex(firstTurnIndex);
         setStartedAt(new Date().toISOString()); // Reset start time for the new match
-    }, [boardSize, firstTurnIndex]);
+    }, [boardSize, firstTurnIndex, normalizedFirstPlayer]);
 
     // unction to handle aborting the game and saving progress
     const abortGame = useCallback(async () => {

@@ -69,7 +69,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
       <div className="flex items-center gap-6 flex-1">
         {/* Avatar with Edit Overlay */}
         <div 
-          className="relative w-20 h-20 flex-shrink-0 group cursor-pointer"
+          className="relative w-20 h-20 shrink-0 group cursor-pointer"
           onClick={handleAvatarClick}
         >
           <div className="w-full h-full border-2 border-primary-container p-1 bg-surface-container-lowest flex items-center justify-center relative overflow-hidden">
@@ -140,14 +140,17 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                   {playerData.username}
                 </h2>
                 {playerData.isPremium && (
-                  <div className="flex items-center bg-secondary-container px-2 py-1 gap-1">
+                  <div
+                    className="bg-secondary-container text-[#fad100] px-3 py-1 flex items-center gap-2 text-[10px] font-bold border-2 border-on-secondary-container chunky-shadow"
+                    title="Premium"
+                  >
                     <span
-                      className="material-symbols-outlined text-xs text-on-secondary-container"
+                      className="font-headline material-symbols-outlined text-[#fad100]"
                       style={{ fontVariationSettings: "'FILL' 1" }}
                     >
                       workspace_premium
                     </span>
-                    <span className="text-[10px] font-bold text-on-secondary-container uppercase tracking-tighter">
+                    <span>
                       PREMIUM
                     </span>
                   </div>
@@ -180,10 +183,10 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
       </div>
 
       {/* Edit and Action Buttons */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onEditProfile}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0"
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
         >
           <span className="material-symbols-outlined text-sm">edit</span>
           EDIT PROFILE
@@ -191,7 +194,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
         <button
           onClick={onChangePassword}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-[2px] font-bold uppercase tracking-widest flex items-center gap-2 flex-shrink-0"
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
           title="Change your password"
         >
           <span className="material-symbols-outlined text-sm">lock</span>

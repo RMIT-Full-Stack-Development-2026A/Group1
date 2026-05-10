@@ -17,7 +17,7 @@ export default function Player2NameInput({ value, onChange }) {
             <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-[#fad100]"></div>
                 <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
-                    04. PLAYER NAME
+                    05. PLAYER NAME
                 </h2>
             </div>
 

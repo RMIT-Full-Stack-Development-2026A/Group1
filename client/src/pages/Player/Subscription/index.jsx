@@ -6,7 +6,7 @@ import SubscriptionStatus from '@/pages/Player/Subscription/sub-components/Subsc
 import TransactionHistory from '@/pages/Player/Subscription/sub-components/TransactionHistory';
 import AlreadyPremiumModal from '@/pages/Player/Subscription/sub-components/AlreadyPremiumModal';
 import { useSubscription } from './hook/useSubscription.hook';
-import { useAuthStore } from '@/stores/AuthStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
 
 const Subscription = () => {
     const {

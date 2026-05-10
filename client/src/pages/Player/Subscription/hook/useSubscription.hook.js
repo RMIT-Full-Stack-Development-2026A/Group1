@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import subscriptionService from '../service/subscription.service';
-import { useAuthStore } from '@/stores/AuthStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
 import http from '@/utils/httpHelper';
 import { notifyDismiss, notifyError, notifyLoading, notifyUpdate } from '@/utils/toast.util';
 

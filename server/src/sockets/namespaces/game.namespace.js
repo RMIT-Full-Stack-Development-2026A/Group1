@@ -9,6 +9,8 @@ export const setupGameNamespace = (io) => {
     gameNamespace.on('connection', async (socket) => {
         console.log(`[Socket] User ${socket.user.id} connected to /ws/game`);
 
+        socket.join(socket.user.id.toString());
+        
         // REHYDRATION FEATURE (HANDLE USER RECONNECT AFTER REFRESH)
         try {
             const activeRoom = await RoomService.getActiveRoomSummaryByUserId(socket.user.id);

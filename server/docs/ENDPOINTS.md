@@ -290,6 +290,7 @@ The team policy already defines the event naming format as `namespace:action` an
 | `game:state` | `{ roomId, board, currentTurnParticipantIndex, lastMove, moveCount, status }` | Authoritative game state update |
 | `player:disconnected` | `{ roomId, timeLeft }` | Opponent disconnected. Grace period (60s) countdown starts. |
 | `player:reconnected` | `{ roomId }` | Opponent reconnected. Grace period cancelled. Game resumes. |
+| `account:deactivated` | `{ message, reason }` | Sent specifically to a user when Admin deactivates their account. FE should display notification and call logout API. |
 | `game:ended` | `{ roomId, winner, winLine, result }` | Match ended. Room resets back to `READY` status for rematch. |
 | `chat:message` | `{ roomId, sender, message, timestamp }` | New chat message |
 | `error` | `{ message }` | Generic socket error |

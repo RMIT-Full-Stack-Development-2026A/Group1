@@ -5,6 +5,7 @@ import { SubscriptionInterface } from '../../subscription/interfaces/subscriptio
 import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery } from '../validators/admin.validator.js';
 
+import { io } from '../../../sockets/index.js'; // Import Socket.IO server instance for emitting events from service layer if needed
 export const AdminService = {
 
     getDashboard: async () => {
@@ -75,7 +76,6 @@ export const AdminService = {
             };
         }
 
-        // Check existence before applying update
         const existingUser = await AuthInterface.getUserById(playerId);
         if (!existingUser) {
             throw { 
@@ -97,10 +97,46 @@ export const AdminService = {
             };
         }
 
+        // 1. Update user account status in the database
         const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
+
+        // 2. SOCKET LOGIC: Only run when the account is being banned (isActive === false)
+        if (!isActive) {
+            const gameNamespace = io.of('/ws/game');
+            const stringPlayerId = playerId.toString();
+
+            try {
+                // Check if the user currently has an active room or is in a game
+                const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(playerId);
+                
+                if (activeRoom) {
+                    // Use RoomInterface.forceCloseRoomByAdmin to cleanly close the room if they're present
+                    // (Avoid calling RoomService directly to prevent circular module dependencies)
+                    await RoomInterface.forceCloseRoomByAdmin(activeRoom.id);
+                    
+                    // Emit a socket event to notify the room that it was closed by an ADMIN
+                    gameNamespace.emit('room:removed', { roomId: activeRoom.id });
+                    gameNamespace.in(activeRoom.id.toString()).socketsLeave(activeRoom.id.toString());
+                }
+
+                // Send a private deactivation event to the banned user
+                gameNamespace.to(stringPlayerId).emit('account:deactivated', {
+                    message: "Tài khoản của bạn đã bị vô hiệu hóa bởi Admin.",
+                    reason: "Vi phạm chính sách hệ thống."
+                });
+
+                // Wait ~100ms to ensure the above message is delivered, then disconnect their sockets
+                setTimeout(() => {
+                    gameNamespace.in(stringPlayerId).disconnectSockets(true);
+                }, 100);
+
+            } catch (err) {
+                console.error(`[Admin Deactivate] Error tearing down socket for user ${stringPlayerId}:`, err);
+            }
+        }
+
         return AdminDTO.toPlayerDetail(updatedUser);
     },
-
     getRooms: async (query) => {
         const { filter, sort, pagination } = validateAdminRoomQuery(query);
         

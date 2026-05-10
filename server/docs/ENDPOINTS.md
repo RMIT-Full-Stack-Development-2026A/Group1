@@ -197,9 +197,9 @@ Room creation/join/leave/gameplay happen through WebSocket. HTTP is used only fo
 |
 
 ### Why only snapshot APIs are HTTP
-To minimize API calls, the arena page should:
-1. call `GET /rooms` once for initial render
-2. subscribe to WebSocket room events for all updates thereafter
+To minimize API calls and avoid broadcast storms, the arena page should:
+1. Call `GET /rooms?status=WAITING` once for initial render.
+2. Use a manual **Refresh button** to call the API again when the user wants to update the list.
 
 ## 5. Subscription APIs
 Base Path: `/api/v1/subscription`
@@ -272,42 +272,47 @@ The team policy already defines the event naming format as `namespace:action` an
 ### 7.1 Client → Server
 | Event | Payload | Description |
 |---|---|---|
-| `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room and choose host marker preference |
-| `room:join` | `{ roomId }` | Join an existing room |
-| `room:leave` | `{ roomId }` | Leave a room before or during match |
-| `game:move` | `{ roomId, row, col }` | Submit one move |
-| `chat:send` | `{ roomId, message }` | Send in-game chat message (premium only) |
+| `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room. Room status becomes `WAITING`. |
+| `room:join` | `{ roomId }` | Join an existing room. Room status becomes `READY`. |
+| `room:set_first_turn` | `{ roomId, firstTurnParticipantIndex }` | Host selects who goes first. Resets `isReady` flag for both players. |
+| `room:ready` | `{ roomId }` | Player confirms ready. Renders Checkmark on UI. |
+| `room:leave` | `{ roomId }` | Leave a room before or during match. |
+| `game:move` | `{ roomId, row, col }` | Submit one move. |
+| `chat:send` | `{ roomId, message }` | Send in-game chat message. |
 
 ### 7.2 Server → Client
 | Event | Payload | Description |
 |---|---|---|
-| `room:created` | `{ room }` | Room successfully created |
-| `room:updated` | `{ room }` | Room snapshot updated (join, leave, ready, play, close) |
-| `room:removed` | `{ roomId }` | Room removed from arena |
-| `game:state` | `{ roomId, board, currentTurn, lastMove, moveCount, status }` | Authoritative game state update |
-| `game:ended` | `{ roomId, winner, winLine, result }` | Match ended |
+| `room:updated` | `{ room }` | Room snapshot updated (join, leave, toggle ready, etc.) |
+| `room:removed` | `{ roomId }` | Room removed from arena (deleted from DB) |
+| `game:start` | `{ roomId, startedAt }` | Both players are ready. Match begins. |
+| `game:state` | `{ roomId, board, currentTurnParticipantIndex, lastMove, moveCount, status }` | Authoritative game state update |
+| `player:disconnected` | `{ roomId, timeLeft }` | Opponent disconnected. Grace period (60s) countdown starts. |
+| `player:reconnected` | `{ roomId }` | Opponent reconnected. Grace period cancelled. Game resumes. |
+| `game:ended` | `{ roomId, winner, winLine, result }` | Match ended. Room resets back to `READY` status for rematch. |
 | `chat:message` | `{ roomId, sender, message, timestamp }` | New chat message |
 | `error` | `{ message }` | Generic socket error |
 
 ### Recommended server behavior
-- When player 2 joins, broadcast `room:updated`
-- When player 2 chooses their mark and the match becomes ready, broadcast `room:updated`
-- When the first move is allowed, broadcast `game:state`
-- When a player aborts, emit `game:ended` with `result: "ABORTED"` and remove/close the room
+- Rooms are **NOT** broadcasted on creation to prevent server overload. Clients use `GET /rooms` API with pagination.
+- When player 2 joins, room becomes `READY`. Broadcast `room:updated`.
+- When both players trigger `room:ready`, status becomes `PLAYING` and server emits `game:start`.
+- **Grace Period**: If a player drops during `PLAYING`, emit `player:disconnected` and wait 60s before aborting the match.
 
 ## 8. Screen-to-API Mapping (Optimized)
 
-### App bootstrap
+### App bootstrap & Reconnect Flow
 - `GET /auth/check-auth`
-- open WebSocket only after auth is confirmed
+- If `activeRoom` exists in response -> Redirect user straight to the match, reconnect socket.
+- If not -> proceed normally.
 
 ### Profile page
 - `GET /profile/overview`
 - optional follow-up only when user opens full transaction/history screens
 
-### Arena page
-- `GET /rooms`
-- then rely on WebSocket updates
+### Arena page (Global Lobby)
+- `GET /rooms?status=WAITING` with pagination limit.
+- Use a "Refresh" button to fetch new rooms (Do not rely on sockets for finding matches).
 
 ### Replay page
 - `GET /games/:id`

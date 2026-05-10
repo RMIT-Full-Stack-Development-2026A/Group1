@@ -67,21 +67,6 @@ export const RoomRepository = {
         ).lean();
     },
 
-    addParticipantAndStart: async (roomId, participant, newStatus) => {
-        return GameRoom.findByIdAndUpdate(
-            roomId,
-            { 
-                $push: { participants: participant },
-                $set: { 
-                    status: newStatus,
-                    startedAt: new Date(),
-                    currentTurnParticipantIndex: 0 // Player 1 always starts first per typical rules
-                }
-            },
-            { new: true }
-        ).lean();
-    },
-
     pushMove: async (roomId, move, nextTurnIndex) => {
         return GameRoom.findByIdAndUpdate(
             roomId,

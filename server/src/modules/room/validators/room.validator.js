@@ -70,7 +70,7 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
 
 export const validateRoomCreate = (payload) => {
     const boardSize = parseInt(payload?.boardSize);
-    const marker = payload?.marker?.toUpperCase();
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : '';
     
     // Check type befoire trim() & toUpperCase()
     const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';

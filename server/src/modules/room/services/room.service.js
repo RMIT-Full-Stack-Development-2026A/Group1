@@ -152,7 +152,7 @@ export const RoomService = {
     // --- WEBSOCKET METHODS ---
 
     handleRoomCreate: async (userId, payload) => {
-        const { boardSize, marker } = validateRoomCreate(payload);
+        const { boardSize, marker, boardStyle, markerStyle } = validateRoomCreate(payload);
 
         // Ensure user doesn't already have an active room
         const existingRoom = await RoomRepository.findActiveRoomByUserId(userId);
@@ -164,12 +164,17 @@ export const RoomService = {
         
         const newRoomData = {
             boardSize,
+            boardStyle,
+            markerStyle,
+            firstTurnParticipantIndex: 0,
             status: ROOM_STATUS.WAITING,
             participants: [{
                 userId: user._id,
                 usernameSnapshot: user.username,
                 mark: marker,
-                joinedAt: new Date()
+                joinedAt: new Date(),
+                isHost: true,
+                isReady: false
             }]
         };
 
@@ -193,16 +198,22 @@ export const RoomService = {
         const hostMark = room.participants[0].mark;
         const joinerMark = hostMark === 'X' ? 'O' : 'X';
 
-        const updatedRoom = await RoomRepository.addParticipantAndStart(roomId, {
+        const updatedRoom = await RoomRepository.addParticipant(roomId, {
             userId: user._id,
             usernameSnapshot: user.username,
             mark: joinerMark,
-            joinedAt: new Date()
-        }, ROOM_STATUS.PLAYING);
+            joinedAt: new Date(),
+            isHost: false,
+            isReady: false
+        }, ROOM_STATUS.READY);
+
+        if (!updatedRoom) {
+            throw { statusCode: 409, error: "ROOM_FULL", message: "Room is no longer waiting or already full." };
+        }
 
         const gameState = RoomDTO.toGameStatePayload({
             room: updatedRoom,
-            board: updatedRoom.moves // Minimal board representation via move list
+            board: updatedRoom.moves
         });
 
         return { room: RoomDTO.toRoomSummary(updatedRoom), gameState };
@@ -251,8 +262,10 @@ export const RoomService = {
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
+                boardStyle: room.boardStyle,
+                markerStyle: room.markerStyle,
                 participants: room.participants,
-                firstTurnParticipantIndex: 0,
+                firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: isWin ? 'FINISHED' : 'DRAW',
                 endedReason: isWin ? 'WIN' : 'DRAW',
                 winnerParticipantIndex: isWin ? pIndex : null,
@@ -305,14 +318,16 @@ export const RoomService = {
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
+                boardStyle: room.boardStyle,
+                markerStyle: room.markerStyle,
                 participants: room.participants,
-                firstTurnParticipantIndex: room.currentTurnParticipantIndex || 0,
+                firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
                 endedReason: 'ABORT',
                 abortedByUserId: userId,
                 moves: room.moves,
                 totalMoves: room.moveCount,
-                startedAt: room.startedAt,
+                startedAt: room.startedAt ?? room.createdAt ?? endedAt,
                 endedAt
             });
 
@@ -338,7 +353,10 @@ export const RoomService = {
 
         return RoomDTO.toChatMessagePayload({
             roomId,
-            sender: user.username,
+            sender: {
+                userId: String(user._id),
+                usernameSnapshot: user.username
+            },
             message,
             timestamp: new Date()
         });

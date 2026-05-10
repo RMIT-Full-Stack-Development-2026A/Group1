@@ -272,7 +272,7 @@ The team policy already defines the event naming format as `namespace:action` an
 ### 7.1 Client → Server
 | Event | Payload | Description |
 |---|---|---|
-| `room:create` | `{ boardSize, marker }` | Create a room and choose host marker preference |
+| `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room and choose host marker preference |
 | `room:join` | `{ roomId }` | Join an existing room |
 | `room:leave` | `{ roomId }` | Leave a room before or during match |
 | `game:move` | `{ roomId, row, col }` | Submit one move |

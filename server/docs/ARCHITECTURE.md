@@ -322,9 +322,10 @@ Owned only by `room`.
 
 ### Main fields
 - `roomNumber`
-- `boardSize`
+- `boardSize`, `boardStyle`, `markerStyle`
 - `status` = `WAITING | READY | PLAYING | ABORTED | CLOSED`
-- `participants[]`
+- `participants[]` (includes `isHost` and `isReady`)
+- `firstTurnParticipantIndex`
 - `currentTurnParticipantIndex`
 - `moves[]`
 - `moveCount`

@@ -1,4 +1,4 @@
-import { ACTIVE_ROOM_STATUSES } from '../constants/room.constants.js';
+import { ACTIVE_ROOM_STATUSES, ROOM_STATUS } from '../constants/room.constants.js';
 import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {
@@ -6,12 +6,15 @@ export const RoomRepository = {
         const summaryProjection = {
             roomNumber: 1,
             boardSize: 1,
+            boardStyle: 1,
+            markerStyle: 1,
             status: 1,
             participants: 1,
             moveCount: 1,
             startedAt: 1,
             endedAt: 1,
-            lastMove: 1
+            lastMove: 1,
+            createdAt: 1
         };
 
         const [rooms, total] = await Promise.all([
@@ -49,19 +52,18 @@ export const RoomRepository = {
         const room = new GameRoom(roomData);
         return room.save();
     },
-
-    addParticipantAndStart: async (roomId, participant, newStatus) => {
-        return GameRoom.findByIdAndUpdate(
-            roomId,
+    addParticipant: async (roomId, participant, newStatus) => {
+        return GameRoom.findOneAndUpdate(
+            { 
+                _id: roomId, 
+                status: ROOM_STATUS.WAITING, 
+                'participants.1': { $exists: false } 
+            },
             { 
                 $push: { participants: participant },
-                $set: { 
-                    status: newStatus,
-                    startedAt: new Date(),
-                    currentTurnParticipantIndex: 0 // Player 1 always starts first per typical rules
-                }
+                $set: { status: newStatus } 
             },
-            { new: true }
+            { returnDocument: 'after' } 
         ).lean();
     },
 
@@ -76,7 +78,7 @@ export const RoomRepository = {
                     lastMove: { row: move.row, col: move.col, coordinate: move.coordinate }
                 }
             },
-            { new: true }
+            { returnDocument: 'after' }
         ).lean();
     },
 
@@ -84,7 +86,7 @@ export const RoomRepository = {
         return GameRoom.findByIdAndUpdate(
             roomId, 
             { $set: updateFields }, 
-            { new: true }
+            { returnDocument: 'after' }
         ).lean();
     },
 

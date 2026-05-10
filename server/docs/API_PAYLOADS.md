@@ -226,15 +226,15 @@ This document defines the **complete request and response payload schemas** for 
       "participants": [
         {
           "userId": "507f1f77bcf86cd799439011",
-          "username": "player123",
+          "usernameSnapshot": "player123",
           "mark": "X",
-          "isReady": true
+          "isReady": false
         },
         {
           "userId": "507f1f77bcf86cd799439013",
-          "username": "opponent456",
+          "usernameSnapshot": "opponent456",
           "mark": "O",
-          "isReady": true
+          "isReady": false
         }
       ]
     }
@@ -307,9 +307,7 @@ This document defines the **complete request and response payload schemas** for 
       "isActive": true,
       "createdAt": "2026-03-21T14:30:00.000Z"
     },
-    "wallet": {
-      "balance": 35
-    },
+    
     "subscription": {
       "isPremium": true,
       "premiumExpiresAt": "2026-06-01T00:00:00.000Z"
@@ -755,13 +753,16 @@ GET /api/v1/rooms?status=WAITING&boardSize=10
         "id": "507f1f77bcf86cd799439016",
         "roomNumber": "ROOM-2026-001235",
         "boardSize": 10,
+        "boardStyle": "CLASSIC",
+        "markerStyle": "CLASSIC",
         "status": "WAITING",
         "participants": [
           {
             "userId": "507f1f77bcf86cd799439017",
-            "username": "waitingplayer",
+            "usernameSnapshot": "waitingplayer",
             "mark": "X",
-            "isReady": true
+            "isReady": false,
+            "isHost": true
           }
         ],
         "moveCount": 0,
@@ -798,19 +799,23 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
     "id": "507f1f77bcf86cd799439016",
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
+    "boardStyle": "CLASSIC",
+    "markerStyle": "CLASSIC",
     "status": "PLAYING",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true
+        "isReady": false,
+        "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
-        "username": "opponent456",
+        "usernameSnapshot": "opponent456",
         "mark": "O",
-        "isReady": true
+        "isReady": false,
+        "isHost": false
       }
     ],
     "currentTurnParticipantIndex": 1,
@@ -1361,12 +1366,12 @@ GET /api/v1/admin/rooms?status=PLAYING&page=1&limit=20
         "participants": [
           {
             "userId": "507f1f77bcf86cd799439011",
-            "username": "player123",
+            "usernameSnapshot": "player123",
             "mark": "X"
           },
           {
             "userId": "507f1f77bcf86cd799439013",
-            "username": "opponent456",
+            "usernameSnapshot": "opponent456",
             "mark": "O"
           }
         ],
@@ -1406,15 +1411,15 @@ GET /api/v1/admin/rooms/507f1f77bcf86cd799439016
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true
+        "isReady": false
       },
       {
         "userId": "507f1f77bcf86cd799439013",
-        "username": "opponent456",
+        "usernameSnapshot": "opponent456",
         "mark": "O",
-        "isReady": true
+        "isReady": false
       }
     ],
     "currentTurnParticipantIndex": 1,
@@ -1499,7 +1504,9 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```json
 {
   "boardSize": 10,
-  "marker": "X"
+  "marker": "X",
+  "boardStyle": "CLASSIC",
+  "markerStyle": "CLASSIC"
 }
 ```
 
@@ -1508,6 +1515,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 |---|---|---|---|
 | `boardSize` | number | Yes | Enum: `10`, `15` |
 | `marker` | string | Yes | Enum: `X`, `O` (host's preferred marker) |
+| `boardStyle` | string | No | Enum: `CLASSIC`, `DARK`, `NEON`. Default: CLASSIC |
+| `markerStyle` | string | No | Enum: `CLASSIC`, `GLOW`, `SKETCH`, `STONE`, `PIXEL`, `MINIMAL`. Default: CLASSIC |
 
 **Notes:**
 - Creates a new room with status `WAITING`
@@ -1600,19 +1609,22 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "room": {
     "id": "507f1f77bcf86cd799439016",
-    "roomNumber": "ROOM-2026-001235",
+    "roomNumber": "RM-01HXYZABCDEF1234567890",
     "boardSize": 10,
+    "boardStyle": "CLASSIC",
+    "markerStyle": "CLASSIC",
     "status": "WAITING",
+    "createdAt": "2026-01-15T10:30:00.000Z",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true
+        "isHost": true,
+        "isReady": false
       }
     ],
-    "moveCount": 0,
-    "createdAt": "2026-04-12T11:00:00.000Z"
+    "moveCount": 0
   }
 }
 ```
@@ -1627,26 +1639,28 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "room": {
     "id": "507f1f77bcf86cd799439016",
-    "roomNumber": "ROOM-2026-001235",
+    "roomNumber": "RM-01HZX3J8N4YQ7K6M5P2R9T1VWX",
     "boardSize": 10,
-    "status": "PLAYING",
+    "boardStyle": "CLASSIC",
+    "markerStyle": "CLASSIC",
+    "status": "READY",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
-        "username": "player123",
+        "usernameSnapshot": "player123",
         "mark": "X",
-        "isReady": true
+        "isReady": false,
+        "isHost": true
       },
       {
         "userId": "507f1f77bcf86cd799439013",
-        "username": "opponent456",
+        "usernameSnapshot": "opponent456",
         "mark": "O",
-        "isReady": true
+        "isReady": false,
+        "isHost": false
       }
     ],
     "moveCount": 0,
-    "currentTurnParticipantIndex": 0,
-    "startedAt": "2026-04-12T11:04:30.000Z",
     "createdAt": "2026-04-12T11:00:00.000Z"
   }
 }
@@ -1676,16 +1690,22 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "roomId": "507f1f77bcf86cd799439016",
   "board": [
-    ["X", null, null, null, null, null, null, null, null, null],
-    ["O", null, null, null, null, null, null, null, null, null]
+    {
+      "moveNumber": 1,
+      "byParticipantIndex": 0,
+      "row": 1,
+      "col": 0,
+      "coordinate": "A2",
+      "placedAt": "2026-04-12T11:04:30.000Z"
+    }
   ],
-  "currentTurn": 0,
+  "currentTurnParticipantIndex": 0,
   "lastMove": {
     "row": 1,
     "col": 0,
     "coordinate": "A2"
   },
-  "moveCount": 2,
+  "moveCount": 1,
   "status": "PLAYING"
 }
 ```
@@ -1732,7 +1752,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "roomId": "507f1f77bcf86cd799439016",
   "sender": {
     "userId": "507f1f77bcf86cd799439011",
-    "username": "player123"
+    "usernameSnapshot": "player123"
   },
   "message": "Good game!",
   "timestamp": "2026-04-12T11:10:00.000Z"
@@ -1791,9 +1811,10 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```json
 {
   "userId": "string",
-  "username": "string",
+  "usernameSnapshot": "string",
   "mark": "X | O",
-  "isReady": "boolean"
+  "isReady": "boolean",
+  "isHost": "boolean"
 }
 ```
 
@@ -1848,6 +1869,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "sessionNumber": "string",
   "gameType": "SINGLE_PLAYER | TWO_PLAYERS | ONLINE_MATCH",
   "boardSize": 10 | 15,
+  "boardStyle": "CLASSIC | DARK | NEON",
+  "markerStyle": "CLASSIC | GLOW | SKETCH | STONE | PIXEL | MINIMAL",
   "startedAt": "ISO 8601 date string",
   "endedAt": "ISO 8601 date string",
   "status": "COMPLETED | ABORTED",

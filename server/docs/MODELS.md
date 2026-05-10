@@ -332,6 +332,14 @@ export const roomParticipantSchema = new mongoose.Schema({
     joinedAt: {
         type: Date, // When the player entered the room
         default: Date.now
+    },
+    isHost: {
+        type: Boolean, 
+        default: false 
+    },
+    isReady: {
+        type: Boolean, 
+        default: false
     }
 }, { _id: false });
 ```
@@ -367,6 +375,22 @@ const gameRoomSchema = new mongoose.Schema({
         enum: [10, 15],
         required: true,
         index: true 
+    },
+
+    boardStyle: {
+        type: String, 
+        enum: ['CLASSIC', 'DARK', 'NEON'], 
+        default: 'CLASSIC'
+    },
+    markerStyle: {
+        type: String, 
+        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], 
+        default: 'CLASSIC' 
+    },
+    firstTurnParticipantIndex: {
+        type: Number, 
+        enum: [0, 1],
+        default: 0 
     },
 
     status: {
@@ -536,6 +560,8 @@ const transactionSchema = new mongoose.Schema({
   id,
   roomNumber,
   boardSize,
+  boardStyle,
+  markerStyle,
   status,
   participants,
   moveCount,

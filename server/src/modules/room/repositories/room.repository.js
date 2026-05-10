@@ -93,7 +93,7 @@ export const RoomRepository = {
                     lastMove: { row: move.row, col: move.col, coordinate: move.coordinate }
                 }
             },
-            { new: true }
+            { returnDocument: 'after' }
         ).lean();
     },
 
@@ -101,7 +101,7 @@ export const RoomRepository = {
         return GameRoom.findByIdAndUpdate(
             roomId, 
             { $set: updateFields }, 
-            { new: true }
+            { returnDocument: 'after' }
         ).lean();
     },
 

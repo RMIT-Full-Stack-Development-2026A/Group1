@@ -72,6 +72,17 @@ export const profileService = {
   // Change player password (requires old password for verification)
   async changePassword(passwordData) {
     try {
+      // Validate that new password is different from old password
+      if (passwordData.oldPassword === passwordData.newPassword) {
+        const validationError = new Error("New password cannot be the same as current password");
+        validationError.isPasswordValidationError = true;
+        validationError.errorData = {
+          message: "New password cannot be the same as current password",
+          error: "PASSWORD_SAME_AS_CURRENT",
+        };
+        throw validationError;
+      }
+
       const payload = {
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,

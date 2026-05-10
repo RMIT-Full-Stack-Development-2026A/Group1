@@ -141,13 +141,6 @@ const PasswordField = ({
                     </div>
                 </div>
             )}
-
-            {/* Show mismatch error for confirm field */}
-            {isConfirmField && passwordMismatch && value.length > 0 && (
-                <div className="text-[10px] text-[#ffb4ab] font-mono">
-                    Passwords do not match!
-                </div>
-            )}
         </div>
     );
 };

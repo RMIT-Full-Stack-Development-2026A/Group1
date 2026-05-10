@@ -137,10 +137,11 @@ export const useProfile = () => {
   // Maps API response structure to display format
   const transformMatchData = (backendMatch) => {
     const extractTimeFromISO = (isoDate) => {
-      if (!isoDate) return "00:00";
+      if (!isoDate) return "00:00:00";
       return new Date(isoDate).toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
         hour12: false,
       });
     };

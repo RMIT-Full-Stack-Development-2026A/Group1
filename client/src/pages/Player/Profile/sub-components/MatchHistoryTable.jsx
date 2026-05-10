@@ -113,20 +113,30 @@ export default function MatchHistoryTable({
     if (!startTime || !endTime) return "--";
     
     try {
-      // Parse time strings in format "HH:MM"
-      const [startHour, startMin] = startTime.split(":").map(Number);
-      const [endHour, endMin] = endTime.split(":").map(Number);
+      // Parse time strings in format "HH:MM:SS"
+      const [startHour, startMin, startSec] = startTime.split(":").map(Number);
+      const [endHour, endMin, endSec] = endTime.split(":").map(Number);
       
-      let startTotalMin = startHour * 60 + startMin;
-      let endTotalMin = endHour * 60 + endMin;
+      let startTotalSec = startHour * 3600 + startMin * 60 + (startSec || 0);
+      let endTotalSec = endHour * 3600 + endMin * 60 + (endSec || 0);
       
-      // Handle case where end time is next day (e.g., 01:00 to 23:00)
-      if (endTotalMin < startTotalMin) {
-        endTotalMin += 24 * 60;
+      // Handle case where end time is next day (e.g., 01:00:00 to 23:00:00)
+      if (endTotalSec < startTotalSec) {
+        endTotalSec += 24 * 3600;
       }
       
-      const durationMin = endTotalMin - startTotalMin;
-      return `${durationMin} minutes`;
+      const durationSec = endTotalSec - startTotalSec;
+      
+      // Convert seconds to HH:MM:SS format
+      const hours = Math.floor(durationSec / 3600);
+      const minutes = Math.floor((durationSec % 3600) / 60);
+      const seconds = durationSec % 60;
+      
+      const formattedHours = String(hours).padStart(2, "0");
+      const formattedMinutes = String(minutes).padStart(2, "0");
+      const formattedSeconds = String(seconds).padStart(2, "0");
+      
+      return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     } catch (error) {
       return "--";
     }
@@ -246,7 +256,12 @@ export default function MatchHistoryTable({
               </th>
               <th className="px-6 py-4">START TIME</th>
               <th className="px-6 py-4">END TIME</th>
-              <th className="px-6 py-4">DURATION</th>
+              <th className="px-6 py-4">
+                <div className="flex flex-col leading-tight">
+                  <span>DURATION</span>
+                  <span className="text-xs text-gray-400">(HH:MM:SS)</span>
+                </div>
+              </th>
               <th className="px-6 py-4 text-right">REPLAY</th>
             </tr>
           </thead>

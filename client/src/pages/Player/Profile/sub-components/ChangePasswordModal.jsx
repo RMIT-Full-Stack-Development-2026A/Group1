@@ -137,7 +137,7 @@ export default function ChangePasswordModal({
     // Check password match only on submit
     if (!passwordsMatch(formData.newPassword, formData.confirmNewPassword)) {
       setPasswordMismatch(true);
-      setSaveError("Passwords do not match. Please check and try again.");
+      setSaveError("New password and verify password does not match. Please try again");
       return;
     }
 

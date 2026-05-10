@@ -1872,7 +1872,6 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "boardStyle": "CLASSIC | DARK | NEON",
   "markerStyle": "CLASSIC | GLOW | SKETCH | STONE | PIXEL | MINIMAL",
   "startedAt": "ISO 8601 date string",
-  "startedAt": "ISO 8601 date string",
   "endedAt": "ISO 8601 date string",
   "status": "COMPLETED | ABORTED",
   "opponentName": "string",

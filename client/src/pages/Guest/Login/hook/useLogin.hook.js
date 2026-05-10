@@ -90,14 +90,33 @@ export const useLogin = () => {
         }
     }, [lockoutCountdown, isLocked]);
 
+    // Auto-dismiss transient auth notifications, but keep the lockout countdown visible
+    useEffect(() => {
+        if (!message.text) return;
+
+        const isLockoutCountdownMessage =
+            isLocked && lockoutCountdown > 0 && message.text.includes("Login locked due to too many failed attempts");
+
+        if (isLockoutCountdownMessage) return;
+
+        const timeoutId = setTimeout(() => {
+            setMessage({ type: "", text: "" });
+        }, 5000);
+
+        return () => clearTimeout(timeoutId);
+    }, [message.text, isLocked, lockoutCountdown]);
+
     // Handle input change
     const handleInputChange = useCallback((e) => {
         const { name, value } = e.target;
+        if (message.text) {
+            setMessage({ type: "", text: "" });
+        }
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
-    }, []);
+    }, [message.text]);
 
     // Toggle password visibility
     const toggleShowPassword = useCallback(() => {

@@ -279,12 +279,13 @@ The team policy already defines the event naming format as `namespace:action` an
 | `room:leave` | `{ roomId }` | Leave a room before or during match. |
 | `game:move` | `{ roomId, row, col }` | Submit one move. |
 | `chat:send` | `{ roomId, message }` | Send in-game chat message. |
+| `room:update_settings` | `{ roomId, boardStyle, markerStyle, marker }` | Host changes game settings in lobby. Resets `isReady` for both. |
 
 ### 7.2 Server → Client
 | Event | Payload | Description |
 |---|---|---|
-| `room:updated` | `{ room }` | Room snapshot updated (join, leave, toggle ready, etc.) |
-| `room:removed` | `{ roomId }` | Room removed from arena (deleted from DB) |
+| `room:updated` | `{ room }` | Room snapshot updated (Player joined, someone left, host changed settings, etc.) |
+| `room:removed` | `{ roomId }` | Room destroyed (e.g., both players left or room timed out) |
 | `game:start` | `{ roomId, startedAt }` | Both players are ready. Match begins. |
 | `game:state` | `{ roomId, board, currentTurnParticipantIndex, lastMove, moveCount, status }` | Authoritative game state update |
 | `player:disconnected` | `{ roomId, timeLeft }` | Opponent disconnected. Grace period (60s) countdown starts. |
@@ -298,6 +299,7 @@ The team policy already defines the event naming format as `namespace:action` an
 - When player 2 joins, room becomes `READY`. Broadcast `room:updated`.
 - When both players trigger `room:ready`, status becomes `PLAYING` and server emits `game:start`.
 - **Grace Period**: If a player drops during `PLAYING`, emit `player:disconnected` and wait 60s before aborting the match.
+- **Rehydration**: When a client establishes a socket connection, if the backend detects they are part of an ongoing `PLAYING` match, the server should automatically emit `game:state` so FE can redraw the board.
 
 ## 8. Screen-to-API Mapping (Optimized)
 

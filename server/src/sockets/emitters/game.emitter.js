@@ -16,6 +16,18 @@ export const GameEmitter = {
         io.emit('room:removed', { roomId: String(roomId) });
     },
 
+    emitGameStart: (io, roomId, payload) => {
+        io.to(String(roomId)).emit('game:start', payload);
+    },
+
+    emitPlayerDisconnected: (io, roomId, payload) => {
+        io.to(String(roomId)).emit('player:disconnected', payload);
+    },
+
+    emitPlayerReconnected: (io, roomId, payload) => {
+        io.to(String(roomId)).emit('player:reconnected', payload);
+    },
+
     emitGameState: (io, roomId, payload) => {
         io.to(String(roomId)).emit('game:state', payload);
     },
@@ -29,9 +41,7 @@ export const GameEmitter = {
     },
 
     // --- Standardized Error Broadcaster ---
-    
     emitError: (socket, eventName, errorObj) => {
-        // Enforce the team's standard error response shape over WebSocket
         socket.emit('error', {
             event: eventName,
             error: errorObj.error || 'SERVER_ERROR',

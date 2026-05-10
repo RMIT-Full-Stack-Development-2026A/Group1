@@ -1540,6 +1540,34 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 - Joins as participant 1
 - Room transitions to `READY` or `PLAYING` depending on marker selection
 
+#### `room:update_settings`
+**Payload:**
+    {
+      "roomId": "507f1f77bcf86cd799439016",
+      "boardStyle": "NEON",
+      "markerStyle": "GLOW"
+    }
+**Notes:** - Host only. Modifies settings in LOBBY.
+- Server will automatically reset `isReady = false` for both players to prevent cheating.
+
+#### `room:set_first_turn`
+**Payload:**
+    {
+      "roomId": "507f1f77bcf86cd799439016",
+      "firstTurnParticipantIndex": 1
+    }
+**Notes:**
+- Host only. Resets `isReady = false` for both players.
+
+#### `room:ready`
+**Payload:**
+    {
+      "roomId": "507f1f77bcf86cd799439016"
+    }
+**Notes:**
+- Sets `isReady = true` for the sender. 
+- If both are ready, Server automatically transitions room to PLAYING.
+
 #### `room:leave`
 **Payload:**
 ```json
@@ -1609,7 +1637,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "room": {
     "id": "507f1f77bcf86cd799439016",
-    "roomNumber": "RM-01HXYZABCDEF1234567890",
+    "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
     "boardStyle": "CLASSIC",
     "markerStyle": "CLASSIC",
@@ -1639,11 +1667,11 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 {
   "room": {
     "id": "507f1f77bcf86cd799439016",
-    "roomNumber": "RM-01HZX3J8N4YQ7K6M5P2R9T1VWX",
+    "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
     "boardStyle": "CLASSIC",
     "markerStyle": "CLASSIC",
-    "status": "READY",
+    "status": "PLAYING",
     "participants": [
       {
         "userId": "507f1f77bcf86cd799439011",
@@ -1683,6 +1711,29 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 **Notes:**
 - Broadcast when room is closed/completed
 - Arena page should remove this room from listing
+
+
+#### `game:start`
+**Payload:**
+    {
+      "roomId": "507f1f77bcf86cd799439016",
+      "startedAt": "2026-04-12T11:04:30.000Z"
+    }
+
+#### `player:disconnected`
+**Payload:**
+    {
+      "roomId": "507f1f77bcf86cd799439016",
+      "timeLeft": 60
+    }
+**Notes:** Tells FE to freeze the board and show the 60s countdown.
+
+#### `player:reconnected`
+**Payload:**
+    {
+      "roomId": "507f1f77bcf86cd799439016"
+    }
+**Notes:** Tells FE to unfreeze the board.
 
 #### `game:state`
 **Payload:**
@@ -1869,8 +1920,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   "sessionNumber": "string",
   "gameType": "SINGLE_PLAYER | TWO_PLAYERS | ONLINE_MATCH",
   "boardSize": 10 | 15,
-  "boardStyle": "CLASSIC | DARK | NEON",
-  "markerStyle": "CLASSIC | GLOW | SKETCH | STONE | PIXEL | MINIMAL",
+  "boardStyle": "string",
+  "markerStyle": "string",
   "startedAt": "ISO 8601 date string",
   "endedAt": "ISO 8601 date string",
   "status": "COMPLETED | ABORTED",

@@ -1,23 +1,41 @@
 import { socketAuthMiddleware } from '../middleware/socketAuthMiddleware.js';
-import { registerRoomSocketHandlers } from '../../modules/room/socket-handlers/room.socket-handler.js';
+import { registerRoomSocketHandlers, disconnectTimers } from '../../modules/room/socket-handlers/room.socket_handlers.js';
+import { RoomService } from '../../modules/room/services/room.service.js';
 
 export const setupGameNamespace = (io) => {
-    // Define the namespace exactly as required by the API contract
     const gameNamespace = io.of('/ws/game');
-
-    // Enforce authentication on the entire namespace
     gameNamespace.use(socketAuthMiddleware);
 
-    // Handle successful connections
-    gameNamespace.on('connection', (socket) => {
+    gameNamespace.on('connection', async (socket) => {
         console.log(`[Socket] User ${socket.user.id} connected to /ws/game`);
 
-        // Delegate business events to the Room module's Handler (Controller)
-        registerRoomSocketHandlers(gameNamespace, socket);
+        // REHYDRATION FEATURE (HANDLE USER RECONNECT AFTER REFRESH)
+        try {
+            const activeRoom = await RoomService.getActiveRoomSummaryByUserId(socket.user.id);
+            if (activeRoom) {
+                // Rejoin the correct chat/game channel
+                socket.join(String(activeRoom.id));
+                
+                if (activeRoom.status === 'PLAYING') {
+                    // Clear the 60s disconnect countdown timer
+                    if (disconnectTimers.has(socket.user.id)) {
+                        clearTimeout(disconnectTimers.get(socket.user.id));
+                        disconnectTimers.delete(socket.user.id);
+                    }
 
-        // Handle base disconnects (business logic for disconnects is inside registerRoomSocketHandlers)
-        socket.on('disconnect', (reason) => {
-            console.log(`[Socket] User ${socket.user.id} disconnected. Reason: ${reason}`);
-        });
+                    // Notify the opponent that this player has reconnected
+                    socket.to(String(activeRoom.id)).emit('player:reconnected', { roomId: activeRoom.id });
+
+                    // Get the current moves array (board state) and send it to the frontend to redraw
+                    const gameState = await RoomService.getGameState(activeRoom.id);
+                    socket.emit('game:state', gameState);
+                }
+            }
+        } catch (error) {
+            console.error('[Rehydration Error]', error);
+        }
+        // END REHYDRATION
+
+        registerRoomSocketHandlers(gameNamespace, socket);
     });
 };

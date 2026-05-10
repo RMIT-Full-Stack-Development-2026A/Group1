@@ -124,3 +124,42 @@ export const validateChatSend = (payload) => {
     }
     return { roomId, message: message.trim() };
 };
+export const validateRoomUpdateSettings = (payload) => {
+    const { roomId } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
+
+    const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
+    if (!allowedBoardStyles.includes(boardStyle)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
+    }
+
+    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+    if (!allowedMarkerStyles.includes(markerStyle)) {
+        throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
+    }
+
+    return { roomId, boardStyle, markerStyle };
+};
+
+export const validateRoomSetFirstTurn = (payload) => {
+    const { roomId, firstTurnParticipantIndex } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (![0, 1].includes(parseInt(firstTurnParticipantIndex))) {
+        throw { statusCode: 400, error: "INVALID_TURN_INDEX", message: "firstTurnParticipantIndex must be 0 or 1." };
+    }
+    return { roomId, firstTurnParticipantIndex: parseInt(firstTurnParticipantIndex) };
+};
+
+export const validateRoomReady = (payload) => {
+    if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    return { roomId: payload.roomId };
+};

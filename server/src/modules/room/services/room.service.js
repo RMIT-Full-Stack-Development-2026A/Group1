@@ -4,6 +4,8 @@ import { RoomDTO } from '../dtos/room.dto.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { ROOM_STATUS } from '../constants/room.constants.js';
+import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend, validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady } from '../validators/room.validator.js';
+import { GameRoom } from '../models/gameRoom.model.js'; 
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {
@@ -293,24 +295,20 @@ export const RoomService = {
     },
 
     handleRoomLeave: async (userId, payload) => {
-        const { roomId } = payload; // Assuming validated
-        const room = await RoomRepository.findById(roomId);
+        const { roomId, isTimeout } = payload; 
+        const room = await GameRoom.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
 
         const isParticipant = room.participants.some(p => p.userId.toString() === userId.toString());
-        if (!isParticipant) return { action: 'ignored' };
+        if (!isParticipant && !isTimeout) return { action: 'ignored' };
 
         const endedAt = new Date();
 
-        if (room.status === ROOM_STATUS.WAITING) {
-            // Host left before anyone joined -> delete room entirely
-            await RoomRepository.deleteRoom(roomId);
-            return { action: 'removed', roomId };
-        } 
-        
-        if (room.status === ROOM_STATUS.PLAYING || room.status === ROOM_STATUS.READY) {
-            // Match aborted
-            const updatedRoom = await RoomRepository.updateRoomStatus(roomId, { status: ROOM_STATUS.ABORTED, endedAt });
+        if (room.status === ROOM_STATUS.PLAYING) {
+            // In play: mark as a loss due to timeout or voluntary leave
+            room.status = ROOM_STATUS.ABORTED;
+            room.endedAt = endedAt;
+            await room.save();
             
             // Persist to game history
             await GameInterface.createOnlineGameSessionFromRoom({
@@ -323,7 +321,7 @@ export const RoomService = {
                 participants: room.participants,
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
-                endedReason: 'ABORT',
+                endedReason: 'PLAYER_ABORT',
                 abortedByUserId: userId,
                 moves: room.moves,
                 totalMoves: room.moveCount,
@@ -338,8 +336,26 @@ export const RoomService = {
                     roomId, result: 'ABORTED', endedAt
                 })
             };
+        } 
+        
+        // If the room is in the lobby state (WAITING / READY)
+        const remainingParticipants = room.participants.filter(p => p.userId.toString() !== userId.toString());
+        
+        if (remainingParticipants.length === 0) {
+            // If both players leave, delete the room
+            await RoomRepository.deleteRoom(roomId);
+            return { action: 'removed', roomId };
+        } else {
+            // If one player remains, promote them to host, revert to WAITING, and clear ready state
+            remainingParticipants[0].isHost = true;
+            remainingParticipants[0].isReady = false;
+            
+            room.participants = remainingParticipants;
+            room.status = ROOM_STATUS.WAITING;
+            await room.save();
+            
+            return { action: 'updated', roomId, room: RoomDTO.toRoomSummary(room) };
         }
-        return { action: 'ignored' };
     },
 
     handleChatSend: async (userId, payload) => {
@@ -360,5 +376,70 @@ export const RoomService = {
             message,
             timestamp: new Date()
         });
+    },
+    
+    handleUpdateSettings: async (userId, payload) => {
+        const { roomId, boardStyle, markerStyle } = validateRoomUpdateSettings(payload);
+        const room = await GameRoom.findById(roomId);
+        
+        if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
+        if (room.status === ROOM_STATUS.PLAYING) throw { statusCode: 400, error: "INVALID_STATE", message: "Cannot change settings while playing." };
+        
+        const isHost = room.participants.some(p => p.userId.toString() === userId.toString() && p.isHost);
+        if (!isHost) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
+
+        room.boardStyle = boardStyle;
+        room.markerStyle = markerStyle;
+        room.participants.forEach(p => p.isReady = false); // Reset ready to prevent cheating
+        
+        await room.save();
+        return { roomId, room: RoomDTO.toRoomSummary(room) };
+    },
+
+    handleSetFirstTurn: async (userId, payload) => {
+        const { roomId, firstTurnParticipantIndex } = validateRoomSetFirstTurn(payload);
+        const room = await GameRoom.findById(roomId);
+        
+        if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
+        const isHost = room.participants.some(p => p.userId.toString() === userId.toString() && p.isHost);
+        if (!isHost) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can set first turn." };
+
+        room.firstTurnParticipantIndex = firstTurnParticipantIndex;
+        room.participants.forEach(p => p.isReady = false); // Reset ready
+        
+        await room.save();
+        return { roomId, room: RoomDTO.toRoomSummary(room) };
+    },
+
+    handleRoomReady: async (userId, payload) => {
+        const { roomId } = validateRoomReady(payload);
+        const room = await GameRoom.findById(roomId);
+        
+        if (!room || room.status !== ROOM_STATUS.READY) throw { statusCode: 400, error: "INVALID_STATE", message: "Room must be full (READY) to click ready." };
+
+        let allReady = true;
+        room.participants.forEach(p => {
+            if (p.userId.toString() === userId.toString()) p.isReady = true;
+            if (!p.isReady) allReady = false;
+        });
+
+        if (room.participants.length < 2) allReady = false;
+
+        let gameStart = false;
+        if (allReady) {
+            room.status = ROOM_STATUS.PLAYING;
+            room.startedAt = new Date();
+            room.currentTurnParticipantIndex = room.firstTurnParticipantIndex || 0;
+            gameStart = true;
+        }
+
+        await room.save();
+        return { roomId, room: RoomDTO.toRoomSummary(room), gameStart };
+    },
+
+    getGameState: async (roomId) => {
+        const room = await GameRoom.findById(roomId);
+        if (!room) return null;
+        return RoomDTO.toGameStatePayload({ room, board: room.moves });
     }
 };

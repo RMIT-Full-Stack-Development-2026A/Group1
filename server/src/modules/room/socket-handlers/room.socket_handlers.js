@@ -1,5 +1,7 @@
 import { RoomService } from '../services/room.service.js';
 
+export const disconnectTimers = new Map();
+
 export const registerRoomSocketHandlers = (io, socket) => {
     // socket.user is populated by a socketAuthMiddleware
     const user = socket.user;
@@ -107,6 +109,67 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 } else if (result.action === 'aborted') {
                     io.to(result.roomId).emit('game:ended', result.gameEnded);
                     io.emit('room:removed', { roomId: result.roomId });
+                }
+            }
+        } catch (err) {
+            console.error('[Socket Disconnect Error]', err);
+        }
+    });
+    socket.on('room:update_settings', async (payload) => {
+        try {
+            const result = await RoomService.handleUpdateSettings(user.id, payload);
+            io.to(result.roomId).emit('room:updated', { room: result.room });
+        } catch (err) { handleError(err, 'room:update_settings'); }
+    });
+
+    socket.on('room:set_first_turn', async (payload) => {
+        try {
+            const result = await RoomService.handleSetFirstTurn(user.id, payload);
+            io.to(result.roomId).emit('room:updated', { room: result.room });
+        } catch (err) { handleError(err, 'room:set_first_turn'); }
+    });
+
+    socket.on('room:ready', async (payload) => {
+        try {
+            const result = await RoomService.handleRoomReady(user.id, payload);
+            io.to(result.roomId).emit('room:updated', { room: result.room });
+            
+            // If both players are ready, the service will return gameStart == true
+            if (result.gameStart) {
+                io.to(result.roomId).emit('game:start', { roomId: result.roomId, startedAt: result.room.startedAt });
+            }
+        } catch (err) { handleError(err, 'room:ready'); }
+    });
+
+    //  Reworked disconnect handler to support a 60s grace period 
+    socket.on('disconnect', async () => {
+        try {
+            const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
+            if (!activeRoom) return;
+
+            if (activeRoom.status === 'PLAYING') {
+                // In-game -> apply a 60s grace period
+                io.to(activeRoom.id).emit('player:disconnected', { roomId: activeRoom.id, timeLeft: 60 });
+                
+                const timerId = setTimeout(async () => {
+                    // If not reconnected after 60s -> treat as a loss
+                    try {
+                        const result = await RoomService.handleRoomLeave(user.id, { roomId: activeRoom.id, isTimeout: true });
+                        io.to(result.roomId).emit('game:ended', result.gameEnded);
+                        io.emit('room:removed', { roomId: result.roomId });
+                        io.in(result.roomId).socketsLeave(result.roomId);
+                    } catch (e) { console.error('Timeout leave failed', e); }
+                    disconnectTimers.delete(user.id);
+                }, 60000); // 60 seconds
+                
+                disconnectTimers.set(user.id, timerId);
+            } else {
+                // In lobby -> remove immediately, no grace period
+                const result = await RoomService.handleRoomLeave(user.id, { roomId: activeRoom.id });
+                if (result.action === 'removed') {
+                    io.emit('room:removed', { roomId: result.roomId });
+                } else if (result.action === 'updated') {
+                    io.emit('room:updated', { room: result.room });
                 }
             }
         } catch (err) {

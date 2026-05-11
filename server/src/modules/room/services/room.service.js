@@ -1,5 +1,4 @@
 import { RoomRepository } from '../repositories/room.repository.js';
-import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend } from '../validators/room.validator.js';
 import { RoomDTO } from '../dtos/room.dto.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';

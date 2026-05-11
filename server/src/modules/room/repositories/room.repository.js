@@ -50,7 +50,7 @@ export const RoomRepository = {
     
     createRoom: async (roomData) => {
         const room = new GameRoom(roomData);
-        return room.save();
+        return await room.save();
     },
     addParticipant: async (roomId, participant, newStatus) => {
         return await GameRoom.findOneAndUpdate(

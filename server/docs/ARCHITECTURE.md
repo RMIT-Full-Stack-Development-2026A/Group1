@@ -31,6 +31,7 @@ Rules:
 - Services never bypass repositories.
 - Cross-module access must go through **interfaces**, never by importing another module's service directly.
 - DTOs are mandatory for shaping responses and hiding sensitive fields.
+- Event-Driven Decoupling: For actions that cross execution domains (e.g., an Admin HTTP request needing to disconnect a WebSocket), an internal Event Bus (Pub/Sub) is used to maintain strict separation of concerns.
 
 ### 1.3 API Strategy: HTTP for snapshot/persistence, WebSocket for live state
 To minimize API calls and match the SRS real-time requirements:
@@ -52,6 +53,7 @@ backend/
 │   │   ├── errorMiddleware.js             # Centralized error response formatter
 │   │   └── rateLimitMiddleware.js         # Shared request throttling where needed
 │   ├── utils/                             # Helpers, constants, mappers, validators, logger
+│   │   └── eventBus.util.js               # Internal Pub/Sub for cross-module
 │   ├── sockets/                           # Socket.io bootstrap and namespace wiring
 │   │   ├── index.js                       # Socket server initialization
 │   │   ├── namespaces/
@@ -202,7 +204,7 @@ This is the most important change from the old design: **online room lifecycle i
 - Persist online match result into `GameSession` when the room ends
 
 ### Public HTTP endpoints
-- `GET /api/v1/rooms`
+- `GET /api/v1/rooms` (Used with manual refresh to prevent broadcast storms)
 - `GET /api/v1/rooms/:id`
 
 ### Socket events handled here
@@ -212,6 +214,9 @@ This is the most important change from the old design: **online room lifecycle i
 - `room:leave`
 - `game:move`
 - `chat:send`
+- `room:update_settings`
+- `room:set_first_turn`
+- `room:ready`
 
 **Server → Client**
 - `room:created`
@@ -221,10 +226,13 @@ This is the most important change from the old design: **online room lifecycle i
 - `game:ended`
 - `chat:message`
 - `error`
+- `game:start`
+- `player:disconnected`
+- `player:reconnected`
 
 ### Key room design rule
 HTTP never becomes the primary online gameplay channel. The frontend should:
-1. call `GET /rooms` once to render the arena snapshot
+1. Call GET /rooms once to render the arena snapshot. Use manual refresh for updates.
 2. subscribe to socket events for all subsequent updates
 3. call `GET /rooms/:id` only for reconnect/recovery if needed
 
@@ -362,33 +370,32 @@ Owned only by `subscription`.
 
 The online game flow is centered in the `room` module and delivered through `/ws/game`.
 
-## 5.1 Initial arena load
-1. FE calls `GET /api/v1/rooms`
-2. Backend returns the current room snapshot list
-3. FE opens socket connection and subscribes to `/ws/game`
-4. Further room updates arrive via `room:created`, `room:updated`, and `room:removed`
+## 5.1 Initial arena load & Broadcast Strategy
+1. FE calls GET /api/v1/rooms?status=WAITING with pagination.
+2. Backend returns the current room snapshot list.
+3. Anti-Broadcast Storm: To protect server RAM, new rooms are NOT broadcasted globally. Users must manually refresh the arena list to fetch new rooms.
 
-## 5.2 Room creation
-1. Authenticated player emits `room:create` with `{ boardSize, marker }`
-2. Room service creates a `GameRoom` in `WAITING`
-3. Server emits `room:created` to creator and `room:updated`/`room:created` to arena listeners as needed
+## 5.2 Room creation & Lobby customization
+1. Authenticated player emits room:create with { boardSize, marker }.
+2. Room service creates a GameRoom in WAITING.
+3. Server emits room:created strictly to the creator.
+4. Host can emit room:update_settings or room:set_first_turn. Server resets isReady flags to prevent cheating and emits room:updated.
 
-## 5.3 Room joining
-1. Second player emits `room:join` with `{ roomId }`
-2. Room service validates capacity, account state, and room status
-3. Server updates room participants and broadcasts `room:updated`
-4. Once marks are resolved and match is ready, room transitions to `READY` or directly `PLAYING`
+## 5.3 Ready Phase & Game Start
+1. Second player emits room:join -> Room becomes READY.
+2. Both players emit room:ready.
+3. Once both are ready, Server auto-transitions room to PLAYING and emits game:start.
 
 ## 5.4 Gameplay
-1. Current player emits `game:move` with `{ roomId, row, col }`
-2. Room service validates turn, coordinate, and room status
-3. Server appends move, updates `lastMove`, checks winner/draw
-4. Server emits `game:state`
-5. If match ends, server emits `game:ended`
+1. Current player emits game:move with { roomId, row, col }.
+2. Server validates turn, coordinate, and room status.
+3. Server appends move, updates lastMove, runs Gomoku algorithm.
+4. Server emits game:state.
+5. If match ends (Win/Draw), server emits game:ended and resets room to READY for a potential rematch.
 
-## 5.5 Abort / leave / force close
-- If a player leaves or aborts, room state is closed consistently and online session is persisted with abort reason.
-- If admin force closes room, room service records `closedBy = ADMIN` and signals the `game` interface to create a `GameSession` with `endedReason = ADMIN_FORCE_CLOSE` when appropriate.
+## 5.5 Connection Resilience (Grace Period & Rehydration)
+- Grace Period: If a player disconnects during PLAYING, the server does NOT instantly abort. It emits player:disconnected and begins a 60-second countdown in memory. If the timer expires, the match is aborted.
+- Rehydration: If a user reconnects (e.g., after an F5 refresh), the gameNamespace detects their activeRoom. It cancels the 60s timer, auto-joins them to the room, emits player:reconnected to the opponent, and pushes the latest game:state to redraw the board.
 
 ## 5.6 Premium chat
 1. Player emits `chat:send`
@@ -396,6 +403,9 @@ The online game flow is centered in the `room` module and delivered through `/ws
 3. If allowed, server broadcasts `chat:message`
 4. If not allowed, server emits socket `error`
 
+## 5.7 Abort / leave / force close / ban
+- If a player leaves normally or aborts, room state is closed consistently and online session is persisted.
+- Event-Driven Kick: If an Admin deactivates a user, the admin service emits an internal admin:user_deactivated event. The Socket layer listens to this, tears down the user's active room (resulting in ADMIN_FORCE_CLOSE), emits a death notification, and severs the socket connection.
 
 ## 6. Cross-Module Interface Rules
 
@@ -405,6 +415,7 @@ To keep module boundaries clean:
 - `room` uses `auth` interface for user/session validation and `game` interface to persist finished online matches
 - `subscription` uses `auth`  interfaces
 - `admin` uses `auth`, `room`, and `game` interfaces
+- `Strict Decoupling`: No module directly imports another module's service. HTTP services must never directly import WebSocket instances (io). Instead, use the EventBus utility to broadcast internal signals.
 
 No module should directly import another module's service or model.
 

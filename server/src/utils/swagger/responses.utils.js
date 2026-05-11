@@ -130,31 +130,6 @@ export const responses = {
         },
     },
 
-    WalletResponse: {
-        description: 'Wallet balance + recent transactions.',
-        content: {
-            'application/json': {
-                schema: {
-                    allOf: [
-                        { $ref: '#/components/schemas/SuccessResponse' },
-                        {
-                            type: 'object',
-                            properties: {
-                                data: {
-                                    type: 'object',
-                                    properties: {
-                                        balance:            { type: 'number' },
-                                        recentTransactions: { type: 'array', items: { $ref: '#/components/schemas/Transaction' } },
-                                    },
-                                },
-                            },
-                        },
-                    ],
-                },
-            },
-        },
-    },
-
     TransactionListResponse: {
         description: 'Paginated transaction history.',
         content: {
@@ -308,7 +283,7 @@ export const responses = {
         },
     },
     ConflictResponse: {
-        description: 'Resource already exists (e.g. duplicate username/email).',
+        description: 'Resource already exists (e.g. duplicate username/email) or state mismatch.',
         content: {
             'application/json': {
                 schema: { $ref: '#/components/schemas/ErrorResponse' },

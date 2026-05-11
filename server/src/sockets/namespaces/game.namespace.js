@@ -8,33 +8,26 @@ export const setupGameNamespace = (io) => {
     const gameNamespace = io.of('/ws/game');
     gameNamespace.use(socketAuthMiddleware);
 
-    eventBus.on('admin:user_deactivated', async ({ userId, reason }) => {
+    eventBus.subscribe('admin:user_deactivated', async ({ userId, reason }) => {
         const stringPlayerId = userId.toString();
         
-        try {
-            // Find the active playing room (old logic moved here)
-            const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(userId);
-            if (activeRoom) {
-                await RoomInterface.forceCloseRoomByAdmin(activeRoom.id);
-                gameNamespace.emit('room:removed', { roomId: activeRoom.id });
-                gameNamespace.in(activeRoom.id.toString()).socketsLeave(activeRoom.id.toString());
-            }
-
-            // Send account deactivated event to the client
-            gameNamespace.to(stringPlayerId).emit('account:deactivated', {
-                message: "Tài khoản của bạn đã bị vô hiệu hóa bởi Admin.",
-                reason: reason
-            });
-
-            // Ngắt kết nối socket
-            setTimeout(() => {
-                gameNamespace.in(stringPlayerId).disconnectSockets(true);
-            }, 100);
-
-            console.log(`[Socket] Force disconnected banned user: ${stringPlayerId}`);
-        } catch (err) {
-            console.error(`[EventBus] Error kicking deactivated user ${stringPlayerId}:`, err);
+        const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(userId);
+        if (activeRoom) {
+            await RoomInterface.forceCloseRoomByAdmin(activeRoom.id);
+            gameNamespace.emit('room:removed', { roomId: activeRoom.id });
+            gameNamespace.in(activeRoom.id.toString()).socketsLeave(activeRoom.id.toString());
         }
+
+        gameNamespace.to(stringPlayerId).emit('account:deactivated', {
+            message: "Your account had been recently deactivated by Admin.",
+            reason: reason
+        });
+
+        setTimeout(() => {
+            gameNamespace.in(stringPlayerId).disconnectSockets(true);
+        }, 100);
+
+        console.log(`[Socket] Force disconnected banned user: ${stringPlayerId}`);
     });
     
     gameNamespace.on('connection', async (socket) => {

@@ -113,15 +113,10 @@ These APIs manage user profile data and provide an optimized overview payload fo
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/profile` | Yes | Get current user's base profile | Yes |
-| GET | `/profile/overview` | Yes | Get profile + subscription + wallet summary + recent game stats in one call | Yes |
+| GET | `/profile/overview` | Yes | Get profile + subscription + subscription summary + recent game stats in one call | Yes |
 | PUT | `/profile/update` | Yes | Update username, email, or country | Yes |
 | PATCH | `/profile/password` | Yes | Change current user's password | Yes |
 | POST | `/profile/avatar` | Yes | Upload avatar image | Yes |
-
-### Why `GET /profile/overview`
-This endpoint is intentionally aggregated so the Profile screen does **not** need to call `/profile`, `/subscription/status`, and `/games` separately.
-
-Recommended `GET /profile/overview` payload:
 
 ```json
 {
@@ -171,10 +166,6 @@ Online matches should be persisted automatically by the server when the room end
 | `to` | ISO date | End date filter |
 | `sortBy` | string | Usually `createdAt` or `startTime` |
 | `sortOrder` | string | `asc` or `desc` |
-|
-
-### Why there is no `/games/:id/moves`
-Replay data should be returned by `GET /games/:id` so the replay page needs only **one request**.
 
 ## 4. Room Snapshot APIs
 Base Path: `/api/v1/rooms`
@@ -224,7 +215,7 @@ All endpoints require `ADMIN` role.
 |---|---|---:|---|---|
 | GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | Yes |
 
-Recommended dashboard data:
+Admin dashboard data:
 - totalPlayers
 - activePlayers
 - premiumPlayers
@@ -291,9 +282,9 @@ The team policy already defines the event naming format as `namespace:action` an
 | `player:disconnected` | `{ roomId, timeLeft }` | Opponent disconnected. Grace period (60s) countdown starts. |
 | `player:reconnected` | `{ roomId }` | Opponent reconnected. Grace period cancelled. Game resumes. |
 | `account:deactivated` | `{ message, reason }` | Sent specifically to a user when Admin deactivates their account. FE should display notification and call logout API. |
-| `game:ended` | `{ roomId, winner, winLine, result }` | Match ended. Room resets back to `READY` status for rematch. |
+| `game:ended` | `{ roomId, winnerParticipantIndex, winningLine, result, endedAt }` | Match ended. Room resets back to `READY` status for rematch. |
 | `chat:message` | `{ roomId, sender, message, timestamp }` | New chat message |
-| `error` | `{ message }` | Generic socket error |
+| `error` | `{ vent, error, message, cause, valid_example }` | Generic socket error |
 
 ### Recommended server behavior
 - Rooms are **NOT** broadcasted on creation to prevent server overload. Clients use `GET /rooms` API with pagination.
@@ -301,26 +292,3 @@ The team policy already defines the event naming format as `namespace:action` an
 - When both players trigger `room:ready`, status becomes `PLAYING` and server emits `game:start`.
 - **Grace Period**: If a player drops during `PLAYING`, emit `player:disconnected` and wait 60s before aborting the match.
 - **Rehydration**: When a client establishes a socket connection, if the backend detects they are part of an ongoing `PLAYING` match, the server should automatically emit `game:state` so FE can redraw the board.
-
-## 8. Screen-to-API Mapping (Optimized)
-
-### App bootstrap & Reconnect Flow
-- `GET /auth/check-auth`
-- If `activeRoom` exists in response -> Redirect user straight to the match, reconnect socket.
-- If not -> proceed normally.
-
-### Profile page
-- `GET /profile/overview`
-- optional follow-up only when user opens full transaction/history screens
-
-### Arena page (Global Lobby)
-- `GET /rooms?status=WAITING` with pagination limit.
-- Use a "Refresh" button to fetch new rooms (Do not rely on sockets for finding matches).
-
-### Replay page
-- `GET /games/:id`
-- no second call for moves
-
-### Admin home
-- `GET /admin/dashboard`
-- then specific tables only when the admin opens each section

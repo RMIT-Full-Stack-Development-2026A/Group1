@@ -60,7 +60,6 @@ const Subscription = () => {
                 <div className="grid md:grid-cols-2 gap-8 mb-16 items-stretch">
                     <PricingPlanFree
                         isPremium={isPremium}
-                        onScrollToStatus={scrollToStatus}
                     />
                     <PricingPlanPremium
                         isPremium={isPremium}
@@ -73,10 +72,9 @@ const Subscription = () => {
                     isPremium={isPremium}
                     isRedirecting={isRedirecting}
                     onSubscribe={handleSubscribeGuarded}
-                    onCancel={() => {/* TODO: wire cancellation endpoint */}}
                 />
 
-                <TransactionHistory transactions={transactions?.items || []} />
+                <TransactionHistory transactions={transactions} />
 
                 <AlreadyPremiumModal
                     isOpen={showAlreadyPremiumModal}

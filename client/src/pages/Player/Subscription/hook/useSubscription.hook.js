@@ -45,7 +45,8 @@ export const useSubscription = () => {
                 await useAuthStore.getState().refreshUser();
             }
 
-            setTransactions(txData ?? []);
+            const items = txData?.data?.items ?? txData?.items ?? [];
+            setTransactions(items);
         } catch (err) {
             console.error('[useSubscription] loadData error:', err);
             setError(err?.data?.message ?? 'Failed to load subscription data.');

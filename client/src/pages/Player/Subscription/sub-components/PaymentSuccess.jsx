@@ -115,7 +115,6 @@ export default function PaymentSuccess() {
                     <SoundButton
                         onClick={() => {
                             hasCaptured.current = false;
-                            hasCaptured.current = true;
                             runCapture();
                         }}
                         className="flex-1 bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 active:translate-x-[2px] active:translate-y-[2px] transition-transform"

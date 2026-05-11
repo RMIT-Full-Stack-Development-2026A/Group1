@@ -1,7 +1,8 @@
 // Route: /subscription
 import React, { useState } from 'react';
 import HeroSection from '@/pages/Player/Subscription/sub-components/HeroSection';
-import PricingPlans from '@/pages/Player/Subscription/sub-components/PricingPlans';
+import PricingPlanFree from '@/pages/Player/Subscription/sub-components/PricingPlanFree';
+import PricingPlanPremium from '@/pages/Player/Subscription/sub-components/PricingPlanPremium';
 import SubscriptionStatus from '@/pages/Player/Subscription/sub-components/SubscriptionStatus';
 import TransactionHistory from '@/pages/Player/Subscription/sub-components/TransactionHistory';
 import AlreadyPremiumModal from '@/pages/Player/Subscription/sub-components/AlreadyPremiumModal';
@@ -24,12 +25,15 @@ const Subscription = () => {
 
     const [showAlreadyPremiumModal, setShowAlreadyPremiumModal] = useState(false);
 
-    const handleCancelSubscription = () => {
-        // TODO: Wire cancellation endpoint when backend flow is available.
+    // Scroll to SubscriptionStatus section — used by both pricing cards.
+    // This does NOT trigger payment. Payment is only triggered inside SubscriptionStatus.
+    const scrollToStatus = () => {
+        document.getElementById('subscription-status')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    // Gateway: intercept the subscribe action for premium users.
-    // If already premium → show informational modal instead of triggering PayPal.
+    // The actual payment entry point. Only SubscriptionStatus calls this.
+    // FE guard: if already premium, show informational modal and abort.
+    // BE independently enforces this with 409 ALREADY_PREMIUM — FE guard is UX only.
     const handleSubscribeGuarded = async () => {
         if (isPremium) {
             setShowAlreadyPremiumModal(true);
@@ -52,16 +56,24 @@ const Subscription = () => {
 
                 <HeroSection />
 
-                <PricingPlans
-                    isPremium={isPremium}
-                    onSubscribe={handleSubscribeGuarded}
-                />
+                {/* Pricing cards — display only, scroll to buy section on click */}
+                <div className="grid md:grid-cols-2 gap-8 mb-16 items-stretch">
+                    <PricingPlanFree
+                        isPremium={isPremium}
+                        onScrollToStatus={scrollToStatus}
+                    />
+                    <PricingPlanPremium
+                        isPremium={isPremium}
+                        onScrollToStatus={scrollToStatus}
+                    />
+                </div>
 
+                {/* Buy section — the ONE place that triggers payment */}
                 <SubscriptionStatus
                     isPremium={isPremium}
                     isRedirecting={isRedirecting}
                     onSubscribe={handleSubscribeGuarded}
-                    onCancel={handleCancelSubscription}
+                    onCancel={() => {/* TODO: wire cancellation endpoint */}}
                 />
 
                 <TransactionHistory transactions={transactions?.items || []} />

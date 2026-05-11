@@ -4,9 +4,16 @@ import { useAuthStore } from '@/stores/auth/AuthStore';
 import http from '@/utils/httpHelper';
 import { notifyError, notifyLoading, notifyUpdate } from '@/utils/toast.util';
 
-const isPremiumActive = (expiresAt) => {
-    if (!expiresAt) return false;
-    return new Date(expiresAt).getTime() > Date.now();
+// A user is considered premium if:
+// 1. premiumExpiresAt exists and is in the future, OR
+// 2. user.isPremium is explicitly true (in case expiresAt is missing from store)
+const isPremiumActive = (user) => {
+    if (!user) return false;
+    if (user.premiumExpiresAt) {
+        return new Date(user.premiumExpiresAt).getTime() > Date.now();
+    }
+    // Fallback: trust the isPremium flag from the backend
+    return user.isPremium === true;
 };
 
 /**
@@ -19,17 +26,25 @@ export const useSubscription = () => {
     const [isRedirecting, setIsRedirecting] = useState(false);
     const [error, setError] = useState(null);
     const user = useAuthStore((state) => state.user);
-    const isPremium = isPremiumActive(user?.premiumExpiresAt);
+    const isPremium = isPremiumActive(user);
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const [statusData, txData] = await Promise.all([
+            const [statusRes, txData] = await Promise.all([
                 subscriptionService.getStatus(),
                 subscriptionService.getTransactions(),
             ]);
-            // statusData still fetched for completeness but isPremium derived from AuthStore
+
+            // If AuthStore is missing premiumExpiresAt but backend confirms premium,
+            // force a user refresh so the store is in sync before rendering.
+            const backendPremiumExpiresAt = statusRes?.data?.premiumExpiresAt ?? statusRes?.premiumExpiresAt;
+            const currentUser = useAuthStore.getState().user;
+            if (backendPremiumExpiresAt && !currentUser?.premiumExpiresAt) {
+                await useAuthStore.getState().refreshUser();
+            }
+
             setTransactions(txData ?? []);
         } catch (err) {
             console.error('[useSubscription] loadData error:', err);

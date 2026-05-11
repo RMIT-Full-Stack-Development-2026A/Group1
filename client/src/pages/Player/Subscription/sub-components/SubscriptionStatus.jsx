@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 import SoundButton from '@/components/reusable/sound/SoundButton';
 import { useAuthStore } from '@/stores/auth/AuthStore';
 
-export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscribe, onCancel, premiumExpiresAt }) {
+export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscribe, onCancel }) {
     const storeExpires = useAuthStore((s) => s.user?.premiumExpiresAt);
-    const expires = premiumExpiresAt ?? storeExpires;
-    const isStillActive = isPremium && expires
-        ? new Date(expires).getTime() > Date.now()
-        : isPremium;
+    const expires = storeExpires;
+    const isStillActive = isPremium
+        ? (expires ? new Date(expires).getTime() > Date.now() : true)
+        : false;
 
     return (
-        <div className="grid lg:grid-cols-3 gap-8 mb-16">
+        <div id="subscription-status" className="grid lg:grid-cols-3 gap-8 mb-16">
             <div className="lg:col-span-2 bg-[#1e1e2c] border border-[#3d484d] p-6 relative">
                 {isStillActive ? (
                     <>
@@ -19,6 +19,11 @@ export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscri
                             <span className="font-mono text-[#a8ff78]">●</span>
                             <span className="font-headline text-sm text-[#a8ff78]">NEURO-ELITE ACTIVE</span>
                         </div>
+                        {expires && (
+                            <p className="font-mono text-[11px] text-[#a8ff78] uppercase tracking-widest mb-2">
+                                ACCESS VALID UNTIL: {new Date(expires).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                        )}
                         <p className="font-mono text-[11px] text-[#879398] uppercase tracking-widest mb-8">
                             Your premium access is enabled. Manage your recurring subscription below.
                         </p>
@@ -58,7 +63,7 @@ export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscri
                     <div className="flex gap-2"><span className="text-[#a8ff78]">[+]</span><p>Secure payment processing via Stripe.</p></div>
                 </div>
             </div>
-        </div>
+        </div>  
     );
 }
 
@@ -67,5 +72,4 @@ SubscriptionStatus.propTypes = {
     isRedirecting: PropTypes.bool.isRequired,
     onSubscribe: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    premiumExpiresAt: PropTypes.string,
 };

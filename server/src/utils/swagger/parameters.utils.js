@@ -56,7 +56,8 @@ export const parameters = {
     // Room filters
     RoomStatusParam: {
         in: 'query', name: 'status', required: false,
-        schema: { type: 'string', enum: ['WAITING', 'READY', 'PLAYING'] },
+        schema: { type: 'string', enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'] },
+        description: 'Filter by room status. Admin can query terminal states like ABORTED or CLOSED.',
     },
     BoardSizeParam: {
         in: 'query', name: 'boardSize', required: false,

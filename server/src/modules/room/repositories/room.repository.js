@@ -30,12 +30,12 @@ export const RoomRepository = {
     },
 
     findById: async (id) => {
-        return GameRoom.findById(id).lean();
+        return await GameRoom.findById(id).lean();
     },
 
     // Interface lookup for Auth module
     findActiveRoomByUserId: async (userId) => {
-        return GameRoom.findOne({
+        return await GameRoom.findOne({
             "participants.userId": userId,
             status: { $in: ACTIVE_ROOM_STATUSES }
         }).lean();
@@ -43,7 +43,7 @@ export const RoomRepository = {
 
     // Interface lookup for Admin dashboard
     countActiveRooms: async () => {
-        return GameRoom.countDocuments({
+        return await GameRoom.countDocuments({
             status: { $in: ACTIVE_ROOM_STATUSES }
         });
     },
@@ -53,7 +53,7 @@ export const RoomRepository = {
         return room.save();
     },
     addParticipant: async (roomId, participant, newStatus) => {
-        return GameRoom.findOneAndUpdate(
+        return await GameRoom.findOneAndUpdate(
             { 
                 _id: roomId, 
                 status: ROOM_STATUS.WAITING, 
@@ -68,7 +68,7 @@ export const RoomRepository = {
     },
 
     pushMove: async (roomId, move, nextTurnIndex) => {
-        return GameRoom.findByIdAndUpdate(
+        return await GameRoom.findByIdAndUpdate(
             roomId,
             {
                 $push: { moves: move },
@@ -83,7 +83,7 @@ export const RoomRepository = {
     },
 
     updateRoomStatus: async (roomId, updateFields) => {
-        return GameRoom.findByIdAndUpdate(
+        return await GameRoom.findByIdAndUpdate(
             roomId, 
             { $set: updateFields }, 
             { returnDocument: 'after' }
@@ -91,6 +91,6 @@ export const RoomRepository = {
     },
 
     deleteRoom: async (roomId) => {
-        return GameRoom.findByIdAndDelete(roomId);
+        return await GameRoom.findByIdAndDelete(roomId);
     }
 };

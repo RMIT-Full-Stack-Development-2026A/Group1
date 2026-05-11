@@ -1,11 +1,11 @@
 import { RoomRepository } from '../repositories/room.repository.js';
-import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend } from '../validators/room.validator.js';
 import { RoomDTO } from '../dtos/room.dto.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { ROOM_STATUS } from '../constants/room.constants.js';
 import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend, validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady } from '../validators/room.validator.js';
 import { GameRoom } from '../models/gameRoom.model.js'; 
+import { checkGomokuWin } from '../../../utils/gomoku.util.js';
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {
@@ -239,28 +239,34 @@ export const RoomService = {
             throw { statusCode: 400, error: "INVALID_MOVE", message: "Cell is already occupied." };
         }
 
-        // Convert Row/Col to Algebraic (e.g., Row 0, Col 0 -> A1)
+        // Convert Row/Col to Algebraic
         const coordinate = `${String.fromCharCode(65 + col)}${row + 1}`;
-        const newMove = { moveNumber: room.moveCount + 1, byParticipantIndex: pIndex, row, col, coordinate, placedAt: new Date() };
+        const newMove = { 
+            moveNumber: room.moveCount + 1, 
+            byParticipantIndex: pIndex, 
+            row, col, coordinate, 
+            placedAt: new Date() 
+        };
 
-        // Push move to DB
         const nextTurn = pIndex === 0 ? 1 : 0;
+        // Push move to DB
         let updatedRoom = await RoomRepository.pushMove(roomId, newMove, nextTurn);
 
-        // TODO: Implement Gomoku 5-in-a-row algorithm to check for Win/Draw using `updatedRoom.moves`
-        const isWin = false; // Mocked
-        const isDraw = updatedRoom.moveCount >= (room.boardSize * room.boardSize); // Mocked
+        // GOMOKU win check
+        const winningLine = checkGomokuWin(updatedRoom.moves, room.boardSize, row, col, pIndex);
+        const isWin = winningLine !== null;
+        
+        // Draw condition
+        const isDraw = !isWin && updatedRoom.moveCount >= (room.boardSize * room.boardSize);
 
         let gameEnded = null;
 
         if (isWin || isDraw) {
             const endedAt = new Date();
-            const status = ROOM_STATUS.CLOSED;
-            updatedRoom = await RoomRepository.updateRoomStatus(roomId, { status, endedAt });
 
-            // Persist to Game History
+            // Persist the finished match to GameHistory before wiping the room
             await GameInterface.createOnlineGameSessionFromRoom({
-                sessionNumber: `ONL-${room.roomNumber}`,
+                sessionNumber: `ONL-${room.roomNumber}-${Date.now()}`, 
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
@@ -271,12 +277,25 @@ export const RoomService = {
                 status: isWin ? 'FINISHED' : 'DRAW',
                 endedReason: isWin ? 'WIN' : 'DRAW',
                 winnerParticipantIndex: isWin ? pIndex : null,
-                winningLine: [], // Populate from algorithm
+                winningLine: winningLine || [], 
                 moves: updatedRoom.moves,
                 totalMoves: updatedRoom.moveCount,
                 startedAt: room.startedAt,
                 endedAt
             });
+
+            // Reset for rematch
+            updatedRoom.status = ROOM_STATUS.READY;
+            updatedRoom.moves = [];
+            updatedRoom.moveCount = 0;
+            updatedRoom.winningLine = [];
+            updatedRoom.lastMove = { row: null, col: null, coordinate: null };
+            updatedRoom.startedAt = null;
+            updatedRoom.currentTurnParticipantIndex = null;
+
+            // Clear Ready status for the rematch
+            updatedRoom.participants.forEach(p => p.isReady = false);
+            await updatedRoom.save();
 
             gameEnded = RoomDTO.toGameEndedPayload({
                 roomId,
@@ -302,13 +321,9 @@ export const RoomService = {
         const isParticipant = room.participants.some(p => p.userId.toString() === userId.toString());
         if (!isParticipant && !isTimeout) return { action: 'ignored' };
 
-        const endedAt = new Date();
-
+        // Case 1: Leaving during an active match
         if (room.status === ROOM_STATUS.PLAYING) {
-            // In play: mark as a loss due to timeout or voluntary leave
-            room.status = ROOM_STATUS.ABORTED;
-            room.endedAt = endedAt;
-            await room.save();
+            const endedAt = new Date();
             
             // Persist to game history
             await GameInterface.createOnlineGameSessionFromRoom({
@@ -329,6 +344,9 @@ export const RoomService = {
                 endedAt
             });
 
+            // Delete the room completely
+            await RoomRepository.deleteRoom(roomId);
+
             return {
                 action: 'aborted',
                 roomId,
@@ -338,15 +356,15 @@ export const RoomService = {
             };
         } 
         
-        // If the room is in the lobby state (WAITING / READY)
+        // Case 2: Leaving from the room lobby
         const remainingParticipants = room.participants.filter(p => p.userId.toString() !== userId.toString());
         
         if (remainingParticipants.length === 0) {
-            // If both players leave, delete the room
+            // Both players leave
             await RoomRepository.deleteRoom(roomId);
             return { action: 'removed', roomId };
         } else {
-            // If one player remains, promote them to host, revert to WAITING, and clear ready state
+            // One player remains, promote them to host, revert to WAITING, and clear ready state
             remainingParticipants[0].isHost = true;
             remainingParticipants[0].isReady = false;
             
@@ -379,18 +397,32 @@ export const RoomService = {
     },
     
     handleUpdateSettings: async (userId, payload) => {
-        const { roomId, boardStyle, markerStyle } = validateRoomUpdateSettings(payload);
+        const { roomId, boardStyle, markerStyle, marker } = validateRoomUpdateSettings(payload);
         const room = await GameRoom.findById(roomId);
         
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         if (room.status === ROOM_STATUS.PLAYING) throw { statusCode: 400, error: "INVALID_STATE", message: "Cannot change settings while playing." };
         
-        const isHost = room.participants.some(p => p.userId.toString() === userId.toString() && p.isHost);
-        if (!isHost) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
+        const hostIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString() && p.isHost);
+        if (hostIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
 
-        room.boardStyle = boardStyle;
-        room.markerStyle = markerStyle;
-        room.participants.forEach(p => p.isReady = false); // Reset ready to prevent cheating
+       // Update basic settings
+        if (boardStyle) room.boardStyle = boardStyle;
+        if (markerStyle) room.markerStyle = markerStyle;
+
+        // Swap marker logic
+        if (marker && room.participants[hostIndex].mark !== marker) {
+            room.participants[hostIndex].mark = marker;
+            
+            // If there is a guest (index 1 if host is 0, or index 0 if host is 1)
+            const guestIndex = hostIndex === 0 ? 1 : 0;
+            if (room.participants[guestIndex]) {
+                room.participants[guestIndex].mark = marker === 'X' ? 'O' : 'X';
+            }
+        }
+
+        // Prevent changing rules right as someone clicks ready
+        room.participants.forEach(p => p.isReady = false); 
         
         await room.save();
         return { roomId, room: RoomDTO.toRoomSummary(room) };
@@ -423,6 +455,7 @@ export const RoomService = {
             if (!p.isReady) allReady = false;
         });
 
+        // Ensure actually 2 players before starting
         if (room.participants.length < 2) allReady = false;
 
         let gameStart = false;

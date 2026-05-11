@@ -58,11 +58,9 @@ export const registerRoomSocketHandlers = (io, socket) => {
             // Broadcast the new game state to everyone in the room
             io.to(result.roomId).emit('game:state', result.gameState);
 
-            // If the move ended the game (WIN/DRAW), broadcast game:ended and clean up
+            // If the move ended the game (WIN/DRAW), broadcast game:ended 
             if (result.gameEnded) {
                 io.to(result.roomId).emit('game:ended', result.gameEnded);
-                io.emit('room:removed', { roomId: result.roomId });
-                io.in(result.roomId).socketsLeave(result.roomId);
             }
         } catch (err) {
             handleError(err, 'game:move');
@@ -75,13 +73,18 @@ export const registerRoomSocketHandlers = (io, socket) => {
             
             socket.leave(payload.roomId);
 
-            if (result.action === 'removed') {
+           if (result.action === 'removed') {
+                // Broadcast to Global Arena so everyone's list updates
                 io.emit('room:removed', { roomId: result.roomId });
             } else if (result.action === 'updated') {
+                // Tell the remaining player they are now the Host
                 io.emit('room:updated', { room: result.room });
             } else if (result.action === 'aborted') {
+                // Tell the remaining player they won by default, then destroy the room
                 io.to(result.roomId).emit('game:ended', result.gameEnded);
                 io.emit('room:removed', { roomId: result.roomId });
+                
+                // Force everyone out of this specific socket channel
                 io.in(result.roomId).socketsLeave(result.roomId);
             }
         } catch (err) {

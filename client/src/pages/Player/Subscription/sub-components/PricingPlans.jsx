@@ -24,8 +24,8 @@ export default function PricingPlans({ isPremium, onSubscribe }) {
                     <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> CUSTOM MARKERS</li>
                     <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> PRIORITY MATCHMAKING</li>
                 </ul>
-                <SoundButton className="w-full border border-[#4cc9f0] text-[#ffb4ab] font-headline text-xs py-4 hover:bg-[#292937] transition-colors">
-                    {isPremium ? 'DOWNGRADE' : 'CURRENT STATUS'}
+                <SoundButton disabled className="w-full border border-[#4cc9f0] text-[#ffb4ab] font-headline text-xs py-4 hover:bg-[#292937] transition-colors">
+                    CURRENT PLAN
                 </SoundButton>
             </div>
 
@@ -49,10 +49,11 @@ export default function PricingPlans({ isPremium, onSubscribe }) {
                     <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> PRIORITY MATCHMAKING</li>
                 </ul>
                 <SoundButton 
-                    onClick={onSubscribe}
+                    onClick={isPremium ? undefined : onSubscribe}
+                    disabled={isPremium}
                     className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 active:translate-x-[2px] active:translate-y-[2px] transition-transform"
                 >
-                    {isPremium ? 'CURRENT STATUS' : 'SELECT PACKAGE'}
+                    {isPremium ? 'CURRENT STATUS' : 'CHOOSE THIS PACKAGE'}
                 </SoundButton>
             </div>
         </div>

@@ -21,6 +21,11 @@ const subscriptionService = {
         const data = await http.post(API_ENDPOINTS.SUBSCRIPTION.CAPTURE_ORDER, { orderId });
         return data;
     },
+
+    subscriptionHistory: async () => {
+        const data = await http.get(API_ENDPOINTS.SUBSCRIPTION.HISTORY);
+        return data;
+    }   
 };
 
 export default subscriptionService;

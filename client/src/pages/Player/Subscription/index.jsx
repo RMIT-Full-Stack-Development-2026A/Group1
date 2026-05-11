@@ -5,8 +5,9 @@ import PricingPlans from '@/pages/Player/Subscription/sub-components/PricingPlan
 import SubscriptionStatus from '@/pages/Player/Subscription/sub-components/SubscriptionStatus';
 import TransactionHistory from '@/pages/Player/Subscription/sub-components/TransactionHistory';
 import AlreadyPremiumModal from '@/pages/Player/Subscription/sub-components/AlreadyPremiumModal';
+import Footer from '@/components/reusable/Footer';
 import { useSubscription } from './hook/useSubscription.hook';
-import { useAuthStore } from '@/stores/AuthStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
 
 const Subscription = () => {
     const {
@@ -41,35 +42,39 @@ const Subscription = () => {
     };
 
     return (
-        <main className="pt-8 pb-20 px-6 max-w-[1440px] mx-auto min-h-screen bg-background text-on-surface">
-            {error && (
-                <div className="mb-6 border border-[#ffb4ab] bg-[#2b1515] text-[#ffb4ab] font-mono text-xs px-4 py-3 uppercase tracking-wider">
-                    {error}
-                </div>
-            )}
+        <div>
+            <main className="pt-8 pb-20 px-6 max-w-[1440px] mx-auto min-h-screen bg-background text-on-surface">
+                {error && (
+                    <div className="mb-6 border border-[#ffb4ab] bg-[#2b1515] text-[#ffb4ab] font-mono text-xs px-4 py-3 uppercase tracking-wider">
+                        {error}
+                    </div>
+                )}
 
-            <HeroSection />
+                <HeroSection />
 
-            <PricingPlans
-                isPremium={isPremium}
-                onSubscribe={handleSubscribeGuarded}
-            />
+                <PricingPlans
+                    isPremium={isPremium}
+                    onSubscribe={handleSubscribeGuarded}
+                />
 
-            <SubscriptionStatus
-                isPremium={isPremium}
-                isRedirecting={isRedirecting}
-                onSubscribe={handleSubscribeGuarded}
-                onCancel={handleCancelSubscription}
-            />
+                <SubscriptionStatus
+                    isPremium={isPremium}
+                    isRedirecting={isRedirecting}
+                    onSubscribe={handleSubscribeGuarded}
+                    onCancel={handleCancelSubscription}
+                />
 
-            <TransactionHistory transactions={transactions?.items || []} />
+                <TransactionHistory transactions={transactions?.items || []} />
 
-            <AlreadyPremiumModal
-                isOpen={showAlreadyPremiumModal}
-                onClose={() => setShowAlreadyPremiumModal(false)}
-                premiumExpiresAt={premiumExpiresAt}
-            />
-        </main>
+                <AlreadyPremiumModal
+                    isOpen={showAlreadyPremiumModal}
+                    onClose={() => setShowAlreadyPremiumModal(false)}
+                    premiumExpiresAt={premiumExpiresAt}
+                />
+
+            </main>
+            <Footer />
+        </div>
     );
 };
 

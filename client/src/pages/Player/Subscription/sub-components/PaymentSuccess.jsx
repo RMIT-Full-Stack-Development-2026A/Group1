@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import subscriptionService from './service/subscription.service';
-import { useAuthStore } from '@/stores/AuthStore';
-import SoundButton from '@/components/reusable/SoundButton';
+import subscriptionService from '../service/subscription.service';
+import { useAuthStore } from '@/stores/auth/AuthStore';
+import SoundButton from '@/components/reusable/sound/SoundButton';
 
 export default function PaymentSuccess() {
     const [searchParams] = useSearchParams();
@@ -25,7 +25,6 @@ export default function PaymentSuccess() {
             // After confirming capture is successful, update AuthStore immediately
             const { user } = useAuthStore.getState();
 
-            // Sử dụng hàm setState mặc định của Zustand
             useAuthStore.setState({
                 user: {
                     ...user,
@@ -39,9 +38,13 @@ export default function PaymentSuccess() {
             if (errorCode === 'ALREADY_CAPTURED') {
                 setStatus('already_captured');
                 await useAuthStore.getState().refreshUser();
-            } else {
-                setError(err?.data?.message ?? err?.message ?? 'Payment capture failed. Please contact support.');
-                setStatus('error');
+            } 
+            // set appear time for around 2.5s
+            else {
+                setTimeout(() => {
+                    setError(err?.data?.message ?? err?.message ?? 'Payment capture failed. Please contact support.');
+                    setStatus('error');
+                }, 2500);
             }
         }
     };

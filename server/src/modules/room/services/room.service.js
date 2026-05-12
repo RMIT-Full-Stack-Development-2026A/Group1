@@ -275,12 +275,11 @@ export const RoomService = {
                 endedAt
             });
 
-            // Soft-reset the GameRoom to allow a rematch instead of hard-closing (Merged N-Tier)
+            const finalGameState = RoomDTO.toGameStatePayload({ room: updatedRoom, board: updatedRoom.moves });
+
+            // Soft-reset the GameRoom to allow a rematch
             const resetParticipants = Array.isArray(updatedRoom.participants)
-                ? updatedRoom.participants.map(p => ({
-                    ...p,
-                    isReady: false
-                }))
+                ? updatedRoom.participants.map(p => ({ ...p, isReady: false }))
                 : [];
 
             updatedRoom = await RoomRepository.updateRoomStatus(roomId, {
@@ -306,7 +305,7 @@ export const RoomService = {
             return {
                 roomId,
                 room: RoomDTO.toRoomSummary(updatedRoom),
-                gameState: RoomDTO.toGameStatePayload({ room: updatedRoom, board: updatedRoom.moves }),
+                gameState: finalGameState, 
                 gameEnded,
                 rematchAvailable: true
             };
@@ -347,16 +346,14 @@ export const RoomService = {
                 participants: room.participants,
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
-                endedReason: 'PLAYER_ABORT',
-                abortedByUserId: userId,
+                endedReason: isTimeout ? 'TIMEOUT_ABORT' : 'PLAYER_ABORT',
+                abortedByUserId: isTimeout ? null : userId,
                 moves: room.moves,
                 totalMoves: room.moveCount,
                 startedAt: room.startedAt ?? room.createdAt ?? endedAt,
                 endedAt
             });
 
-            // Delete the room completely
-            await RoomRepository.deleteRoom(roomId);
 
             return {
                 action: 'aborted',

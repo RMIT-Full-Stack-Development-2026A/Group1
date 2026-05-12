@@ -133,10 +133,10 @@ export const registerRoomSocketHandlers = (io, socket) => {
                             GameEmitter.emitRoomRemoved(io, result.roomId);
                             io.in(result.roomId).socketsLeave(result.roomId);
                             
-                            // STEP 3: Cleanup DB (only delete if both players are actually disconnected)
-                            if (result.action === 'aborted' && activeConnections === 0) {
-                                await RoomService.deleteRoomIfEmpty(result.roomId);
-                                console.log(`[Socket] Room ${result.roomId} deleted because both players disconnected.`);
+                            // STEP 3: Cleanup DB (Delete unconditionally for aborted rooms)
+                            if (result.action === 'aborted') {
+                                await RoomService.forceDeleteRoom(result.roomId);
+                                console.log(`[Socket] Room ${result.roomId} deleted after abort timeout.`);
                             }
                         }
                     } catch (e) {

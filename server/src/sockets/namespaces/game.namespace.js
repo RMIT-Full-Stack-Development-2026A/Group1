@@ -58,8 +58,8 @@ export const setupGameNamespace = (io) => {
                         disconnectTimers.delete(socket.user.id);
                     }
 
-                    // Notify the opponent that this player has reconnected (scoped via GameEmitter)
-                    GameEmitter.emitPlayerReconnected(gameNamespace, activeRoom.id, { roomId: activeRoom.id });
+                    // Notify ONLY the opponent that this player has reconnected
+                    socket.to(String(activeRoom.id)).emit('player:reconnected', { roomId: activeRoom.id });
 
                     // Sync the latest board state to BOTH players to ensure deterministic rehydration
                     const gameState = await RoomService.getGameState(activeRoom.id);

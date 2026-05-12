@@ -319,6 +319,10 @@ export const RoomService = {
     },
 
     handleRoomLeave: async (userId, payload) => {
+        // Validation check
+        if (!validateObjectId(payload.roomId)) {
+            throw { statusCode: 400, error: "INVALID_IDENTIFIER", message: "Invalid room ID." };
+        }
         const { roomId, isTimeout } = payload; 
         const room = await GameRoom.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
@@ -384,8 +388,8 @@ export const RoomService = {
         }
     },
 
-    // Helper: Delete room if empty (called from socket layer when all connections are confirmed gone)
-    deleteRoomIfEmpty: async (roomId) => {
+    // Helper: Delete room completely (called from socket layer for cleanup)
+    forceDeleteRoom: async (roomId) => {
         await RoomRepository.deleteRoom(roomId);
     },
 

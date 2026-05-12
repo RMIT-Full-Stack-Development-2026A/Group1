@@ -52,7 +52,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
 
     socket.on('room:leave', async (payload) => {
         try {
-            const result = await RoomService.handleRoomLeave(user.id, payload);
+            const result = await RoomService.handleRoomLeave(user.id, { roomId: payload?.roomId });
             
             if (result.action === 'ignored') return;
 

@@ -1659,7 +1659,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 
 **Notes:**
 - Sent to room creator immediately after creation
-  > "Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts."
+- Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts.
 
 #### `room:updated`
 **Payload:**
@@ -1698,7 +1698,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
   - Player joins room
   - Room transitions to `READY` or `PLAYING`
   - Player leaves room
-  > "Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts."
+  - Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts.
 
 #### `room:removed`
 **Payload:**
@@ -1710,7 +1710,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 
 **Notes:**
 - Broadcast when room is closed/completed
-  > "Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts."
+- Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts.
 
 
 #### `game:start`

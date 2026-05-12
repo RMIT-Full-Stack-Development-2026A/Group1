@@ -326,7 +326,7 @@ export const RoomService = {
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
 
         const isParticipant = room.participants.some(p => p.userId.toString() === userId.toString());
-        if (!isParticipant && !isTimeout) return { action: 'ignored' };
+        if (!isParticipant) return { action: 'ignored' };
 
         const endedAt = new Date();
 

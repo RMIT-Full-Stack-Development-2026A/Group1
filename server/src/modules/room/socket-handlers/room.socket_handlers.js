@@ -1,5 +1,5 @@
 import { RoomService } from '../services/room.service.js';
-import { GameEmitter } from '../../sockets/emitters/game.emitter.js';
+import { GameEmitter } from '../../../sockets/emitters/game.emitter.js';
 
 export const disconnectTimers = new Map();
 
@@ -53,6 +53,9 @@ export const registerRoomSocketHandlers = (io, socket) => {
     socket.on('room:leave', async (payload) => {
         try {
             const result = await RoomService.handleRoomLeave(user.id, payload);
+            
+            if (result.action === 'ignored') return;
+
             if (result.action === 'removed' || result.action === 'aborted') {
                 if (result.gameEnded) GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
                 GameEmitter.emitRoomRemoved(io, result.roomId);

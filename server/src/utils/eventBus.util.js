@@ -36,4 +36,3 @@ class SystemEventBus extends EventEmitter {
 
 // Export 
 export const eventBus = new SystemEventBus();
-Object.freeze(eventBus);

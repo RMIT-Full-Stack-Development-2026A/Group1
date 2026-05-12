@@ -249,7 +249,7 @@ export const RoomService = {
         const nextTurn = pIndex === 0 ? 1 : 0;
         let updatedRoom = await RoomRepository.pushMove(roomId, newMove, nextTurn);
 
-        // GOMOKU win check (From Thắng's incoming logic)
+        // Check for a Gomoku win after the latest move.
         const winningLine = checkGomokuWin(updatedRoom.moves, room.boardSize, row, col, pIndex);
         const isWin = winningLine !== null;
         
@@ -299,6 +299,7 @@ export const RoomService = {
                 winningLine: [], // Cleared for Rematch
                 participants: resetParticipants,
                 lastMove: { row: null, col: null, coordinate: null },
+                startedAt: null,
                 endedAt: null,
                 currentTurnParticipantIndex: null
             });

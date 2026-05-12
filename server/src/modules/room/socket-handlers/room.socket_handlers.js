@@ -128,7 +128,9 @@ export const registerRoomSocketHandlers = (io, socket) => {
                             io.in(result.roomId).socketsLeave(result.roomId);
                         }
                     } catch (e) {
-                        console.error('Timeout leave failed', e);
+                        if (e.error !== 'ROOM_NOT_FOUND') {
+                            console.error('Timeout leave failed', e);
+                        }
                     }
                     disconnectTimers.delete(user.id);
                 }, 60000);

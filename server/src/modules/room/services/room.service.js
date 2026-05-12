@@ -98,7 +98,7 @@ export const RoomService = {
             };
         }
 
-        if (!room || ['CLOSED', 'ABORTED'].includes(room.status)) {
+        if (['CLOSED', 'ABORTED'].includes(room.status)) {
             throw {
                 statusCode: 409,
                 error: "ROOM_ALREADY_CLOSED",

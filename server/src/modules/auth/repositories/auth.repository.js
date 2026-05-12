@@ -5,7 +5,7 @@ export const AuthRepository = {
     findByEmailOrUsername: async (identifier) => {
         const normalizedIdentifier = String(identifier).trim();
 
-        return User.findOne({
+        return await User.findOne({
             $or: [
                 { email: normalizedIdentifier.toLowerCase() },
                 { username: normalizedIdentifier }
@@ -25,15 +25,15 @@ export const AuthRepository = {
 
     createUser: async (userData) => {
         const newUser = new User(userData);
-        return newUser.save();
+        return await newUser.save();
     },
 
     findById: async (id) => {
-        return User.findById(id);
+        return await User.findById(id);
     },
 
     findByIdWithPassword: async (id) => {
-        return User.findById(id).select("+passwordHash");
+        return await User.findById(id).select("+passwordHash");
     },
 
     incrementLoginAttempts: async (user) => {
@@ -46,11 +46,11 @@ export const AuthRepository = {
             updates.$set = { "auth.lockUntil": new Date(Date.now() + 60 * 1000) };
         }
 
-        return User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' });
+        return await User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' });
     },
 
     resetLoginAttempts: async (userId) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             {
                 $set: {
@@ -63,7 +63,7 @@ export const AuthRepository = {
     },
 
     clearExpiredLock: async (userId) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             {
                 $set: {
@@ -76,7 +76,7 @@ export const AuthRepository = {
     },
 
     updateLastLogin: async (userId) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             {
                 $set: {
@@ -88,7 +88,7 @@ export const AuthRepository = {
     },
 
     updatePremiumExpiry: async (userId, premiumExpiresAt) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             { $set: { premiumExpiresAt } },
             { returnDocument: 'after' }
@@ -96,7 +96,7 @@ export const AuthRepository = {
     },
 
     updateAccountStatus: async (userId, isActive) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             { $set: { isActive } },
             { returnDocument: 'after' }
@@ -104,7 +104,7 @@ export const AuthRepository = {
     },
 
     updateUser: async (userId, updates) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             { $set: updates },
             { returnDocument: 'after', runValidators: true }
@@ -112,7 +112,7 @@ export const AuthRepository = {
     },
 
     updatePassword: async (userId, passwordHash) => {
-        return User.findByIdAndUpdate(
+        return await User.findByIdAndUpdate(
             userId,
             { $set: { passwordHash } },
             { returnDocument: 'after' }

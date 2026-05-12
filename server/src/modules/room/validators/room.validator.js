@@ -132,6 +132,7 @@ export const validateRoomUpdateSettings = (payload) => {
 
     const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
     const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : null;
 
     const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
     if (!allowedBoardStyles.includes(boardStyle)) {
@@ -143,7 +144,11 @@ export const validateRoomUpdateSettings = (payload) => {
         throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
     }
 
-    return { roomId, boardStyle, markerStyle };
+    if (marker && !['X', 'O'].includes(marker)) {
+        throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
+    }
+
+    return { roomId, boardStyle, markerStyle, marker };
 };
 
 export const validateRoomSetFirstTurn = (payload) => {

@@ -2,17 +2,26 @@ import { Server } from 'socket.io';
 import { setupGameNamespace } from './namespaces/game.namespace.js';
 
 export const initSocketServer = (httpServer) => {
-    // Initialize Socket.io attached to the Express HTTP Server
+    // Initialize Socket.io attached to the raw HTTP Server
     const io = new Server(httpServer, {
         cors: {
-            origin: process.env.CLIENT_URL, // Must match your frontend URL
+            origin: ["http://localhost:8000", process.env.CLIENT_URL], 
             methods: ['GET', 'POST'],
-            credentials: true // Allows the browser to send the httpOnly access_token cookie
+            credentials: true 
         }
     });
 
     // Boot up the /ws/game namespace
     setupGameNamespace(io);
 
+    console.log("[Socket] Socket.io server initialized and namespaces wired.");
+    return io;
+};
+
+// Broadcast globally from outside a namespace context
+export const getIO = () => {
+    if (!io) {
+        throw new Error("Socket.io has not been initialized!");
+    }
     return io;
 };

@@ -46,6 +46,11 @@ const OnlineGameBoard = () => {
     useEffect(() => {
         if (!socket || !isConnected) return;
 
+        const handleAccountDeactivated = () => {
+            setShowAbortModal(false);
+            navigate('/lobby', { replace: true });
+        };
+
         // 1. Room Created (Host only) -> Redirect to the active room URL
         socket.once('room:created', (payload) => {
             if (payload.room?.id) {
@@ -100,6 +105,8 @@ const OnlineGameBoard = () => {
             navigate('/lobby');
         });
 
+        window.addEventListener('account:deactivated', handleAccountDeactivated);
+
         // --- INIT ROOM ACTION ---
         if (roomId) {
             socket.emit('room:join', { roomId });
@@ -117,6 +124,7 @@ const OnlineGameBoard = () => {
             socket.off('game:state');
             socket.off('game:ended');
             socket.off('room:removed');
+            window.removeEventListener('account:deactivated', handleAccountDeactivated);
         };
     }, [socket, isConnected, roomId, navigate, initialBoardSize, roomInfo?.id]);
 

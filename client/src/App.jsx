@@ -1,5 +1,6 @@
 import { React, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import Layout from "./Layout";
 import AppRouter from "./routes/AppRouter";
 import { useAuthStore } from "./stores/auth/AuthStore";
@@ -13,6 +14,21 @@ function App() {
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
+
+    useEffect(() => {
+        const handleAccountDeactivated = (event) => {
+            const payload = event.detail || {};
+            const message = payload.message || 'Your account has been deactivated by an administrator.';
+
+            toast.error(message);
+        };
+
+        window.addEventListener('account:deactivated', handleAccountDeactivated);
+
+        return () => {
+            window.removeEventListener('account:deactivated', handleAccountDeactivated);
+        };
+    }, []);
 
     // When checking auth, show loading screen
     if (isCheckingAuth) {

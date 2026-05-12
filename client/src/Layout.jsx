@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navigation from "@/components/reusable/Navigation";
 import { useAuthStore } from "@/stores/auth/AuthStore";
+import { useSocketStore } from "@/stores/socket/SocketStore";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import Footer from "@/components/reusable/Footer";
 
@@ -17,10 +18,21 @@ const IMMERSIVE_ROUTES = ['/game/'];
 export default function Layout({ children }) {
     const location = useLocation();
     const showScrollTop = useScrollToTop();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const connectSocket = useSocketStore((state) => state.connectSocket);
+    const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
 
     useEffect(() => {
         useAuthStore.getState().checkAuth();
     }, []);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            connectSocket();
+        } else {
+            disconnectSocket();
+        }
+    }, [isAuthenticated, connectSocket, disconnectSocket]);
 
     useEffect(() => {
         window.scrollTo(0, 0);

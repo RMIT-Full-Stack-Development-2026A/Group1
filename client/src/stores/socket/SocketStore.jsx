@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
+import { useAuthStore } from '@/stores/auth/AuthStore';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -26,6 +27,20 @@ export const useSocketStore = create((set, get) => ({
         socketInstance.on('disconnect', (reason) => {
             console.log('[Socket] Disconnected. Reason:', reason);
             set({ socket: null, isConnected: false });
+        });
+
+        socketInstance.on('account:deactivated', (payload = {}) => {
+            const deactivationPayload = {
+                message: payload.message || 'Your account has been deactivated by an administrator.',
+                reason: payload.reason || 'ACCOUNT_DEACTIVATED',
+            };
+
+            window.dispatchEvent(new CustomEvent('account:deactivated', {
+                detail: deactivationPayload,
+            }));
+
+            get().disconnectSocket();
+            void useAuthStore.getState().logout();
         });
 
         // Catch Authentication Errors triggered by socketAuthMiddleware

@@ -110,6 +110,9 @@ export const registerRoomSocketHandlers = (io, socket) => {
 
     socket.on('disconnect', async () => {
         try {
+            const userSockets = await io.in(user.id.toString()).allSockets();
+            if (userSockets.size > 0) return;
+            
             const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
             if (!activeRoom) return;
 

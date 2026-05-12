@@ -51,7 +51,7 @@ const baseSchemaOptions = {
 ## 3. User Model (`user.model.js`)
 **Owned by**: auth module
 
-**Purpose**: Stores account identity, authentication state, premium state, and wallet balance snapshot.
+**Purpose**: Stores account identity, authentication state, and premium state.
 
 ```js
 const userSchema = new mongoose.Schema({

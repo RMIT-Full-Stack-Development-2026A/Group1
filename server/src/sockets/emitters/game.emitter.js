@@ -8,12 +8,12 @@ export const GameEmitter = {
         socket.emit('room:created', payload);
     },
 
-    broadcastRoomUpdated: (io, payload) => {
-        io.emit('room:updated', payload);
+    emitRoomUpdated: (io, roomId, payload) => {
+        io.to(String(roomId)).emit('room:updated', payload);
     },
 
-    broadcastRoomRemoved: (io, roomId) => {
-        io.emit('room:removed', { roomId: String(roomId) });
+    emitRoomRemoved: (io, roomId) => {
+        io.to(String(roomId)).emit('room:removed', { roomId: String(roomId) });
     },
 
     emitGameStart: (io, roomId, payload) => {

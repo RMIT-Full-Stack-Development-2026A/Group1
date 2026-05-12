@@ -3,9 +3,13 @@ import { RoomDTO } from '../dtos/room.dto.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { ROOM_STATUS } from '../constants/room.constants.js';
-import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend, validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady } from '../validators/room.validator.js';
-import { GameRoom } from '../models/gameRoom.model.js'; 
+import { GameRoom } from '../models/gameRoom.model.js';
 import { checkGomokuWin } from '../../../utils/gomoku.util.js';
+import { 
+    validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, 
+    validateRoomLeave, validateGameMove, validateChatSend, 
+    validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady 
+} from '../validators/room.validator.js'; 
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {
@@ -72,7 +76,6 @@ export const RoomService = {
         return RoomRepository.countActiveRooms();
     },
 
-
     getPaginatedRooms: async (filter, sort, skip, limit) => {
         const { rooms, total } = await RoomRepository.findPaginated(filter, sort, skip, limit);
         const page = limit > 0 ? Math.floor(skip / limit) + 1 : 1;
@@ -86,7 +89,6 @@ export const RoomService = {
     forceCloseRoomByAdmin: async (roomId) => {
         const room = await RoomRepository.findById(roomId);
 
-        // Room doesn't exist
         if (!room) {
             throw {
                 statusCode: 404,
@@ -96,27 +98,23 @@ export const RoomService = {
             };
         }
 
-        // Room closed
-        if (!room || ['CLOSED', 'ABORTED'].includes(room.status)) {
+        if (['CLOSED', 'ABORTED'].includes(room.status)) {
             throw {
-                statusCode: 409, // 409 Conflict is appropriate here
+                statusCode: 409,
                 error: "ROOM_ALREADY_CLOSED",
                 message: "Room is already closed or aborted.",
                 cause: `The room ID ${roomId} is currently in a ${room.status} state.`
             };
         }
 
-        // Create a single timestamp 
         const closedAt = new Date();
 
-        // Update Room State to CLOSED by ADMIN
         const closedRoom = await RoomRepository.updateRoomStatus(roomId, {
             status: 'CLOSED',
             closedBy: 'ADMIN',
             endedAt: closedAt
         });
 
-        // Abort if the update failed
         if (!closedRoom) {
             throw {
                 statusCode: 500,
@@ -127,7 +125,6 @@ export const RoomService = {
             }; 
         }
 
-        // If the match was currently PLAYING
         if (room.status === 'PLAYING') {
             const firstTurnParticipantIndex = room.moves?.length
                 ? (room.moves[0]?.byParticipantIndex ?? 0)
@@ -137,10 +134,15 @@ export const RoomService = {
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
-                participants: room.participants,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    mark: p.mark, 
+                    role: 'HUMAN'
+                })),
                 firstTurnParticipantIndex,
                 status: 'ABORTED',
-                endedReason: 'ADMIN_FORCE_CLOSE', // Explicitly marked as admin intervention
+                endedReason: 'ADMIN_FORCE_CLOSE',
                 moves: room.moves,
                 totalMoves: room.moveCount,
                 startedAt: room.startedAt,
@@ -156,7 +158,6 @@ export const RoomService = {
     handleRoomCreate: async (userId, payload) => {
         const { boardSize, marker, boardStyle, markerStyle } = validateRoomCreate(payload);
 
-        // Ensure user doesn't already have an active room
         const existingRoom = await RoomRepository.findActiveRoomByUserId(userId);
         if (existingRoom) {
             throw { statusCode: 400, error: "ALREADY_IN_ROOM", message: "You are already in an active room." };
@@ -191,7 +192,6 @@ export const RoomService = {
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         if (room.status !== ROOM_STATUS.WAITING) throw { statusCode: 400, error: "ROOM_NOT_WAITING", message: "Room is already full or playing." };
         
-        // Check if user is already the host
         if (room.participants[0].userId.toString() === userId.toString()) {
             throw { statusCode: 400, error: "ALREADY_IN_ROOM", message: "You are already in this room." };
         }
@@ -234,12 +234,10 @@ export const RoomService = {
             throw { statusCode: 403, error: "NOT_YOUR_TURN", message: "It is not your turn." };
         }
 
-        // Validate coordinate uniqueness
         if (room.moves.some(m => m.row === row && m.col === col)) {
             throw { statusCode: 400, error: "INVALID_MOVE", message: "Cell is already occupied." };
         }
 
-        // Convert Row/Col to Algebraic
         const coordinate = `${String.fromCharCode(65 + col)}${row + 1}`;
         const newMove = { 
             moveNumber: room.moveCount + 1, 
@@ -249,14 +247,12 @@ export const RoomService = {
         };
 
         const nextTurn = pIndex === 0 ? 1 : 0;
-        // Push move to DB
         let updatedRoom = await RoomRepository.pushMove(roomId, newMove, nextTurn);
 
-        // GOMOKU win check
+        // Check for a Gomoku win after the latest move.
         const winningLine = checkGomokuWin(updatedRoom.moves, room.boardSize, row, col, pIndex);
         const isWin = winningLine !== null;
         
-        // Draw condition
         const isDraw = !isWin && updatedRoom.moveCount >= (room.boardSize * room.boardSize);
 
         let gameEnded = null;
@@ -272,7 +268,12 @@ export const RoomService = {
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
                 markerStyle: room.markerStyle,
-                participants: room.participants,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    mark: p.mark, 
+                    role: 'HUMAN' 
+                })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: isWin ? 'FINISHED' : 'DRAW',
                 endedReason: isWin ? 'WIN' : 'DRAW',
@@ -284,26 +285,40 @@ export const RoomService = {
                 endedAt
             });
 
-            // Reset for rematch
-            updatedRoom.status = ROOM_STATUS.READY;
-            updatedRoom.moves = [];
-            updatedRoom.moveCount = 0;
-            updatedRoom.winningLine = [];
-            updatedRoom.lastMove = { row: null, col: null, coordinate: null };
-            updatedRoom.startedAt = null;
-            updatedRoom.currentTurnParticipantIndex = null;
+            const finalGameState = RoomDTO.toGameStatePayload({ room: updatedRoom, board: updatedRoom.moves });
 
-            // Clear Ready status for the rematch
-            updatedRoom.participants.forEach(p => p.isReady = false);
-            await updatedRoom.save();
+            // Soft-reset the GameRoom to allow a rematch
+            const resetParticipants = Array.isArray(updatedRoom.participants)
+                ? updatedRoom.participants.map(p => ({ ...p, isReady: false }))
+                : [];
+
+            updatedRoom = await RoomRepository.updateRoomStatus(roomId, {
+                status: ROOM_STATUS.READY,
+                moves: [],
+                moveCount: 0,
+                winningLine: [], // Cleared for Rematch
+                participants: resetParticipants,
+                lastMove: { row: null, col: null, coordinate: null },
+                startedAt: null,
+                endedAt: null,
+                currentTurnParticipantIndex: null
+            });
 
             gameEnded = RoomDTO.toGameEndedPayload({
                 roomId,
                 winnerParticipantIndex: isWin ? pIndex : null,
-                winningLine: [],
+                winningLine: winningLine || [],
                 result: isWin ? 'WIN' : 'DRAW',
                 endedAt
             });
+
+            return {
+                roomId,
+                room: RoomDTO.toRoomSummary(updatedRoom),
+                gameState: finalGameState, 
+                gameEnded,
+                rematchAvailable: true
+            };
         }
 
         return {
@@ -314,37 +329,47 @@ export const RoomService = {
     },
 
     handleRoomLeave: async (userId, payload) => {
-        const { roomId, isTimeout } = payload; 
+        // Validation and parsing of roomId and isTimeout flag
+        const { roomId, isTimeout } = validateRoomLeave(payload);
+
         const room = await GameRoom.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
 
         const isParticipant = room.participants.some(p => p.userId.toString() === userId.toString());
-        if (!isParticipant && !isTimeout) return { action: 'ignored' };
+        if (!isParticipant) return { action: 'ignored' };
+
+        const endedAt = new Date();
 
         // Case 1: Leaving during an active match
         if (room.status === ROOM_STATUS.PLAYING) {
-            const endedAt = new Date();
-            
+            room.status = ROOM_STATUS.ABORTED;
+            room.endedAt = endedAt;
+            await room.save();
+
             // Persist to game history
             await GameInterface.createOnlineGameSessionFromRoom({
-                sessionNumber: `ONL-${room.roomNumber}`,
+                sessionNumber: `ONL-${room.roomNumber}-${Date.now()}`,
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
                 markerStyle: room.markerStyle,
-                participants: room.participants,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    mark: p.mark, 
+                    role: 'HUMAN'
+                })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
-                endedReason: 'PLAYER_ABORT',
-                abortedByUserId: userId,
+                endedReason: 'ABORT', 
+                abortedByUserId: isTimeout ? null : userId,
                 moves: room.moves,
                 totalMoves: room.moveCount,
                 startedAt: room.startedAt ?? room.createdAt ?? endedAt,
                 endedAt
             });
 
-            // Delete the room completely
             await RoomRepository.deleteRoom(roomId);
 
             return {
@@ -354,7 +379,7 @@ export const RoomService = {
                     roomId, result: 'ABORTED', endedAt
                 })
             };
-        } 
+        }
         
         // Case 2: Leaving from the room lobby
         const remainingParticipants = room.participants.filter(p => p.userId.toString() !== userId.toString());
@@ -374,6 +399,11 @@ export const RoomService = {
             
             return { action: 'updated', roomId, room: RoomDTO.toRoomSummary(room) };
         }
+    },
+
+    // Helper: Delete room completely (called from socket layer for cleanup)
+    forceDeleteRoom: async (roomId) => {
+        await RoomRepository.deleteRoom(roomId);
     },
 
     handleChatSend: async (userId, payload) => {

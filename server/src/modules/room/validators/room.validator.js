@@ -103,6 +103,23 @@ export const validateRoomJoin = (payload) => {
     return { roomId: payload.roomId };
 };
 
+export const validateRoomLeave = (payload) => {
+    const { roomId, isTimeout } = payload || {};
+    
+    // Check if roomId is valid ObjectId string
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required to leave." };
+    }
+    
+    // Check isTimeout is boolean if provided 
+    if (isTimeout !== undefined && typeof isTimeout !== 'boolean') {
+        throw { statusCode: 400, error: "INVALID_TIMEOUT_FLAG", message: "isTimeout must be a boolean." };
+    }
+    
+    // return both roomId and isTimeout 
+    return { roomId, isTimeout: isTimeout ?? false };
+};
+
 export const validateGameMove = (payload) => {
     const { roomId, row, col } = payload || {};
     if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {

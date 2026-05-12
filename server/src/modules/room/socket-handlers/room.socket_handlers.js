@@ -1,150 +1,113 @@
 import { RoomService } from '../services/room.service.js';
+import { GameEmitter } from '../../../sockets/emitters/game.emitter.js';
 
 export const disconnectTimers = new Map();
 
 export const registerRoomSocketHandlers = (io, socket) => {
-    // socket.user is populated by a socketAuthMiddleware
     const user = socket.user;
-
-    // Helper to format and send errors
-    const handleError = (err, eventName) => {
-        console.error(`[Socket Error] ${eventName}:`, err.message || err);
-        socket.emit('error', {
-            event: eventName,
-            error: err.error || 'SERVER_ERROR',
-            message: err.message || 'An unexpected error occurred.',
-            cause: err.cause || null
-        });
-    };
 
     socket.on('room:create', async (payload) => {
         try {
             const result = await RoomService.handleRoomCreate(user.id, payload);
-            
-            // Join the socket to the new room's specific channel
             socket.join(result.room.id);
-            
-            // Send success to creator
-            socket.emit('room:created', result);
-            // Broadcast to all users in the arena
-            io.emit('room:updated', result);
+            GameEmitter.emitRoomCreated(socket, result);
+            // DO NOT broadcast to the entire server to prevent storms. Arena uses manual refresh.
         } catch (err) {
-            handleError(err, 'room:create');
+            GameEmitter.emitError(socket, 'room:create', err);
         }
     });
 
     socket.on('room:join', async (payload) => {
         try {
             const result = await RoomService.handleRoomJoin(user.id, payload);
-            
             socket.join(result.room.id);
-            
-            // Broadcast updated room state to arena and room members
-            io.emit('room:updated', { room: result.room });
-
-            // If the room transitioned to PLAYING, broadcast initial game state
+            GameEmitter.emitRoomUpdated(io, result.room.id, { room: result.room });
             if (result.gameState) {
-                io.to(result.room.id).emit('game:state', result.gameState);
+                GameEmitter.emitGameState(io, result.room.id, result.gameState);
             }
         } catch (err) {
-            handleError(err, 'room:join');
+            GameEmitter.emitError(socket, 'room:join', err);
         }
     });
 
     socket.on('game:move', async (payload) => {
         try {
             const result = await RoomService.handleGameMove(user.id, payload);
-            
-            // Broadcast the new game state to everyone in the room
-            io.to(result.roomId).emit('game:state', result.gameState);
-
-            // If the move ended the game (WIN/DRAW), broadcast game:ended 
+            GameEmitter.emitGameState(io, result.roomId, result.gameState);
             if (result.gameEnded) {
-                io.to(result.roomId).emit('game:ended', result.gameEnded);
+                GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
+                // If a rematch is available, the service returned the updated room summary.
+                if (result.rematchAvailable && result.room) {
+                    GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
+                    // Keep sockets in the room so players can ready up for rematch
+                } else {
+                    GameEmitter.emitRoomRemoved(io, result.roomId);
+                    io.in(result.roomId).socketsLeave(result.roomId);
+                }
             }
         } catch (err) {
-            handleError(err, 'game:move');
+            GameEmitter.emitError(socket, 'game:move', err);
         }
     });
 
     socket.on('room:leave', async (payload) => {
         try {
-            const result = await RoomService.handleRoomLeave(user.id, payload);
+            const result = await RoomService.handleRoomLeave(user.id, { roomId: payload?.roomId });
             
-            socket.leave(payload.roomId);
+            if (result.action === 'ignored') return;
 
-           if (result.action === 'removed') {
-                // Broadcast to Global Arena so everyone's list updates
-                io.emit('room:removed', { roomId: result.roomId });
-            } else if (result.action === 'updated') {
-                // Tell the remaining player they are now the Host
-                io.emit('room:updated', { room: result.room });
-            } else if (result.action === 'aborted') {
-                // Tell the remaining player they won by default, then destroy the room
-                io.to(result.roomId).emit('game:ended', result.gameEnded);
-                io.emit('room:removed', { roomId: result.roomId });
-                
-                // Force everyone out of this specific socket channel
+            if (result.action === 'removed' || result.action === 'aborted') {
+                if (result.gameEnded) GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
+                GameEmitter.emitRoomRemoved(io, result.roomId);
                 io.in(result.roomId).socketsLeave(result.roomId);
+            } else {
+                socket.leave(result.roomId); 
+                GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
             }
         } catch (err) {
-            handleError(err, 'room:leave');
+            GameEmitter.emitError(socket, 'room:leave', err);
         }
     });
 
     socket.on('chat:send', async (payload) => {
         try {
             const result = await RoomService.handleChatSend(user.id, payload);
-            io.to(result.roomId).emit('chat:message', result);
+            GameEmitter.emitChatMessage(io, result.roomId, result);
         } catch (err) {
-            handleError(err, 'chat:send');
+            GameEmitter.emitError(socket, 'chat:send', err);
         }
     });
 
-    socket.on('disconnect', async () => {
-        // Automatically handle disconnects as leaving the active room
-        try {
-            const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
-            if (activeRoom) {
-                const result = await RoomService.handleRoomLeave(user.id, { roomId: activeRoom.id });
-                if (result.action === 'removed') {
-                    io.emit('room:removed', { roomId: result.roomId });
-                } else if (result.action === 'aborted') {
-                    io.to(result.roomId).emit('game:ended', result.gameEnded);
-                    io.emit('room:removed', { roomId: result.roomId });
-                }
-            }
-        } catch (err) {
-            console.error('[Socket Disconnect Error]', err);
-        }
-    });
     socket.on('room:update_settings', async (payload) => {
         try {
             const result = await RoomService.handleUpdateSettings(user.id, payload);
-            io.to(result.roomId).emit('room:updated', { room: result.room });
-        } catch (err) { handleError(err, 'room:update_settings'); }
+            GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
+        } catch (err) {
+            GameEmitter.emitError(socket, 'room:update_settings', err);
+        }
     });
 
     socket.on('room:set_first_turn', async (payload) => {
         try {
             const result = await RoomService.handleSetFirstTurn(user.id, payload);
-            io.to(result.roomId).emit('room:updated', { room: result.room });
-        } catch (err) { handleError(err, 'room:set_first_turn'); }
+            GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
+        } catch (err) {
+            GameEmitter.emitError(socket, 'room:set_first_turn', err);
+        }
     });
 
     socket.on('room:ready', async (payload) => {
         try {
             const result = await RoomService.handleRoomReady(user.id, payload);
-            io.to(result.roomId).emit('room:updated', { room: result.room });
-            
-            // If both players are ready, the service will return gameStart == true
+            GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
             if (result.gameStart) {
-                io.to(result.roomId).emit('game:start', { roomId: result.roomId, startedAt: result.room.startedAt });
+                GameEmitter.emitGameStart(io, result.roomId, { roomId: result.roomId, startedAt: result.room.startedAt });
             }
-        } catch (err) { handleError(err, 'room:ready'); }
+        } catch (err) {
+            GameEmitter.emitError(socket, 'room:ready', err);
+        }
     });
 
-    //  Reworked disconnect handler to support a 60s grace period 
     socket.on('disconnect', async () => {
         try {
             const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
@@ -152,27 +115,34 @@ export const registerRoomSocketHandlers = (io, socket) => {
 
             if (activeRoom.status === 'PLAYING') {
                 // In-game -> apply a 60s grace period
-                io.to(activeRoom.id).emit('player:disconnected', { roomId: activeRoom.id, timeLeft: 60 });
-                
+                GameEmitter.emitPlayerDisconnected(io, activeRoom.id, { roomId: activeRoom.id, timeLeft: 60 });
+
                 const timerId = setTimeout(async () => {
-                    // If not reconnected after 60s -> treat as a loss
                     try {
                         const result = await RoomService.handleRoomLeave(user.id, { roomId: activeRoom.id, isTimeout: true });
-                        io.to(result.roomId).emit('game:ended', result.gameEnded);
-                        io.emit('room:removed', { roomId: result.roomId });
-                        io.in(result.roomId).socketsLeave(result.roomId);
-                    } catch (e) { console.error('Timeout leave failed', e); }
+                        if (result.gameEnded) GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
+
+                        if (result.action === 'removed' || result.action === 'aborted') {
+                            // Notify and evict remaining players from the room namespace
+                            GameEmitter.emitRoomRemoved(io, result.roomId);
+                            io.in(result.roomId).socketsLeave(result.roomId);
+                        }
+                    } catch (e) {
+                        if (e.error !== 'ROOM_NOT_FOUND') {
+                            console.error('Timeout leave failed', e);
+                        }
+                    }
                     disconnectTimers.delete(user.id);
-                }, 60000); // 60 seconds
-                
+                }, 60000);
+
                 disconnectTimers.set(user.id, timerId);
             } else {
                 // In lobby -> remove immediately, no grace period
                 const result = await RoomService.handleRoomLeave(user.id, { roomId: activeRoom.id });
                 if (result.action === 'removed') {
-                    io.emit('room:removed', { roomId: result.roomId });
+                    GameEmitter.emitRoomRemoved(io, result.roomId);
                 } else if (result.action === 'updated') {
-                    io.emit('room:updated', { room: result.room });
+                    GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
                 }
             }
         } catch (err) {

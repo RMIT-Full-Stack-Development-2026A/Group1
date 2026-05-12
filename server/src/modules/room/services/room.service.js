@@ -134,7 +134,12 @@ export const RoomService = {
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
-                participants: room.participants,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    mark: p.mark, 
+                    role: 'HUMAN'
+                })),
                 firstTurnParticipantIndex,
                 status: 'ABORTED',
                 endedReason: 'ADMIN_FORCE_CLOSE',
@@ -263,7 +268,12 @@ export const RoomService = {
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
                 markerStyle: room.markerStyle,
-                participants: room.participants,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    mark: p.mark, 
+                    role: 'HUMAN' 
+                })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: isWin ? 'FINISHED' : 'DRAW',
                 endedReason: isWin ? 'WIN' : 'DRAW',
@@ -290,7 +300,7 @@ export const RoomService = {
                 participants: resetParticipants,
                 lastMove: { row: null, col: null, coordinate: null },
                 endedAt: null,
-                currentTurnParticipantIndex: room.firstTurnParticipantIndex || 0
+                currentTurnParticipantIndex: null
             });
 
             gameEnded = RoomDTO.toGameEndedPayload({
@@ -343,7 +353,12 @@ export const RoomService = {
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
                 markerStyle: room.markerStyle,
-                participants: room.participants,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    mark: p.mark, 
+                    role: 'HUMAN'
+                })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
                 endedReason: 'ABORT', 

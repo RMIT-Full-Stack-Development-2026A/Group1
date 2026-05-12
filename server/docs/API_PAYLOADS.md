@@ -1658,7 +1658,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```
 
 **Notes:**
-- Note: Emitted strictly to the creating client (\socket.emit`). To prevent broadcast storms, the Global Arena uses manual HTTP polling.`
+- Note: Emitted strictly to the creating client (`socket.emit(...)`). To prevent broadcast storms, the Global Arena uses manual HTTP polling.`
 
 #### `room:updated`
 **Payload:**

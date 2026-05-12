@@ -18,6 +18,25 @@ const GRID_STYLES = [
 ];
 
 // Maps frontend numeric IDs to backend enum names
+const BOARD_THEMES = {
+    classic: {
+        wrapper: 'bg-surface-card border border-outline-variant',
+        cellBorder: 'border-[#2a2a4e]',
+        boardBorder: 'border-l border-t border-[#2a2a4e]',
+    },
+    neon: {
+        wrapper: 'bg-[#0a0a1a] border border-[#4cc9f0]',
+        cellBorder: 'border-[#4cc9f0]/40',
+        boardBorder: 'border-l border-t border-[#4cc9f0]/40',
+        glow: { boxShadow: '0 0 20px rgba(76,201,240,0.15), inset 0 0 20px rgba(76,201,240,0.05)' },
+    },
+    block: {
+        wrapper: 'bg-[#0f0f0f] border-4 border-[#3a3a3a]',
+        cellBorder: 'border-[#2a2a2a]',
+        boardBorder: 'border-l-2 border-t-2 border-[#2a2a2a]',
+    },
+};
+// 'CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'
 const MARKER_VARIANTS = [
     { 
         id: "CLASSIC", 
@@ -36,7 +55,7 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_8px_#a855f7] drop-shadow-[0_0_18px_#a855f7] drop-shadow-[0_0_30px_#a855f7]" 
     },
     { 
-        id: "ELEMENTAL", 
+        id: "SKETCH", 
         displayId: 3, 
         xColor: "text-orange-500", 
         oColor: "text-blue-400", 
@@ -44,7 +63,7 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_10px_#60a5fa] drop-shadow-[0_0_20px_#3b82f6]" 
     },
     { 
-        id: "PIXEL", 
+        id: "STONE", 
         displayId: 4, 
         xColor: "text-lime-400", 
         oColor: "text-pink-500", 
@@ -52,7 +71,7 @@ const MARKER_VARIANTS = [
         oGlow: "drop-shadow-[0_0_6px_#ec4899] drop-shadow-[0_0_12px_#ec4899] drop-shadow-[0_0_20px_#ec4899]" 
     },
     { 
-        id: "STONE", 
+        id: "PIXEL", 
         displayId: 5, 
         xColor: "text-slate-200", 
         oColor: "text-slate-200", 
@@ -61,7 +80,7 @@ const MARKER_VARIANTS = [
         bordered: true 
     },
     { 
-        id: "MATRIX", 
+        id: "MINIMAL", 
         displayId: 6, 
         xColor: "text-emerald-400", 
         oColor: "text-emerald-400", 
@@ -92,20 +111,19 @@ export const getMarkerVariants = () => [...MARKER_VARIANTS];
  * @param {Object} selection - Frontend selection { boardSize, gridStyle, markerVariant }
  * @returns {Object} Backend format { boardSize: number, boardStyle: string, markerStyle: string }
  */
+
 export const transformToBackendFormat = (selection) => {
-    // Find the backend enum names from display selections
+    
     let boardSize = selection.boardSize;
     if (typeof boardSize === 'string') {
-        // If it's "10x10" or "15x15" format, parse to number
         boardSize = parseInt(boardSize.split('x')[0]);
     }
-
-    // Find grid style enum name - match by displayId
-    const gridStyleObj = GRID_STYLES.find(s => s.displayId === selection.gridStyle);
-    const boardStyle = gridStyleObj?.id || 'NEON';
-
-    // Find marker style enum name - match by displayId
-    const markerVariantObj = MARKER_VARIANTS.find(m => m.displayId === selection.markerVariant);
+  
+    const currentGridStyle = String(selection.gridStyle).toLowerCase();
+    const gridStyleObj = GRID_STYLES.find(s => s.displayId === currentGridStyle);
+    const boardStyle = gridStyleObj?.id || 'CLASSIC'; 
+    const currentMarkerId = Number(selection.markerVariant); 
+    const markerVariantObj = MARKER_VARIANTS.find(m => m.displayId === currentMarkerId);
     const markerStyle = markerVariantObj?.id || 'CLASSIC';
 
     return {
@@ -150,6 +168,8 @@ export const createGameRoom = async (options) => {
         console.error("Room creation error:", error);
         throw error;
     }
+    console.log("Dữ liệu gốc từ UI:", options);
+    console.log("Dữ liệu sau khi chuyển đổi (Payload):", backendPayload);
 };
 
 /**
@@ -161,43 +181,26 @@ export const getDifficultyLevels = () => {
         {
             id: 'EASY',
             level: 'EASY',
-            aiName: 'Jeremy',
+            aiName: 'Bot (Easy)',
             badgeColor: 'cyan-400',
             badgeColorHex: '#22d3ee',
-            description: 'A novice AI that makes random decisions adjacent to your moves. Perfect for learning the game.',
-            behaviors: [
-                'Random selection from adjacent empty cells',
-                'No defensive strategy',
-                'Ideal for beginners'
-            ]
+            description: 'A rookie opponent. Learn the game at your own pace.'
         },
         {
             id: 'MEDIUM',
             level: 'MEDIUM',
-            aiName: 'Bot',
+            aiName: 'Bot (Medium)',
             badgeColor: 'yellow-400',
             badgeColorHex: '#facc15',
-            description: 'A tactical AI focused on defense. Blocks your winning patterns and prevents threats.',
-            behaviors: [
-                'Prevents 5-mark lines',
-                'Blocks 4-mark opened lines',
-                'Counters fork formations',
-                'Challenging opponents'
-            ]
+            description: 'A seasoned opponent. Expect a real challenge.'
         },
         {
             id: 'HARD',
             level: 'HARD',
-            aiName: 'Neural',
+            aiName: 'Bot (Hard)',
             badgeColor: 'red-500',
             badgeColorHex: '#ef4444',
-            description: 'An advanced AI with both defensive and offensive play. Completes its own patterns when possible.',
-            behaviors: [
-                'All defensive tactics (MEDIUM)',
-                'Aggressive pattern completion',
-                'Strategic offensive play',
-                'Expert difficulty'
-            ]
+            description: 'A master tactician. Seek the ultimate test of skill.'
         }
     ];
 };

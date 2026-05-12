@@ -15,14 +15,32 @@ const gameRoomSchema = new mongoose.Schema({
     },
 
     boardSize: {
-        type: Number, // Board size selected for this online room
+        type: Number, 
         enum: [10, 15],
         required: true,
         index: true 
     },
 
+    boardStyle: {
+        type: String, 
+        enum: ['CLASSIC', 'DARK', 'NEON'], 
+        default: 'CLASSIC'
+    },
+
+    markerStyle: {
+        type: String, 
+        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], 
+        default: 'CLASSIC'
+    },
+
+    firstTurnParticipantIndex: {
+        type: Number, 
+        enum: [0, 1],
+        default: 0 
+    },
+
     status: {
-        type: String, // Current lifecycle state of the room
+        type: String, 
         enum: ALL_ROOM_STATUSES,
         default: ROOM_STATUS.WAITING, 
         index: true 
@@ -80,5 +98,10 @@ const gameRoomSchema = new mongoose.Schema({
 gameRoomSchema.index({ status: 1, createdAt: -1 }); // Fast arena queries by room status
 gameRoomSchema.index({ 'participants.userId': 1, status: 1 }); // Fast reconnect lookup for a user's active room
 gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*60 }) // TTL: Engine auto-deletes document 1 hr after closure
+//auto remove the Room with status WATING for 30mins
+gameRoomSchema.index(
+    { createdAt: 1 }, 
+    { expireAfterSeconds: 1800, partialFilterExpression: { status: ROOM_STATUS.WAITING } }
+);
 
 export const GameRoom = mongoose.model('GameRoom', gameRoomSchema);

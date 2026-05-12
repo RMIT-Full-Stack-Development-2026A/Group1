@@ -6,8 +6,8 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useFormValidation } from "@/pages/Guest/Register/hook/useFormValidation";
-import { useCountries } from "@/pages/Guest/Register/hook/useCountries";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { useCountries } from "@/hooks/useCountries";
 import { registerService } from "../service/register.service";
 
 export const useRegister = () => {
@@ -22,6 +22,13 @@ export const useRegister = () => {
 
             form.setLoading(true);
             form.setMessage({ type: "", text: "" });
+
+            // Show password mismatch error on submit if applicable
+            if (form.passwordMismatch) {
+                form.setShowPasswordMismatch(true);
+                form.setLoading(false);
+                return;
+            }
 
             try {
                 // Validate form first

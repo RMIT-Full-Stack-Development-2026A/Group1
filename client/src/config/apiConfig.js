@@ -6,8 +6,6 @@ export const API_ENDPOINTS = {
         LOGIN: "/auth/login",
         LOGOUT: "/auth/logout",
         CHECK_AUTH: "/auth/check-auth",
-        // TODO: Backend needs to implement endpoint to clear failed login attempts
-        // CLEAR_FAILED_ATTEMPTS: "/auth/clear-failed-attempts",
     },
     PROFILE: {
         UPDATE: "/profile",
@@ -29,8 +27,9 @@ export const API_ENDPOINTS = {
     },
     SUBSCRIPTION: {
         STATUS: "/subscription/status",
-        SUBSCRIBE: "/subscription/subscribe",
-        HISTORY: "/subscription/history",
+        CREATE_ORDER: "/subscription/create-order",  // Khớp với hàm createOrder ở Backend
+        CAPTURE_ORDER: "/subscription/capture-order", // Khớp với hàm captureOrder ở Backend
+        HISTORY: "/subscription/history",             // Khớp với hàm getHistory ở Backend
     },
     WALLET: {
         BALANCE: "/wallet",

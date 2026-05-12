@@ -1,25 +1,25 @@
 import React from "react";
 
 /**
- * EmailField Component
- * Reusable email input with real-time validation criteria display
+ * UsernameField Component
+ * Reusable username input with validation criteria display
  */
-const EmailField = ({
+const UsernameField = ({
     value,
     onChange,
-    placeholder = "player@gmail.com",
-    emailValidation = { hasAt: false, hasDot: false, validLength: false, noProhibited: false },
+    placeholder = "PLAYER_01",
+    usernameValidation = { validChars: false, validLength: false },
     CriteriaCheckbox,
     disabled = false,
 }) => {
     return (
         <div className="space-y-2">
             <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
-                Email Address
+                Username
             </label>
             <input
-                type="email"
-                name="email"
+                type="text"
+                name="username"
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
@@ -33,20 +33,12 @@ const EmailField = ({
                     </p>
                     <div className="space-y-1">
                         <CriteriaCheckbox
-                            met={emailValidation.hasAt}
-                            label="Contains exactly one '@' symbol"
+                            met={usernameValidation.validLength}
+                            label="At least 6 characters"
                         />
                         <CriteriaCheckbox
-                            met={emailValidation.hasDot}
-                            label="Has '.' after '@' symbol"
-                        />
-                        <CriteriaCheckbox
-                            met={emailValidation.validLength}
-                            label="Less than 255 characters"
-                        />
-                        <CriteriaCheckbox
-                            met={emailValidation.noProhibited}
-                            label="No spaces or prohibited chars ( ) ; :"
+                            met={usernameValidation.validChars}
+                            label="Only letters, numbers, underscore (_), hyphen (-)"
                         />
                     </div>
                 </div>
@@ -55,4 +47,4 @@ const EmailField = ({
     );
 };
 
-export default EmailField;
+export default UsernameField;

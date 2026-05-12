@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import Layout from "./Layout";
 import AppRouter from "./routes/AppRouter";
 import { useAuthStore } from "./stores/AuthStore";
+import BackgroundMusicController from "@/components/reusable/BackgroundMusicController";
 
 function App() {
     const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -20,6 +21,7 @@ function App() {
 
     return (
         <Layout>
+            <BackgroundMusicController />
             <AppRouter />
             <Toaster position="bottom-right" reverseOrder={false} />
         </Layout>

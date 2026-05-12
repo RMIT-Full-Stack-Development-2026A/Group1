@@ -15,7 +15,7 @@ export const useCustomizationStore = create((set) => ({
     // Actions
     setBoardSize: (size) => set({ boardSize: size }),
     setGridStyle: (style) => set({ gridStyle: style }),
-    setMarkerVariant: (variant) => set({ markerVariant: variant }),
+    setMarkerVariant: (variant) => set({ markerVariant: Number(variant) }),
 
     /**
      * Set all customization options at once (display format)

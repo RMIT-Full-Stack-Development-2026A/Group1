@@ -1,16 +1,20 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 // Stores
 import { useAuthStore } from '@/stores/AuthStore';
-import { useModeStore } from '@/stores/ModeStore'; 
-import { useCustomizationStore } from '@/stores/CustomizationStore'; 
+import { useModeStore } from '@/stores/ModeStore';
+import { useCustomizationStore } from '@/stores/CustomizationStore';
 
 // Services
 import { getDifficultyLevels } from '@/pages/Player/GameCustomization/service/customization.service';
 
+// Utils
+import { getMarkerVariant } from '@/utils/markerRenderer';
 import { useGame } from './hook/useGame.hook';
 
+// Components
+import AbortModal from './sub-components/AbortModal';
 import Navigation from '@/components/reusable/Navigation';
 import Footer from '@/components/reusable/Footer';
 import ScanLines from '@/components/reusable/ScanLines';
@@ -20,15 +24,26 @@ import WinOverlay from './sub-components/WinOverlay';
 
 const GameBoard = () => {
     const navigate = useNavigate();
+    // State for controlling the abort confirmation modal
+    const [showAbortModal, setShowAbortModal] = useState(false);
 
-    const { user, isCheckingAuth } = useAuthStore(); 
-    const { gameMode, aiDifficulty } = useModeStore();
-    const { boardSize: displaySize, markerVariant, setMarkerVariant } = useCustomizationStore();
+    // Global state from stores
+    const { user, isCheckingAuth } = useAuthStore();
+    const { gameMode, aiDifficulty, player2Name } = useModeStore();
+    const { boardSize: displaySize, gridStyle, markerVariant, setMarkerVariant } = useCustomizationStore();
 
     // Convert the string "10x10" or "15x15" from the store into an integer of 10 or 15.
     const initialBoardSize = useMemo(() => {
         return parseInt(displaySize.split('x')[0], 10) || 10;
     }, [displaySize]);
+
+    // Get the marker variant data based on the selected variant
+    const markerVariantData = useMemo(() => {
+        return getMarkerVariant(markerVariant);
+    }, [markerVariant]);
+
+    // Get user avatar URL (fallback to undefined if not available)
+    const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
     // Map the markerVariant number (1, 2, 3...) to a string (default, custom_1...) so that the BoardArea component understands it.
     const activeMarkerStyle = markerVariant === 1 ? 'default' : `custom_${markerVariant}`;
@@ -36,21 +51,25 @@ const GameBoard = () => {
     // Set title and player name
     const matchTitle = gameMode === 'SINGLE_PLAYER' ? `VS AI — ${aiDifficulty}` : gameMode === 'ONLINE_MATCH' ? 'RANKED MATCH' : 'LOCAL MULTIPLAYER';
     const isBotMatch = gameMode === 'SINGLE_PLAYER';
-    
+
     // Get AI name from difficulty level
     const getAIName = (difficulty) => {
         const difficulties = getDifficultyLevels();
         const difficultyObj = difficulties.find(d => d.id === difficulty);
         return difficultyObj ? difficultyObj.aiName : 'NEXUS-9';
     };
-    
-    const p2Name = isBotMatch ? getAIName(aiDifficulty) : gameMode === 'ONLINE_MATCH' ? 'OPPONENT' : 'PLAYER_02';
+
+    const p2Name = isBotMatch
+        ? getAIName(aiDifficulty)
+        : gameMode === 'ONLINE_MATCH'
+            ? 'OPPONENT'
+            : (player2Name?.trim() || 'PLAYER_02');
 
     // Build player infor
     const playersInfo = useMemo(() => {
         const player1 = {
-            userId: user?._id || user?.id || null, 
-            usernameSnapshot: user?.username || user?.name || 'PLAYER_01', 
+            userId: user?.id,
+            usernameSnapshot: user?.username || user?.name || 'PLAYER_01',
             role: 'HUMAN',
             mark: 'X'
         };
@@ -64,7 +83,7 @@ const GameBoard = () => {
 
         if (isBotMatch) {
             player2.role = 'AI';
-            player2.aiDifficulty = aiDifficulty; 
+            player2.aiDifficulty = aiDifficulty;
         }
 
         return [player1, player2];
@@ -77,13 +96,24 @@ const GameBoard = () => {
         currentPlayer,
         winnerData,
         isDraw,
-        isLocked, 
+        isLocked,
         handleMove,
         resetGame,
         setBoardSize,
+        abortGame,
+        isAborting
     } = useGame(gameMode, playersInfo, initialBoardSize);
 
     const gameOver = !!winnerData || isDraw;
+    const userMark = 'X';
+    const isLocalMatch = gameMode === 'TWO_PLAYERS' || gameMode === 'LOCAL_MULTIPLAYER';
+    const perspective = isDraw
+        ? 'draw'
+        : winnerData
+            ? (isLocalMatch
+                ? 'local_result'
+                : (winnerData.player === userMark ? 'winner' : 'loser'))
+            : null;
 
     // Handling dropdown events in the board area
     const handleMarkerChange = (val) => {
@@ -92,12 +122,18 @@ const GameBoard = () => {
         setMarkerVariant(newVariant || 1);
     };
 
+    const handleAbortConfirm = async () => {
+        await abortGame();
+        setShowAbortModal(false);
+        navigate(isBotMatch ? '/game-mode-select' : '/lobby');
+    };
+
     if (isCheckingAuth) {
         return <div className="h-screen bg-deep-bg flex items-center justify-center font-headline text-primary-cyan">AUTHENTICATING...</div>;
     }
 
     return (
-        <div className="flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden h-screen w-screen relative">
+        <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden relative">
             <ScanLines />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&display=swap');
@@ -115,40 +151,68 @@ const GameBoard = () => {
 
             <Navigation />
 
-            <main className="mx-auto w-fit pt-16 flex-1 overflow-hidden flex px-6 gap-6 items-center justify-center font-mono">
-                <PlayerPanel 
-                    role="X" 
-                    playerName={playersInfo[0].usernameSnapshot} 
-                    isBot={false} 
-                    isActive={currentPlayer === 'X' && !gameOver} 
+            <main className="flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
+                {!gameOver && (
+                    <div className="fixed top-20 right-6 z-50">
+                        <button
+                            onClick={() => setShowAbortModal(true)}
+                            className="border-2 border-[#ffb4ab] text-[#ffb4ab] font-headline text-[8px] px-4 py-2 uppercase
+                       hover:bg-[#ffb4ab]/10 transition-all cursor-pointer"
+                        >
+                            ABORT
+                        </button>
+                    </div>
+                )}
+                <PlayerPanel
+                    role="X"
+                    playerName={playersInfo[0].usernameSnapshot}
+                    isBot={false}
+                    isActive={currentPlayer === 'X' && !gameOver}
+                    avatarUrl={userAvatarUrl}
+                    markerVariantData={markerVariantData}
                 />
 
                 <BoardArea
                     markerVariant={markerVariant}
+                    gridStyle={gridStyle}
                     board={board}
-                    boardSize={boardSize} 
+                    boardSize={boardSize}
                     matchTitle={matchTitle}
                     winnerData={winnerData}
                     isDraw={isDraw}
                     isLocked={isLocked}
                     onCellClick={handleMove}
                     onReset={resetGame}
-                    onSizeChange={setBoardSize} 
+                    onSizeChange={setBoardSize}
                     onMarkerChange={handleMarkerChange}
                 />
 
-                <PlayerPanel 
-                    role="O" 
-                    playerName={playersInfo[1].usernameSnapshot} 
-                    isBot={isBotMatch} 
-                    isActive={currentPlayer === 'O' && !gameOver} 
-                    difficulty={isBotMatch ? aiDifficulty : undefined} 
+                <PlayerPanel
+                    role="O"
+                    playerName={playersInfo[1].usernameSnapshot}
+                    isBot={isBotMatch}
+                    isActive={currentPlayer === 'O' && !gameOver}
+                    difficulty={isBotMatch ? aiDifficulty : undefined}
+                    markerVariantData={markerVariantData}
                 />
             </main>
 
             {gameOver && (
-                <WinOverlay winnerData={winnerData} isDraw={isDraw} onRestart={resetGame} onBackToLobby={() => navigate('/lobby')} />
+                <WinOverlay
+                    winnerData={winnerData}
+                    isDraw={isDraw}
+                    perspective={perspective}
+                    onRestart={resetGame}
+                    onBackToLobby={() => navigate(gameMode === 'ONLINE_MATCH' ? '/lobby' : '/play')}
+                />
             )}
+            <AbortModal
+                isOpen={showAbortModal}
+                gameMode={gameMode}
+                isSaving={isAborting}
+                onConfirm={handleAbortConfirm}
+                onCancel={() => setShowAbortModal(false)}
+            />
         </div>
     );
 }

@@ -8,13 +8,14 @@ export const sharedSchemas = {
             message: { type: 'string', example: 'OK' },
         },
     },
+    
     ErrorResponse: {
         type: 'object',
         properties: {
-            error:         { type: 'string',  example: 'VALIDATION_ERROR' },
-            message:       { type: 'string',  example: 'Human readable message' },
-            cause:         { type: 'string',  example: 'Field username is required' },
-            valid_example: { type: 'string',  example: '{ "username": "tictacasmin99" }' },
+            error:         { type: 'string', example: 'VALIDATION_ERROR' },
+            message:       { type: 'string', example: 'Human readable message' },
+            cause:         { type: 'string', example: 'Field username is required' },
+            valid_example: { type: 'string', example: '{ "username": "tictacasmin99" }' },
         },
     },
 
@@ -31,7 +32,7 @@ export const sharedSchemas = {
                     limit: { type: 'integer', example: 20 },
                 },
             },
-            message: { type: 'string' },
+            message: { type: 'string', example: 'Fetched successfully' },
         },
     },
 };

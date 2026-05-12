@@ -34,6 +34,11 @@ body {
     font-family: 'Press Start 2P', cursive;
 }
 
+/* Pixel font for arcade/number display */
+.font-arcade {
+    font-family: 'Press Start 2P', cursive;
+}
+
 /* Optional: Use for specific elements if needed */
 .pixel-font {
     font-family: 'Press Start 2P', cursive;
@@ -69,4 +74,26 @@ body {
   pointer-events: none;
   z-index: 50;
   opacity: 0.4;
+}
+
+@layer utilities {
+  /* Chunky retro arcade shadow effect on surface cards */
+  .chunky-shadow-surface {
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Chunky shadow on secondary/premium cards */
+  .chunky-shadow-secondary {
+    box-shadow: 6px 6px 0px rgba(250, 209, 0, 0.3);
+  }
+
+  /* Chunky shadow on primary action buttons */
+  .chunky-shadow-primary {
+    box-shadow: 4px 4px 0px rgba(76, 201, 240, 0.3);
+  }
+
+  /* Cyan glow effect for interactive elements */
+  .cyan-glow {
+    box-shadow: 0px 0px 8px rgba(147, 226, 255, 0.6);
+  }
 }

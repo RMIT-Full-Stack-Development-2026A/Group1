@@ -104,7 +104,7 @@ export const AdminService = {
             
             eventBus.emit('admin:user_deactivated', { 
                 userId: playerId, 
-                reason: "Vi phạm chính sách hệ thống." 
+                reason: "Violation of system policy." 
             });
         }
 

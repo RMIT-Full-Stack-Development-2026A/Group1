@@ -38,7 +38,7 @@ export const AdminDTO = {
     toPlayerDetail: (user, extra = {}) => ({
         ...toAdminPlayerItem(user),
         lastLoginAt: user?.auth?.lastLoginAt ?? null,
-        walletBalance: user?.wallet?.balance ?? 0,
+        // walletBalance removed: legacy Wallet system deprecated
         premiumExpiresAt: user?.premiumExpiresAt ?? null,
         ...extra
     }),

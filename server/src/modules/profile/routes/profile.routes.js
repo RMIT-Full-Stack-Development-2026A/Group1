@@ -25,7 +25,7 @@ profileRoutes.get('/', ProfileController.getProfile);
  * /api/v1/profile/overview:
  *   get:
  *     tags: [Profile]
- *     summary: Profile page aggregate (user + wallet + subscription + stats + recentGames)
+ *     summary: Profile page aggregate (user + subscription + stats + recentGames)
  *     responses:
  *       200:
  *         $ref: '#/components/responses/ProfileOverviewResponse'
@@ -62,13 +62,13 @@ profileRoutes.put('/update', ProfileController.updateProfile);
  *      summary: Change current user password
  *      requestBody:
  *          $ref: '#/components/requestBodies/ChangePasswordBody'
- *          responses:
- *              200:
- *                  $ref: '#/components/responses/NoDataResponse'
- *              400:
- *                  $ref: '#/components/responses/BadRequestResponse'
- *              401:
- *                  $ref: '#/components/responses/UnauthorizedResponse'
+ *      responses:
+ *          200:
+ *              $ref: '#/components/responses/NoDataResponse'
+ *          400:
+ *              $ref: '#/components/responses/BadRequestResponse'
+ *          401:
+ *              $ref: '#/components/responses/UnauthorizedResponse'
  */
 profileRoutes.patch('/password', ProfileController.changePassword);
 

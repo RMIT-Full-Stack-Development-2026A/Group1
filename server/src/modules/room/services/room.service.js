@@ -258,10 +258,8 @@ export const RoomService = {
 
         if (isWin || isDraw) {
             const endedAt = new Date();
-            const status = ROOM_STATUS.CLOSED;
-            updatedRoom = await RoomRepository.updateRoomStatus(roomId, { status, endedAt });
 
-            // Persist to Game History
+            // Persist to Game History (history always stored)
             await GameInterface.createOnlineGameSessionFromRoom({
                 sessionNumber: `ONL-${room.roomNumber}`,
                 sourceRoomId: room._id,
@@ -281,6 +279,24 @@ export const RoomService = {
                 endedAt
             });
 
+            // Soft-reset the GameRoom to allow a rematch instead of hard-closing
+            const resetParticipants = Array.isArray(updatedRoom.participants)
+                ? updatedRoom.participants.map(p => ({
+                    ...p,
+                    isReady: false
+                }))
+                : [];
+
+            updatedRoom = await RoomRepository.updateRoomStatus(roomId, {
+                status: ROOM_STATUS.READY,
+                moves: [],
+                moveCount: 0,
+                participants: resetParticipants,
+                lastMove: null,
+                startedAt: null,
+                endedAt: null
+            });
+
             gameEnded = RoomDTO.toGameEndedPayload({
                 roomId,
                 winnerParticipantIndex: isWin ? pIndex : null,
@@ -288,6 +304,14 @@ export const RoomService = {
                 result: isWin ? 'WIN' : 'DRAW',
                 endedAt
             });
+
+            return {
+                roomId,
+                room: RoomDTO.toRoomSummary(updatedRoom),
+                gameState: RoomDTO.toGameStatePayload({ room: updatedRoom, board: updatedRoom.moves }),
+                gameEnded,
+                rematchAvailable: true
+            };
         }
 
         return {
@@ -312,7 +336,7 @@ export const RoomService = {
             room.status = ROOM_STATUS.ABORTED;
             room.endedAt = endedAt;
             await room.save();
-            
+
             // Persist to game history
             await GameInterface.createOnlineGameSessionFromRoom({
                 sessionNumber: `ONL-${room.roomNumber}`,
@@ -359,6 +383,11 @@ export const RoomService = {
             
             return { action: 'updated', roomId, room: RoomDTO.toRoomSummary(room) };
         }
+    },
+
+    // Helper: Delete room if empty (called from socket layer when all connections are confirmed gone)
+    deleteRoomIfEmpty: async (roomId) => {
+        await RoomRepository.deleteRoom(roomId);
     },
 
     handleChatSend: async (userId, payload) => {

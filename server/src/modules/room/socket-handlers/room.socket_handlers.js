@@ -11,7 +11,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
             const result = await RoomService.handleRoomCreate(user.id, payload);
             socket.join(result.room.id);
             GameEmitter.emitRoomCreated(socket, result);
-            // KHÔNG broadcast toàn server để tránh bão. Arena dùng manual refresh.
+            // DO NOT broadcast to the entire server to prevent storms. Arena uses manual refresh.
         } catch (err) {
             GameEmitter.emitError(socket, 'room:create', err);
         }
@@ -36,8 +36,14 @@ export const registerRoomSocketHandlers = (io, socket) => {
             GameEmitter.emitGameState(io, result.roomId, result.gameState);
             if (result.gameEnded) {
                 GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
-                GameEmitter.emitRoomRemoved(io, result.roomId);
-                io.in(result.roomId).socketsLeave(result.roomId);
+                // If a rematch is available, the service returned the updated room summary.
+                if (result.rematchAvailable && result.room) {
+                    GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
+                    // Keep sockets in the room so players can ready up for rematch
+                } else {
+                    GameEmitter.emitRoomRemoved(io, result.roomId);
+                    io.in(result.roomId).socketsLeave(result.roomId);
+                }
             }
         } catch (err) {
             GameEmitter.emitError(socket, 'game:move', err);
@@ -109,12 +115,30 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 GameEmitter.emitPlayerDisconnected(io, activeRoom.id, { roomId: activeRoom.id, timeLeft: 60 });
 
                 const timerId = setTimeout(async () => {
-                    // If not reconnected after 60s -> treat as a loss
                     try {
                         const result = await RoomService.handleRoomLeave(user.id, { roomId: activeRoom.id, isTimeout: true });
-                        GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
-                        GameEmitter.emitRoomRemoved(io, result.roomId);
-                        io.in(result.roomId).socketsLeave(result.roomId);
+                        if (result.gameEnded) GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
+
+                        if (result.action === 'removed' || result.action === 'aborted') {
+                            // STEP 1: Count remaining sockets BEFORE kicking (since the disconnected player already left the room, count = 0 means both players are gone)
+                            let activeConnections = 0;
+                            try {
+                                const sockets = await io.in(String(result.roomId)).allSockets();
+                                activeConnections = sockets ? sockets.size : 0;
+                            } catch (e) {
+                                console.error('[Socket] Failed to check room sockets', e);
+                            }
+
+                            // STEP 2: Notify and remove remaining player (if any) from the room
+                            GameEmitter.emitRoomRemoved(io, result.roomId);
+                            io.in(result.roomId).socketsLeave(result.roomId);
+                            
+                            // STEP 3: Cleanup DB (only delete if both players are actually disconnected)
+                            if (result.action === 'aborted' && activeConnections === 0) {
+                                await RoomService.deleteRoomIfEmpty(result.roomId);
+                                console.log(`[Socket] Room ${result.roomId} deleted because both players disconnected.`);
+                            }
+                        }
                     } catch (e) {
                         console.error('Timeout leave failed', e);
                     }

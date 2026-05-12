@@ -42,6 +42,7 @@ export const GameEmitter = {
 
     // --- Standardized Error Broadcaster ---
     emitError: (socket, eventName, errorObj) => {
+        console.error(`[Socket Error - ${eventName}]`, errorObj);
         socket.emit('error', {
             event: eventName,
             error: errorObj.error || 'SERVER_ERROR',

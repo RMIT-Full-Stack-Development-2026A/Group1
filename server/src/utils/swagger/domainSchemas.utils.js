@@ -120,7 +120,7 @@ export const domainSchemas = {
                     participants:              { type: 'array', items: { $ref: '#/components/schemas/GameParticipant' } },
                     firstTurnParticipantIndex: { type: 'integer', enum: [0, 1] },
                     winnerParticipantIndex:    { type: 'integer', enum: [0, 1], nullable: true },
-                    endedReason:               { type: 'string', enum: ['WIN', 'DRAW', 'PLAYER_ABORT', 'ADMIN_FORCE_CLOSE'] },
+                    endedReason:               { type: 'string', enum: ['WIN', 'DRAW', 'ABORT', 'ADMIN_FORCE_CLOSE'] },
                     winningLine:               { type: 'array', items: { $ref: '#/components/schemas/WinningCell' } },
                     moves:                     { type: 'array', items: { $ref: '#/components/schemas/GameMove' } },
                     totalMoves:                { type: 'integer' },

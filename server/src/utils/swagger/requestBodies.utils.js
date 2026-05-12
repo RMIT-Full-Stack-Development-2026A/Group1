@@ -101,7 +101,7 @@ export const requestBodies = {
                         firstTurnParticipantIndex: { type: 'integer', enum: [0, 1] },
                         winnerParticipantIndex:    { type: 'integer', enum: [0, 1], nullable: true },
                         status:                    { type: 'string', enum: ['COMPLETED', 'ABORTED'] },
-                        endedReason:               { type: 'string', enum: ['WINNER', 'DRAW', 'PLAYER_ABORT', 'ADMIN_FORCE_CLOSE'] },
+                        endedReason:               { type: 'string', enum: ['WIN', 'DRAW', 'ABORT', 'ADMIN_FORCE_CLOSE'] },
                         winningLine:               { type: 'array', items: { $ref: '#/components/schemas/WinningCell' } },
                         moves:                     { type: 'array', items: { $ref: '#/components/schemas/GameMove' } },
                         startedAt:                 { type: 'string', format: 'date-time' },

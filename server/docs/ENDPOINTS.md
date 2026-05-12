@@ -113,11 +113,7 @@ These APIs manage user profile data and provide an optimized overview payload fo
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/profile` | Yes | Get current user's base profile | Yes |
-<<<<<<< HEAD
 | GET | `/profile/overview` | Yes | Get profile + subscription + recent game stats in one call | Yes |
-=======
-| GET | `/profile/overview` | Yes | Get profile + subscription + subscription summary + recent game stats in one call | Yes |
->>>>>>> 2e15bdbea41b03da69ad731488064ff0eeed93be
 | PUT | `/profile/update` | Yes | Update username, email, or country | Yes |
 | PATCH | `/profile/password` | Yes | Change current user's password | Yes |
 | POST | `/profile/avatar` | Yes | Upload avatar image | Yes |

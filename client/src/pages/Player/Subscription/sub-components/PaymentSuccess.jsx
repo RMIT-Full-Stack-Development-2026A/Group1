@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import subscriptionService from './service/subscription.service';
-import { useAuthStore } from '@/stores/AuthStore';
-import SoundButton from '@/components/reusable/SoundButton';
+import subscriptionService from '../service/subscription.service';
+import { useAuthStore } from '@/stores/auth/AuthStore';
+import SoundButton from '@/components/reusable/sound/SoundButton';
 
 export default function PaymentSuccess() {
     const [searchParams] = useSearchParams();
@@ -22,26 +22,21 @@ export default function PaymentSuccess() {
             const result = await subscriptionService.captureOrder(token);
             const expiresAt = result?.data?.status?.premiumExpiresAt;
             setPremiumExpiresAt(expiresAt ? new Date(expiresAt).toLocaleDateString() : null);
-            // After confirming capture is successful, update AuthStore immediately
-            const { user } = useAuthStore.getState();
-
-            // Sử dụng hàm setState mặc định của Zustand
-            useAuthStore.setState({
-                user: {
-                    ...user,
-                    isPremium: true,
-                    premiumExpiresAt: expiresAt
-                }
-            });
+            // After confirming capture is successful, refresh user from backend
+            await useAuthStore.getState().refreshUser();
             setStatus('success');
         } catch (err) {
             const errorCode = err?.data?.error ?? err?.data?.code ?? null;
             if (errorCode === 'ALREADY_CAPTURED') {
                 setStatus('already_captured');
                 await useAuthStore.getState().refreshUser();
-            } else {
-                setError(err?.data?.message ?? err?.message ?? 'Payment capture failed. Please contact support.');
-                setStatus('error');
+            } 
+            // set appear time for around 2.5s
+            else {
+                setTimeout(() => {
+                    setError(err?.data?.message ?? err?.message ?? 'Payment capture failed. Please contact support.');
+                    setStatus('error');
+                }, 2500);
             }
         }
     };
@@ -120,7 +115,6 @@ export default function PaymentSuccess() {
                     <SoundButton
                         onClick={() => {
                             hasCaptured.current = false;
-                            hasCaptured.current = true;
                             runCapture();
                         }}
                         className="flex-1 bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 active:translate-x-[2px] active:translate-y-[2px] transition-transform"

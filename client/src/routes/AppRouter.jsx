@@ -15,8 +15,8 @@ const GameCustomization = lazy(() => import("@/pages/Player/GameCustomization/in
 const GameBoard = lazy(() => import("@/pages/Player/GameBoard/index"));
 const MatchReplay = lazy(() => import("@/pages/Player/MatchReplay/index"));
 const SubscriptionPage = lazy(() => import("@/pages/Player/Subscription/index"));
-const PaymentSuccess = lazy(() => import("@/pages/Player/Subscription/PaymentSuccess"));
-const PaymentCancel = lazy(() => import("@/pages/Player/Subscription/PaymentCancel"));
+const PaymentSuccess = lazy(() => import("@/pages/Player/Subscription/sub-components/PaymentSuccess"));
+const PaymentCancel = lazy(() => import("@/pages/Player/Subscription/sub-components/PaymentCancel"));
 
 const AdminDashboard = lazy(() => import("@/pages/Admin/AdminDashboard/index"));
 const PlayerManagement = lazy(() => import("@/pages/Admin/PlayerManagement/index"));

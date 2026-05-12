@@ -16,7 +16,7 @@ export const setupGameNamespace = (io) => {
             const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(userId);
             if (activeRoom) {
                 await RoomInterface.forceCloseRoomByAdmin(activeRoom.id);
-                gameNamespace.emit('room:removed', { roomId: activeRoom.id });
+                gameNamespace.to(activeRoom.id.toString()).emit('room:removed', { roomId: activeRoom.id });
                 gameNamespace.in(activeRoom.id.toString()).socketsLeave(activeRoom.id.toString());
             }
 

@@ -1,11 +1,14 @@
 import { RoomRepository } from '../repositories/room.repository.js';
-import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend } from '../validators/room.validator.js';
 import { RoomDTO } from '../dtos/room.dto.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { ROOM_STATUS } from '../constants/room.constants.js';
-import { validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, validateGameMove, validateChatSend, validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady } from '../validators/room.validator.js';
-import { GameRoom } from '../models/gameRoom.model.js'; 
+import { GameRoom } from '../models/gameRoom.model.js';
+import { 
+    validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, 
+    validateRoomLeave, validateGameMove, validateChatSend, 
+    validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady 
+} from '../validators/room.validator.js'; 
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {

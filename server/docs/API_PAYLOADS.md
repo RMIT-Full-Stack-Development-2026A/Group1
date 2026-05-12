@@ -8,11 +8,10 @@ This document defines the **complete request and response payload schemas** for 
 3. [Profile APIs](#3-profile-apis)
 4. [Game History & Replay APIs](#4-game-history--replay-apis)
 5. [Room Snapshot APIs](#5-room-snapshot-apis)
-6. [Wallet APIs](#6-wallet-apis)
-7. [Subscription APIs](#7-subscription-apis)
-8. [Admin APIs](#8-admin-apis)
-9. [WebSocket Event Payloads](#9-websocket-event-payloads)
-10. [Common Data Types](#10-common-data-types)
+6. [Subscription APIs](#6-subscription-apis)
+7. [Admin APIs](#7-admin-apis)
+8. [WebSocket Event Payloads](#8-websocket-event-payloads)
+9. [Common Data Types](#9-common-data-types)
 
 ## 1. Global Response Patterns
 
@@ -349,7 +348,7 @@ This document defines the **complete request and response payload schemas** for 
 ```
 
 **Notes:**
-- Aggregates data from user, wallet, subscription, and game modules
+- Aggregates data from user, subscription, and game modules
 - `recentGames` limited to last 5 games
 - Single optimized endpoint to avoid multiple API calls on Profile page load
 
@@ -863,143 +862,7 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
 }
 ```
 
-## 6. Wallet APIs
-
-### 6.1 GET `/api/v1/wallet`
-
-**Request:** No body
-
-**Success Response (200 OK):**
-```json
-{
-  "data": {
-    "balance": 50,
-    "recentTransactions": [
-      {
-        "id": "507f1f77bcf86cd799439018",
-        "type": "DEPOSIT",
-        "amount": 20,
-        "currency": "USD",
-        "status": "SUCCESS",
-        "provider": "STRIPE",
-        "createdAt": "2026-04-10T14:30:00.000Z"
-      },
-      {
-        "id": "507f1f77bcf86cd799439019",
-        "type": "SUBSCRIPTION",
-        "amount": -15,
-        "currency": "USD",
-        "status": "SUCCESS",
-        "provider": "LOCAL_WALLET",
-        "createdAt": "2026-04-01T10:00:00.000Z"
-      }
-    ]
-  },
-  "message": "Wallet fetched successfully"
-}
-```
-
-**Notes:**
-- `recentTransactions` limited to last 5 transactions
-- Negative amounts represent deductions (subscriptions)
-
-### 6.2 POST `/api/v1/wallet/deposit`
-
-**Request Body:**
-```json
-{
-  "amount": 20,
-  "provider": "STRIPE",
-  "externalTransactionId": "pi_1234567890"
-}
-```
-
-**Field Constraints:**
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| `amount` | number | Yes | Min: 1, Max: 1000 |
-| `provider` | string | Yes | Enum: `STRIPE`, `PAYPAL`, `LOCAL_WALLET` |
-| `externalTransactionId` | string | No | String, required if provider is external (STRIPE, PAYPAL) |
-
-**Success Response (201 Created):**
-```json
-{
-  "data": {
-    "transaction": {
-      "id": "507f1f77bcf86cd799439018",
-      "type": "DEPOSIT",
-      "amount": 20,
-      "currency": "USD",
-      "status": "SUCCESS",
-      "provider": "STRIPE",
-      "balanceBefore": 30,
-      "balanceAfter": 50,
-      "createdAt": "2026-04-12T11:30:00.000Z"
-    },
-    "newBalance": 50
-  },
-  "message": "Deposit successful"
-}
-```
-
-**Error Responses:**
-
-*Invalid amount (400 Validation Error):*
-```json
-{
-  "error": "VALIDATION_ERROR",
-  "message": "Invalid deposit amount",
-  "cause": "Amount must be between 1 and 1000",
-  "valid_example": "{\"amount\": 20}"
-}
-```
-
-### 6.3 GET `/api/v1/wallet/transactions`
-
-**Query Parameters:**
-| Parameter | Type | Required | Default | Constraints |
-|---|---|---|---|---|
-| `page` | number | No | 1 | Min: 1 |
-| `limit` | number | No | 20 | Min: 1, Max: 100 |
-| `type` | string | No | - | Enum: `DEPOSIT`, `SUBSCRIPTION` |
-| `status` | string | No | - | Enum: `PENDING`, `SUCCESS`, `FAILED` |
-| `from` | string | No | - | ISO 8601 date string |
-| `to` | string | No | - | ISO 8601 date string |
-| `sortBy` | string | No | `createdAt` | Enum: `createdAt`, `amount` |
-| `sortOrder` | string | No | `desc` | Enum: `asc`, `desc` |
-
-**Example Request:**
-```
-GET /api/v1/wallet/transactions?page=1&limit=20&type=DEPOSIT&status=SUCCESS
-```
-
-**Success Response (200 OK):**
-```json
-{
-  "data": {
-    "items": [
-      {
-        "id": "507f1f77bcf86cd799439018",
-        "type": "DEPOSIT",
-        "amount": 20,
-        "currency": "USD",
-        "status": "SUCCESS",
-        "provider": "STRIPE",
-        "externalTransactionId": "pi_1234567890",
-        "balanceBefore": 30,
-        "balanceAfter": 50,
-        "createdAt": "2026-04-10T14:30:00.000Z"
-      }
-    ],
-    "total": 15,
-    "page": 1,
-    "limit": 20
-  },
-  "message": "Transactions fetched successfully"
-}
-```
-
-## 7. Subscription APIs
+## 6. Subscription APIs
 
 ### 7.1 GET `/api/v1/subscription/status`
 

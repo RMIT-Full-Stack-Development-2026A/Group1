@@ -103,6 +103,13 @@ export const validateRoomJoin = (payload) => {
     return { roomId: payload.roomId };
 };
 
+export const validateRoomLeave = (payload) => {
+    if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required to leave." };
+    }
+    return { roomId: payload.roomId };
+};
+
 export const validateGameMove = (payload) => {
     const { roomId, row, col } = payload || {};
     if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {

@@ -319,11 +319,12 @@ export const RoomService = {
     },
 
     handleRoomLeave: async (userId, payload) => {
-        // Validation check
-        if (!validateObjectId(payload.roomId)) {
+        // Validation avoid Crash Server 
+        const { roomId, isTimeout } = validateRoomLeave(payload);
+        if (!validateObjectId(roomId)) {
             throw { statusCode: 400, error: "INVALID_IDENTIFIER", message: "Invalid room ID." };
         }
-        const { roomId, isTimeout } = payload; 
+
         const room = await GameRoom.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
 
@@ -334,7 +335,6 @@ export const RoomService = {
 
         // Case 1: Leaving during an active match
         if (room.status === ROOM_STATUS.PLAYING) {
-            // In play: mark as a loss due to timeout or voluntary leave
             room.status = ROOM_STATUS.ABORTED;
             room.endedAt = endedAt;
             await room.save();
@@ -358,6 +358,7 @@ export const RoomService = {
                 endedAt
             });
 
+            await RoomRepository.deleteRoom(roomId);
 
             return {
                 action: 'aborted',
@@ -366,7 +367,7 @@ export const RoomService = {
                     roomId, result: 'ABORTED', endedAt
                 })
             };
-        } 
+        }
         
         // Case 2: Leaving from the room lobby
         const remainingParticipants = room.participants.filter(p => p.userId.toString() !== userId.toString());

@@ -120,24 +120,9 @@ export const registerRoomSocketHandlers = (io, socket) => {
                         if (result.gameEnded) GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
 
                         if (result.action === 'removed' || result.action === 'aborted') {
-                            // STEP 1: Count remaining sockets BEFORE kicking (since the disconnected player already left the room, count = 0 means both players are gone)
-                            let activeConnections = 0;
-                            try {
-                                const sockets = await io.in(String(result.roomId)).allSockets();
-                                activeConnections = sockets ? sockets.size : 0;
-                            } catch (e) {
-                                console.error('[Socket] Failed to check room sockets', e);
-                            }
-
-                            // STEP 2: Notify and remove remaining player (if any) from the room
+                            // Notify and evict remaining players from the room namespace
                             GameEmitter.emitRoomRemoved(io, result.roomId);
                             io.in(result.roomId).socketsLeave(result.roomId);
-                            
-                            // STEP 3: Cleanup DB (Delete unconditionally for aborted rooms)
-                            if (result.action === 'aborted') {
-                                await RoomService.forceDeleteRoom(result.roomId);
-                                console.log(`[Socket] Room ${result.roomId} deleted after abort timeout.`);
-                            }
                         }
                     } catch (e) {
                         console.error('Timeout leave failed', e);

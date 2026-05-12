@@ -64,11 +64,11 @@ profileRoutes.put('/update', ProfileController.updateProfile);
  *          $ref: '#/components/requestBodies/ChangePasswordBody'
  *      responses:
  *          200:
- *              $ref: '#/components/responses/NoDataResponse'
+ *            $ref: '#/components/responses/NoDataResponse'
  *          400:
- *              $ref: '#/components/responses/BadRequestResponse'
+ *            $ref: '#/components/responses/BadRequestResponse'
  *          401:
- *              $ref: '#/components/responses/UnauthorizedResponse'
+ *            $ref: '#/components/responses/UnauthorizedResponse'
  */
 profileRoutes.patch('/password', ProfileController.changePassword);
 

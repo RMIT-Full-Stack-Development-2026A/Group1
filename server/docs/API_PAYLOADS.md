@@ -864,7 +864,7 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
 
 ## 6. Subscription APIs
 
-### 7.1 GET `/api/v1/subscription/status`
+### 6.1 GET `/api/v1/subscription/status`
 
 **Request:** No body
 
@@ -883,82 +883,93 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
 - `isPremium` is true if `premiumExpiresAt` is in the future
 - Both fields are null if user has never subscribed
 
-### 7.2 POST `/api/v1/subscription/subscribe`
+### 6.2 POST `/api/v1/subscription/create-order`
+
+**Request:** No body
+
+**Success Response (201 Created):**
+```json
+{
+  "data": {
+    "orderId": "5O190127TN364715T",
+    "approveLink": "https://www.paypal.com/checkoutnow?token=5O190127TN364715T"
+  },
+  "message": "PayPal order created successfully."
+}
+```
+
+**Error Response (502 Bad Gateway):**
+```json
+{
+  "error": "PAYPAL_ERROR",
+  "message": "Failed to create PayPal order."
+}
+```
+
+### 6.3 POST `/api/v1/subscription/capture-order`
 
 **Request Body:**
 ```json
 {
-  "provider": "LOCAL_WALLET"
+  "orderId": "5O190127TN364715T"
 }
 ```
 
 **Field Constraints:**
 | Field | Type | Required | Constraints |
 |---|---|---|---|
-| `provider` | string | No | Enum: `LOCAL_WALLET`, `STRIPE`, `PAYPAL`, default: `LOCAL_WALLET` |
+| `orderId` | string | Yes | Non-empty PayPal order ID |
 
-**Notes:**
-- Monthly subscription costs 15 USD
-- Deducted from wallet balance if provider is `LOCAL_WALLET`
-
-**Success Response (201 Created):**
+**Success Response (200 OK):**
 ```json
 {
   "data": {
-    "subscription": {
+    "status": {
       "isPremium": true,
       "premiumExpiresAt": "2026-05-12T00:00:00.000Z"
     },
     "transaction": {
       "id": "507f1f77bcf86cd799439019",
       "type": "SUBSCRIPTION",
+      "provider": "PAYPAL",
       "amount": 15,
       "currency": "USD",
       "status": "SUCCESS",
-      "provider": "LOCAL_WALLET",
+      "externalTransactionId": "5O190127TN364715T",
       "subscriptionPeriodStart": "2026-04-12T00:00:00.000Z",
       "subscriptionPeriodEnd": "2026-05-12T00:00:00.000Z",
-      "balanceBefore": 50,
-      "balanceAfter": 35,
       "createdAt": "2026-04-12T11:45:00.000Z"
-    },
-    "newBalance": 35
+    }
   },
-  "message": "Subscription successful"
+  "message": "Payment captured and premium activated successfully."
 }
 ```
 
 **Error Responses:**
 
-*Insufficient balance (400 Validation Error):*
+*Order already captured (400 Bad Request):*
 ```json
 {
-  "error": "VALIDATION_ERROR",
-  "message": "Insufficient wallet balance",
-  "cause": "Current balance: 10 USD, required: 15 USD",
-  "valid_example": "Add funds to your wallet first"
+  "error": "ALREADY_CAPTURED",
+  "message": "This order has already been captured."
 }
 ```
 
-*Already premium (409 Conflict):*
+*Order not found (404 Not Found):*
 ```json
 {
-  "error": "CONFLICT",
-  "message": "Already have active premium subscription",
-  "cause": "Your premium membership expires on 2026-05-12",
-  "valid_example": "Wait until current subscription expires"
+  "error": "ORDER_NOT_FOUND",
+  "message": "Transaction record not found."
 }
 ```
 
-### 7.3 GET `/api/v1/subscription/history`
+### 6.4 GET `/api/v1/subscription/history`
 
 **Query Parameters:**
 | Parameter | Type | Required | Default | Constraints |
 |---|---|---|---|---|
 | `page` | number | No | 1 | Min: 1 |
 | `limit` | number | No | 20 | Min: 1, Max: 100 |
-| `sortBy` | string | No | `createdAt` | Enum: `createdAt` |
-| `sortOrder` | string | No | `desc` | Enum: `asc`, `desc` |
 
 **Example Request:**
 ```
@@ -976,7 +987,8 @@ GET /api/v1/subscription/history?page=1&limit=20
         "amount": 15,
         "currency": "USD",
         "status": "SUCCESS",
-        "provider": "LOCAL_WALLET",
+        "provider": "PAYPAL",
+        "externalTransactionId": "5O190127TN364715T",
         "subscriptionPeriodStart": "2026-04-12T00:00:00.000Z",
         "subscriptionPeriodEnd": "2026-05-12T00:00:00.000Z",
         "createdAt": "2026-04-12T11:45:00.000Z"
@@ -1762,14 +1774,12 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```json
 {
   "id": "string",
-  "type": "DEPOSIT | SUBSCRIPTION",
+  "type": "SUBSCRIPTION",
   "amount": "number",
   "currency": "string",
-  "status": "PENDING | SUCCESS | FAILED",
-  "provider": "LOCAL_WALLET | STRIPE | PAYPAL",
+  "status": "PENDING | SUCCESS | FAILED | REFUNDED",
+  "provider": "STRIPE | PAYPAL",
   "externalTransactionId": "string | null",
-  "balanceBefore": "number",
-  "balanceAfter": "number",
   "subscriptionPeriodStart": "ISO 8601 date string | null",
   "subscriptionPeriodEnd": "ISO 8601 date string | null",
   "createdAt": "ISO 8601 date string"

@@ -14,7 +14,7 @@ export const GAME_MODES = [
     buttonIcon: 'play_arrow',
     buttonStyle: 'outlined',
     topBarColor: 'bg-[#4cc9f0]',
-    route: '/play/customize',
+    route: '/customize',
     badge: null,
     glowEffect: false,
     status: 'TODO',
@@ -29,7 +29,7 @@ export const GAME_MODES = [
     buttonIcon: 'swords',
     buttonStyle: 'outlined',
     topBarColor: 'bg-[#fad100]',
-    route: '/play/customize',
+    route: '/customize',
     badge: null,
     glowEffect: false,
     status: 'TODO', // ← Not yet implemented

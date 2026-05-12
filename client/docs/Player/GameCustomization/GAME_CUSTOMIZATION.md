@@ -4,7 +4,7 @@
 Game room customization page where players configure board settings before creating or joining a game. Allows selection of board size, grid renderer style, and marker variant aesthetics.
 
 ## Route & Access
-- **Path**: `/play/customize`
+- **Path**: `/customize`
 - **Access**: Protected (requires `isAuthenticated=true`)
 - **Redirect**: Unauthenticated users → `/` (landing page)
 - **Role**: Player (PLAYER, ADMIN roles allowed)

@@ -9,6 +9,25 @@ const FORCE_USE_MOCK = (typeof import.meta !== 'undefined' && import.meta.env &&
 
 import { gameLobbyService } from "./gameLobby.service";
 
+const normalizeLobbyRoom = (room) => {
+    const participants = Array.isArray(room?.participants) ? room.participants : [];
+    const hostUser = participants[0] || {};
+    const opponentUser = participants[1] || {};
+
+    return {
+        id: room?.id || room?._id || room?.roomNumber || Math.random().toString(36).slice(2, 9),
+        roomNumber: room?.roomNumber || room?.id || (room?.roomNumber ? String(room.roomNumber) : undefined),
+        boardSize: typeof room?.boardSize === 'number' ? `${room.boardSize}x${room.boardSize}` : (room?.boardSize || '10x10'),
+        host: hostUser.usernameSnapshot || hostUser.username || hostUser.name || room?.host || 'HOST',
+        hostRank: hostUser.rank ? `#${hostUser.rank}` : (room?.hostRank || '#000'),
+        opponent: opponentUser.usernameSnapshot || opponentUser.username || opponentUser.name || (participants.length > 1 ? 'PLAYER' : 'WAITING'),
+        opponentRank: opponentUser.rank ? `#${opponentUser.rank}` : (room?.opponentRank || (participants.length > 1 ? '#000' : '')),
+        status: String(room?.status || 'waiting').toLowerCase(),
+        players: participants.length || room?.players || 0,
+        maxPlayers: room?.maxPlayers || 2,
+    };
+};
+
 export const LobbyService = {
     /**
      * Get available rooms from backend
@@ -27,25 +46,7 @@ export const LobbyService = {
             }
             
             // Map backend room shape to UI-friendly shape and normalize status
-            const normalizedRooms = (rooms || []).map((room) => {
-                const participants = Array.isArray(room.participants) ? room.participants : [];
-                const hostUser = participants[0] || {};
-
-                const opponentUser = participants[1] || {};
-
-                return {
-                    id: room.id || room._id || room.roomNumber || Math.random().toString(36).slice(2, 9),
-                    roomNumber: room.roomNumber || room.id || (room.roomNumber ? String(room.roomNumber) : undefined),
-                    boardSize: typeof room.boardSize === 'number' ? `${room.boardSize}x${room.boardSize}` : (room.boardSize || '10x10'),
-                    host: hostUser.usernameSnapshot || hostUser.username || hostUser.name || room.host || 'HOST',
-                    hostRank: hostUser.rank ? `#${hostUser.rank}` : (room.hostRank || '#000'),
-                    opponent: opponentUser.usernameSnapshot || opponentUser.username || opponentUser.name || (participants.length > 1 ? 'PLAYER' : 'WAITING'),
-                    opponentRank: opponentUser.rank ? `#${opponentUser.rank}` : (room.opponentRank || (participants.length > 1 ? '#000' : '')),
-                    status: String(room.status || 'waiting').toLowerCase(),
-                    players: participants.length || room.players || 0,
-                    maxPlayers: room.maxPlayers || 2,
-                };
-            });
+            const normalizedRooms = (rooms || []).map(normalizeLobbyRoom);
 
             console.log('[Lobby Service] Fetched rooms from backend (normalized):', normalizedRooms);
 
@@ -121,6 +122,8 @@ export const LobbyService = {
     getAvailableRooms: (rooms) => {
         return (rooms || []).filter((r) => String(r.status || '').toLowerCase() === 'waiting');
     },
+
+    normalizeRoom: normalizeLobbyRoom,
 
     /**
      * Get online player count

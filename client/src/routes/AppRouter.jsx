@@ -12,6 +12,7 @@ const ProfilePage = lazy(() => import("@/pages/Player/Profile/index"));
 const GameModeSelect = lazy(() => import("@/pages/Player/GameModeSelect/index"));
 const GameLobby = lazy(() => import("@/pages/Player/GameLobby/index"));
 const GameCustomization = lazy(() => import("@/pages/Player/GameCustomization/index"));
+const GameRoom = lazy(() => import("@/pages/Player/GameRoom/index"));
 const GameBoard = lazy(() => import("@/pages/Player/GameBoard/index"));
 const MatchReplay = lazy(() => import("@/pages/Player/MatchReplay/index"));
 const SubscriptionPage = lazy(() => import("@/pages/Player/Subscription/index"));
@@ -45,7 +46,8 @@ export default function AppRouter() {
                 <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                 <Route path="/play" element={<ProtectedRoute><GameModeSelect /></ProtectedRoute>} />
                 <Route path="/lobby" element={<ProtectedRoute><GameLobby /></ProtectedRoute>} />
-                <Route path="/play/customize" element={<ProtectedRoute><GameCustomization /></ProtectedRoute>} />
+                <Route path="/customize" element={<ProtectedRoute><GameCustomization /></ProtectedRoute>} />
+                <Route path="/room/:roomId" element={<ProtectedRoute><GameRoom /></ProtectedRoute>} />
                 <Route path="/game/:roomId" element={<ProtectedRoute><GameBoard /></ProtectedRoute>} />
                 <Route path="/replay/:gameId" element={<ProtectedRoute><MatchReplay /></ProtectedRoute>} />
                 <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />

@@ -1,4 +1,4 @@
-// Route: /play/customize
+// Route: /customize
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth/AuthStore";
@@ -110,18 +110,6 @@ export default function GameCustomization() {
             {/* Main Content */}
             <main className="flex-grow pt-15 pb-20 px-6 flex flex-col items-center justify-start overflow-y-auto relative z-10">
                 <div className="max-w-4xl w-full space-y-12">
-                    {/* Return Button */}
-                    <div className="w-full flex justify-start">
-                        <button
-                            type="button"
-                            onClick={handleCancel}
-                            className="inline-flex items-center gap-2 bg-transparent border border-primary-cyan text-primary-cyan px-4 py-2 font-headline text-xs tracking-wider hover:bg-primary-cyan/10 transition-all cursor-pointer"
-                        >
-                            <span className="material-symbols-outlined text-sm">arrow_back</span>
-                            {gameMode === 'ONLINE_MATCH' ? 'RETURN TO LOBBY' : 'RETURN TO SELECT GAME MODE'}
-                        </button>
-                    </div>
-
                     {/* Header Section */}
                     <div className="text-center space-y-2">
                         <h1 className="font-headline text-3xl md:text-4xl text-[#4cc9f0] drop-shadow-[0_0_12px_rgba(76,201,240,0.6)]">

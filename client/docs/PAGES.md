@@ -24,7 +24,7 @@ Accessible only after login.
 | Profile | `/profile` | Manage profile information, avatar, and view game history                 | Free & Premium |
 | Game Mode Select | `/play` | Select game mode (Single Player, Local Multiplayer, Online Match)         | Free & Premium |
 | Game Lobby | `/lobby` | View online game rooms and create/join rooms                              | Free & Premium |
-| Game Customization | `/play/customize` | Customize board size, board style, and markers before starting a match    | Free & Premium |
+| Game Customization | `/customize` | Customize board size, board style, and markers before starting a match    | Free & Premium |
 | Game Board | `/game/:roomId` | Main TicTacToang gameplay interface, includes real-time chat              | Free & Premium |
 | Match Replay | `/replay/:gameId` | Replay past matches with move controls (pause, forward, backward, resume) | **Premium Only** |
 | Subscription | `/subscription` | Wallet management and premium subscription                                | Free (to upgrade) |
@@ -72,7 +72,7 @@ These pages are designed and configured in GameModeSelect but not yet implemente
 │   │   │   │   └── index.jsx
 │   │   │   ├── GameLobby/            # Route: /lobby
 │   │   │   │   └── index.jsx
-│   │   │   ├── GameCustomization/    # Route: /play/customize
+│   │   │   ├── GameCustomization/    # Route: /customize
 │   │   │   │   └── index.jsx
 │   │   │   ├── GameBoard/            # Route: /game/:roomId
 │   │   │   │   └── index.jsx

@@ -20,13 +20,13 @@ export default function GameLobby() {
 
     const handleJoinRoom = (roomId) => {
         const room = rooms.find((r) => r.id === roomId);
-        if (room && room.status !== "full") {
-            navigate(`/game/${roomId}`, { state: { room } });
+        if (room && room.status === "waiting") {
+            navigate(`/room/${roomId}`, { state: { room } });
         }
     };
 
     const handleCreateRoom = () => {
-        navigate("/play/customize");
+        navigate("/customize");
     };
 
     const handleQuickJoin = () => {
@@ -39,8 +39,8 @@ export default function GameLobby() {
 
     if (isCheckingAuth || lobbyLoading) {
         return (
-            <div className="bg-[#0d0d1a] text-[#e3e0f4] min-h-screen flex items-center justify-center">
-                <div className="font-mono text-[#4cc9f0]">Loading Lobby...</div>
+            <div className="bg-deep-bg text-on-surface min-h-screen flex items-center justify-center">
+                <div className="font-mono text-primary-cyan">Loading Lobby...</div>
             </div>
         );
     }
@@ -48,14 +48,14 @@ export default function GameLobby() {
     // Show error if lobby data failed to load
     if (lobbyError) {
         return (
-            <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col">
-                <main className="flex-grow flex items-center justify-center">
+            <div className="bg-deep-bg text-on-surface font-body min-h-screen flex flex-col">
+                <main className="grow flex items-center justify-center">
                     <div className="text-center">
-                        <div className="text-[#ffb4ab] mb-4">Failed to load lobby</div>
-                        <div className="text-[#879398] text-sm mb-6">{lobbyError}</div>
+                        <div className="text-error mb-4">Failed to load lobby</div>
+                        <div className="text-outline text-sm mb-6">{lobbyError}</div>
                         <button
                             onClick={() => window.location.reload()}
-                            className="bg-[#4cc9f0] text-[#003543] px-6 py-2 font-bold hover:opacity-80"
+                            className="bg-primary-cyan text-on-primary px-6 py-2 font-bold hover:opacity-80"
                         >
                             Retry
                         </button>
@@ -66,7 +66,7 @@ export default function GameLobby() {
     }
 
     return (
-        <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">
+        <div className="bg-deep-bg text-on-surface font-body min-h-screen flex flex-col overflow-x-hidden">
             {/* Background Grid Pattern */}
             <div
                 className="fixed inset-0 opacity-10 pointer-events-none"
@@ -88,7 +88,7 @@ export default function GameLobby() {
 
             {/* Mock Data Warning Banner */}
             {usingMockData && !lobbyError && (
-                <div className="bg-[#fad100]/20 border-b border-[#fad100] text-[#fad100] px-6 py-3 text-center text-sm font-mono tracking-tight">
+                <div className="bg-surface-container-low border-b border-primary-cyan text-primary-cyan px-6 py-3 text-center text-sm font-mono tracking-tight">
                     DEMO MODE: Showing example data. Backend endpoints not yet implemented.
                 </div>
             )}

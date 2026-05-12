@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useSocketStore } from "@/stores/socket/SocketStore";
 import { LobbyService } from "../service/lobby.service";
 
 export const useLobby = () => {
@@ -14,6 +15,8 @@ export const useLobby = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [usingMockData, setUsingMockData] = useState(false);
+    const socket = useSocketStore((state) => state.socket);
+    const isConnected = useSocketStore((state) => state.isConnected);
 
     // Initialize lobby data from backend
     useEffect(() => {
@@ -63,6 +66,53 @@ export const useLobby = () => {
 
         initializeLobby();
     }, []);
+
+    useEffect(() => {
+        if (!socket || !isConnected) return;
+
+        const handleRoomUpdated = ({ room } = {}) => {
+            if (!room) return;
+
+            const normalizedRoom = LobbyService.normalizeRoom(room);
+            setRooms((prevRooms) => {
+                const currentRooms = Array.isArray(prevRooms) ? prevRooms : [];
+
+                if (normalizedRoom.status !== 'waiting') {
+                    const filteredRooms = currentRooms.filter((existingRoom) => existingRoom.id !== normalizedRoom.id);
+                    setOnlineCount(LobbyService.getOnlineCount(filteredRooms));
+                    return filteredRooms;
+                }
+
+                const existingIndex = currentRooms.findIndex((existingRoom) => existingRoom.id === normalizedRoom.id);
+                const nextRooms = existingIndex === -1
+                    ? [normalizedRoom, ...currentRooms]
+                    : currentRooms.map((existingRoom) => (
+                        existingRoom.id === normalizedRoom.id ? { ...existingRoom, ...normalizedRoom } : existingRoom
+                    ));
+
+                setOnlineCount(LobbyService.getOnlineCount(nextRooms));
+                return nextRooms;
+            });
+        };
+
+        const handleRoomRemoved = ({ roomId } = {}) => {
+            if (!roomId) return;
+
+            setRooms((prevRooms) => {
+                const nextRooms = (Array.isArray(prevRooms) ? prevRooms : []).filter((room) => room.id !== roomId);
+                setOnlineCount(LobbyService.getOnlineCount(nextRooms));
+                return nextRooms;
+            });
+        };
+
+        socket.on('room:updated', handleRoomUpdated);
+        socket.on('room:removed', handleRoomRemoved);
+
+        return () => {
+            socket.off('room:updated', handleRoomUpdated);
+            socket.off('room:removed', handleRoomRemoved);
+        };
+    }, [socket, isConnected]);
 
     // Get available rooms (filter by status)
     const availableRooms = LobbyService.getAvailableRooms(rooms);

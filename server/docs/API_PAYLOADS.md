@@ -1658,8 +1658,7 @@ All WebSocket events use `namespace:action` format and accept/return object payl
 ```
 
 **Notes:**
-- Sent to room creator immediately after creation
-- Note: Emitted strictly to clients joined in the specific Room namespace (io.to(roomId)). To prevent broadcast storms, the Global Arena now strictly uses manual HTTP polling instead of WebSocket broadcasts.
+- Note: Emitted strictly to the creating client (\socket.emit`). To prevent broadcast storms, the Global Arena uses manual HTTP polling.`
 
 #### `room:updated`
 **Payload:**

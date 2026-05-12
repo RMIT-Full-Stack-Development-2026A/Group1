@@ -288,8 +288,7 @@ export const RoomService = {
                 moveCount: 0,
                 winningLine: [], // Cleared for Rematch
                 participants: resetParticipants,
-                lastMove: null,
-                startedAt: null,
+                lastMove: { row: null, col: null, coordinate: null },
                 endedAt: null,
                 currentTurnParticipantIndex: room.firstTurnParticipantIndex || 0
             });
@@ -338,7 +337,7 @@ export const RoomService = {
 
             // Persist to game history
             await GameInterface.createOnlineGameSessionFromRoom({
-                sessionNumber: `ONL-${room.roomNumber}`,
+                sessionNumber: `ONL-${room.roomNumber}-${Date.now()}`,
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,

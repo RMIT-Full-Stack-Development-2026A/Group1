@@ -61,8 +61,8 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 GameEmitter.emitRoomRemoved(io, result.roomId);
                 io.in(result.roomId).socketsLeave(result.roomId);
             } else {
+                socket.leave(result.roomId); 
                 GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
-                socket.leave(result.roomId);
             }
         } catch (err) {
             GameEmitter.emitError(socket, 'room:leave', err);

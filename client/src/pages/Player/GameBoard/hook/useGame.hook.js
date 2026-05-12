@@ -161,12 +161,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                     handleMove(bestRow, bestCol);
                 }, 1300); // 1300ms delay
             }
-            
-            // ONLINE_MATCH logic
-            else if (gameMode === 'ONLINE_MATCH' && currentPlayer === 'O') {
-                setIsLocked(true);
-                // Listen to socket.io here
-            }
+        
             // Local match - no lock needed
             else {
                 setIsLocked(false);

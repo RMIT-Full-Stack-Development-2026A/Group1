@@ -202,7 +202,7 @@ const OnlineGameBoard = () => {
                     matchTitle={`ROOM: ${roomInfo?.roomNumber || 'CONNECTING...'}`}
                     winnerData={winnerData}
                     isDraw={isDraw}
-                    isLocked={roomInfo?.status !== 'PLAYING'}
+                    isLocked={roomInfo?.status !== 'PLAYING' || currentPlayerMark !== userMark}
                     onCellClick={handleCellClick}
                     onMarkerChange={handleMarkerChange}
                 />

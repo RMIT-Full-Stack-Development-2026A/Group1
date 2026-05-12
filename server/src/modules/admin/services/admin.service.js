@@ -97,14 +97,13 @@ export const AdminService = {
             };
         }
 
-        //Update user account status in the database
+        // Update user account status in the database
         const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
 
         if (!isActive) {
-            
-            eventBus.emit('admin:user_deactivated', { 
+            eventBus.emit("admin:user_deactivated", { 
                 userId: playerId, 
-                reason: "Violation of system policy." 
+                reason: "System policy violation." 
             });
         }
 

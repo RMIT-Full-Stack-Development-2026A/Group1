@@ -233,7 +233,7 @@ const gameSessionSchema = new mongoose.Schema({
     },
     markerStyle: {
         type: String, // Visual marker theme used in the match
-        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL', 'CUSTOM'], 
+        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], 
         default: 'CLASSIC' 
     },
     participants: {

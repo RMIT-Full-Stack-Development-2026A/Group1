@@ -9,25 +9,26 @@ export const setupGameNamespace = (io) => {
     const gameNamespace = io.of('/ws/game');
     gameNamespace.use(socketAuthMiddleware);
 
-    eventBus.on('admin:user_deactivated', async ({ userId, reason }) => {
+    eventBus.subscribe('admin:user_deactivated', async ({ userId, reason }) => {
         const stringPlayerId = userId.toString();
         
         try {
-            // Find the active playing room (old logic moved here)
+            // Find the active playing room
             const activeRoom = await RoomInterface.getActiveRoomSummaryByUserId(userId);
             if (activeRoom) {
                 await RoomInterface.forceCloseRoomByAdmin(activeRoom.id);
+                // Notify all players in the room about the forced closure
                 GameEmitter.emitRoomRemoved(gameNamespace, activeRoom.id);
                 gameNamespace.in(activeRoom.id.toString()).socketsLeave(activeRoom.id.toString());
             }
 
-            // Send account deactivated event to the client
+            // Send account deactivated event to the client (Personal Room)
             gameNamespace.to(stringPlayerId).emit('account:deactivated', {
                 message: "Your account has been deactivated by an administrator.",
                 reason: reason
             });
 
-            // Disconnect the socket
+            // Disconnect the socket gracefully
             setTimeout(() => {
                 gameNamespace.in(stringPlayerId).disconnectSockets(true);
             }, 100);

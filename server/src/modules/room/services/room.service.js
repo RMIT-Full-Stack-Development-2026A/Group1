@@ -4,6 +4,7 @@ import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { ROOM_STATUS } from '../constants/room.constants.js';
 import { GameRoom } from '../models/gameRoom.model.js';
+import { checkGomokuWin } from '../../../utils/gomoku.util.js';
 import { 
     validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, 
     validateRoomLeave, validateGameMove, validateChatSend, 
@@ -75,7 +76,6 @@ export const RoomService = {
         return RoomRepository.countActiveRooms();
     },
 
-
     getPaginatedRooms: async (filter, sort, skip, limit) => {
         const { rooms, total } = await RoomRepository.findPaginated(filter, sort, skip, limit);
         const page = limit > 0 ? Math.floor(skip / limit) + 1 : 1;
@@ -89,7 +89,6 @@ export const RoomService = {
     forceCloseRoomByAdmin: async (roomId) => {
         const room = await RoomRepository.findById(roomId);
 
-        // Room doesn't exist
         if (!room) {
             throw {
                 statusCode: 404,
@@ -99,27 +98,23 @@ export const RoomService = {
             };
         }
 
-        // Room closed
         if (!room || ['CLOSED', 'ABORTED'].includes(room.status)) {
             throw {
-                statusCode: 409, // 409 Conflict is appropriate here
+                statusCode: 409,
                 error: "ROOM_ALREADY_CLOSED",
                 message: "Room is already closed or aborted.",
                 cause: `The room ID ${roomId} is currently in a ${room.status} state.`
             };
         }
 
-        // Create a single timestamp 
         const closedAt = new Date();
 
-        // Update Room State to CLOSED by ADMIN
         const closedRoom = await RoomRepository.updateRoomStatus(roomId, {
             status: 'CLOSED',
             closedBy: 'ADMIN',
             endedAt: closedAt
         });
 
-        // Abort if the update failed
         if (!closedRoom) {
             throw {
                 statusCode: 500,
@@ -130,7 +125,6 @@ export const RoomService = {
             }; 
         }
 
-        // If the match was currently PLAYING
         if (room.status === 'PLAYING') {
             const firstTurnParticipantIndex = room.moves?.length
                 ? (room.moves[0]?.byParticipantIndex ?? 0)
@@ -143,7 +137,7 @@ export const RoomService = {
                 participants: room.participants,
                 firstTurnParticipantIndex,
                 status: 'ABORTED',
-                endedReason: 'ADMIN_FORCE_CLOSE', // Explicitly marked as admin intervention
+                endedReason: 'ADMIN_FORCE_CLOSE',
                 moves: room.moves,
                 totalMoves: room.moveCount,
                 startedAt: room.startedAt,
@@ -159,7 +153,6 @@ export const RoomService = {
     handleRoomCreate: async (userId, payload) => {
         const { boardSize, marker, boardStyle, markerStyle } = validateRoomCreate(payload);
 
-        // Ensure user doesn't already have an active room
         const existingRoom = await RoomRepository.findActiveRoomByUserId(userId);
         if (existingRoom) {
             throw { statusCode: 400, error: "ALREADY_IN_ROOM", message: "You are already in an active room." };
@@ -194,7 +187,6 @@ export const RoomService = {
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         if (room.status !== ROOM_STATUS.WAITING) throw { statusCode: 400, error: "ROOM_NOT_WAITING", message: "Room is already full or playing." };
         
-        // Check if user is already the host
         if (room.participants[0].userId.toString() === userId.toString()) {
             throw { statusCode: 400, error: "ALREADY_IN_ROOM", message: "You are already in this room." };
         }
@@ -237,31 +229,35 @@ export const RoomService = {
             throw { statusCode: 403, error: "NOT_YOUR_TURN", message: "It is not your turn." };
         }
 
-        // Validate coordinate uniqueness
         if (room.moves.some(m => m.row === row && m.col === col)) {
             throw { statusCode: 400, error: "INVALID_MOVE", message: "Cell is already occupied." };
         }
 
-        // Convert Row/Col to Algebraic (e.g., Row 0, Col 0 -> A1)
         const coordinate = `${String.fromCharCode(65 + col)}${row + 1}`;
-        const newMove = { moveNumber: room.moveCount + 1, byParticipantIndex: pIndex, row, col, coordinate, placedAt: new Date() };
+        const newMove = { 
+            moveNumber: room.moveCount + 1, 
+            byParticipantIndex: pIndex, 
+            row, col, coordinate, 
+            placedAt: new Date() 
+        };
 
-        // Push move to DB
         const nextTurn = pIndex === 0 ? 1 : 0;
         let updatedRoom = await RoomRepository.pushMove(roomId, newMove, nextTurn);
 
-        // TODO: Implement Gomoku 5-in-a-row algorithm to check for Win/Draw using `updatedRoom.moves`
-        const isWin = false; // Mocked
-        const isDraw = updatedRoom.moveCount >= (room.boardSize * room.boardSize); // Mocked
+        // GOMOKU win check (From Thắng's incoming logic)
+        const winningLine = checkGomokuWin(updatedRoom.moves, room.boardSize, row, col, pIndex);
+        const isWin = winningLine !== null;
+        
+        const isDraw = !isWin && updatedRoom.moveCount >= (room.boardSize * room.boardSize);
 
         let gameEnded = null;
 
         if (isWin || isDraw) {
             const endedAt = new Date();
 
-            // Persist to Game History (history always stored)
+            // Persist the finished match to GameHistory before wiping the room
             await GameInterface.createOnlineGameSessionFromRoom({
-                sessionNumber: `ONL-${room.roomNumber}`,
+                sessionNumber: `ONL-${room.roomNumber}-${Date.now()}`, 
                 sourceRoomId: room._id,
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
@@ -272,14 +268,14 @@ export const RoomService = {
                 status: isWin ? 'FINISHED' : 'DRAW',
                 endedReason: isWin ? 'WIN' : 'DRAW',
                 winnerParticipantIndex: isWin ? pIndex : null,
-                winningLine: [], // Populate from algorithm
+                winningLine: winningLine || [], 
                 moves: updatedRoom.moves,
                 totalMoves: updatedRoom.moveCount,
                 startedAt: room.startedAt,
                 endedAt
             });
 
-            // Soft-reset the GameRoom to allow a rematch instead of hard-closing
+            // Soft-reset the GameRoom to allow a rematch instead of hard-closing (Merged N-Tier)
             const resetParticipants = Array.isArray(updatedRoom.participants)
                 ? updatedRoom.participants.map(p => ({
                     ...p,
@@ -291,16 +287,18 @@ export const RoomService = {
                 status: ROOM_STATUS.READY,
                 moves: [],
                 moveCount: 0,
+                winningLine: [], // Cleared for Rematch
                 participants: resetParticipants,
                 lastMove: null,
                 startedAt: null,
-                endedAt: null
+                endedAt: null,
+                currentTurnParticipantIndex: room.firstTurnParticipantIndex || 0
             });
 
             gameEnded = RoomDTO.toGameEndedPayload({
                 roomId,
                 winnerParticipantIndex: isWin ? pIndex : null,
-                winningLine: [],
+                winningLine: winningLine || [],
                 result: isWin ? 'WIN' : 'DRAW',
                 endedAt
             });
@@ -331,6 +329,7 @@ export const RoomService = {
 
         const endedAt = new Date();
 
+        // Case 1: Leaving during an active match
         if (room.status === ROOM_STATUS.PLAYING) {
             // In play: mark as a loss due to timeout or voluntary leave
             room.status = ROOM_STATUS.ABORTED;
@@ -356,6 +355,9 @@ export const RoomService = {
                 endedAt
             });
 
+            // Delete the room completely
+            await RoomRepository.deleteRoom(roomId);
+
             return {
                 action: 'aborted',
                 roomId,
@@ -365,15 +367,15 @@ export const RoomService = {
             };
         } 
         
-        // If the room is in the lobby state (WAITING / READY)
+        // Case 2: Leaving from the room lobby
         const remainingParticipants = room.participants.filter(p => p.userId.toString() !== userId.toString());
         
         if (remainingParticipants.length === 0) {
-            // If both players leave, delete the room
+            // Both players leave
             await RoomRepository.deleteRoom(roomId);
             return { action: 'removed', roomId };
         } else {
-            // If one player remains, promote them to host, revert to WAITING, and clear ready state
+            // One player remains, promote them to host, revert to WAITING, and clear ready state
             remainingParticipants[0].isHost = true;
             remainingParticipants[0].isReady = false;
             
@@ -411,18 +413,32 @@ export const RoomService = {
     },
     
     handleUpdateSettings: async (userId, payload) => {
-        const { roomId, boardStyle, markerStyle } = validateRoomUpdateSettings(payload);
+        const { roomId, boardStyle, markerStyle, marker } = validateRoomUpdateSettings(payload);
         const room = await GameRoom.findById(roomId);
         
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         if (room.status === ROOM_STATUS.PLAYING) throw { statusCode: 400, error: "INVALID_STATE", message: "Cannot change settings while playing." };
         
-        const isHost = room.participants.some(p => p.userId.toString() === userId.toString() && p.isHost);
-        if (!isHost) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
+        const hostIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString() && p.isHost);
+        if (hostIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
 
-        room.boardStyle = boardStyle;
-        room.markerStyle = markerStyle;
-        room.participants.forEach(p => p.isReady = false); // Reset ready to prevent cheating
+       // Update basic settings
+        if (boardStyle) room.boardStyle = boardStyle;
+        if (markerStyle) room.markerStyle = markerStyle;
+
+        // Swap marker logic
+        if (marker && room.participants[hostIndex].mark !== marker) {
+            room.participants[hostIndex].mark = marker;
+            
+            // If there is a guest (index 1 if host is 0, or index 0 if host is 1)
+            const guestIndex = hostIndex === 0 ? 1 : 0;
+            if (room.participants[guestIndex]) {
+                room.participants[guestIndex].mark = marker === 'X' ? 'O' : 'X';
+            }
+        }
+
+        // Prevent changing rules right as someone clicks ready
+        room.participants.forEach(p => p.isReady = false); 
         
         await room.save();
         return { roomId, room: RoomDTO.toRoomSummary(room) };
@@ -455,6 +471,7 @@ export const RoomService = {
             if (!p.isReady) allReady = false;
         });
 
+        // Ensure actually 2 players before starting
         if (room.participants.length < 2) allReady = false;
 
         let gameStart = false;

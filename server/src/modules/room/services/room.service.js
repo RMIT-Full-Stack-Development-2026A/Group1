@@ -319,11 +319,8 @@ export const RoomService = {
     },
 
     handleRoomLeave: async (userId, payload) => {
-        // Validation avoid Crash Server 
+        // Validation and parsing of roomId and isTimeout flag
         const { roomId, isTimeout } = validateRoomLeave(payload);
-        if (!validateObjectId(roomId)) {
-            throw { statusCode: 400, error: "INVALID_IDENTIFIER", message: "Invalid room ID." };
-        }
 
         const room = await GameRoom.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
@@ -350,7 +347,7 @@ export const RoomService = {
                 participants: room.participants,
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
-                endedReason: isTimeout ? 'TIMEOUT_ABORT' : 'PLAYER_ABORT',
+                endedReason: 'ABORT', 
                 abortedByUserId: isTimeout ? null : userId,
                 moves: room.moves,
                 totalMoves: room.moveCount,

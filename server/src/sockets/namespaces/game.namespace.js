@@ -63,7 +63,9 @@ export const setupGameNamespace = (io) => {
 
                     // Sync the latest board state to BOTH players to ensure deterministic rehydration
                     const gameState = await RoomService.getGameState(activeRoom.id);
-                    GameEmitter.emitGameState(gameNamespace, activeRoom.id, gameState);
+                    if (gameState) {
+                        GameEmitter.emitGameState(gameNamespace, activeRoom.id, gameState);
+                    }
                 }
             }
         } catch (error) {

@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 export const GameRepository = {
     createSession: async (sessionData) => {
         const session = new GameSession(sessionData);
-        return session.save();
+        return await session.save();
     },
 
     findPaginated: async (filter, sort, skip, limit) => {
@@ -18,7 +18,7 @@ export const GameRepository = {
     },
 
     findById: async (id) => {
-        return GameSession.findById(id);
+        return await GameSession.findById(id);
     },
 
     // Data provided to Profile module
@@ -70,13 +70,13 @@ export const GameRepository = {
             }
         ]);
 
-        // Aggregate returns an array, so extract the first object or return defaults
+        // Aggregate returns an array
         return stats[0] || { totalGames: 0, wins: 0, losses: 0, draws: 0, aborted: 0 };
     },
 
     // Data provided to Profile module
     findRecentGamesByUser: async (userId, limit) => {
-        return GameSession.find({ 'participants.userId': userId })
+        return await GameSession.find({ 'participants.userId': userId })
             .select('-moves')
             .sort({ endedAt: -1, startedAt: -1 })
             .limit(limit)
@@ -85,6 +85,6 @@ export const GameRepository = {
 
     // Data provided to Admin module
     countTotalMatches: async () => {
-        return GameSession.countDocuments();
+        return await GameSession.countDocuments();
     }
 };

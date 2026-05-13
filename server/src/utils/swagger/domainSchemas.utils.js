@@ -7,7 +7,7 @@ export const domainSchemas = {
         description: 'Public user shape returned by all endpoints (no passwordHash).',
         properties: {
             id:        { type: 'string', example: '64f1a2b3c4d5e6f7a8b9c0d1' },
-            username:  { type: 'string', example: 'Myxlozz',  pattern: '^[a-zA-Z0-9_-]{6,30}$' },
+            username:  { type: 'string', example: 'Myxlozz',  pattern: '^[a-zA-Z0-9_-]{3,30}$' },
             email:     { type: 'string', format: 'email', example: 'player@example.com' },
             role:      { type: 'string', enum: ['PLAYER', 'ADMIN'], example: 'PLAYER' },
             country:   { type: 'string', example: 'VN' },
@@ -23,26 +23,21 @@ export const domainSchemas = {
         nullable: true,
         description: 'Returned by check-auth when the user has an unfinished online match.',
         properties: {
-            id:         { type: 'string' },
-            roomNumber: { type: 'string', example: 'RM-01HXXXX' },
-            boardSize:  { type: 'integer', enum: [10, 15] },
-            status:     { type: 'string', enum: ['WAITING', 'READY', 'PLAYING'] },
+            id:           { type: 'string' },
+            roomNumber:   { type: 'string', example: 'RM-01HXXXX' },
+            boardSize:    { type: 'integer', enum: [10, 15] },
+            status:       { type: 'string', enum: ['WAITING', 'READY', 'PLAYING'] },
+            moveCount:    { type: 'integer', example: 5 },
+            participants: { type: 'array', items: { $ref: '#/components/schemas/RoomParticipant' } },
         },
     },
 
-    // Wallet / Subscription
-    WalletSummary: {
-        type: 'object',
-        properties: {
-            balance: { type: 'number', example: 35 },
-        },
-    },
-
+    // Subscription
     SubscriptionStatus: {
         type: 'object',
         properties: {
-            isPremium:         { type: 'boolean', example: true },
-            premiumExpiresAt:  { type: 'string', format: 'date-time', nullable: true },
+            isPremium:        { type: 'boolean', example: true },
+            premiumExpiresAt: { type: 'string', format: 'date-time', nullable: true },
         },
     },
 
@@ -50,13 +45,11 @@ export const domainSchemas = {
         type: 'object',
         properties: {
             id:                      { type: 'string' },
-            type:                    { type: 'string', enum: ['DEPOSIT', 'SUBSCRIPTION'] },
-            provider:                { type: 'string', enum: ['LOCAL_WALLET', 'STRIPE', 'PAYPAL'] },
-            amount:                  { type: 'number', example: 9.99 },
+            type:                    { type: 'string', enum: ['SUBSCRIPTION'] },
+            provider:                { type: 'string', enum: ['PAYPAL'] },
+            amount:                  { type: 'number', example: 15.00 },
             currency:                { type: 'string', example: 'USD' },
-            status:                  { type: 'string', enum: ['PENDING', 'SUCCESS', 'FAILED'] },
-            balanceBefore:           { type: 'number' },
-            balanceAfter:            { type: 'number' },
+            status:                  { type: 'string', enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'] },
             externalTransactionId:   { type: 'string', nullable: true },
             subscriptionPeriodStart: { type: 'string', format: 'date-time', nullable: true },
             subscriptionPeriodEnd:   { type: 'string', format: 'date-time', nullable: true },
@@ -144,6 +137,8 @@ export const domainSchemas = {
             userId:           { type: 'string' },
             usernameSnapshot: { type: 'string' },
             mark:             { type: 'string', enum: ['X', 'O'], nullable: true },
+            isReady:          { type: 'boolean', example: false },
+            isHost:           { type: 'boolean', example: false },
             joinedAt:         { type: 'string', format: 'date-time' },
         },
     },
@@ -162,15 +157,19 @@ export const domainSchemas = {
         type: 'object',
         description: 'HTTP snapshot of an online room (read-only; mutations go via WebSocket).',
         properties: {
-            id:           { type: 'string' },
-            roomNumber:   { type: 'string', example: 'RM-01HXXXX' },
-            boardSize:    { type: 'integer', enum: [10, 15] },
-            status:       { type: 'string', enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'] },
-            participants: { type: 'array', items: { $ref: '#/components/schemas/RoomParticipant' }, maxItems: 2 },
-            moveCount:    { type: 'integer', example: 7 },
-            lastMove:     { $ref: '#/components/schemas/LastMove' },
-            startedAt:    { type: 'string', format: 'date-time', nullable: true },
-            endedAt:      { type: 'string', format: 'date-time', nullable: true },
+            id:                          { type: 'string' },
+            roomNumber:                  { type: 'string', example: 'RM-01HXXXX' },
+            boardSize:                   { type: 'integer', enum: [10, 15] },
+            boardStyle:                  { type: 'string', enum: ['CLASSIC', 'DARK', 'NEON'] },
+            markerStyle:                 { type: 'string', enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'] },
+            status:                      { type: 'string', enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'] },
+            participants:                { type: 'array', items: { $ref: '#/components/schemas/RoomParticipant' }, maxItems: 2 },
+            currentTurnParticipantIndex: { type: 'integer', enum: [0, 1], nullable: true },
+            moveCount:                   { type: 'integer', example: 7 },
+            lastMove:                    { $ref: '#/components/schemas/LastMove' },
+            startedAt:                   { type: 'string', format: 'date-time', nullable: true },
+            endedAt:                     { type: 'string', format: 'date-time', nullable: true },
+            closedBy:                    { type: 'string', nullable: true },
         },
     },
 
@@ -182,7 +181,6 @@ export const domainSchemas = {
             {
                 type: 'object',
                 properties: {
-                    wallet:           { $ref: '#/components/schemas/WalletSummary' },
                     subscription:     { $ref: '#/components/schemas/SubscriptionStatus' },
                     auth: {
                         type: 'object',
@@ -190,6 +188,8 @@ export const domainSchemas = {
                             lastLoginAt:   { type: 'string', format: 'date-time', nullable: true },
                         },
                     },
+                    stats:            { $ref: '#/components/schemas/GameStats' },
+                    recentGames:      { type: 'array', items: { $ref: '#/components/schemas/GameSessionListItem' } }
                 },
             },
         ],
@@ -198,27 +198,16 @@ export const domainSchemas = {
     DashboardMetrics: {
         type: 'object',
         properties: {
-            totalPlayers:   { type: 'integer', example: 4200 },
-            activePlayers:  { type: 'integer', example: 312 },
-            premiumPlayers: { type: 'integer', example: 89 },
-            registeredToday: { 
-                type: 'array', 
-                items: { type: 'integer' }, 
-                example: [10, 25, 40] 
-            },
-            registeredThisWeek: { 
-                type: 'array', 
-                items: { type: 'integer' }, 
-                example: [150, 230, 180] 
-            },
-            registeredThisMonth: { 
-                type: 'array', 
-                items: { type: 'integer' }, 
-                example: [1200, 1500] 
-            },
-            activeRooms:    { type: 'integer', example: 14 },
-            totalMatches:   { type: 'integer', example: 18500 },
-            totalRevenue:   { type: 'number',  example: 4321.50 },
+            totalPlayers:        { type: 'integer', example: 1250 },
+            activePlayers:       { type: 'integer', example: 1100 },
+            premiumPlayers:      { type: 'integer', example: 350 },
+            activeRooms:         { type: 'integer', example: 25 },
+            totalMatches:        { type: 'integer', example: 15678 },
+            totalRevenue:        { type: 'number',  example: 5250.00 },
+            revenueThisMonth:    { type: 'number',  example: 875.00 },
+            newPlayersToday:     { type: 'integer', example: 12 },
+            newPlayersThisWeek:  { type: 'integer', example: 85 },
+            newPlayersThisMonth: { type: 'integer', example: 320 },
         },
     },
 
@@ -238,7 +227,6 @@ export const domainSchemas = {
         type: 'object',
         properties: {
             user:         { $ref: '#/components/schemas/UserDTO' },
-            wallet:       { $ref: '#/components/schemas/WalletSummary' },
             subscription: { $ref: '#/components/schemas/SubscriptionStatus' },
             stats:        { $ref: '#/components/schemas/GameStats' },
             recentGames:  { type: 'array', items: { $ref: '#/components/schemas/GameSessionListItem' } },

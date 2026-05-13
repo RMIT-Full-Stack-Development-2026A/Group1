@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
+import http from "http";
 import app from "./app.js";
 import { connectDB } from "./config/db.config.js";
+import { initSocketServer } from "./sockets/index.js";
 
 dotenv.config();
 
@@ -14,10 +16,17 @@ const log = {
 const startServer = async () => {
     try {
         log.info("Connecting to database...");
-        await connectDB();
+        await connectDB(); // Connect to database
         log.info("Database connected successfully.");
 
-        app.listen(PORT, () => {
+        // Create the HTTP server using the Express app
+        const httpServer = http.createServer(app);
+
+        // Pass the HTTP server to Socket.io
+        initSocketServer(httpServer);
+
+        // Call listen on the httpServer
+        httpServer.listen(PORT, () => {
             log.info(`Server running on port: ${PORT}`);
             log.info(`Environment: ${process.env.NODE_ENV || "development"}`);
         });

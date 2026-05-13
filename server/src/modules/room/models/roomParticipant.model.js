@@ -18,5 +18,13 @@ export const roomParticipantSchema = new mongoose.Schema({
     joinedAt: {
         type: Date, // When the player entered the room
         default: Date.now
+    },
+    isHost: {
+        type: Boolean, 
+        default: false
+    },
+    isReady: {
+        type: Boolean, 
+        default: false
     }
 }, { _id: false });

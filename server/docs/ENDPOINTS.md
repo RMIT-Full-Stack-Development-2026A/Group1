@@ -113,15 +113,10 @@ These APIs manage user profile data and provide an optimized overview payload fo
 | Method | Endpoint | Auth | Description | Implemented |
 |---|---|---:|---|---|
 | GET | `/profile` | Yes | Get current user's base profile | Yes |
-| GET | `/profile/overview` | Yes | Get profile + subscription + wallet summary + recent game stats in one call | Yes |
+| GET | `/profile/overview` | Yes | Get profile + subscription + recent game stats in one call | Yes |
 | PUT | `/profile/update` | Yes | Update username, email, or country | Yes |
 | PATCH | `/profile/password` | Yes | Change current user's password | Yes |
 | POST | `/profile/avatar` | Yes | Upload avatar image | Yes |
-
-### Why `GET /profile/overview`
-This endpoint is intentionally aggregated so the Profile screen does **not** need to call `/profile`, `/subscription/status`, and `/games` separately.
-
-Recommended `GET /profile/overview` payload:
 
 ```json
 {
@@ -171,10 +166,6 @@ Online matches should be persisted automatically by the server when the room end
 | `to` | ISO date | End date filter |
 | `sortBy` | string | Usually `createdAt` or `startTime` |
 | `sortOrder` | string | `asc` or `desc` |
-|
-
-### Why there is no `/games/:id/moves`
-Replay data should be returned by `GET /games/:id` so the replay page needs only **one request**.
 
 ## 4. Room Snapshot APIs
 Base Path: `/api/v1/rooms`
@@ -197,9 +188,9 @@ Room creation/join/leave/gameplay happen through WebSocket. HTTP is used only fo
 |
 
 ### Why only snapshot APIs are HTTP
-To minimize API calls, the arena page should:
-1. call `GET /rooms` once for initial render
-2. subscribe to WebSocket room events for all updates thereafter
+To minimize API calls and avoid broadcast storms, the arena page should:
+1. Call `GET /rooms?status=WAITING` once for initial render.
+2. Use a manual **Refresh button** to call the API again when the user wants to update the list.
 
 ## 5. Subscription APIs
 Base Path: `/api/v1/subscription`
@@ -224,7 +215,7 @@ All endpoints require `ADMIN` role.
 |---|---|---:|---|---|
 | GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | Yes |
 
-Recommended dashboard data:
+Admin dashboard data:
 - totalPlayers
 - activePlayers
 - premiumPlayers
@@ -272,47 +263,32 @@ The team policy already defines the event naming format as `namespace:action` an
 ### 7.1 Client → Server
 | Event | Payload | Description |
 |---|---|---|
-| `room:create` | `{ boardSize, marker }` | Create a room and choose host marker preference |
-| `room:join` | `{ roomId }` | Join an existing room |
-| `room:leave` | `{ roomId }` | Leave a room before or during match |
-| `game:move` | `{ roomId, row, col }` | Submit one move |
-| `chat:send` | `{ roomId, message }` | Send in-game chat message (premium only) |
+| `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room. Room status becomes `WAITING`. |
+| `room:join` | `{ roomId }` | Join an existing room. Room status becomes `READY`. |
+| `room:set_first_turn` | `{ roomId, firstTurnParticipantIndex }` | Host selects who goes first. Resets `isReady` flag for both players. |
+| `room:ready` | `{ roomId }` | Player confirms ready. Renders Checkmark on UI. |
+| `room:leave` | `{ roomId }` | Leave a room before or during match. |
+| `game:move` | `{ roomId, row, col }` | Submit one move. |
+| `chat:send` | `{ roomId, message }` | Send in-game chat message. |
+| `room:update_settings` | `{ roomId, boardStyle, markerStyle, marker }` | Host changes game settings in lobby. Resets `isReady` for both. |
 
 ### 7.2 Server → Client
 | Event | Payload | Description |
 |---|---|---|
-| `room:created` | `{ room }` | Room successfully created |
-| `room:updated` | `{ room }` | Room snapshot updated (join, leave, ready, play, close) |
-| `room:removed` | `{ roomId }` | Room removed from arena |
-| `game:state` | `{ roomId, board, currentTurn, lastMove, moveCount, status }` | Authoritative game state update |
-| `game:ended` | `{ roomId, winner, winLine, result }` | Match ended |
+| `room:updated` | `{ room }` | Room snapshot updated (Player joined, someone left, host changed settings, etc.) |
+| `room:removed` | `{ roomId }` | Room destroyed (e.g., both players left or room timed out) |
+| `game:start` | `{ roomId, startedAt }` | Both players are ready. Match begins. |
+| `game:state` | `{ roomId, board, currentTurnParticipantIndex, lastMove, moveCount, status }` | Authoritative game state update |
+| `player:disconnected` | `{ roomId, timeLeft }` | Opponent disconnected. Grace period (60s) countdown starts. |
+| `player:reconnected` | `{ roomId }` | Opponent reconnected. Grace period cancelled. Game resumes. |
+| `account:deactivated` | `{ message, reason }` | Sent specifically to a user when Admin deactivates their account. FE should display notification and call logout API. |
+| `game:ended` | `{ roomId, winnerParticipantIndex, winningLine, result, endedAt }` | Match ended. Room resets back to `READY` status for rematch. |
 | `chat:message` | `{ roomId, sender, message, timestamp }` | New chat message |
-| `error` | `{ message }` | Generic socket error |
+| `error` | `{ vent, error, message, cause, valid_example }` | Generic socket error |
 
 ### Recommended server behavior
-- When player 2 joins, broadcast `room:updated`
-- When player 2 chooses their mark and the match becomes ready, broadcast `room:updated`
-- When the first move is allowed, broadcast `game:state`
-- When a player aborts, emit `game:ended` with `result: "ABORTED"` and remove/close the room
-
-## 8. Screen-to-API Mapping (Optimized)
-
-### App bootstrap
-- `GET /auth/check-auth`
-- open WebSocket only after auth is confirmed
-
-### Profile page
-- `GET /profile/overview`
-- optional follow-up only when user opens full transaction/history screens
-
-### Arena page
-- `GET /rooms`
-- then rely on WebSocket updates
-
-### Replay page
-- `GET /games/:id`
-- no second call for moves
-
-### Admin home
-- `GET /admin/dashboard`
-- then specific tables only when the admin opens each section
+- Rooms are **NOT** broadcasted on creation to prevent server overload. Clients use `GET /rooms` API with pagination.
+- When player 2 joins, room becomes `READY`. Broadcast `room:updated`.
+- When both players trigger `room:ready`, status becomes `PLAYING` and server emits `game:start`.
+- **Grace Period**: If a player drops during `PLAYING`, emit `player:disconnected` and wait 60s before aborting the match.
+- **Rehydration**: When a client establishes a socket connection, if the backend detects they are part of an ongoing `PLAYING` match, the server should automatically emit `game:state` so FE can redraw the board.

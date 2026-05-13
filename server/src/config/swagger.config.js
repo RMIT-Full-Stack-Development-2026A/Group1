@@ -27,7 +27,6 @@ const options = {
             { name: 'Profile',      description: 'User profile management.' },
             { name: 'Games',        description: 'Game history, replay, and local/AI session persistence.' },
             { name: 'Rooms',        description: 'HTTP room snapshots (mutations go through WebSocket).' },
-            { name: 'Wallet',       description: 'Balance, deposits, and transaction history.' },
             { name: 'Subscription', description: 'Premium membership purchase and history.' },
             { name: 'Admin',        description: 'Admin-only dashboard, player management, and room monitoring.' },
         ],

@@ -23,8 +23,10 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
 
     const { user, isCheckingAuth } = useAuthStore();
     const { socket, isConnected, connectSocket } = useSocketStore();
-    const { gridStyle, markerVariant, setMarkerVariant } = useCustomizationStore();
-
+    const { setMarkerVariant } = useCustomizationStore();
+    
+    const gridStyle = roomData?.boardStyle || "NEON"
+    const markerVariant = roomData?.markerStyle || "PIXEL"
     const boardSize = roomData?.boardSize || 10;
     const [board, setBoard] = useState(() => {
         return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));

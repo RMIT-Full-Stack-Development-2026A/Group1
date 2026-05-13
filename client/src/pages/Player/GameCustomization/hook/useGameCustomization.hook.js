@@ -1,9 +1,6 @@
 import { useState } from "react";
-import { useModeStore } from "@/stores/ai/ModeStore";
 
 export const useGameCustomization = () => {
-    const { gameMode } = useModeStore();
-
     const [selectedBoardSize, setSelectedBoardSize] = useState("10x10");
     const [selectedStyle, setSelectedStyle] = useState("neon");
     const [selectedMarker, setSelectedMarker] = useState(3);
@@ -14,12 +11,11 @@ export const useGameCustomization = () => {
         setSelectedBoardSize("10x10");
         setSelectedStyle("neon");
         setSelectedMarker(3);
-        setSelectedDifficulty("MEDIUM");
+        setSelectedDifficulty("MEDIUM");    
         setLoading(false);
     };
 
     return {
-        gameMode,
         selectedBoardSize,
         setSelectedBoardSize,
         selectedStyle,

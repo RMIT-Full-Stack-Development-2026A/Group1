@@ -36,7 +36,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
       {disconnectCountdown !== null && (
         <div className="border border-error bg-error-container/20 px-4 py-3 text-center w-full max-w-[480px]">
           <p className="font-headline text-[9px] text-error uppercase tracking-widest">
-            OPPONENT DISCONNECTED — WAITING {disconnectCountdown}S
+            OPPONENT DISCONNECTED — WAITING {disconnectCountdown} SECOND{disconnectCountdown !== 1 ? 'S' : ''} BEFORE ABORTING GAME
           </p>
         </div>
       )}

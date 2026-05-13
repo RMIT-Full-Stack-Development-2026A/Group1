@@ -5,7 +5,7 @@ import { LoadingScreen, ErrorScreen } from '@/components/common';
 import { GameRoom, ChatBox } from './sub-components';
 import Navigation from '@/components/reusable/Navigation';
 import ScanLines from '@/components/reusable/custom/ScanLines';
-import OnlineArenaBoard from '@/socket/OnlineArena';
+import OnlineArena from '@/socket/OnlineArena';
 
 export default function GameOnline() {
   const {
@@ -41,8 +41,7 @@ export default function GameOnline() {
 
     if (status === 'PLAYING') {
       if (!isHydrated) return <LoadingScreen message="PREPARING BOARD..." />;
-      return <OnlineArenaBoard roomData={roomData} currentUserId={user?.id} />;
-      // TODO: When OnlineArenaBoard is refactored into its own component, update import
+      return <OnlineArena roomData={roomData} currentUserId={user?.id} />;
     }
 
     return null;

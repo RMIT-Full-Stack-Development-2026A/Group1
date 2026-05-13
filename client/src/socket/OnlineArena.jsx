@@ -10,12 +10,12 @@ import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 import { getMarkerVariant } from '@/utils/markerRenderer';
 
 // Components (Dumb UI Components reused from Offline mode)
-import AbortModal from './sub-components/AbortModal';
+import AbortModal from '../pages/Player/GameBoard/sub-components/AbortModal';
 import Navigation from '@/components/reusable/Navigation';
 import ScanLines from '@/components/reusable/custom/ScanLines';
-import PlayerPanel from './sub-components/PlayerPanel';
-import BoardArea from './sub-components/BoardArea';
-import WinOverlay from './sub-components/WinOverlay';
+import PlayerPanel from '../pages/Player/GameBoard/sub-components/PlayerPanel';
+import BoardArea from '../pages/Player/GameBoard/sub-components/BoardArea';
+import WinOverlay from '../pages/Player/GameBoard/sub-components/WinOverlay';
 
 const OnlineGameBoard = ({ roomData, currentUserId }) => {
     const { roomId } = useParams();
@@ -57,7 +57,7 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
                 const mark = roomData?.participants?.[payload.winner]?.mark || 'X';
                 setWinnerData({ player: mark, cells: winningCells });
             } else if (payload.result === 'ABORTED') {
-                alert('Opponent has left the game.');
+                // ain't using alert here broski
                 navigate('/lobby');
             }
         });

@@ -23,6 +23,7 @@
     "recharts": "^3.8.1",
     "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.2.1",
+    "terser": "^5.47.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

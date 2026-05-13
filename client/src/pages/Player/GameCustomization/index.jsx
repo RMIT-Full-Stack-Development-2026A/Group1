@@ -74,7 +74,7 @@ export default function GameCustomization() {
 
             // Navigate to game board with room ID (online matches use different route)
             if (gameMode === 'ONLINE_MATCH') {
-                navigate(`/play/online/${roomData.roomId}`, { state: { initialRoomData: roomData } });
+                navigate(`/room/online/${roomData.roomId}`, { state: { initialRoomData: roomData } });
             } else {
                 navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
             }

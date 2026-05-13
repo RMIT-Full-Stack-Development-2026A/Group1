@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import SoundButton from '@/components/reusable/SoundButton';
+import SoundButton from '@/components/reusable/sound/SoundButton';
 
 export default function PaymentCancel() {
     const navigate = useNavigate();

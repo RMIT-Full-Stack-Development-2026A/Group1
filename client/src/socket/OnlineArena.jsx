@@ -9,7 +9,7 @@ import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 // Utils
 import { getMarkerVariant } from '@/utils/markerRenderer';
 
-// Components (Dumb UI Components reused from Offline mode)
+// Components
 import AbortModal from '../pages/Player/GameBoard/sub-components/AbortModal';
 import Navigation from '@/components/reusable/Navigation';
 import ScanLines from '@/components/reusable/custom/ScanLines';
@@ -21,95 +21,119 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
     const { roomId } = useParams();
     const navigate = useNavigate();
 
-    // --- GLOBAL STORES ---
     const { user, isCheckingAuth } = useAuthStore();
     const { socket, isConnected, connectSocket } = useSocketStore();
-    const { boardSize: displaySize, gridStyle, markerVariant, setMarkerVariant } = useCustomizationStore();
+    const { gridStyle, markerVariant, setMarkerVariant } = useCustomizationStore();
 
-    // --- LOCAL STATE (Replaces useGame Hook) ---
-    const [board, setBoard] = useState([]);
-    const [currentPlayerMark, setCurrentPlayerMark] = useState('X');
+    const boardSize = roomData?.boardSize || 10;
+    const [board, setBoard] = useState(() => {
+        return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
+    });
+
+    const [currentPlayerMark, setCurrentPlayerMark] = useState(() => {
+        const turnIndex = roomData?.currentTurnParticipantIndex || 0;
+        return roomData?.participants?.[turnIndex]?.mark || 'X';
+    });
+
     const [winnerData, setWinnerData] = useState(null);
     const [isDraw, setIsDraw] = useState(false);
     const [showAbortModal, setShowAbortModal] = useState(false);
+    const [disconnectCountdown, setDisconnectCountdown] = useState(null);
 
-    const initialBoardSize = parseInt(displaySize.split('x')[0], 10) || 10;
     const markerVariantData = useMemo(() => getMarkerVariant(markerVariant), [markerVariant]);
     const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
-    // --- SOCKET LISTENERS (game state + end events only) ---
+    // --- TIMEOUT EFFECT FOR DISCONNECTED OPPONENT ---
     useEffect(() => {
-        if (!socket || !isConnected) return;
+        let timer;
+        if (disconnectCountdown !== null && disconnectCountdown > 0) {
+            timer = setInterval(() => {
+                setDisconnectCountdown(prev => prev - 1);
+            }, 1000);
+        } else if (disconnectCountdown === 0) {
+            // If 60s pass and opponent hasn't returned, kick back to lobby
+            navigate('/lobby');
+        }
+        return () => clearInterval(timer);
+    }, [disconnectCountdown, navigate]);
+
+    // --- SOCKET LISTENERS ---
+    useEffect(() => {
+        if (!socket || !isConnected) connectSocket();
 
         const handleAccountDeactivated = () => {
             setShowAbortModal(false);
             navigate('/lobby', { replace: true });
         };
+        window.addEventListener('account:deactivated', handleAccountDeactivated);
 
-        // 1. Room Created (Host only) -> Redirect to the active room URL
-        socket.once('room:created', (payload) => {
-            if (payload.room?.id) {
-                navigate(`/play/online/${payload.room.id}`, { replace: true });
-            }
-        });
-
-        // 2. Room Updated -> Maps participants to Player Panels
-        socket.on('room:updated', (payload) => {
-            setRoomInfo(payload.room);
-            // Check if game just started, update current turn mark based on participant index
-            if (payload.room.status === 'PLAYING') {
-                const turnIndex = payload.room.currentTurnParticipantIndex || 0;
-                setCurrentPlayerMark(payload.room.participants[turnIndex]?.mark || 'X');
-            }
-        });
-
-        // 3. Game State -> Syncs the board array and next turn
+        // 1. Listen for board updates
         socket.on('game:state', (payload) => {
-            setBoard(payload.board);
-            // Map the currentTurn (0 or 1) to the actual mark (X or O) using prop roomData
-            setCurrentPlayerMark(roomData?.participants?.[payload.currentTurn]?.mark || 'X');
+            console.log("[game:state] Payload from BE:", payload);
+            
+            if (payload.board && Array.isArray(payload.board)) {
+                // Step A: Create a completely new empty board
+                const reconstructedBoard = Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
+                
+                // Step B: Get move history from BE, translate to X/O, and apply to the empty board
+                payload.board.forEach(move => {
+                    // Extract the marker (X or O) based on the participant index
+                    const mark = roomData?.participants?.[move.byParticipantIndex]?.mark;
+                    
+                    // If coordinates are valid, fill the 2D array
+                    if (mark && move.row !== undefined && move.col !== undefined) {
+                        reconstructedBoard[move.row][move.col] = mark;
+                    }
+                });
+                
+                // Step C: Update UI
+                setBoard(reconstructedBoard);
+            }
+
+            // Update the next turn
+            const turnIndex = payload.currentTurnParticipantIndex !== undefined ? payload.currentTurnParticipantIndex : 0;
+            setCurrentPlayerMark(roomData?.participants?.[turnIndex]?.mark || 'X');
         });
 
-        // 2. Game Ended -> Triggers the Win Overlay
+        // 2. Listen for game end (Updated per NEW Contract)
         socket.on('game:ended', (payload) => {
             if (payload.result === 'DRAW') {
                 setIsDraw(true);
             } else if (payload.result === 'WIN') {
-                const winningCells = payload.winLine.map(cell => [cell.row, cell.col]);
-                const mark = roomData?.participants?.[payload.winner]?.mark || 'X';
+                // Use winningLine instead of winLine
+                const winningCells = payload.winningLine?.map(cell => [cell.row, cell.col]) || [];
+                // Use winnerParticipantIndex instead of winner
+                const mark = roomData?.participants?.[payload.winnerParticipantIndex]?.mark || 'X';
                 setWinnerData({ player: mark, cells: winningCells });
             } else if (payload.result === 'ABORTED') {
-                // ain't using alert here broski
                 navigate('/lobby');
             }
         });
 
-        // 5. Room Removed -> Kick player out if room is closed
+        // 3. Handle network disconnection (Newly added from Contract)
+        socket.on('player:disconnected', (payload) => {
+            setDisconnectCountdown(payload.timeLeft || 60);
+        });
+
+        socket.on('player:reconnected', () => {
+            setDisconnectCountdown(null); // Clear countdown, resume game
+        });
+
         socket.on('room:removed', () => {
             navigate('/lobby');
         });
 
-        window.addEventListener('account:deactivated', handleAccountDeactivated);
-
-        // --- INIT ROOM ACTION ---
-        if (roomId) {
-            socket.emit('room:join', { roomId });
-        } else {
-            socket.emit('room:create', { boardSize: initialBoardSize, marker: 'X' });
-        }
-
-        // --- CLEANUP (Abort on unmount) ---
         return () => {
             socket.off('game:state');
             socket.off('game:ended');
+            socket.off('player:disconnected');
+            socket.off('player:reconnected');
             socket.off('room:removed');
             window.removeEventListener('account:deactivated', handleAccountDeactivated);
         };
-    }, [socket, isConnected, roomId, navigate, initialBoardSize, roomData]);
+    }, [socket, isConnected, navigate, roomData, boardSize, connectSocket]);
 
-    // --- EMIT ACTIONS ---
     const handleCellClick = (rowIndex, colIndex) => {
-        // Prevent action if game is over or not playing
         if (winnerData || isDraw || roomData?.status !== 'PLAYING') return;
 
         socket.emit('game:move', {
@@ -130,13 +154,9 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
         setMarkerVariant(newVariant || 1);
     };
 
-    // --- DATA MAPPING FOR UI ---
-    // Extract Player 1 (Host) and Player 2 (Guest) safely from roomData
     const player1 = roomData?.participants?.[0] || { usernameSnapshot: 'WAITING...', mark: 'X' };
     const player2 = roomData?.participants?.[1] || { usernameSnapshot: 'WAITING FOR OPPONENT...', mark: 'O' };
-
-    // Determine perspective for WinOverlay (winner/loser/draw)
-    const userMark = roomData?.participants?.find(p => p.userId === user?.id)?.mark || 'X';
+    const userMark = roomData?.participants?.find(p => p.userId === currentUserId)?.mark || 'X';
     const perspective = isDraw ? 'draw' : winnerData ? (winnerData.player === userMark ? 'winner' : 'loser') : null;
     const gameOver = !!winnerData || isDraw;
 
@@ -153,13 +173,23 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
                 .scanlines { background: linear-gradient(to bottom, rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 2px; pointer-events: none; }
                 .pixel-grid { background-image: radial-gradient(rgba(76,201,240,0.05) 1px, transparent 0); background-size: 4px 4px; pointer-events: none; }
             `}</style>
-
+            
             <div className="fixed inset-0 scanlines z-100" />
             <div className="fixed inset-0 pixel-grid z-99" />
 
             <Navigation />
 
-            <main className="flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
+            <main className="flex-1 flex flex-col overflow-hidden px-6 gap-4 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
+                
+                {/* --- SHOW WARNING IF OPPONENT DISCONNECTS --- */}
+                {disconnectCountdown !== null && (
+                    <div className="z-50 border border-[#ff3d00] bg-[#ff3d00]/20 px-6 py-2 text-center w-full max-w-[600px] rounded animate-pulse">
+                        <p className="font-headline text-[10px] text-[#ff3d00] uppercase tracking-widest">
+                            OPPONENT DISCONNECTED — WAITING {disconnectCountdown}S TO ABORT
+                        </p>
+                    </div>
+                )}
+
                 {!gameOver && (
                     <div className="fixed top-20 right-6 z-50">
                         <button
@@ -171,37 +201,37 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
                     </div>
                 )}
 
-                {/* --- HOST PLAYER (Participant 0) --- */}
-                <PlayerPanel
-                    role={player1.mark}
-                    playerName={player1.usernameSnapshot}
-                    isBot={false}
-                    isActive={currentPlayerMark === player1.mark && !gameOver && roomData?.status === 'PLAYING'}
-                    avatarUrl={user?.id === player1.userId ? userAvatarUrl : undefined}
-                    markerVariantData={markerVariantData}
-                />
+                <div className="flex w-full items-center justify-center gap-6">
+                    <PlayerPanel
+                        role={player1.mark}
+                        playerName={player1.usernameSnapshot}
+                        isBot={false}
+                        isActive={currentPlayerMark === player1.mark && !gameOver && roomData?.status === 'PLAYING'}
+                        avatarUrl={currentUserId === player1.userId ? userAvatarUrl : undefined}
+                        markerVariantData={markerVariantData}
+                    />
 
-                <BoardArea
-                    markerVariant={markerVariant}
-                    gridStyle={gridStyle}
-                    board={board}
-                    boardSize={roomData?.boardSize || initialBoardSize}
-                    matchTitle={`ROOM: ${roomData?.roomNumber || 'CONNECTING...'}`}
-                    winnerData={winnerData}
-                    isDraw={isDraw}
-                    isLocked={roomData?.status !== 'PLAYING' || currentPlayerMark !== userMark}
-                    onCellClick={handleCellClick}
-                    onMarkerChange={handleMarkerChange}
-                />
+                    <BoardArea
+                        markerVariant={markerVariant}
+                        gridStyle={gridStyle}
+                        board={board}
+                        boardSize={boardSize}
+                        matchTitle={`ROOM: ${roomData?.roomNumber || 'CONNECTING...'}`}
+                        winnerData={winnerData}
+                        isDraw={isDraw}
+                        isLocked={roomData?.status !== 'PLAYING' || currentPlayerMark !== userMark}
+                        onCellClick={handleCellClick}
+                        onMarkerChange={handleMarkerChange}
+                    />
 
-                {/* --- GUEST PLAYER (Participant 1) --- */}
-                <PlayerPanel
-                    role={player2.mark}
-                    playerName={player2.usernameSnapshot}
-                    isBot={false}
-                    isActive={currentPlayerMark === player2.mark && !gameOver && roomData?.status === 'PLAYING'}
-                    markerVariantData={markerVariantData}
-                />
+                    <PlayerPanel
+                        role={player2.mark}
+                        playerName={player2.usernameSnapshot}
+                        isBot={false}
+                        isActive={currentPlayerMark === player2.mark && !gameOver && roomData?.status === 'PLAYING'}
+                        markerVariantData={markerVariantData}
+                    />
+                </div>
             </main>
 
             {gameOver && (
@@ -209,7 +239,7 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
                     winnerData={winnerData}
                     isDraw={isDraw}
                     perspective={perspective}
-                    onRestart={() => navigate('/lobby')} // Online matches usually return to lobby instead of instant restart
+                    onRestart={() => navigate('/lobby')}
                     onBackToLobby={() => navigate('/lobby')}
                 />
             )}

@@ -1,3 +1,6 @@
+import http from '@/utils/httpHelper';
+import { API_ENDPOINTS } from '@/config/apiConfig';
+
 /**
  * Customization Service
  * Handles API calls and business logic for room customization
@@ -140,36 +143,21 @@ export const transformToBackendFormat = (selection) => {
  * @returns {Promise<Object>} Room creation response with roomId
  */
 export const createGameRoom = async (options) => {
-    try {
-        // Transform to backend format
-        const backendPayload = transformToBackendFormat(options);
-        console.log("Creating room with backend format:", backendPayload);
+    const backendPayload = transformToBackendFormat(options);
+    console.log('Creating room with backend format:', backendPayload);
 
-        // TODO: Replace with actual API endpoint once backend is ready
-        // const response = await fetch('/api/v1/rooms', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer ${getToken()}`
-        //     },
-        //     body: JSON.stringify(backendPayload)
-        // });
+    const response = await http.post(API_ENDPOINTS.ROOM.CREATE, backendPayload);
 
-        // if (!response.ok) throw new Error('Failed to create room');
-        // return await response.json();
+    const roomData = response.data || response;
 
-        // Return mock data for now
-        return {
-            roomId: `room_${Date.now()}`,
-            ...backendPayload,
-            createdAt: new Date().toISOString(),
-        };
-    } catch (error) {
-        console.error("Room creation error:", error);
-        throw error;
+    if (!roomData?.roomId && !roomData?.id) {
+        throw new Error('Server did not return a valid roomId');
     }
-    console.log("Dữ liệu gốc từ UI:", options);
-    console.log("Dữ liệu sau khi chuyển đổi (Payload):", backendPayload);
+
+    return {
+        ...roomData,
+        roomId: roomData.roomId || roomData.id,
+    };
 };
 
 /**

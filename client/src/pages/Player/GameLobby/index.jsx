@@ -20,8 +20,8 @@ export default function GameLobby() {
 
     const handleJoinRoom = (roomId) => {
         const room = rooms.find((r) => r.id === roomId);
-        if (room && room.status === "waiting") {
-            navigate(`/room/${roomId}`, { state: { room } });
+        if (room && room.status !== "full") {
+            navigate(`/play/online/${roomId}`);
         }
     };
 

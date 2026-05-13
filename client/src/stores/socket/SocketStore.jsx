@@ -45,7 +45,12 @@ export const useSocketStore = create((set, get) => ({
 
         // Catch Authentication Errors triggered by socketAuthMiddleware
         socketInstance.on('connect_error', (err) => {
-            console.error('[Socket Auth Error]:', err.message);
+            console.error('[Socket Auth Error]:', err.message, err.data);
+            if (err.message === 'AUTHENTICATION_FAILED') {
+                // Token expired or invalid
+                // TODO: Could trigger logout from AuthStore if needed
+            }
+            set({ socket: null, isConnected: false });
         });
     },
 

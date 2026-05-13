@@ -10,7 +10,7 @@ export default function GameLobby() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setGameMode } = useModeStore();
-    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData } = useLobby();
+    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby } = useLobby();
 
     // Redirect to landing page if not logged in (but wait for auth check to complete)
     useEffect(() => {
@@ -104,6 +104,7 @@ export default function GameLobby() {
                     onlineCount={onlineCount}
                     onCreateRoom={handleCreateRoom}
                     onQuickJoin={handleQuickJoin}
+                    onRefreshLobby={refreshLobby}
                 />
 
                 {/* Room Grid */}

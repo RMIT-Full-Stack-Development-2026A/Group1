@@ -64,8 +64,12 @@ export default function GameCustomization() {
 
             const roomData = await createGameRoom(roomPayload);
 
-            // Navigate to game board with room ID
-            navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
+            // Navigate to game board with room ID (online matches use different route)
+            if (gameMode === 'ONLINE_MATCH') {
+                navigate(`/play/online/${roomData.roomId}`);
+            } else {
+                navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
+            }
         } catch (error) {
             console.error("Failed to create room:", error);
             setLoading(false);

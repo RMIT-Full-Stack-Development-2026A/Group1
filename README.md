@@ -15,31 +15,78 @@ This project is separated into two main directories: `client` (frontend) and `se
 Before you begin, ensure you have the following installed and set up:
 * **Node.js** (v18 or higher recommended)
 * **MongoDB** (Local instance or MongoDB Atlas URI)
+* **Git**
 
 ### Installation 
-1. Clone the repository
+Clone the repository:
+
     ```bash
     git clone https://github.com/RMIT-Full-Stack-Development-2026A/Group1
     cd Group1
     ```
 ### Backend Setup (Server)
-1. Navigate to the server directory:
-   ```bash
-   cd server
-   ```
-2.  Install backend dependencies:
+1. Navigate to the backend directory and install the necessary dependencies:
     ```bash
+    cd server
     npm install
     ``` 
-3. Create a .env file in the root of the server folder.
+2. Create a `.env` file in the root of the `server/` folder and populate it with the required keys. Here is a template to get you started:
+
+    ```bash
+    # Server Configuration
+    PORT=5000
+    NODE_ENV=development
+    CLIENT_URL=http://localhost:8000
+
+    # Database
+    MONGO_URI=mongodb://....
+
+    # Security, Authentication
+    JWT_SECRET=your_super_secret_jwt_key
+
+    # Avatar
+    CLOUDINARY_NAME=your_clodinary_name
+    CLOUDINARY_API_KEY=your_clodinary_api_key
+    CLOUDINARY_API_SECRET=zyour_clodinary_api_secret
+
+    # PayPal Integration
+    PAYPAL_MODE=sandbox
+    PAYPAL_CLIENT_ID=your_paypal_client_id
+    PAYPAL_APP_SECRET=your_paypal_secret
+
+    # Webhook refunds locally
+    PAYPAL_WEBHOOK_ID=your_paypal_webhook_id
+    ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true
+
+    # SMTP
+    SMTP_EMAIL=your_smtp_email
+    SMTP_PASSWORD=your_smtp_password
+    ```
+
+3. Database Seeding
+
+- Before starting the server for the first time, populate your local database with initial admin accounts, players, and sample match data:
+
+    ```bash
+    node seed/index.js
+    ```
+
+    > Sample Admin / User account
+    | Username | Email | Password | Note |
+    |----------|------|----------|-------|
+    | admin_tictactoang | admin@tictactoang.com | Admin@123! | Admin |
+    | normal_player | player@tictactoang.com | Player@123! | Normal user |
+    | premium_player | premium@tictactoang.com | Player@123! | Premium user |
+    | banned_player | banned@tictactoang.com | Player@123! | Banned user |    
 
 4. Start the backend development server:
+
     ```bash
     npm run dev # or node ./src/index.js
     ``` 
 `Note`: The server will run on `http://localhost:5000` by default and uses `nodemon` to automatically restart on file changes.
 
-**Swagger/OpenAPI**: Typically hosted at `/api-docs` (e.g., `http://localhost:5000/api-docs`) using the swagger-ui-express package.
+**`📚 API Documentation`**: Once the server is running, you can view the Swagger/OpenAPI docs at http://localhost:5000/api-docs.
 
 ### Frontend Setup (Client)
 1. Open a new terminal window and navigate to the client directory:

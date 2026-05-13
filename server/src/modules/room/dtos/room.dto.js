@@ -3,7 +3,9 @@ const toParticipant = (participant) => ({
     userId: participant.userId,
     usernameSnapshot: participant.usernameSnapshot,
     mark: participant.mark ?? null,
-    joinedAt: participant.joinedAt ?? null
+    joinedAt: participant.joinedAt ?? null,
+    isHost: participant.isHost ?? false,
+    isReady: participant.isReady ?? false
 });
 
 const toMove = (move) => ({
@@ -27,12 +29,15 @@ export const RoomDTO = {
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
+        boardStyle: room.boardStyle ?? 'CLASSIC',
+        markerStyle: room.markerStyle ?? 'CLASSIC',
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         moveCount: room.moveCount ?? 0,
         startedAt: room.startedAt ?? null,
         endedAt: room.endedAt ?? null,
-        lastMove: room.lastMove ?? null
+        lastMove: room.lastMove ?? null,
+        createdAt: room.createdAt ?? null
     }),
 
     // Summary shape used by arena/listing pages.
@@ -40,12 +45,15 @@ export const RoomDTO = {
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
+        boardStyle: room.boardStyle ?? 'CLASSIC',
+        markerStyle: room.markerStyle ?? 'CLASSIC',
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         moveCount: room.moveCount ?? 0,
         startedAt: room.startedAt ?? null,
         endedAt: room.endedAt ?? null,
-        lastMove: room.lastMove ?? null
+        lastMove: room.lastMove ?? null,
+        createdAt: room.createdAt ?? null
     }),
 
     toRoomListResponse: (rooms, pagination) => ({
@@ -60,6 +68,8 @@ export const RoomDTO = {
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
+        boardStyle: room.boardStyle ?? 'CLASSIC',
+        markerStyle: room.markerStyle ?? 'CLASSIC',
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,

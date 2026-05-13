@@ -8,11 +8,11 @@ export const requestBodies = {
                     type: 'object',
                     required: ['username', 'email', 'password', 'country'],
                     properties: {
-                        username: { type: 'string', example: "Myxlozz", pattern: '^[a-zA-Z0-9_-]{6,30}$' },
+                        username: { type: 'string', example: "Myxlozz", pattern: '^[a-zA-Z0-9_-]{3,30}$' },
                         email:    { type: 'string', format: 'email', example: 'player@example.com' },
                         password: {
                             type: 'string', format: 'password', minLength: 8,
-                            description: 'Min 8 chars, must include upper, lower, digit, and special character.', example: "player@@135A",
+                            description: 'Min 8 chars, must include upper, lower, digit.', example: "Player123",
                         },
                         country:  { type: 'string' },
                     },
@@ -30,7 +30,7 @@ export const requestBodies = {
                     required: ['identifier', 'password'],
                     properties: {
                         identifier: { type: 'string', example: 'john_doe', description: 'Username or email.' },
-                        password:   { type: 'string', format: 'password', example: 'P@ssw0rd!' },
+                        password:   { type: 'string', format: 'password', example: 'Player123' },
                     },
                 },
             },
@@ -45,7 +45,7 @@ export const requestBodies = {
                     type: 'object',
                     minProperties: 1,
                     properties: {
-                        username: { type: 'string', pattern: '^[a-zA-Z0-9_-]{6,30}$' },
+                        username: { type: 'string', pattern: '^[a-zA-Z0-9_-]{3,30}$' },
                         email:    { type: 'string', format: 'email' },
                         country:  { type: 'string' },
                     },
@@ -62,9 +62,8 @@ export const requestBodies = {
                     type: 'object',
                     required: ['currentPassword', 'newPassword'],
                     properties: {
-                        oldPassword: { type: 'string', format: 'password' },
+                        currentPassword: { type: 'string', format: 'password' },
                         newPassword:     { type: 'string', format: 'password', minLength: 8 },
-                        confirmPassword: { type: 'string', format: 'password' }
                     },
                 },
             },
@@ -79,7 +78,7 @@ export const requestBodies = {
                     type: 'object',
                     required: ['avatar'],
                     properties: {
-                        avatar: { type: 'string', format: 'binary', description: 'Image file (jpg/png/webp).' },
+                        avatar: { type: 'string', format: 'binary', description: 'Image file (jpg/jpeg/png/webp), max 5MB.' },
                     },
                 },
             },
@@ -92,7 +91,7 @@ export const requestBodies = {
             'application/json': {
                 schema: {
                     type: 'object',
-                    required: ['gameType', 'boardSize', 'participants', 'firstTurnParticipantIndex', 'status', 'endedReason', 'moves', 'startedAt'],
+                    required: ['gameType', 'boardSize', 'participants', 'firstTurnParticipantIndex', 'status', 'moves', 'startedAt', 'endedAt'],
                     properties: {
                         gameType:                  { type: 'string', enum: ['SINGLE_PLAYER', 'TWO_PLAYERS'] },
                         boardSize:                 { type: 'integer', enum: [10, 15] },
@@ -101,33 +100,70 @@ export const requestBodies = {
                         participants:              { type: 'array', items: { $ref: '#/components/schemas/GameParticipant' }, minItems: 2, maxItems: 2 },
                         firstTurnParticipantIndex: { type: 'integer', enum: [0, 1] },
                         winnerParticipantIndex:    { type: 'integer', enum: [0, 1], nullable: true },
-                        status:                    { type: 'string', enum: ['FINISHED', 'DRAW', 'ABORTED'] },
-                        endedReason:               { type: 'string', enum: ['WIN', 'DRAW', 'ABORT'] },
+                        status:                    { type: 'string', enum: ['COMPLETED', 'ABORTED'] },
+                        endedReason:               { type: 'string', enum: ['WIN', 'DRAW', 'ABORT', 'ADMIN_FORCE_CLOSE'] },
                         winningLine:               { type: 'array', items: { $ref: '#/components/schemas/WinningCell' } },
                         moves:                     { type: 'array', items: { $ref: '#/components/schemas/GameMove' } },
                         startedAt:                 { type: 'string', format: 'date-time' },
-                        endedAt:                   { type: 'string', format: 'date-time', nullable: true },
-                        durationMs:                { type: 'integer' },
+                        endedAt:                   { type: 'string', format: 'date-time' },
                     },
                 },
             },
         },
     },
 
-    DepositBody: {
-        required: true,
+    DeactivatePlayerBody: {
+        required: false,
         content: {
             'application/json': {
                 schema: {
                     type: 'object',
-                    required: ['amount'],
                     properties: {
-                        amount:   { type: 'number', minimum: 1, example: 10 },
-                        currency: { type: 'string', default: 'USD' },
-                        provider: { type: 'string', enum: ['LOCAL_WALLET', 'STRIPE', 'PAYPAL'], default: 'LOCAL_WALLET' },
+                        reason: { type: 'string', description: 'Optional reason for deactivation.' },
                     },
                 },
             },
         },
     },
+
+    ForceCloseRoomBody: {
+        required: false,
+        content: {
+            'application/json': {
+                schema: {
+                    type: 'object',
+                    properties: {
+                        reason: { type: 'string', description: 'Optional reason for force closing the room.' },
+                    },
+                },
+            },
+        },
+    },
+
+    CreateOrderBody: {
+        required: false,
+        content: {
+            'application/json': {
+                schema: {
+                    type: 'object',
+                    description: 'Body is optional. If needed in the future to specify subscription tiers.'
+                }
+            }
+        }
+    },
+
+    CaptureOrderBody: {
+        required: true,
+        content: {
+            'application/json': {
+                schema: {
+                    type: 'object',
+                    required: ['orderID'],
+                    properties: {
+                        orderID: { type: 'string', description: 'The PayPal Order ID to capture.' }
+                    }
+                }
+            }
+        }
+    }
 };

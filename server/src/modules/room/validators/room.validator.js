@@ -67,3 +67,121 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
 
     return { filter, sort, pagination: { page, limit, skip } };
 };
+
+export const validateRoomCreate = (payload) => {
+    const boardSize = parseInt(payload?.boardSize);
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : '';
+    
+    // Check type before trim() & toUpperCase()
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
+
+    if (![10, 15].includes(boardSize)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_SIZE", message: "Board size must be 10 or 15." };
+    }
+    if (!['X', 'O'].includes(marker)) {
+        throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
+    }
+
+    const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
+    if (!allowedBoardStyles.includes(boardStyle)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
+    }
+
+    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+    if (!allowedMarkerStyles.includes(markerStyle)) {
+        throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
+    }
+
+    return { boardSize, marker, boardStyle, markerStyle };
+};
+
+export const validateRoomJoin = (payload) => {
+    if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    return { roomId: payload.roomId };
+};
+
+export const validateRoomLeave = (payload) => {
+    const { roomId, isTimeout } = payload || {};
+    
+    // Check if roomId is valid ObjectId string
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required to leave." };
+    }
+    
+    // Check isTimeout is boolean if provided 
+    if (isTimeout !== undefined && typeof isTimeout !== 'boolean') {
+        throw { statusCode: 400, error: "INVALID_TIMEOUT_FLAG", message: "isTimeout must be a boolean." };
+    }
+    
+    // return both roomId and isTimeout 
+    return { roomId, isTimeout: isTimeout ?? false };
+};
+
+export const validateGameMove = (payload) => {
+    const { roomId, row, col } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (row === undefined || col === undefined || row < 0 || col < 0) {
+        throw { statusCode: 400, error: "INVALID_COORDINATES", message: "Valid row and column indices are required." };
+    }
+    return { roomId, row: parseInt(row), col: parseInt(col) };
+};
+
+export const validateChatSend = (payload) => {
+    const { roomId, message } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (!message || typeof message !== 'string' || message.trim().length === 0 || message.length > 500) {
+        throw { statusCode: 400, error: "INVALID_MESSAGE", message: "Message must be a string between 1 and 500 characters." };
+    }
+    return { roomId, message: message.trim() };
+};
+export const validateRoomUpdateSettings = (payload) => {
+    const { roomId } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : null;
+
+    const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
+    if (!allowedBoardStyles.includes(boardStyle)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
+    }
+
+    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+    if (!allowedMarkerStyles.includes(markerStyle)) {
+        throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
+    }
+
+    if (marker && !['X', 'O'].includes(marker)) {
+        throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
+    }
+
+    return { roomId, boardStyle, markerStyle, marker };
+};
+
+export const validateRoomSetFirstTurn = (payload) => {
+    const { roomId, firstTurnParticipantIndex } = payload || {};
+    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (![0, 1].includes(parseInt(firstTurnParticipantIndex))) {
+        throw { statusCode: 400, error: "INVALID_TURN_INDEX", message: "firstTurnParticipantIndex must be 0 or 1." };
+    }
+    return { roomId, firstTurnParticipantIndex: parseInt(firstTurnParticipantIndex) };
+};
+
+export const validateRoomReady = (payload) => {
+    if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
+        throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    return { roomId: payload.roomId };
+};

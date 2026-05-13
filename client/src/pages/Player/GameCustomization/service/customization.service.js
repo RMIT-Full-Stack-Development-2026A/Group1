@@ -1,5 +1,4 @@
-import http from '@/utils/httpHelper';
-import { API_ENDPOINTS } from '@/config/apiConfig';
+import { useSocketStore } from '@/stores/socket/SocketStore';
 
 /**
  * Customization Service
@@ -137,28 +136,91 @@ export const transformToBackendFormat = (selection) => {
 };
 
 /**
- * Create a game room with customization options
- * Transforms frontend values to backend API format
- * @param {Object} options - Frontend customization { boardSize, gridStyle, markerVariant, aiDifficulty }
- * @returns {Promise<Object>} Room creation response with roomId
+ * Create a game room via WebSocket
+ * @param {Object} options - Frontend customization { boardSize, gridStyle, markerVariant }
+ * @returns {Promise<Object>} Room data with roomId
  */
-export const createGameRoom = async (options) => {
-    const backendPayload = transformToBackendFormat(options);
-    console.log('Creating room with backend format:', backendPayload);
+export const createGameRoom = (options, isOnline = false) => {
 
-    const response = await http.post(API_ENDPOINTS.ROOM.CREATE, backendPayload);
-
-    const roomData = response.data || response;
-
-    if (!roomData?.roomId && !roomData?.id) {
-        throw new Error('Server did not return a valid roomId');
+    if (!isOnline) {
+        return Promise.resolve({
+            roomId: `offline_${Date.now()}`,
+            ...options,
+            status: 'PLAYING',
+            participants: []
+        });
     }
 
-    return {
-        ...roomData,
-        roomId: roomData.roomId || roomData.id,
-    };
+    return new Promise((resolve, reject) => {
+        const { socket, isConnected, connectSocket } = useSocketStore.getState();
+
+        if (!isConnected || !socket) {
+            connectSocket();
+            const retryTimeout = setTimeout(() => {
+                const { socket: newSocket, isConnected: newConnected } = useSocketStore.getState();
+                if (!newConnected || !newSocket) {
+                    clearTimeout(retryTimeout);
+                    return reject(new Error('Socket not connected. Please try again.'));
+                }
+                _emitRoomCreate(newSocket, options, resolve, reject);
+            }, 2000);
+            return;
+        }
+
+        _emitRoomCreate(socket, options, resolve, reject);
+    });
 };
+
+function _emitRoomCreate(socket, options, resolve, reject) {
+    const backendPayload = transformToBackendFormat(options);
+
+    const socketPayload = {
+        ...backendPayload,
+        marker: 'X',
+    };
+
+    console.log('[createGameRoom] Emitting room:create via socket:', socketPayload);
+
+    const timeout = setTimeout(() => {
+        socket.off('room:created', onCreated);
+        socket.off('error', onError);
+        reject(new Error('Server did not respond to room:create. Please try again.'));
+    }, 10000);
+
+    function onCreated(payload) {
+        clearTimeout(timeout);
+        socket.off('room:created', onCreated);
+        socket.off('error', onError);
+
+        console.log('[createGameRoom] room:created received:', payload);
+        const room = payload?.room;
+
+        if (!room?.id) {
+            return reject(new Error('Server returned invalid room data.'));
+        }
+
+        resolve({
+            ...room,
+            roomId: room.id,
+        });
+    }
+
+    function onError(errorPayload) {
+        if (errorPayload?.event !== 'room:create') return;
+        clearTimeout(timeout);
+        socket.off('room:created', onCreated);
+        socket.off('error', onError);
+
+        console.error('[createGameRoom] room:create error:', errorPayload);
+        reject(new Error(errorPayload?.message || 'Failed to create room.'));
+    }
+
+    socket.once('room:created', onCreated);
+    socket.on('error', onError);
+
+    socket.emit('room:create', socketPayload);
+    console.log('[createGameRoom] room:create emitted.');
+}
 
 /**
  * Get all available AI difficulty levels for single player mode

@@ -51,7 +51,7 @@ export const useGameOnline = () => {
     if (!socket || !isConnected || !roomId) return;
 
     const joinTimeoutId = setTimeout(() => {
-      setError('Phòng không tồn tại hoặc đã đóng.');
+      setError('Room not available or has been closed.');
       setTimeout(() => navigate('/lobby'), 2000);
     }, 10000);
 
@@ -69,4 +69,83 @@ export const useGameOnline = () => {
       socket.off('room:updated', handleFirstUpdate);
     };
   }, [socket, isConnected, roomId, navigate]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    function handleRoomUpdated(payload) {
+      setRoomData(payload.room);
+      setIsConnecting(false);
+      setError(null);
+    }
+
+    function handleRoomRemoved() {
+      navigate('/lobby');
+    }
+
+    function handlePlayerDisconnected(payload) {
+      setDisconnectCountdown(payload.timeLeft);
+
+      if (disconnectIntervalRef.current) {
+        clearInterval(disconnectIntervalRef.current);
+      }
+
+      disconnectIntervalRef.current = setInterval(() => {
+        setDisconnectCountdown((previousValue) => {
+          if (previousValue <= 1) {
+            clearInterval(disconnectIntervalRef.current);
+            disconnectIntervalRef.current = null;
+            return null;
+          }
+
+          return previousValue - 1;
+        });
+      }, 1000);
+    }
+
+    function handlePlayerReconnected() {
+      setDisconnectCountdown(null);
+
+      if (disconnectIntervalRef.current) {
+        clearInterval(disconnectIntervalRef.current);
+        disconnectIntervalRef.current = null;
+      }
+    }
+
+    function handleServerError(payload) {
+      const msg = payload?.message || '';
+      const normalizedMessage = msg.toLowerCase();
+      const isRoomError =
+        normalizedMessage.includes('not found') ||
+        normalizedMessage.includes('is full') ||
+        normalizedMessage.includes('is closed') ||
+        normalizedMessage.includes('does not exist');
+
+      if (!isRoomError) {
+        return;
+      }
+
+      setError(msg);
+      setTimeout(() => navigate('/lobby'), 2000);
+    }
+
+    socket.on('room:updated', handleRoomUpdated);
+    socket.on('room:removed', handleRoomRemoved);
+    socket.on('player:disconnected', handlePlayerDisconnected);
+    socket.on('player:reconnected', handlePlayerReconnected);
+    socket.on('error', handleServerError);
+
+    return () => {
+      socket.off('room:updated', handleRoomUpdated);
+      socket.off('room:removed', handleRoomRemoved);
+      socket.off('player:disconnected', handlePlayerDisconnected);
+      socket.off('player:reconnected', handlePlayerReconnected);
+      socket.off('error', handleServerError);
+
+      if (disconnectIntervalRef.current) {
+        clearInterval(disconnectIntervalRef.current);
+        disconnectIntervalRef.current = null;
+      }
+    };
+  }, [socket, isConnected, navigate]);
 };

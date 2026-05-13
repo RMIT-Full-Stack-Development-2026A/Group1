@@ -12,7 +12,6 @@ const ProfilePage = lazy(() => import("@/pages/Player/Profile/index"));
 const GameModeSelect = lazy(() => import("@/pages/Player/GameModeSelect/index"));
 const GameLobby = lazy(() => import("@/pages/Player/GameLobby/index"));
 const GameCustomization = lazy(() => import("@/pages/Player/GameCustomization/index"));
-const GameRoom = lazy(() => import("@/pages/Player/GameRoom/index"));
 const GameBoard = lazy(() => import("@/pages/Player/GameBoard/index"));
 const GameOnline = lazy(() => import('@/pages/Player/GameOnline/index'));
 const MatchReplay = lazy(() => import("@/pages/Player/MatchReplay/index"));
@@ -48,7 +47,6 @@ export default function AppRouter() {
                 <Route path="/play" element={<ProtectedRoute><GameModeSelect /></ProtectedRoute>} />
                 <Route path="/lobby" element={<ProtectedRoute><GameLobby /></ProtectedRoute>} />
                 <Route path="/customize" element={<ProtectedRoute><GameCustomization /></ProtectedRoute>} />
-                <Route path="/room/:roomId" element={<ProtectedRoute><GameRoom /></ProtectedRoute>} />
                 <Route path="/game/:roomId" element={<ProtectedRoute><GameBoard /></ProtectedRoute>} />
                 <Route path="/play/online/:roomId" element={<ProtectedRoute><GameOnline /></ProtectedRoute>} />
                 <Route path="/replay/:gameId" element={<ProtectedRoute><MatchReplay /></ProtectedRoute>} />

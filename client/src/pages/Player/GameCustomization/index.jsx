@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useCustomizationStore } from "@/stores/game/CustomizationStore";
 import { useModeStore } from "@/stores/ai/ModeStore";
+import { useSocketStore } from '@/stores/socket/SocketStore';
 import { useGameCustomization } from "./hook/useGameCustomization.hook";
 import { createGameRoom } from "./service/customization.service";
 import {
@@ -21,6 +22,7 @@ export default function GameCustomization() {
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setCustomization } = useCustomizationStore();
     const { gameMode, player2Name, startingPlayer, setAiDifficulty, setPlayer2Name, setStartingPlayer } = useModeStore();
+    const { connectSocket } = useSocketStore();
     const {
         selectedBoardSize,
         setSelectedBoardSize,
@@ -40,6 +42,12 @@ export default function GameCustomization() {
             navigate("/", { replace: true });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);
+
+    useEffect(() => {
+        if (gameMode === 'ONLINE_MATCH') {
+            connectSocket();
+        }
+    }, [gameMode, connectSocket]);
 
     const handleCreateRoom = async () => {
         setLoading(true);
@@ -62,18 +70,19 @@ export default function GameCustomization() {
                 setAiDifficulty(selectedDifficulty);
             }
 
-            const roomData = await createGameRoom(roomPayload);
+            const roomData = await createGameRoom(roomPayload, gameMode === 'ONLINE_MATCH');
 
             // Navigate to game board with room ID (online matches use different route)
             if (gameMode === 'ONLINE_MATCH') {
-                navigate(`/play/online/${roomData.roomId}`);
+                navigate(`/play/online/${roomData.roomId}`, { state: { initialRoomData: roomData } });
             } else {
                 navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
             }
         } catch (error) {
             console.error("Failed to create room:", error);
+            alert(`Failed to create room: ${error.message}`);
             setLoading(false);
-            // TODO: Show error message to user
+
         }
     };
 

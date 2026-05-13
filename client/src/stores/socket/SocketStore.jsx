@@ -7,26 +7,29 @@ const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const useSocketStore = create((set, get) => ({
     socket: null,
     isConnected: false,
+    isPending: false,
 
     connectSocket: () => {
-        const currentSocket = get().socket;
-        if (currentSocket?.connected) return;
+        const { socket: currentSocket, isPending } = get();
 
-        // 1. Point exactly to the Backend Namespace
+        if (currentSocket?.connected) return;
+        if (isPending) return;
+
+        set({ isPending: true });
+
         const socketInstance = io(`${SOCKET_URL}/ws/game`, {
-            // 2. This send the HTTP-only cookie for auth
-            withCredentials: true, 
-            transports: ['websocket', 'polling'], // 'polling' as fallback
+            withCredentials: true,
+            transports: ['websocket', 'polling'],
         });
 
         socketInstance.on('connect', () => {
             console.log('[Socket] Connected to /ws/game with ID:', socketInstance.id);
-            set({ socket: socketInstance, isConnected: true });
+            set({ socket: socketInstance, isConnected: true, isPending: false });
         });
 
         socketInstance.on('disconnect', (reason) => {
             console.log('[Socket] Disconnected. Reason:', reason);
-            set({ socket: null, isConnected: false });
+            set({ socket: null, isConnected: false, isPending: false });
         });
 
         socketInstance.on('account:deactivated', (payload = {}) => {
@@ -47,10 +50,9 @@ export const useSocketStore = create((set, get) => ({
         socketInstance.on('connect_error', (err) => {
             console.error('[Socket Auth Error]:', err.message, err.data);
             if (err.message === 'AUTHENTICATION_FAILED') {
-                // Token expired or invalid
-                // TODO: Could trigger logout from AuthStore if needed
+                // Token expired or invalid - could trigger logout from AuthStore if needed
             }
-            set({ socket: null, isConnected: false });
+            set({ socket: null, isConnected: false, isPending: false });
         });
     },
 
@@ -58,7 +60,7 @@ export const useSocketStore = create((set, get) => ({
         const currentSocket = get().socket;
         if (currentSocket) {
             currentSocket.disconnect();
-            set({ socket: null, isConnected: false });
+            set({ socket: null, isConnected: false, isPending: false });
         }
     }
 }));

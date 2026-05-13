@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useSocketStore } from '@/stores/socket/SocketStore';
 import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 
 export const useGameOnline = () => {
-
+    const location = useLocation();
     const { roomId } = useParams();
     const navigate = useNavigate();
     const { socket, isConnected, connectSocket } = useSocketStore();
@@ -19,33 +19,30 @@ export const useGameOnline = () => {
     const disconnectIntervalRef = useRef(null);
     const roomDataRef = useRef(null);
 
-    // ─────────────────────────────────────────────────────────────
-    // FIX BUG #3: Không dùng hasJoinedRef để gate nữa.
-    // Thay vào đó dùng joinedRoomIdRef để track roomId đã join.
-    // Điều này tránh double-emit khi socket reconnect nhưng
-    // roomId không đổi.
-    // ─────────────────────────────────────────────────────────────
     const joinedRoomIdRef = useRef(null);
 
-    // Sync roomDataRef với roomData state để dùng trong cleanup (không stale closure)
     useEffect(() => {
         roomDataRef.current = roomData;
     }, [roomData]);
 
-    // Reset toàn bộ state khi roomId thay đổi (user vào phòng khác)
     useEffect(() => {
         setIsHydrated(false);
         setRoomData(null);
         setIsConnecting(true);
         setError(null);
         setDisconnectCountdown(null);
-        joinedRoomIdRef.current = null; // Reset để phòng mới có thể join
+        // joinedRoomIdRef.current = null; // commented out idk why but does this will work
     }, [roomId]);
 
-    // ─────────────────────────────────────────────────────────────
-    // FIX BUG #4: Xử lý beforeunload đúng — emit room:leave
-    // cho cả WAITING, READY, PLAYING (bất kỳ active status nào).
-    // ─────────────────────────────────────────────────────────────
+    useEffect(() => {
+        const initialData = location.state?.initialRoomData;
+        if (initialData && (initialData.id === roomId || initialData.roomId === roomId)) {
+            console.log('[useGameOnline] Using initialRoomData from router state');
+            setRoomData(initialData);
+            setIsConnecting(false);
+        }
+    }, [location.state, roomId]);
+
     useEffect(() => {
         const handleBeforeUnload = () => {
             const currentRoom = roomDataRef.current;
@@ -57,7 +54,7 @@ export const useGameOnline = () => {
             }
         };
 
-        // Dùng 'pagehide' thay vì 'beforeunload' — reliable hơn trên mobile và một số browser
+        // Listen to both pagehide and beforeunload for better reliability across browsers
         window.addEventListener('pagehide', handleBeforeUnload);
         window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -67,33 +64,21 @@ export const useGameOnline = () => {
         };
     }, []);
 
-    // Khởi động socket nếu chưa connect
+    // init socket connection on mount
     useEffect(() => {
         if (!isConnected) connectSocket();
     }, [isConnected, connectSocket]);
 
-    // ─────────────────────────────────────────────────────────────
-    // FIX BUG #1 + #2 + #3: Hợp nhất toàn bộ logic join + listeners
-    // vào MỘT Effect duy nhất.
-    //
-    // Lý do:
-    // - Tránh race condition giữa socket.once (Effect B) và socket.on (Effect C)
-    // - Tránh cleanup của Effect này xóa nhầm listener của Effect kia
-    // - Dùng joinedRoomIdRef để chỉ emit room:join đúng 1 lần per roomId,
-    //   kể cả khi socket object thay đổi (reconnect)
-    // ─────────────────────────────────────────────────────────────
     useEffect(() => {
         if (!socket || !isConnected || !roomId) return;
         console.log('[useGameOnline] Socket ready, attempting to join:', roomId);
-        // ── SETUP TẤT CẢ LISTENERS TRƯỚC ──
-        // Quan trọng: đăng ký listeners TRƯỚC khi emit room:join
-        // để không bao giờ bỏ lỡ response từ server
+        // join logic 
 
         let joinTimeoutId = null;
 
         function handleRoomUpdated(payload) {
             console.log('[useGameOnline] RECEIVED room:updated:', payload);
-            // Xóa join timeout khi nhận được update đầu tiên
+            // Delete this log after confirming payload structure is correct and consistent with backend
             if (joinTimeoutId) {
                 clearTimeout(joinTimeoutId);
                 joinTimeoutId = null;
@@ -133,36 +118,42 @@ export const useGameOnline = () => {
         }
 
         function handleServerError(payload) {
-            console.error('[useGameOnline] SERVER ERROR:', payload);
-            const msg = payload?.message || '';
+            const msg = payload?.message || payload?.error || '';
+
+            // If is "already in this room" error, it means we successfully rejoined after a disconnect, so we can clear the timeout and just set connecting to false without showing an error
+            if (msg.includes('already in this room')) {
+                console.log('[useGameOnline] Already in room, forcing connection state to ready');
+                setIsConnecting(false);
+                return;
+            }
+
+            // any other error related to joining should be shown as error message and redirect after a delay
             const lower = msg.toLowerCase();
-            const isRoomError =
+            const isFatalError =
                 lower.includes('not found') ||
                 lower.includes('is full') ||
                 lower.includes('is closed') ||
                 lower.includes('does not exist');
 
-            if (isRoomError) {
+            if (isFatalError) {
                 if (joinTimeoutId) {
                     clearTimeout(joinTimeoutId);
                     joinTimeoutId = null;
                 }
+                setIsConnecting(false);
                 setError(msg);
                 setTimeout(() => navigate('/lobby'), 2000);
             }
-            // Premium/chat errors: để useChat.hook.js xử lý riêng
         }
 
-        // Đăng ký listeners
+        // Listeners setup
         socket.on('room:updated', handleRoomUpdated);
         socket.on('room:removed', handleRoomRemoved);
         socket.on('player:disconnected', handlePlayerDisconnected);
         socket.on('player:reconnected', handlePlayerReconnected);
         socket.on('error', handleServerError);
 
-        // ── EMIT room:join SAU KHI LISTENERS ĐÃ ĐĂNG KÝ ──
-        // FIX BUG #3: Chỉ emit nếu chưa join roomId này
-        if (joinedRoomIdRef.current !== roomId) {
+        if (joinedRoomIdRef.current !== roomId && socket.connected) {
             joinedRoomIdRef.current = roomId;
 
             // Ghost Room Timeout: nếu 10s không nhận room:updated → redirect
@@ -171,11 +162,12 @@ export const useGameOnline = () => {
                 setTimeout(() => navigate('/lobby'), 2000);
             }, 10000);
 
-            socket.emit('room:join', { roomId }); 
+            console.log('[useGameOnline] Emitting room:join with Socket ID:', socket.id);
+            socket.emit('room:join', { roomId });
             console.log('[useGameOnline] Emitting room:join...');
         }
 
-        // ── CLEANUP ──
+        // Clean up function chỉ remove listeners của game này, không ảnh hưởng đến listeners khác (nếu có)
         return () => {
             if (joinTimeoutId) clearTimeout(joinTimeoutId);
 
@@ -192,8 +184,7 @@ export const useGameOnline = () => {
         };
     }, [socket, isConnected, roomId, navigate]);
 
-    // Hydration: bơm data vào CustomizationStore khi bắt đầu PLAYING
-    // isHydrated flag đảm bảo OnlineArena không render trước khi store ready
+    // Hydration
     useEffect(() => {
         if (roomData?.status === 'PLAYING' && !isHydrated) {
             const sizeStr = `${roomData.boardSize}x${roomData.boardSize}`;
@@ -203,7 +194,7 @@ export const useGameOnline = () => {
         }
     }, [roomData?.status, isHydrated, setCustomization]);
 
-    // Cleanup khi component unmount: emit room:leave
+    // Cleanup when user leaves page or gets disconnected
     useEffect(() => {
         return () => {
             const currentRoom = roomDataRef.current;

@@ -2,12 +2,14 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth/AuthStore";
+import { useModeStore } from "@/stores/ai/ModeStore";
 import { useLobby } from "@/pages/Player/GameLobby/hook/useLobby.hook.js";
 import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-components";
 
 export default function GameLobby() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
+    const { setGameMode } = useModeStore();
     const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData } = useLobby();
 
     // Redirect to landing page if not logged in (but wait for auth check to complete)
@@ -20,12 +22,14 @@ export default function GameLobby() {
 
     const handleJoinRoom = (roomId) => {
         const room = rooms.find((r) => r.id === roomId);
-        if (room && room.status !== "full") {
-            navigate(`/play/online/${roomId}`);
+        if (room && room.status === "waiting") {
+            navigate(`/play/online/${roomId}`, { state: { room } });
         }
     };
 
     const handleCreateRoom = () => {
+        // Set game mode to online match before navigating
+        setGameMode('ONLINE_MATCH');
         navigate("/customize");
     };
 

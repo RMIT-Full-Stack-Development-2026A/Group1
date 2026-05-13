@@ -148,4 +148,46 @@ export const useGameOnline = () => {
       }
     };
   }, [socket, isConnected, navigate]);
+
+  useEffect(() => {
+    if (roomData?.status === 'PLAYING' && !isHydrated) {
+      const sizeStr = `${roomData.boardSize}x${roomData.boardSize}`;
+      const styleMap = { CLASSIC: 'classic', NEON: 'neon', DARK: 'block' };
+      setCustomization(sizeStr, styleMap[roomData.boardStyle] || 'classic', 3);
+      setIsHydrated(true);
+    }
+  }, [roomData?.status, isHydrated, setCustomization]);
+
+  useEffect(() => {
+    return () => {
+      const currentRoom = roomDataRef.current;
+      if (
+        socket &&
+        currentRoom?.status !== 'CLOSED' &&
+        currentRoom?.status !== 'ABORTED'
+      ) {
+        socket.emit('room:leave', { roomId: currentRoom?.id || roomId });
+      }
+    };
+  }, [socket, roomId]);
+
+  const handleReady = useCallback(() => {
+    if (!socket || !roomData?.id) return;
+    socket.emit('room:ready', { roomId: roomData.id });
+  }, [socket, roomData?.id]);
+
+  const handleLeaveRoom = useCallback(() => {
+    if (socket) socket.emit('room:leave', { roomId: roomData?.id || roomId });
+    navigate('/lobby');
+  }, [socket, roomData?.id, roomId, navigate]);
+
+  return {
+    roomData,
+    isConnecting,
+    isHydrated,
+    error,
+    disconnectCountdown,
+    handleReady,
+    handleLeaveRoom,
+  };
 };

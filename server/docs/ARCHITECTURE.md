@@ -245,7 +245,7 @@ HTTP never becomes the primary online gameplay channel. The frontend should:
 - Validate webhooks/capture orders from payment providers
 - Handle async payment events (e.g., Refunds, Chargebacks) to revoke premium access
 - Extend premium period upon successful payment
-- Maintain immutable transaction (payment invoice) history
+- Maintain a 1-to-1 active transaction record (upserting on renewal and auto-deleting upon expiration) to track the user's current subscription details.
 - Expose revenue metrics for the admin dashboard
 
 ### Public HTTP endpoints

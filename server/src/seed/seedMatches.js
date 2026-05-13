@@ -1,8 +1,8 @@
-import GameSession from '../src/modules/game/models/gameSession.model.js';
+import { GameSession } from '../modules/game/models/gameSession.model.js';
 import { ulid } from 'ulid';
 
 export const seedMatches = async (player1, player2) => {
-    console.log('🌱 Seeding Game Matches & History...');
+    console.log('Seeding Game Matches & History...');
 
     await GameSession.deleteMany({ status: { $in: ['FINISHED', 'DRAW', 'ABORTED'] } });
 

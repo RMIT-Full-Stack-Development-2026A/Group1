@@ -1,4 +1,4 @@
-import Transaction from '../src/modules/subscription/models/transaction.model.js';
+import { Transaction } from '../modules/subscription/models/transaction.model.js';
 
 export const seedSubscriptions = async (premiumUser) => {
     console.log('Seeding Subscriptions...');
@@ -15,7 +15,7 @@ export const seedSubscriptions = async (premiumUser) => {
         userId: premiumUser._id,
         type: 'SUBSCRIPTION',
         provider: 'PAYPAL',
-        amount: 15.00,
+        amount: 10.00,
         currency: 'USD',
         status: 'SUCCESS',
         externalTransactionId: `PAYID-DEMO-${Date.now()}`,

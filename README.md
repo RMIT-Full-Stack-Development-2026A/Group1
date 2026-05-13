@@ -68,7 +68,7 @@ Clone the repository:
 - Before starting the server for the first time, populate your local database with initial admin accounts, players, and sample match data:
 
     ```bash
-    node seed/index.js
+    node ./src/seed/index.js
     ```
 
     > Sample Admin / User account

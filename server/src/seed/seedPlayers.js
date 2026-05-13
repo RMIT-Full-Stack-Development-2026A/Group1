@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import User from '../src/modules/auth/models/user.model.js';
+import { User } from '../modules/auth/models/user.model.js';
 
 export const seedPlayers = async () => {
     console.log('Seeding Player accounts...');

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import User from '../src/modules/auth/models/user.model.js';
+import { User } from '../modules/auth/models/user.model.js';
 
 export const seedAdmin = async () => {
     const passwordHash = await bcrypt.hash('Admin@123!', 10);

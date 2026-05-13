@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { connectDB } from '../src/config/db.config.js';
+import { connectDB } from '../config/db.config.js';
 
 // Import Domain Seeders
 import { seedAdmin } from './seedAdmin.js';

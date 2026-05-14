@@ -10,6 +10,11 @@ export const roomParticipantSchema = new mongoose.Schema({
         type: String, // Username copied at the moment they joined the room
         required: true 
     },
+    // Avatar URL snapshot copied from the User record at the moment they joined the room
+    avatarSnapshot: { 
+        type: String, 
+        default: null 
+    },
     mark: {
         type: String, // X or O assigned to the player in this room
         enum: ['X', 'O'], 

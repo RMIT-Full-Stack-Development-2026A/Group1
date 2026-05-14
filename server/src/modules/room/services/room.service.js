@@ -137,6 +137,7 @@ export const RoomService = {
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
                     mark: p.mark, 
                     role: 'HUMAN'
                 })),
@@ -174,6 +175,7 @@ export const RoomService = {
             participants: [{
                 userId: user._id,
                 usernameSnapshot: user.username,
+                avatarSnapshot: user.avatar,
                 mark: marker,
                 joinedAt: new Date(),
                 isHost: true,
@@ -203,6 +205,7 @@ export const RoomService = {
         const updatedRoom = await RoomRepository.addParticipant(roomId, {
             userId: user._id,
             usernameSnapshot: user.username,
+            avatarSnapshot: user.avatar,
             mark: joinerMark,
             joinedAt: new Date(),
             isHost: false,
@@ -271,6 +274,7 @@ export const RoomService = {
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
                     mark: p.mark, 
                     role: 'HUMAN' 
                 })),
@@ -357,6 +361,7 @@ export const RoomService = {
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
                     mark: p.mark, 
                     role: 'HUMAN'
                 })),

@@ -43,15 +43,14 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
     <div className="fixed bottom-8 left-6 z-40 flex flex-col items-start gap-2">
       {isChatOpen && (
         <div
-          className="flex flex-col w-[360px] max-h-[420px] bg-surface-container-lowest border border-outline-variant"
-          style={{ boxShadow: '0 0 24px rgba(76,201,240,0.08)' }}
+          className="flex flex-col w-[360px] max-h-[420px] bg-surface-container-lowest border border-outline-variant shadow-glow-primary-sm"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant">
             <span className="font-headline text-[9px] text-primary tracking-widest">MATCH CHAT</span>
             <button onClick={toggleChat} className="text-on-surface-variant hover:text-on-surface text-xs transition-colors">✕</button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0" style={{ maxHeight: '260px' }}>
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0 max-h-[260px]">
             {messages.length === 0 && (
               <p className="font-mono text-[9px] text-outline text-center pt-8 uppercase tracking-widest">No messages yet...</p>
             )}
@@ -62,11 +61,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
                   {msg.senderName} · {formatTimestamp(msg.timestamp)}
                 </span>
                 <div
-                  className="px-3 py-2 font-mono text-[11px] leading-relaxed max-w-[80%] break-words text-on-surface"
-                  style={{
-                    background: msg.isOwn ? 'rgba(123,97,255,0.18)' : 'rgba(76,201,240,0.08)',
-                    border: `1px solid ${msg.isOwn ? 'rgba(123,97,255,0.35)' : 'rgba(76,201,240,0.2)'}`,
-                  }}
+                    className={`px-3 py-2 font-mono text-[11px] leading-relaxed max-w-[80%] break-words text-on-surface ${msg.isOwn ? 'bg-own-purple border border-own-purple-border' : 'bg-chat-bubble border border-chat-border'}`}
                 >
                   {msg.message}
                 </div>

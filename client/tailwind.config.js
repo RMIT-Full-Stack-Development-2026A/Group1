@@ -11,8 +11,16 @@ export default {
         "on-tertiary": "#4e2600",
         "on-tertiary-fixed-variant": "#6f3800",
         "on-surface-variant": "#bcc8ce",
+        "neon-green": "#69ff47",
+        "neon-green-dim": "rgba(105,255,71,0.08)",
         "secondary": "#fff0c4",
+        "host-gold": "#fad100",
+        "host-gold-dim": "rgba(250,209,0,0.08)",
         "error": "#ffb4ab",
+        "own-purple": "rgba(123,97,255,0.18)",
+        "own-purple-border": "rgba(123,97,255,0.35)",
+        "chat-bubble": "rgba(76,201,240,0.08)",
+        "chat-border": "rgba(76,201,240,0.20)",
         "surface": "#12121f",
         "inverse-surface": "#e3e0f4",
         "surface-container": "#1e1e2c",
@@ -73,7 +81,16 @@ export default {
         'particle-drift': 'particleDrift 10s linear infinite',
         'particle-fall': 'particleFall 7s linear infinite',
         'particle-swing': 'particleSwing 9s linear infinite',
-        'typing-bounce': 'typingBounce 1.2s ease-in-out infinite'
+        'typing-bounce': 'typingBounce 1.2s ease-in-out infinite',
+        'ready-pulse': 'readyPulse 1.5s ease-in-out infinite',
+        'hud-flicker': 'hudFlicker 3s step-end infinite'
+      },
+      boxShadow: {
+        'glow-primary': '0 0 20px rgba(147,226,255,0.25)',
+        'glow-error': '0 0 16px rgba(255,180,171,0.25)',
+        'glow-green': '0 0 12px rgba(105,255,71,0.40)',
+        'glow-gold': '0 0 8px rgba(250,209,0,0.20)',
+        'glow-primary-sm': '0 0 8px rgba(147,226,255,0.06)'
       },
       keyframes: {
         fadeOut: {
@@ -101,6 +118,16 @@ export default {
         typingBounce: {
           '0%, 80%, 100%': { transform: 'translateY(0)', opacity: '0.4' },
           '40%': { transform: 'translateY(-4px)', opacity: '1' }
+        },
+        readyPulse: {
+          '0%, 100%': { boxShadow: '0 0 8px rgba(105,255,71,0.2)', opacity: '1' },
+          '50%': { boxShadow: '0 0 24px rgba(105,255,71,0.6)', opacity: '0.85' }
+        },
+        hudFlicker: {
+          '0%, 95%, 100%': { opacity: '1' },
+          '96%': { opacity: '0.85' },
+          '97%': { opacity: '1' },
+          '98%': { opacity: '0.9' }
         }
       }
     }

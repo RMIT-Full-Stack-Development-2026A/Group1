@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useSocketStore } from '@/stores/socket/SocketStore';
 import { useCustomizationStore } from '@/stores/game/CustomizationStore';
+import { useAuthStore } from '@/stores/auth/AuthStore';
+import { notifySuccess } from '@/utils/toast.util';
 
 export const useGameOnline = () => {
     const location = useLocation();
@@ -9,6 +11,8 @@ export const useGameOnline = () => {
     const navigate = useNavigate();
     const { socket, isConnected, connectSocket } = useSocketStore();
     const { setCustomization } = useCustomizationStore();
+    const { user } = useAuthStore();
+    const currentUserId = user?.id;
 
     const [roomData, setRoomData] = useState(null);
     const [isConnecting, setIsConnecting] = useState(true);
@@ -18,6 +22,7 @@ export const useGameOnline = () => {
 
     const disconnectIntervalRef = useRef(null);
     const roomDataRef = useRef(null);
+    const prevParticipantCountRef = useRef(0);
 
     const joinedRoomIdRef = useRef(null);
 
@@ -83,7 +88,20 @@ export const useGameOnline = () => {
                 clearTimeout(joinTimeoutId);
                 joinTimeoutId = null;
             }
-            setRoomData(payload.room);
+
+            const newRoom = payload.room;
+            const prevCount = prevParticipantCountRef.current;
+            const newCount = newRoom?.participants?.length || 0;
+
+          
+            if (prevCount === 1 && newCount === 2) {
+                const opponent = newRoom.participants.find(p => p.userId !== currentUserId);
+                const opponentName = opponent?.usernameSnapshot || 'OPPONENT';
+                notifySuccess(`${opponentName} JOINED THE ROOM`, { duration: 3000 });
+            }
+
+            prevParticipantCountRef.current = newCount;
+            setRoomData(newRoom);
             setIsConnecting(false);
             setError(null);
         }

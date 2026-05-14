@@ -1,4 +1,3 @@
-// Route: /admin/rooms
 import React from "react";
 import { useGameRoomMonitor } from "./hooks/useGameRoomMonitor";
 import GameRoomMonitorHeader from "./sub-components/GameRoomMonitorHeader";
@@ -12,6 +11,7 @@ export default function GameRoomMonitor() {
 		searchTerm,
 		setSearchTerm,
 		resetSearch,
+		refreshRooms,
 		loading,
 		error,
 		closeRoom,
@@ -25,7 +25,7 @@ export default function GameRoomMonitor() {
 	} = useGameRoomMonitor();
 
 	return (
-		<main className="relative mx-auto w-full max-w-[1440px] px-4 py-8 font-body text-on-surface md:px-8 md:py-10">
+		<main className="relative mx-auto w-full max-w-360 px-4 py-8 font-body text-on-surface md:px-8 md:py-10">
 			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(13,13,26,0.2),rgba(13,13,26,0.2)),radial-gradient(circle_at_top_right,rgba(76,201,240,0.08),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,214,10,0.06),transparent_28%)]" />
 
 			<div className="relative z-10 space-y-8">
@@ -33,6 +33,7 @@ export default function GameRoomMonitor() {
 					totalRooms={totalRooms}
 					activeRooms={activeRooms}
 					closedRooms={closedRooms}
+					onRefresh={refreshRooms}
 				/>
 
 				{error && (
@@ -52,7 +53,7 @@ export default function GameRoomMonitor() {
 					searchTerm={searchTerm}
 					setSearchTerm={setSearchTerm}
 					onResetSearch={resetSearch}
-					visibleRooms={visibleRooms}
+					onRefresh={refreshRooms}
 					loading={loading}
 				/>
 

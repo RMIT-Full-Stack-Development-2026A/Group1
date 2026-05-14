@@ -21,19 +21,42 @@ const formatDateTime = (value) => {
   }).format(date);
 };
 
+const getParticipantName = (participant, fallback) => {
+  return participant?.usernameSnapshot || participant?.username || participant?.name || fallback;
+};
+
 const normalizeRoom = (room) => {
-  const isClosed = room.status === "closed";
-  const isWaiting = room.status === "waiting";
-  const isInProgress = room.status === "in-progress";
+  const status = String(room.status || "").toUpperCase();
+  const participants = Array.isArray(room.participants) ? room.participants : [];
+  const playerOne = getParticipantName(participants[0], "PLAYER 1");
+  const playerTwo = getParticipantName(participants[1], status === "WAITING" ? "WAITING" : "PLAYER 2");
+  const isClosed = status === "CLOSED" || status === "ABORTED";
+  const isWaiting = status === "WAITING";
+  const isReady = status === "READY";
+  const isInProgress = status === "PLAYING";
+
+  const statusLabel = isClosed
+    ? "CLOSED"
+    : isInProgress
+      ? "MATCH IN PROGRESS"
+      : isReady
+        ? "READY TO START"
+        : "WAITING FOR PLAYER";
+
+  const startTimeValue = room.startedAt || room.startTime || room.createdAt;
+  const endTimeValue = room.endedAt || room.endTime;
 
   return {
     ...room,
-    statusLabel: isClosed ? "CLOSED" : isInProgress ? "MATCH IN PROGRESS" : "WAITING FOR PLAYER",
+    status: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
+    playerOneName: playerOne,
+    playerTwoName: playerTwo,
+    statusLabel,
     statusTone: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
     canClose: !isClosed,
-    startTimeDisplay: formatDateTime(room.startTime),
-    endTimeDisplay: isClosed ? formatDateTime(room.endTime) : "ACTIVE",
-    playerTwoName: isWaiting ? "WAITING" : room.playerTwoName,
+    startTimeDisplay: formatDateTime(startTimeValue),
+    endTimeDisplay: isClosed ? formatDateTime(endTimeValue) : "ACTIVE",
+    playerTwoName: isWaiting ? "WAITING" : playerTwo,
   };
 };
 
@@ -122,6 +145,7 @@ export const useGameRoomMonitor = () => {
   };
 
   return {
+    refreshRooms: fetchRooms,
     rooms: filteredRooms,
     searchTerm,
     setSearchTerm,

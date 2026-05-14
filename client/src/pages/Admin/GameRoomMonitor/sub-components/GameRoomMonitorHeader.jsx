@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedRooms }) {
+export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedRooms, onRefresh }) {
   return (
     <header className="space-y-2">
       <p className="font-mono text-xs uppercase tracking-[0.35em] text-primary">
@@ -12,6 +12,15 @@ export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedR
       <p className="max-w-2xl font-mono text-xs uppercase tracking-[0.18em] text-white/55">
         Live-room feed for admin review.
       </p>
+      <div className="pt-3">
+        <button
+          type="button"
+          onClick={() => onRefresh && onRefresh()}
+          className="inline-flex items-center gap-2 rounded-md border border-cyan-500/25 bg-surface-card px-3 py-2 text-xs font-mono uppercase tracking-[0.18em] text-white/90 hover:brightness-105"
+        >
+          REFRESH
+        </button>
+      </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
         <div className="rounded-lg border border-cyan-500/25 bg-surface-card px-4 py-3 text-primary">
           <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">Total</div>

@@ -50,6 +50,7 @@ This document contains the detailed specifications (Payloads, Data Types, and Va
 | :--- | :--- | :--- |
 | `userId` | String \| null | The user's `_id`. Send `null` for the AI or a Guest player. |
 | `usernameSnapshot` | String | Display name used during the match (e.g., "PlayerOne", "Bot (Easy)"). |
+| `avatarSnapshot` | String \| null | Avatar image URL copied for historical immutability (snapshot at game time). |
 | `role` | String | `"HUMAN"` or `"AI"`. |
 | `mark` | String | `"X"` or `"O"`. |
 | `aiDifficulty` | String \| null | `"EASY"`, `"MEDIUM"`, `"HARD"`. Send `null` if the role is `"HUMAN"`. |
@@ -71,12 +72,14 @@ This document contains the detailed specifications (Payloads, Data Types, and Va
         { 
             "userId": "651a2b3c4d5e", 
             "usernameSnapshot": "PlayerOne", 
+            "avatarSnapshot": "https://cdn.example.com/avatars/playerone.png",
             "role": "HUMAN", 
             "mark": "X" 
         },
         { 
             "userId": null, 
             "usernameSnapshot": "Bot (Easy)", 
+            "avatarSnapshot": null,
             "role": "AI", 
             "mark": "O", 
             "aiDifficulty": "EASY" 

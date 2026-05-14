@@ -102,7 +102,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-3 w-full max-w-[260px] flex-none">
+          <div className="flex flex-col items-center gap-3 w-full max-w-[260px] flex-none min-h-[140px]">
             <div className="flex items-center justify-center gap-4 w-full">
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">

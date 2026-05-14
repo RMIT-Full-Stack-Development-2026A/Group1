@@ -52,12 +52,14 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
     if (onUnready) onUnready();
   };
 
-  const base = 'w-full h-[72px] font-headline text-[10px] px-6 uppercase tracking-widest transition-all duration-300 border-2 flex items-center justify-center';
+  const base = 'w-full min-h-[72px] h-[72px] font-headline text-[10px] px-6 uppercase tracking-widest transition-all duration-300 border-2 flex items-center justify-center';
 
   if (isDisabled) {
     return (
       <button type="button" disabled
-        className="w-full font-headline text-[10px] px-6 py-4 uppercase tracking-widest border-2 border-outline-variant text-outline opacity-40 cursor-not-allowed">
+        className={`${base} border-outline-variant text-outline opacity-40 cursor-not-allowed`}
+      >
+
         WAITING FOR OPPONENT
       </button>
     );
@@ -65,7 +67,7 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
 
   if (countdown !== null) {
     return (
-      <div className="flex flex-col items-center gap-2 w-full">
+      <div className="flex flex-col items-center gap-1 w-full h-[96px] justify-center">
         <button
           type="button"
           onClick={handleCancelCountdown}
@@ -97,11 +99,11 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full">
+    <div className="flex flex-col items-center gap-1 w-full h-[96px] justify-center">
       <button
         type="button"
         disabled
-        className="w-full font-headline text-[10px] px-6 py-4 uppercase tracking-widest border-2 border-neon-green text-neon-green bg-neon-green-dim cursor-default shadow-glow-green"
+        className={`${base} border-neon-green text-neon-green bg-neon-green-dim cursor-default shadow-glow-green`}
       >
         READY
       </button>

@@ -41,17 +41,17 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
   return (
     <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden bg-background">
 
-      <div className="flex-none flex flex-col items-center pt-4 pb-2 px-8 gap-1">
+      <div className="flex-none flex flex-col py-2 items-center pt-8 pb-2 px-8 gap-1">
         <h1 className="font-headline text-2xl text-[#4cc9f0] drop-shadow-[0_0_12px_rgba(76,201,240,0.6)] uppercase tracking-widest">
           MATCH LOBBY
         </h1>
         <div className="h-1 w-24 bg-[#4cc9f0]" />
       </div>
 
-      <div className="flex-1 flex items-stretch overflow-hidden min-h-0">
+      <div className="flex-1 flex items-center overflow-hidden min-h-0 px-6 gap-4">
         <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={roomData?.markerStyle ?? 'PIXEL'} markerVariantKey={roomData?.markerStyle ?? 'PIXEL'} />
 
-        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container border-x border-outline-variant/30 overflow-hidden gap-3">
+        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container overflow-hidden gap-3">
           <div className="flex flex-col items-center gap-2 flex-none">
             <span className="font-headline text-[36px] text-[#fad100]">VS</span>
            

@@ -7,7 +7,6 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
   const markerVariantData = useMemo(() => getMarkerVariant(markerVariantKey), [markerVariantKey]);
   const markerStyleClasses = useMemo(() => resolveMarkerStyleClasses(markerStyle), [markerStyle]);
 
-  // ── EMPTY SLOT ──
   if (!participant) {
     return (
       <div
@@ -40,7 +39,6 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
     );
   }
 
-  // ── FILLED SLOT ──
   const isX = participant.mark === 'X';
   const Marker = isX ? MarkerX : MarkerO;
 
@@ -72,19 +70,18 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
 
   return (
     <div
-      className={`w-[260px] shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-all duration-700
+      className={`w-[260px] py-4 shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-all duration-700
         ${side === 'left'
           ? 'border-r border-[#3d484d]'
           : 'border-l border-[#3d484d]'}
         ${isCurrentUser
           ? 'border-2 border-[#4cc9f0] shadow-[0px_0px_12px_rgba(76,201,240,0.25)]'
-          : ''}
+          : 'border-2 border-[#ff3d00] shadow-[0px_0px_12px_rgba(255,61,0,0.2)]'}
       `}
     >
-      {/* Top accent line — lit up when ready */}
+
       <div className={`absolute top-0 left-0 w-full h-[2px] transition-all duration-700 ${topAccentClass}`} />
 
-      {/* ── SECTION A: Identity (top ~40%) ── */}
       <div className="flex flex-col items-center gap-3 pt-6 pb-4 px-6 flex-none">
         <div className="flex items-center gap-2 h-6">
           {participant.isHost && (
@@ -167,7 +164,13 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
       )}
 
       {/* ── SECTION D: Ready state indicator (bottom) ── */}
-      <div className={`mx-6 mb-4 py-2 text-center font-headline text-[11px] uppercase tracking-widest border transition-all duration-700 shadow-[2px_2px_0px_#343342] ${readyBadgeClass}`}>
+      <div 
+        className={`mx-6 mb-4 py-2 text-center font-headline text-[11px] uppercase tracking-widest border transition-all duration-700 shadow-[2px_2px_0px_#343342] ${
+          isReady 
+            ? 'text-[#69ff47] border-[#69ff47] bg-[#69ff47]/10 shadow-glow-green' 
+            : 'text-[#ff6b6b] border-[#ff6b6b] bg-[#ff6b6b]/10'
+        }`}
+      >
         {isReady ? 'READY' : 'NOT READY'}
       </div>
     </div>

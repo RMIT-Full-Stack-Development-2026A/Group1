@@ -1,50 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
 import { useButtonSound } from '@/hooks/useButtonSound';
 import { AUDIO_FILES } from '@/config/audioConfig';
 
 export default function ReadyButton({ isReady, isDisabled, onReady, onUnready }) {
-  const [countdown, setCountdown] = useState(null);
-  const intervalRef = useRef(null);
   const { play: playClick } = useButtonSound(AUDIO_FILES.BUTTON_CLICK);
 
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isReady && countdown !== null) {
-      setCountdown(null);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-  }, [isReady]);
-
   const handleReadyClick = () => {
-    if (isDisabled || isReady || countdown !== null) return;
+    if (isDisabled || isReady) return;
     playClick();
-    setCountdown(3);
-
-    intervalRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-          if (onReady) onReady();
-          return null;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const handleCancelCountdown = () => {
-    playClick();
-    setCountdown(null);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    if (onReady) onReady();
   };
 
   const handleCancelReady = () => {
@@ -52,7 +15,7 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
     if (onUnready) onUnready();
   };
 
-  const base = 'w-full min-h-[72px] h-[72px] font-headline text-[10px] px-6 uppercase tracking-widest transition-all duration-300 border-2 flex items-center justify-center';
+  const base = "border-2 font-headline text-[10px] px-8 py-2 uppercase tracking-widest transition-all max-w-[320px]";
 
   if (isDisabled) {
     return (
@@ -65,57 +28,25 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
     );
   }
 
-  if (countdown !== null) {
-    return (
-      <div className="flex flex-col items-center gap-1 w-full h-[96px] justify-center">
-        <button
-          type="button"
-          onClick={handleCancelCountdown}
-          className={`${base} border-[#fad100] text-[#fad100] bg-[#fad100]/10 shadow-[0px_0px_8px_rgba(250,209,0,0.25)]`}
-        >
-          CONFIRMING... {countdown}
-        </button>
-        <button
-          type="button"
-          onClick={handleCancelCountdown}
-          className="font-mono text-[8px] text-outline hover:text-error uppercase tracking-widest transition-colors cursor-pointer"
-        >
-          CANCEL
-        </button>
-      </div>
-    );
-  }
-
   if (!isReady) {
     return (
       <button
         type="button"
         onClick={handleReadyClick}
-        className={`${base} border-primary text-primary hover:bg-primary/10 hover:shadow-glow-primary cursor-pointer text-[#32CD32] animate-pulse`}
+        className={`${base} border-primary text-primary w-full hover:shadow-glow-primary cursor-pointer text-[#fad100] animate-pulse`}
       >
-        READY UP
+        PRESS TO READY
       </button>
     );
   }
 
   return (
-    <div className="flex flex-col items-center gap-1 w-full h-[96px] justify-center">
       <button
         type="button"
         disabled
-        className={`${base} border-neon-green text-neon-green bg-neon-green-dim cursor-default shadow-glow-green`}
+        className={`${base} border-primary text-primary w-full hover:shadow-glow-primary cursor-pointer text-[#32CD32] animate-pulse`}
       >
         READY
-      </button>
-      {onUnready && (
-        <button
-          type="button"
-          onClick={handleCancelReady}
-          className="font-mono text-[8px] text-outline hover:text-error uppercase tracking-widest transition-colors cursor-pointer"
-        >
-          CANCEL READY
-        </button>
-      )}
-    </div>
-  );
+      </button>  
+      );
 }

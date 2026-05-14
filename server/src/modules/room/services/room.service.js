@@ -9,7 +9,10 @@ import {
     validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, 
     validateRoomLeave, validateGameMove, validateChatSend, 
     validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady 
-} from '../validators/room.validator.js'; 
+} from '../validators/room.validator.js';
+
+// Helper: Compute isPremium from user (same logic as User model's virtual field)
+const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {
@@ -138,6 +141,7 @@ export const RoomService = {
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
                     role: 'HUMAN'
                 })),
@@ -176,6 +180,7 @@ export const RoomService = {
                 userId: user._id,
                 usernameSnapshot: user.username,
                 avatarSnapshot: user.avatar,
+                isPremiumSnapshot: computeIsPremium(user),
                 mark: marker,
                 joinedAt: new Date(),
                 isHost: true,
@@ -206,6 +211,7 @@ export const RoomService = {
             userId: user._id,
             usernameSnapshot: user.username,
             avatarSnapshot: user.avatar,
+            isPremiumSnapshot: computeIsPremium(user),
             mark: joinerMark,
             joinedAt: new Date(),
             isHost: false,
@@ -275,6 +281,7 @@ export const RoomService = {
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
                     role: 'HUMAN' 
                 })),
@@ -362,6 +369,7 @@ export const RoomService = {
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
                     role: 'HUMAN'
                 })),

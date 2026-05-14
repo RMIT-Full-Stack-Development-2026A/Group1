@@ -15,6 +15,11 @@ export const roomParticipantSchema = new mongoose.Schema({
         type: String, 
         default: null 
     },
+    // Premium status snapshot copied from the User record at the moment they joined the room
+    isPremiumSnapshot: {
+        type: Boolean,
+        default: false
+    },
     mark: {
         type: String, // X or O assigned to the player in this room
         enum: ['X', 'O'], 

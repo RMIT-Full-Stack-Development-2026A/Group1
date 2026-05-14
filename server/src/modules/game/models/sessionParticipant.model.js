@@ -16,6 +16,11 @@ export const sessionParticipantSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // Premium status snapshot copied from the User record at the time the match was played
+    isPremiumSnapshot: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String, // Distinguishes human player from AI bot
         enum: ['HUMAN', 'AI'], 

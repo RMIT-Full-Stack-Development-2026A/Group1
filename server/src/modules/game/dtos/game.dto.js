@@ -3,6 +3,7 @@ const toParticipant = (participant) => ({
     userId: participant.userId ?? null,
     usernameSnapshot: participant.usernameSnapshot,
     avatarSnapshot: participant.avatarSnapshot ?? null,
+    isPremium: participant.isPremiumSnapshot ?? false,
     role: participant.role,
     mark: participant.mark,
     aiDifficulty: participant.aiDifficulty ?? null

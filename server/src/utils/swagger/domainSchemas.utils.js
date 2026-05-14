@@ -65,6 +65,7 @@ export const domainSchemas = {
             userId:           { type: 'string', nullable: true },
             usernameSnapshot: { type: 'string', example: 'john_doe' },
             avatarSnapshot:   { type: 'string', nullable: true, example: 'https://cdn.example.com/avatars/john_doe.png' },
+            isPremium:        { type: 'boolean', example: false },
             role:             { type: 'string', enum: ['HUMAN', 'AI'] },
             mark:             { type: 'string', enum: ['X', 'O'] },
             aiDifficulty:     { type: 'string', enum: ['EASY', 'MEDIUM', 'HARD'], nullable: true },
@@ -137,7 +138,8 @@ export const domainSchemas = {
         properties: {
             userId:           { type: 'string' },
             usernameSnapshot: { type: 'string' },
-            avatarSnapshot:   { type: 'string', nullable: true, example: 'https://cdn.example.com/avatars/jane_doe.png' },
+            avatar:           { type: 'string', nullable: true, example: 'https://cdn.example.com/avatars/jane_doe.png' },
+            isPremium:        { type: 'boolean', example: false },
             mark:             { type: 'string', enum: ['X', 'O'], nullable: true },
             isReady:          { type: 'boolean', example: false },
             isHost:           { type: 'boolean', example: false },

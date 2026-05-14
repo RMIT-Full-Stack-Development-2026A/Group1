@@ -4,7 +4,7 @@ import { ulid } from 'ulid';
 export const seedMatches = async (player1, player2) => {
     console.log('Seeding Game Matches & History...');
 
-    await GameSession.deleteMany({ status: { $in: ['FINISHED', 'DRAW', 'ABORTED'] } });
+    // await GameSession.deleteMany({ status: { $in: ['FINISHED', 'DRAW', 'ABORTED'] } });
 
     // P1 plays F6, F7, F8, F9, F10. P2 plays G6, G7, G8, G9
     const generateMoves = () => {

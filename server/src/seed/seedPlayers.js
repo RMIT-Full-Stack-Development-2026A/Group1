@@ -17,7 +17,7 @@ export const seedPlayers = async () => {
             country: 'VN',
             role: 'PLAYER',
             isActive: true,
-            isPremium: false,
+            premiumExpiresAt: null,
         },
         {
             username: 'premium_player',
@@ -43,7 +43,7 @@ export const seedPlayers = async () => {
         const user = await User.findOneAndUpdate(
             { email: p.email },
             { $set: p },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
         seededPlayers.push(user);
     }

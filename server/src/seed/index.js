@@ -36,7 +36,6 @@ const runSeeder = async () => {
         // Disconnect to exit the process
         await mongoose.connection.close();
         console.log('Database connection closed.');
-        process.exit(0);
     }
 };
 

@@ -45,9 +45,9 @@ Clone the repository:
     JWT_SECRET=your_super_secret_jwt_key
 
     # Avatar
-    CLOUDINARY_NAME=your_clodinary_name
-    CLOUDINARY_API_KEY=your_clodinary_api_key
-    CLOUDINARY_API_SECRET=zyour_clodinary_api_secret
+    CLOUDINARY_NAME=your_cloudinary_name
+    CLOUDINARY_API_KEY=your_cloudinary_api_key
+    CLOUDINARY_API_SECRET=zyour_cloudinary_api_secret
 
     # PayPal Integration
     PAYPAL_MODE=sandbox

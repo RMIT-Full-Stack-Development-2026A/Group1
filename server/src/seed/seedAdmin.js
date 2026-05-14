@@ -16,7 +16,7 @@ export const seedAdmin = async () => {
     const admin = await User.findOneAndUpdate(
         { email: adminData.email },
         { $set: adminData },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
     );
 
     console.log(`Admin seeded: ${admin.username} (ID: ${admin._id})`);

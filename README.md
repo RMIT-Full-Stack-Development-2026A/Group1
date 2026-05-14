@@ -47,12 +47,12 @@ Clone the repository:
     # Avatar
     CLOUDINARY_NAME=your_cloudinary_name
     CLOUDINARY_API_KEY=your_cloudinary_api_key
-    CLOUDINARY_API_SECRET=zyour_cloudinary_api_secret
+    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
     # PayPal Integration
     PAYPAL_MODE=sandbox
     PAYPAL_CLIENT_ID=your_paypal_client_id
-    PAYPAL_APP_SECRET=your_paypal_secret
+    PAYPAL_CLIENT_SECRET=your_paypal_client_secret
 
     # Webhook refunds locally
     PAYPAL_WEBHOOK_ID=your_paypal_webhook_id

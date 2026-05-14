@@ -51,14 +51,14 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
       <div className="flex-1 flex items-stretch overflow-hidden min-h-0">
         <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={roomData?.markerStyle ?? 'PIXEL'} markerVariantKey={roomData?.markerStyle ?? 'PIXEL'} />
 
-        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container-lowest/30 overflow-hidden gap-3">
+        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container border-x border-outline-variant/30 overflow-hidden gap-3">
           <div className="flex flex-col items-center gap-2 flex-none">
             <span className="font-headline text-[36px] text-[#fad100]">VS</span>
            
             {/* Ready counter badge */}
-            <div className="mt-2">
-              <span className="font-headline text-[12px] text-primary border border-primary/30 px-3 py-1 uppercase tracking-widest shadow-glow-primary-sm">
-                READY: {readyCount}/2
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="font-headline text-[11px] text-[#4cc9f0] border border-[#4cc9f0]/40 px-4 py-1.5 uppercase tracking-widest shadow-[0px_0px_8px_rgba(76,201,240,0.2)]">
+                READY {readyCount}/2
               </span>
             </div>
           </div>
@@ -103,19 +103,22 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
           </div>
 
           <div className="flex flex-col items-center gap-3 w-full max-w-[260px] flex-none">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center gap-4 w-full">
               {[host, guest].map((p, i) => (
-                <div key={i} className="flex items-center gap-1.5">
-                  <div className={p?.isReady ? 'w-2 h-2 bg-neon-green shadow-glow-green transition-all duration-500' : 'w-2 h-2 bg-outline-variant transition-all duration-500'} />
-                  <span className="font-mono text-[7px] text-outline uppercase">{p?.usernameSnapshot?.slice(0, 8) || '???'}</span>
+                <div key={i} className="flex items-center gap-2">
+                  <div className={`w-2 h-2 transition-all duration-500 ${p?.isReady ? 'bg-neon-green shadow-glow-green' : 'bg-[#3d484d]'}`} />
+                  <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-neon-green' : 'text-[#879398]'}`}>
+                    {p?.usernameSnapshot?.slice(0, 10) || '???'}
+                  </span>
                 </div>
               ))}
-              <span className="font-mono text-[8px] text-outline-variant ml-1">{readyCount}/2</span>
             </div>
 
             <ReadyButton isReady={isMyReady} isDisabled={!canReady} onReady={onReady} />
-
-            <button onClick={handleLeaveWithSound} className="font-mono text-[11px] text-outline border border-outline px-3 py-1.5 uppercase tracking-widest transition-all duration-200 cursor-pointer mt-2 underline-offset-4 hover:underline hover:text-error">
+            <button
+              onClick={handleLeaveWithSound}
+              className="bg-transparent border border-[#ffb4ab] text-[#ffb4ab] cursor-pointer font-headline py-3 px-8 tracking-tight hover:bg-[#ffb4ab]/10 active:translate-y-0.5 transition-all text-xs w-full"
+            >
               LEAVE ROOM
             </button>
           </div>

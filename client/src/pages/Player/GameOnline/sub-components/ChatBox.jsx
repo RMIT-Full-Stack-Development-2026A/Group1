@@ -40,7 +40,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
   }, [isChatOpen]);
 
   return (
-    <div className="fixed bottom-8 left-6 z-40 flex flex-col items-start gap-2">
+    <div className="fixed top-20 left-6 z-40 flex flex-col items-start gap-2">
       {isChatOpen && (
         <div
           className="flex flex-col w-[360px] max-h-[420px] bg-surface-container-lowest border border-outline-variant shadow-glow-primary-sm"

@@ -52,7 +52,7 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
     if (onUnready) onUnready();
   };
 
-  const base = 'w-full font-headline text-[10px] px-6 py-4 uppercase tracking-widest transition-all duration-300 border-2';
+  const base = 'w-full h-[72px] font-headline text-[10px] px-6 uppercase tracking-widest transition-all duration-300 border-2 flex items-center justify-center';
 
   if (isDisabled) {
     return (
@@ -69,7 +69,7 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
         <button
           type="button"
           onClick={handleCancelCountdown}
-          className={`${base} border-secondary-container text-secondary-container bg-secondary-container/10 animate-pulse shadow-glow-gold`}
+          className={`${base} border-[#fad100] text-[#fad100] bg-[#fad100]/10 shadow-[0px_0px_8px_rgba(250,209,0,0.25)]`}
         >
           CONFIRMING... {countdown}
         </button>
@@ -89,7 +89,7 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
       <button
         type="button"
         onClick={handleReadyClick}
-        className={`${base} border-primary text-primary hover:bg-primary/10 hover:shadow-glow-primary animate-pulse`}
+        className={`${base} border-primary text-primary hover:bg-primary/10 hover:shadow-glow-primary cursor-pointer text-[#32CD32] animate-pulse`}
       >
         READY UP
       </button>

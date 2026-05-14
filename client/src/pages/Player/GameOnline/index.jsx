@@ -48,29 +48,28 @@ export default function GameOnline() {
     return null;
   };
 
-  return (
-    // Root container: Ép chiều cao bằng màn hình, không cho scroll
+return (
+    // 1. Root: Khóa cứng màn hình 100vh, không cho scroll
     <div className="h-screen w-screen bg-background text-on-surface overflow-hidden relative flex flex-col">
       
-      {/* 1. Các lớp hiệu ứng (Z-index thấp) */}
+      {/* 2. Hiệu ứng nền (Luôn nằm dưới cùng - z thấp) */}
       <ScanLines /> 
-      {/* Lớp phủ Pixel Grid: Để pointer-events-none để không chặn click chuột */}
-      <div className="fixed inset-0 bg-[url('/assets/images/pixel-grid.png')] opacity-[0.03] pointer-events-none z-[1]" aria-hidden="true" />
-      <div className="fixed inset-0 pointer-events-none z-[2] shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]" aria-hidden="true" />
+      <div className="fixed inset-0 bg-[url('/assets/images/pixel-grid.png')] opacity-[0.03] pointer-events-none z-0" aria-hidden="true" />
+      <div className="fixed inset-0 pointer-events-none z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.6)]" aria-hidden="true" />
 
-      {/* 2. Thanh điều hướng (Nằm trên cùng) */}
-      <div className="relative z-50">
+      {/* 3. Navigation: Nằm trong luồng flex, chiều cao tự nhiên */}
+      <header className="relative z-50 flex-none">
         <Navigation />
-      </div>
+      </header>
 
-      {/* 3. Nội dung chính: Dùng flex-1 để tự động lấp đầy phần còn lại */}
+      {/* 4. Nội dung chính: flex-1 sẽ tự động chiếm toàn bộ phần còn lại của màn hình */}
       <main className="relative z-10 flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </main>
 
-      {/* 4. ChatBox: Để absolute để không đẩy layout chính */}
+      {/* 5. HUD Components: Dùng absolute/fixed để không làm xô lệch layout */}
       {(roomData?.status === 'READY' || roomData?.status === 'PLAYING') && (
-        <div className="fixed bottom-6 right-6 z-40">
+        <div className="fixed bottom-6 right-6 z-40 transition-all duration-300">
           <ChatBox
             roomId={roomData?.id}
             currentUserId={user?.id}

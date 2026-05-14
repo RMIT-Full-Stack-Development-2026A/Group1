@@ -45,3 +45,28 @@ export const renderMarkerPair = (variantDisplayId) => {
         </div>
     );
 };
+
+/**
+ * Resolve Tailwind wrapper classes for a marker style
+ * Maps visual styles to animation and effect classes
+ * @param {string} markerStyle - Marker style from roomData.markerStyle
+ *   Accepts: 'PIXEL' | 'NEON' | 'STONE' | 'SKETCH' | 'CLASSIC' | 'GLOW' | 'MINIMAL'
+ *   Case-insensitive (normalized to uppercase)
+ * @returns {Object} Object with wrapperClass property
+ * @returns {string} wrapperClass - Tailwind classes to apply to marker wrapper
+ */
+export const resolveMarkerStyleClasses = (markerStyle) => {
+    const normalizedStyle = (markerStyle || "").toUpperCase();
+
+    const styleMap = {
+        NEON: "animate-pulse shadow-glow-primary",
+        STONE: "grayscale brightness-75",
+        SKETCH: "opacity-80 contrast-125",
+        MINIMAL: "animate-pulse",
+        GLOW: "brightness-110",
+    };
+
+    return {
+        wrapperClass: styleMap[normalizedStyle] || "",
+    };
+};

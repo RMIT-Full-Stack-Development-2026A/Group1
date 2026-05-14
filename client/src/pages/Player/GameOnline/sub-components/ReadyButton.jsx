@@ -89,7 +89,7 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
       <button
         type="button"
         onClick={handleReadyClick}
-        className={`${base} border-primary text-primary hover:bg-primary/10 hover:shadow-glow-primary`}
+        className={`${base} border-primary text-primary hover:bg-primary/10 hover:shadow-glow-primary animate-pulse`}
       >
         READY UP
       </button>

@@ -126,7 +126,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
         <div className="flex items-center justify-center gap-6 py-3 px-6">
           {participant.wins !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <span className="font-headline text-[10px] text-[#69ff47]">{participant.wins}</span>
+              <span className="font-headline text-[10px] text-neon-green">{participant.wins}</span>
               <span className="font-mono text-[7px] text-outline uppercase tracking-widest">WIN</span>
             </div>
           )}

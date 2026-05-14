@@ -21,6 +21,8 @@ export default {
         "own-purple-border": "rgba(123,97,255,0.35)",
         "chat-bubble": "rgba(76,201,240,0.08)",
         "chat-border": "rgba(76,201,240,0.20)",
+        "deep-bg": "#0d0d1a",
+        "primary-cyan": "#4cc9f0",
         "surface": "#12121f",
         "inverse-surface": "#e3e0f4",
         "surface-container": "#1e1e2c",

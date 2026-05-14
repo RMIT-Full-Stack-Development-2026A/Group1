@@ -48,12 +48,12 @@ export default function GameOnline() {
     return null;
   };
 
-return (
+  return (
     // 1. Root: Khóa cứng màn hình 100vh, không cho scroll
-    <div className="h-screen w-screen bg-background text-on-surface overflow-hidden relative flex flex-col">
-      
+    <div className="fixed inset-0 bg-[#0d0d1a] text-on-surface overflow-hidden relative flex flex-col">
+
       {/* 2. Hiệu ứng nền (Luôn nằm dưới cùng - z thấp) */}
-      <ScanLines /> 
+      <ScanLines />
       <div className="fixed inset-0 bg-[url('/assets/images/pixel-grid.png')] opacity-[0.03] pointer-events-none z-0" aria-hidden="true" />
       <div className="fixed inset-0 pointer-events-none z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.6)]" aria-hidden="true" />
 
@@ -69,13 +69,7 @@ return (
 
       {/* 5. HUD Components: Dùng absolute/fixed để không làm xô lệch layout */}
       {(roomData?.status === 'READY' || roomData?.status === 'PLAYING') && (
-        <div className="fixed bottom-6 right-6 z-40 transition-all duration-300">
-          <ChatBox
-            roomId={roomData?.id}
-            currentUserId={user?.id}
-            currentUsername={user?.username}
-          />
-        </div>
+        <ChatBox roomId={roomData?.id} currentUserId={user?.id} currentUsername={user?.username} />
       )}
     </div>
   );

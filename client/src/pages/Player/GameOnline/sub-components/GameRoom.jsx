@@ -5,16 +5,16 @@ import { AUDIO_FILES } from '@/config/audioConfig';
 import PlayerCard from './PlayerCard';
 import ReadyButton from './ReadyButton';
 
-function MatchConfigChip({ label, value }) {
-  return (
-    <div
-      className="flex flex-col items-center gap-1 px-4 py-2 bg-surface-container-high border-t-2 border-t-primary border border-outline-variant/60 min-w-[80px]"
-    >
-      <span className="font-mono text-[7px] text-outline uppercase tracking-widest whitespace-nowrap">{label}</span>
-      <span className="font-headline text-[8px] text-on-surface-variant whitespace-nowrap">{value}</span>
-    </div>
-  );
-}
+// function MatchConfigChip({ label, value }) {
+//   return (
+//     <div
+//       className="flex flex-col items-center gap-1 px-4 py-2 bg-surface-container-high border-t-2 border-t-primary border border-outline-variant/60 min-w-[80px]"
+//     >
+//       <span className="font-mono text-[7px] text-outline uppercase tracking-widest whitespace-nowrap">{label}</span>
+//       <span className="font-headline text-[8px] text-on-surface-variant whitespace-nowrap">{value}</span>
+//     </div>
+//   );
+// }
 
 export default function GameRoom({ roomData, currentUserId, onReady, onLeave, disconnectCountdown }) {
   const host = roomData?.participants?.[0] || null;
@@ -41,15 +41,20 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
   return (
     <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden bg-background">
 
-      <div className="mx-8 h-px bg-outline-variant/25 flex-none" />
+      <div className="flex-none flex flex-col items-center pt-4 pb-2 px-8 gap-1">
+        <h1 className="font-headline text-2xl text-[#4cc9f0] drop-shadow-[0_0_12px_rgba(76,201,240,0.6)] uppercase tracking-widest">
+          MATCH LOBBY
+        </h1>
+        <div className="h-1 w-24 bg-[#4cc9f0]" />
+      </div>
 
       <div className="flex-1 flex items-stretch overflow-hidden min-h-0">
         <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={roomData?.markerStyle ?? 'PIXEL'} markerVariantKey={roomData?.markerStyle ?? 'PIXEL'} />
-        
+
         <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container-lowest/30 overflow-hidden gap-3">
           <div className="flex flex-col items-center gap-2 flex-none">
-            <span className="font-headline text-[36px] text-secondary">VS</span>
-            <div className="h-10 w-px bg-gradient-to-b from-outline-variant to-transparent" />
+            <span className="font-headline text-[36px] text-[#fad100]">VS</span>
+           
             {/* Ready counter badge */}
             <div className="mt-2">
               <span className="font-headline text-[12px] text-primary border border-primary/30 px-3 py-1 uppercase tracking-widest shadow-glow-primary-sm">
@@ -58,27 +63,42 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-full max-w-[260px] flex-none">
-            <div className="flex flex-col items-center py-3 bg-surface-container border border-outline-variant/50 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
-              <span className="font-mono text-[7px] text-outline uppercase tracking-widest mb-1">BATTLEFIELD</span>
-              <span className="font-headline text-[16px] text-primary">{roomData?.boardSize || 10}<span className="text-outline-variant text-[10px]">x</span>{roomData?.boardSize || 10}</span>
+          <div className="flex flex-col gap-2 w-full max-w-[300px] flex-none">
+            {/* Gold section label — matches GameCustomization section header style */}
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-1 h-5 bg-[#fad100]" />
+              <span className="font-headline text-[10px] text-[#fad100] uppercase tracking-widest">
+                MATCH CONFIG
+              </span>
             </div>
 
+            {/* BATTLEFIELD */}
+            <div className="flex flex-col items-center py-3 bg-[#1e1e2c] border border-[#3d484d] shadow-[2px_2px_0px_#343342] relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#4cc9f0] to-transparent" />
+              <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">BATTLEFIELD</span>
+              <span className="font-headline text-2xl text-[#4cc9f0]">
+                {roomData?.boardSize || 10}
+                <span className="text-[#879398] text-sm">x</span>
+                {roomData?.boardSize || 10}
+              </span>
+            </div>
+
+            {/* STYLE + MARKER side by side */}
             <div className="flex gap-2">
-              <div className="flex-1 flex flex-col items-center py-2 bg-surface-container border border-outline-variant/50">
-                <span className="font-mono text-[7px] text-outline uppercase tracking-widest mb-1">STYLE</span>
-                <span className="font-headline text-[9px] text-on-surface-variant">{roomData?.boardStyle || 'CLASSIC'}</span>
+              <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-[#3d484d] shadow-[2px_2px_0px_#343342]">
+                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">STYLE</span>
+                <span className="font-headline text-sm text-[#4cc9f0]">{roomData?.boardStyle || 'CLASSIC'}</span>
               </div>
-              <div className="flex-1 flex flex-col items-center py-2 bg-surface-container border border-outline-variant/50">
-                <span className="font-mono text-[7px] text-outline uppercase tracking-widest mb-1">MARKER</span>
-                <span className="font-headline text-[9px] text-on-surface-variant">{roomData?.markerStyle || 'PIXEL'}</span>
+              <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-[#3d484d] shadow-[2px_2px_0px_#343342]">
+                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">MARKER</span>
+                <span className="font-headline text-sm text-[#4cc9f0]">{roomData?.markerStyle || 'PIXEL'}</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-4 py-1.5 bg-surface-container-high border border-outline-variant/50">
-              <span className="font-mono text-[7px] text-outline uppercase tracking-widest">FIRST MOVE</span>
-              <span className="font-headline text-[8px] text-secondary-container">PLAYER X</span>
+            {/* FIRST MOVE */}
+            <div className="flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-[#3d484d] shadow-[2px_2px_0px_#343342]">
+              <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">FIRST MOVE</span>
+              <span className="font-headline text-sm text-[#fad100]">PLAYER X</span>
             </div>
           </div>
 

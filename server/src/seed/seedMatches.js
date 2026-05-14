@@ -39,8 +39,8 @@ export const seedMatches = async (player1, player2) => {
         boardStyle: 'CLASSIC',
         markerStyle: 'GLOW',
         participants: [
-            { userId: player1._id, usernameSnapshot: player1.username, role: 'HUMAN', mark: 'X' },
-            { userId: player2._id, usernameSnapshot: player2.username, role: 'HUMAN', mark: 'O' }
+            { userId: player1._id, usernameSnapshot: player1.username, avatarSnapshot: player1.avatar ?? null, role: 'HUMAN', mark: 'X' },
+            { userId: player2._id, usernameSnapshot: player2.username, avatarSnapshot: player2.avatar ?? null, role: 'HUMAN', mark: 'O' }
         ],
         firstTurnParticipantIndex: 0,
         winnerParticipantIndex: 0, // Player 1 wins

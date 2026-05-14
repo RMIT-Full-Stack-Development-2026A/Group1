@@ -50,7 +50,7 @@ export default function GameOnline() {
 
   return (
     // 1. Root: Khóa cứng màn hình 100vh, không cho scroll
-    <div className="fixed inset-0 bg-[#0d0d1a] text-on-surface overflow-hidden relative flex flex-col">
+    <div className="h-screen w-screen bg-[#0d0d1a] text-on-surface overflow-hidden overscroll-none relative flex flex-col">
 
       {/* 2. Hiệu ứng nền (Luôn nằm dưới cùng - z thấp) */}
       <ScanLines />
@@ -58,9 +58,11 @@ export default function GameOnline() {
       <div className="fixed inset-0 pointer-events-none z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.6)]" aria-hidden="true" />
 
       {/* 3. Navigation: Nằm trong luồng flex, chiều cao tự nhiên */}
-      <header className="relative z-50 flex-none">
-        <Navigation />
-      </header>
+      {roomData?.status !== 'PLAYING' && (
+        <header className="relative z-50 flex-none">
+          <Navigation />
+        </header>
+      )}
 
       {/* 4. Nội dung chính: flex-1 sẽ tự động chiếm toàn bộ phần còn lại của màn hình */}
       <main className="relative z-10 flex-1 flex flex-col overflow-hidden">

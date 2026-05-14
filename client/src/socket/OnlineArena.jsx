@@ -11,11 +11,11 @@ import { getMarkerVariant } from '@/utils/markerRenderer';
 
 // Components
 import AbortModal from '../pages/Player/GameBoard/sub-components/AbortModal';
-import Navigation from '@/components/reusable/Navigation';
-import ScanLines from '@/components/reusable/custom/ScanLines';
 import PlayerPanel from '../pages/Player/GameBoard/sub-components/PlayerPanel';
 import BoardArea from '../pages/Player/GameBoard/sub-components/BoardArea';
 import WinOverlay from '../pages/Player/GameBoard/sub-components/WinOverlay';
+import ParticleLayer from '../pages/Player/GameBoard/sub-components/ParticleLayer';
+import { getTheme } from '@/config/gameThemes.config.js';
 
 const OnlineGameBoard = ({ roomData, currentUserId }) => {
     const { roomId } = useParams();
@@ -25,9 +25,24 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
     const { socket, isConnected, connectSocket } = useSocketStore();
     const { setMarkerVariant } = useCustomizationStore();
     
-    const gridStyle = roomData?.boardStyle || "NEON"
-    const markerVariant = roomData?.markerStyle || "PIXEL"
+    const rawMap = {
+        'CLASSIC': 'classic',
+        'DARK': 'neon',
+        'NEON': 'neon',
+        'BLOCK': 'block'
+    };
+    const boardStyleKey = roomData?.boardStyle || "NEON";
+    const mappedStyle = rawMap[boardStyleKey] || boardStyleKey.toLowerCase();
+    const theme = getTheme(mappedStyle);
+    
+    const markerVariant = roomData?.markerStyle || "PIXEL";
     const boardSize = roomData?.boardSize || 10;
+    
+    // Convert the numeric/string markerVariant to its display style
+    const activeMarkerStyle = typeof markerVariant === 'number' 
+        ? (markerVariant === 1 ? 'default' : `custom_${markerVariant}`)
+        : markerVariant;
+
     const [board, setBoard] = useState(() => {
         return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
     });
@@ -167,21 +182,28 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
     }
 
     return (
-        <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden relative">
-            <ScanLines />
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&display=swap');
-                .font-headline { font-family: 'Press Start 2P', cursive; }
-                .scanlines { background: linear-gradient(to bottom, rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 2px; pointer-events: none; }
-                .pixel-grid { background-image: radial-gradient(rgba(76,201,240,0.05) 1px, transparent 0); background-size: 4px 4px; pointer-events: none; }
-            `}</style>
-            
-            <div className="fixed inset-0 scanlines z-100" />
-            <div className="fixed inset-0 pixel-grid z-99" />
+        <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden overscroll-none relative">
+            {theme.bgImage && (
+                <div
+                    aria-hidden="true"
+                    className="fixed inset-0 z-0 pointer-events-none"
+                    style={{
+                        backgroundImage: `url(${theme.bgImage})`,
+                        backgroundSize: theme.bgSize,
+                        backgroundRepeat: theme.bgRepeat,
+                        backgroundPosition: 'center',
+                        opacity: theme.bgOpacity,
+                        filter: 'saturate(1.0) brightness(1.2)',
+                    }}
+                />
+            )}
 
-            <Navigation />
+            <ParticleLayer theme={theme} className="z-10" />
 
-            <main className="flex-1 flex flex-col overflow-hidden px-6 gap-4 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
+            <div className="fixed inset-0 scanlines z-[2] pointer-events-none" aria-hidden="true" />
+            <div className="fixed inset-0 pixel-grid z-[1] pointer-events-none" aria-hidden="true" />
+
+            <main className="relative z-10 flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
                 
                 {/* --- SHOW WARNING IF OPPONENT DISCONNECTS --- */}
                 {disconnectCountdown !== null && (
@@ -214,8 +236,8 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
                     />
 
                     <BoardArea
-                        markerVariant={markerVariant}
-                        gridStyle={gridStyle}
+                        markerVariant={activeMarkerStyle}
+                        gridStyle={mappedStyle}
                         board={board}
                         boardSize={boardSize}
                         matchTitle={`ROOM: ${roomData?.roomNumber || 'CONNECTING...'}`}

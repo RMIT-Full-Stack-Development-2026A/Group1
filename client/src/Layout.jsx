@@ -13,7 +13,7 @@ const CONSTRAINED_ROUTES = ['/subscription', '/play', '/success', '/cancel'];
 
 // Routes where the navbar is completely hidden (full-screen immersive UI).
 // These are also constrained by default.
-const IMMERSIVE_ROUTES = ['/game/'];
+const IMMERSIVE_ROUTES = ['/game/', '/room/online/'];
 
 export default function Layout({ children }) {
     const location = useLocation();

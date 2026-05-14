@@ -4,6 +4,7 @@ import { useButtonSound } from '@/hooks/useButtonSound';
 import { AUDIO_FILES } from '@/config/audioConfig';
 import PlayerCard from './PlayerCard';
 import ReadyButton from './ReadyButton';
+import Footer from '@/components/reusable/Footer';
 
 // function MatchConfigChip({ label, value }) {
 //   return (
@@ -133,6 +134,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
           <p className="font-headline text-[8px] text-error uppercase tracking-widest">OPPONENT DISCONNECTED — ABORTING IN {disconnectCountdown}S</p>
         </div>
       )}
+      <Footer/>
     </div>
   );
 }

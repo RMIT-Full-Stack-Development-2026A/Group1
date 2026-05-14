@@ -11,12 +11,12 @@ export const sessionParticipantSchema = new mongoose.Schema({
         required: true, 
         trim: true 
     },
-    // Avatar URL snapshot copied from the User record at the time the match was played
+    // Avatar URL snapshot 
     avatarSnapshot: {
         type: String,
         default: null
     },
-    // Premium status snapshot copied from the User record at the time the match was played
+    // Premium status snapshot 
     isPremiumSnapshot: {
         type: Boolean,
         default: false

@@ -44,8 +44,7 @@ export const GameService = {
         const moves = Array.isArray(payload.moves) ? payload.moves : [];
         const totalMoves = moves.length;
 
-        // Ensure participants include avatarSnapshot and isPremiumSnapshot. Use defaults for bots if absent.
-        const DEFAULT_BOT_AVATAR = null; // placeholder; replace with real URL later if desired
+        const DEFAULT_BOT_AVATAR = null; // placeholder
         const normalizeParticipants = (parts = []) => (Array.isArray(parts) ? parts.map(p => ({
             userId: p.userId ?? null,
             usernameSnapshot: p.usernameSnapshot,

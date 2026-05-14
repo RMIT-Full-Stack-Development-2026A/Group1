@@ -1,7 +1,7 @@
 import { GameSession } from '../modules/game/models/gameSession.model.js';
 import { ulid } from 'ulid';
 
-// Helper: Compute isPremium from user (same logic as User model's virtual field)
+// Compute isPremium from user 
 const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
 export const seedMatches = async (player1, player2) => {
@@ -42,8 +42,22 @@ export const seedMatches = async (player1, player2) => {
         boardStyle: 'CLASSIC',
         markerStyle: 'GLOW',
         participants: [
-            { userId: player1._id, usernameSnapshot: player1.username, avatarSnapshot: player1.avatar ?? null, isPremiumSnapshot: computeIsPremium(player1), role: 'HUMAN', mark: 'X' },
-            { userId: player2._id, usernameSnapshot: player2.username, avatarSnapshot: player2.avatar ?? null, isPremiumSnapshot: computeIsPremium(player2), role: 'HUMAN', mark: 'O' }
+            { 
+                userId: player1._id, 
+                usernameSnapshot: player1.username, 
+                avatarSnapshot: player1.avatar ?? null, 
+                isPremiumSnapshot: computeIsPremium(player1), 
+                role: 'HUMAN', 
+                mark: 'X' 
+            },
+            { 
+                userId: player2._id, 
+                usernameSnapshot: player2.username, 
+                avatarSnapshot: player2.avatar ?? null, 
+                isPremiumSnapshot: computeIsPremium(player2), 
+                role: 'HUMAN', 
+                mark: 'O' 
+            }
         ],
         firstTurnParticipantIndex: 0,
         winnerParticipantIndex: 0, // Player 1 wins

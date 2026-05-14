@@ -64,7 +64,7 @@ export const domainSchemas = {
         properties: {
             userId:           { type: 'string', nullable: true },
             usernameSnapshot: { type: 'string', example: 'john_doe' },
-            avatarSnapshot:   { type: 'string', nullable: true, example: 'https://cdn.example.com/avatars/john_doe.png' },
+            avatarSnapshot:   { type: 'string', nullable: true },
             isPremium:        { type: 'boolean', example: false },
             role:             { type: 'string', enum: ['HUMAN', 'AI'] },
             mark:             { type: 'string', enum: ['X', 'O'] },

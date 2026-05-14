@@ -11,7 +11,7 @@ import {
     validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady 
 } from '../validators/room.validator.js';
 
-// Helper: Compute isPremium from user (same logic as User model's virtual field)
+// Compute isPremium from user
 const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
 export const RoomService = {

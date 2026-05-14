@@ -10,12 +10,12 @@ export const roomParticipantSchema = new mongoose.Schema({
         type: String, // Username copied at the moment they joined the room
         required: true 
     },
-    // Avatar URL snapshot copied from the User record at the moment they joined the room
+    // Avatar URL snapshot 
     avatarSnapshot: { 
         type: String, 
         default: null 
     },
-    // Premium status snapshot copied from the User record at the moment they joined the room
+    // Premium status snapshot 
     isPremiumSnapshot: {
         type: Boolean,
         default: false

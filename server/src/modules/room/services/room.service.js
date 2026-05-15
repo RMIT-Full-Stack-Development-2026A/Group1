@@ -11,6 +11,9 @@ import {
     validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady 
 } from '../validators/room.validator.js';
 
+import { eventBus } from '../../../utils/eventBus.util.js';
+import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
+
 // Compute isPremium from user
 const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
@@ -154,6 +157,12 @@ export const RoomService = {
                 endedAt: closedAt
             });
         }
+
+        // Signal the Socket layer to kick the players out
+        eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
+            roomId: String(roomId),
+            endedAt: closedAt 
+        });
         
         return true;
     },

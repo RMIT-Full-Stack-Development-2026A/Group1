@@ -26,7 +26,8 @@ export default function GameOnline() {
 
   const renderContent = () => {
     const status = roomData?.status;
-
+    console.log("ROOM DATA (ROOM): ", roomData);
+    
     if (!status || status === 'WAITING' || status === 'READY') {
       return (
         <GameRoom
@@ -50,7 +51,9 @@ export default function GameOnline() {
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden relative">
       <ScanLines />
+    
       <Navigation />
+      
       <main className="flex-1 flex overflow-hidden">
         {renderContent()}
       </main>

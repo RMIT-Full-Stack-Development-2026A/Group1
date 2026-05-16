@@ -8,6 +8,7 @@ import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 
 // Utils
 import { getMarkerVariant } from '@/utils/markerRenderer';
+import { getTheme } from '@/config/gameThemes.config';
 
 // Components
 import AbortModal from '../pages/Player/GameBoard/sub-components/AbortModal';
@@ -25,8 +26,8 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
     const { socket, isConnected, connectSocket } = useSocketStore();
     const { setMarkerVariant } = useCustomizationStore();
     
-    const gridStyle = roomData?.boardStyle || "NEON"
-    const markerVariant = roomData?.markerStyle || "PIXEL"
+    const gridStyle = roomData?.boardStyle || "neon"
+    const markerVariant = roomData?.markerStyle || "pixel"
     const boardSize = roomData?.boardSize || 10;
     const [board, setBoard] = useState(() => {
         return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
@@ -137,7 +138,9 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
 
     const handleCellClick = (rowIndex, colIndex) => {
         if (winnerData || isDraw || roomData?.status !== 'PLAYING') return;
-
+        
+        console.log("ROOM DATA(GAME): ", roomData);
+        
         socket.emit('game:move', {
             roomId: roomData?.id || roomId,
             row: rowIndex,
@@ -156,11 +159,12 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
         setMarkerVariant(newVariant || 1);
     };
 
-    const player1 = roomData?.participants?.[0] || { usernameSnapshot: 'WAITING...', mark: 'X' };
-    const player2 = roomData?.participants?.[1] || { usernameSnapshot: 'WAITING FOR OPPONENT...', mark: 'O' };
+    const player1 = roomData?.participants?.[0]
+    const player2 = roomData?.participants?.[1]
     const userMark = roomData?.participants?.find(p => p.userId === currentUserId)?.mark || 'X';
     const perspective = isDraw ? 'draw' : winnerData ? (winnerData.player === userMark ? 'winner' : 'loser') : null;
     const gameOver = !!winnerData || isDraw;
+    const theme = getTheme(gridStyle);
 
     if (isCheckingAuth || !isConnected) {
         return <div className="h-screen bg-deep-bg flex items-center justify-center font-headline text-primary-cyan">CONNECTING TO SERVER...</div>;
@@ -209,13 +213,14 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
                         playerName={player1.usernameSnapshot}
                         isBot={false}
                         isActive={currentPlayerMark === player1.mark && !gameOver && roomData?.status === 'PLAYING'}
-                        avatarUrl={currentUserId === player1.userId ? userAvatarUrl : undefined}
+                        avatarUrl={currentUserId === player1.userId ? userAvatarUrl : player1.avatarUrl || player1.avatar}
                         markerVariantData={markerVariantData}
                     />
 
                     <BoardArea
                         markerVariant={markerVariant}
                         gridStyle={gridStyle}
+                        theme={theme}
                         board={board}
                         boardSize={boardSize}
                         matchTitle={`ROOM: ${roomData?.roomNumber || 'CONNECTING...'}`}

@@ -5,7 +5,7 @@ import { LoadingScreen, ErrorScreen } from '@/components/common';
 import { GameRoom, ChatBox } from './sub-components';
 import Navigation from '@/components/reusable/Navigation';
 import ScanLines from '@/components/reusable/custom/ScanLines';
-import OnlineArena from '@/socket/OnlineArena';
+import OnlineArena from './sub-components/OnlineArena';
 
 export default function GameOnline() {
   const {

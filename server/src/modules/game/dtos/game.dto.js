@@ -2,6 +2,8 @@
 const toParticipant = (participant) => ({
     userId: participant.userId ?? null,
     usernameSnapshot: participant.usernameSnapshot,
+    avatarSnapshot: participant.avatarSnapshot ?? null,
+    isPremium: participant.isPremiumSnapshot ?? false,
     role: participant.role,
     mark: participant.mark,
     aiDifficulty: participant.aiDifficulty ?? null
@@ -44,6 +46,18 @@ const getOpponentName = (session, viewerUserId) => {
     return opponent?.usernameSnapshot || null;
 };
 
+const getOpponentInfo = (session, viewerUserId) => {
+    const viewerId = String(viewerUserId || "");
+    const opponent = Array.isArray(session.participants)
+        ? session.participants.find((participant) => String(participant.userId || "") !== viewerId)
+        : null;
+
+    return {
+        name: opponent?.usernameSnapshot || null,
+        avatar: opponent?.avatarSnapshot || null
+    };
+};
+
 export const GameDTO = {
     toGameListItem: (session, viewerUserId) => ({
         id: session.id || session._id,
@@ -52,7 +66,10 @@ export const GameDTO = {
         boardSize: session.boardSize,
         status: session.status,
         endedReason: session.endedReason,
-        opponentName: getOpponentName(session, viewerUserId),
+        ...(() => {
+            const opp = getOpponentInfo(session, viewerUserId);
+            return { opponentName: opp.name, opponentAvatar: opp.avatar };
+        })(),
         viewerResult: deriveViewerResult(session, viewerUserId),
         startedAt: session.startedAt,
         endedAt: session.endedAt

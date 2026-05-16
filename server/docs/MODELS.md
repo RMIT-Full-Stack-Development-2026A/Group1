@@ -145,6 +145,16 @@ export const participantSchema = new mongoose.Schema({
         required: true, 
         trim: true 
     },
+    // Avatar URL snapshot copied 
+    avatarSnapshot: {
+        type: String,
+        default: null
+    },
+    // Premium status snapshot 
+    isPremiumSnapshot: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String, // Distinguishes human player from AI bot
         enum: ['HUMAN', 'AI'], 
@@ -323,6 +333,16 @@ export const roomParticipantSchema = new mongoose.Schema({
     usernameSnapshot: {
         type: String, // Username copied at the moment they joined the room
         required: true 
+    },
+    // Avatar URL snapshot
+    avatarSnapshot: { 
+        type: String, 
+        default: null 
+    },
+    // Premium status snapshot 
+    isPremiumSnapshot: {
+        type: Boolean,
+        default: false
     },
     mark: {
         type: String, // X or O assigned to the player in this room

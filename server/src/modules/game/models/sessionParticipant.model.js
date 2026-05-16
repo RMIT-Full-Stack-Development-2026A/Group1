@@ -11,6 +11,16 @@ export const sessionParticipantSchema = new mongoose.Schema({
         required: true, 
         trim: true 
     },
+    // Avatar URL snapshot 
+    avatarSnapshot: {
+        type: String,
+        default: null
+    },
+    // Premium status snapshot 
+    isPremiumSnapshot: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String, // Distinguishes human player from AI bot
         enum: ['HUMAN', 'AI'], 

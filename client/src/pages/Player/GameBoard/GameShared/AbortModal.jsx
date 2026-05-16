@@ -1,5 +1,6 @@
 // AbortModal.jsx
 import { AlertTriangle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 /**
  * AbortModal — Confirm dialog before aborting a game.
@@ -18,11 +19,35 @@ const AbortModal = ({
     onCancel,
     // New props for notification mode
     isNotification = false,
-    notificationText = 'OPPONENT ABORTED THE MATCH'
+    notificationText = 'OPPONENT ABORTED THE MATCH',
+    autoReturnSeconds = 10
 }) => {
     if (!isOpen) return null;
 
     const isOnline = gameMode === 'ONLINE_MATCH';
+    const [secondsLeft, setSecondsLeft] = useState(autoReturnSeconds);
+
+    useEffect(() => {
+        let timerId;
+        if (isNotification && isOpen) {
+            setSecondsLeft(autoReturnSeconds);
+            timerId = setInterval(() => {
+                setSecondsLeft((s) => {
+                    if (s <= 1) {
+                        clearInterval(timerId);
+                        if (typeof onConfirm === 'function') onConfirm();
+                        return 0;
+                    }
+                    return s - 1;
+                });
+            }, 1000);
+        } else {
+            setSecondsLeft(autoReturnSeconds);
+        }
+        return () => {
+            if (timerId) clearInterval(timerId);
+        };
+    }, [isNotification, isOpen, autoReturnSeconds, onConfirm]);
 
     return (
         <div className="fixed inset-0 z-200 bg-deep-bg/90 flex items-center justify-center animate-fade-in">
@@ -49,14 +74,19 @@ const AbortModal = ({
 
                 <div className="flex flex-col gap-3 mt-8 items-center">
                     {isNotification ? (
-                        <button
-                            onClick={onConfirm}
-                            className="w-56 bg-[#ffb4ab] text-[#3b0000] font-headline text-[9px] py-4 uppercase
-                                       hover:translate-y-0.5 transition-transform"
-                            style={{ boxShadow: '2px 2px 0px #7a0000' }}
-                        >
-                            RETURN TO LOBBY
-                        </button>
+                        <>
+                            <button
+                                onClick={onConfirm}
+                                className="w-56 bg-[#ffb4ab] text-[#3b0000] font-headline text-[9px] py-4 uppercase
+                                           hover:translate-y-0.5 transition-transform"
+                                style={{ boxShadow: '2px 2px 0px #7a0000' }}
+                            >
+                                RETURN TO LOBBY
+                            </button>
+                            <p className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mt-2">
+                                {`Auto-returning in ${secondsLeft}s`}
+                            </p>
+                        </>
                     ) : (
                         <>
                             <button

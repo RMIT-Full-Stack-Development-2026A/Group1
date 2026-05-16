@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 // Stores
@@ -58,7 +58,16 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
   const [winnerData, setWinnerData] = useState(null);
   const [isDraw, setIsDraw] = useState(false);
   const [showAbortModal, setShowAbortModal] = useState(false);
+  const [showAbortNotification, setShowAbortNotification] = useState(false);
   const [disconnectCountdown, setDisconnectCountdown] = useState(null);
+  const didInitiateAbortRef = useRef(false);
+
+  // Reset abort initiator state when entering a new room
+  useEffect(() => {
+    didInitiateAbortRef.current = false;
+    setShowAbortModal(false);
+    setShowAbortNotification(false);
+  }, [roomId]);
 
   const markerVariantData = useMemo(
     () => getMarkerVariant(markerVariant),
@@ -136,7 +145,10 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
           roomData?.participants?.[payload.winnerParticipantIndex]?.mark || "X";
         setWinnerData({ player: mark, cells: winningCells });
       } else if (payload.result === "ABORTED") {
-        navigate("/lobby");
+        // If we initiated the abort we already navigated away; otherwise show a notification modal
+        if (didInitiateAbortRef.current) return;
+        setShowAbortModal(false);
+        setShowAbortNotification(true);
       }
     });
 
@@ -150,7 +162,9 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
     });
 
     socket.on("room:removed", () => {
-      navigate("/lobby");
+      if (didInitiateAbortRef.current) return;
+      setShowAbortModal(false);
+      setShowAbortNotification(true);
     });
 
     return () => {
@@ -177,6 +191,8 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
   };
 
   const handleAbortConfirm = () => {
+    // mark local user as initiator so we don't show the notification modal when the server emits the abort
+    didInitiateAbortRef.current = true;
     socket.emit("room:leave", { roomId: roomData?.id || roomId });
     setShowAbortModal(false);
     navigate("/lobby");
@@ -321,11 +337,12 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
       )}
 
       <AbortModal
-        isOpen={showAbortModal}
+        isOpen={showAbortModal || showAbortNotification}
+        isNotification={showAbortNotification}
         gameMode="ONLINE_MATCH"
         isSaving={false}
-        onConfirm={handleAbortConfirm}
-        onCancel={() => setShowAbortModal(false)}
+        onConfirm={showAbortNotification ? () => navigate('/lobby') : handleAbortConfirm}
+        onCancel={showAbortNotification ? () => navigate('/lobby') : () => setShowAbortModal(false)}
       />
     </div>
   );

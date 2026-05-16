@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { checkWin, checkDraw } from './gameLogic';
 import { gameService } from '../service/game.service';
-import { getBestAIMove } from '../../../../utils/ai';
-import { useModeStore } from '../../../../stores/ai/ModeStore';
-import { transformToBackendFormat } from '../../GameCustomization/service/customization.service';
+import { getBestAIMove } from '@/utils/ai';
+import { useModeStore } from '@/stores/ai/ModeStore';
+import { transformToBackendFormat } from '@/pages/Player/GameCustomization/service/customization.service';
 import { notifySuccess } from '@/utils/toast.util';
-import { useCustomizationStore } from '../../../../stores/game/CustomizationStore'; // Import the store to access current customization settings
+import { useCustomizationStore } from '@/stores/game/CustomizationStore'; // Import the store to access current customization settings
 
 // Helper: Init 2D array
 const initBoard = (size) => Array(size).fill(null).map(() => Array(size).fill(null));

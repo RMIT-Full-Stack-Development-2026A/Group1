@@ -74,15 +74,15 @@ router.post(
 /**
  * @openapi
  * /api/v1/subscription/history:
- * get:
- * tags: [Subscription]
- * summary: Current Subscription Details
- * description: Returns the current subscription detail. Will only ever return an array with 1 item (the active transaction) or 0 items (if expired/none).
- * responses:
- * 200:
- * $ref: '#/components/responses/TransactionListResponse'
- * 401:
- * $ref: '#/components/responses/UnauthorizedResponse'
+ *  get:
+ *      tags: [Subscription]
+ *      summary: Current Subscription Details
+ *      description: Returns the current subscription detail. Will only ever return an array with 1 item (the active transaction) or 0 items (if expired/none).
+ *      responses:
+ *          200:
+ *              $ref: '#/components/responses/TransactionListResponse'
+ *          401:
+ *              $ref: '#/components/responses/UnauthorizedResponse'
  */
 router.get(
     '/history', 

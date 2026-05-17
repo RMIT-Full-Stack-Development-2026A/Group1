@@ -50,14 +50,13 @@ const transactionSchema = new mongoose.Schema({
     },
 
     subscriptionPeriodStart: {
-        type: Date, // Start date of premium period for subscription transactions
+        type: Date, // Start date of premium period
         default: null 
     },
 
     subscriptionPeriodEnd: {
-        type: Date, // End date of premium period for subscription transactions
+        type: Date, // End date of premium period
         default: null, 
-        index: true
     },
 
     metadata: {

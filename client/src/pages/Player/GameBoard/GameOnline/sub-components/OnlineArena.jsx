@@ -17,7 +17,7 @@ import WinOverlay from "../../GameShared/WinOverlay";
 import ParticleLayer from "../../GameShared/ParticleLayer";
 import { getTheme } from "@/config/gameThemes.config.js";
 
-const OnlineGameBoard = ({ roomData, currentUserId }) => {
+const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain }) => {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
@@ -61,6 +61,42 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
   const [showAbortNotification, setShowAbortNotification] = useState(false);
   const [disconnectCountdown, setDisconnectCountdown] = useState(null);
   const didInitiateAbortRef = useRef(false);
+  const matchEndedRef = useRef(false);
+
+  const resolvedOutcome = useMemo(() => {
+    if (completedMatch?.result === 'DRAW') {
+      return { winnerData: null, isDraw: true };
+    }
+
+    if (completedMatch?.result === 'WIN') {
+      const winningCells = Array.isArray(completedMatch.winningLine)
+        ? completedMatch.winningLine.map((cell) => [cell.row, cell.col])
+        : [];
+      const mark =
+        roomData?.participants?.[completedMatch.winnerParticipantIndex]?.mark ||
+        'X';
+
+      return {
+        winnerData: { player: mark, cells: winningCells },
+        isDraw: false,
+      };
+    }
+
+    return {
+      winnerData,
+      isDraw,
+    };
+  }, [completedMatch, roomData?.participants, winnerData, isDraw]);
+
+  useEffect(() => {
+    if (completedMatch?.result === 'DRAW' || completedMatch?.result === 'WIN') {
+      matchEndedRef.current = true;
+    } else if (!completedMatch) {
+      matchEndedRef.current = false;
+      setWinnerData(null);
+      setIsDraw(false);
+    }
+  }, [completedMatch]);
 
   // Reset abort initiator state when entering a new room
   useEffect(() => {
@@ -99,58 +135,55 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
     };
     window.addEventListener("account:deactivated", handleAccountDeactivated);
 
-    // 1. Listen for board updates
-    socket.on("game:state", (payload) => {
+    const handleGameState = (payload) => {
       console.log("[game:state] Payload from BE:", payload);
 
       if (payload.board && Array.isArray(payload.board)) {
-        // Step A: Create a completely new empty board
         const reconstructedBoard = Array.from({ length: boardSize }, () =>
           Array(boardSize).fill(null),
         );
 
-        // Step B: Get move history from BE, translate to X/O, and apply to the empty board
         payload.board.forEach((move) => {
-          // Extract the marker (X or O) based on the participant index
           const mark = roomData?.participants?.[move.byParticipantIndex]?.mark;
 
-          // If coordinates are valid, fill the 2D array
           if (mark && move.row !== undefined && move.col !== undefined) {
             reconstructedBoard[move.row][move.col] = mark;
           }
         });
 
-        // Step C: Update UI
         setBoard(reconstructedBoard);
       }
 
-      // Update the next turn
       const turnIndex =
         payload.currentTurnParticipantIndex !== undefined
           ? payload.currentTurnParticipantIndex
           : 0;
       setCurrentPlayerMark(roomData?.participants?.[turnIndex]?.mark || "X");
-    });
+    };
 
-    // 2. Listen for game end (Updated per NEW Contract)
-    socket.on("game:ended", (payload) => {
+    const handleGameEnded = (payload) => {
       if (payload.result === "DRAW") {
+        matchEndedRef.current = true;
         setIsDraw(true);
+        setWinnerData(null);
       } else if (payload.result === "WIN") {
-        // Use winningLine instead of winLine
+        matchEndedRef.current = true;
         const winningCells =
           payload.winningLine?.map((cell) => [cell.row, cell.col]) || [];
-        // Use winnerParticipantIndex instead of winner
         const mark =
           roomData?.participants?.[payload.winnerParticipantIndex]?.mark || "X";
         setWinnerData({ player: mark, cells: winningCells });
+        setIsDraw(false);
       } else if (payload.result === "ABORTED") {
         // If we initiated the abort we already navigated away; otherwise show a notification modal
         if (didInitiateAbortRef.current) return;
         setShowAbortModal(false);
         setShowAbortNotification(true);
       }
-    });
+    };
+
+    socket.on("game:state", handleGameState);
+    socket.on("game:ended", handleGameEnded);
 
     // 3. Handle network disconnection (Newly added from Contract)
     socket.on("player:disconnected", (payload) => {
@@ -161,18 +194,20 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
       setDisconnectCountdown(null); // Clear countdown, resume game
     });
 
-    socket.on("room:removed", () => {
-      if (didInitiateAbortRef.current) return;
+    const handleRoomRemoved = () => {
+      if (didInitiateAbortRef.current || matchEndedRef.current) return;
       setShowAbortModal(false);
       setShowAbortNotification(true);
-    });
+    };
+
+    socket.on("room:removed", handleRoomRemoved);
 
     return () => {
-      socket.off("game:state");
-      socket.off("game:ended");
+      socket.off("game:state", handleGameState);
+      socket.off("game:ended", handleGameEnded);
       socket.off("player:disconnected");
       socket.off("player:reconnected");
-      socket.off("room:removed");
+      socket.off("room:removed", handleRoomRemoved);
       window.removeEventListener(
         "account:deactivated",
         handleAccountDeactivated,
@@ -215,14 +250,16 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
   const userMark =
     roomData?.participants?.find((p) => p.userId === currentUserId)?.mark ||
     "X";
-  const perspective = isDraw
+  const winnerDataToShow = resolvedOutcome.winnerData;
+  const isDrawToShow = resolvedOutcome.isDraw;
+  const perspective = isDrawToShow
     ? "draw"
-    : winnerData
-      ? winnerData.player === userMark
+    : winnerDataToShow
+      ? winnerDataToShow.player === userMark
         ? "winner"
         : "loser"
       : null;
-  const gameOver = !!winnerData || isDraw;
+  const gameOver = !!winnerDataToShow || isDrawToShow;
 
   if (isCheckingAuth || !isConnected) {
     return (
@@ -252,18 +289,18 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
       <ParticleLayer theme={theme} className="z-10" />
 
       <div
-        className="fixed inset-0 scanlines z-[2] pointer-events-none"
+        className="fixed inset-0 scanlines z-2 pointer-events-none"
         aria-hidden="true"
       />
       <div
-        className="fixed inset-0 pixel-grid z-[1] pointer-events-none"
+        className="fixed inset-0 pixel-grid z-1 pointer-events-none"
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
+      <main className="relative z-10 flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-350 w-full mx-auto">
         {/* --- SHOW WARNING IF OPPONENT DISCONNECTS --- */}
         {disconnectCountdown !== null && (
-          <div className="z-50 border border-[#ff3d00] bg-[#ff3d00]/20 px-6 py-2 text-center w-full max-w-[600px] rounded animate-pulse">
+          <div className="z-50 border border-[#ff3d00] bg-[#ff3d00]/20 px-6 py-2 text-center w-full max-w-150 rounded animate-pulse">
             <p className="font-headline text-[10px] text-[#ff3d00] uppercase tracking-widest">
               OPPONENT DISCONNECTED — WAITING {disconnectCountdown}S TO ABORT
             </p>
@@ -328,10 +365,10 @@ const OnlineGameBoard = ({ roomData, currentUserId }) => {
 
       {gameOver && (
         <WinOverlay
-          winnerData={winnerData}
-          isDraw={isDraw}
+          winnerData={winnerDataToShow}
+          isDraw={isDrawToShow}
           perspective={perspective}
-          onRestart={() => navigate("/lobby")}
+          onRestart={onPlayAgain}
           onBackToLobby={() => navigate("/lobby")}
         />
       )}

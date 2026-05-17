@@ -14,7 +14,10 @@ export default function GameOnline() {
     isHydrated,
     error,
     disconnectCountdown,
+    hasCompletedMatch,
+    completedMatch,
     handleReady,
+    handlePlayAgain,
     handleLeaveRoom,
   } = useGameOnline();
 
@@ -25,6 +28,19 @@ export default function GameOnline() {
 
   const renderContent = () => {
     const status = roomData?.status;
+
+    // Keep the arena mounted while showing the result overlay after a finished match.
+    if (hasCompletedMatch || status === 'PLAYING') {
+      if (!isHydrated) return <LoadingScreen message="PREPARING BOARD..." />;
+      return (
+        <OnlineArena
+          roomData={roomData}
+          currentUserId={user?.id}
+          completedMatch={completedMatch}
+          onPlayAgain={handlePlayAgain}
+        />
+      );
+    }
 
     // Nếu chưa có roomData hoặc đang ở sảnh chờ
     if (!status || status === 'WAITING' || status === 'READY') {
@@ -39,23 +55,17 @@ export default function GameOnline() {
       );
     }
 
-    // Nếu đang trong trận đấu
-    if (status === 'PLAYING') {
-      if (!isHydrated) return <LoadingScreen message="PREPARING BOARD..." />;
-      return <OnlineArena roomData={roomData} currentUserId={user?.id} />;
-    }
-
     return null;
   };
 
   return (
     // 1. Root: Khóa cứng màn hình 100vh, không cho scroll
-    <div className="h-screen w-screen bg-[#0d0d1a] text-on-surface overflow-hidden overscroll-none relative flex flex-col">
+    <div className="h-screen w-screen bg-deep-bg text-on-surface overflow-hidden overscroll-none relative flex flex-col">
 
       {/* 2. Hiệu ứng nền (Luôn nằm dưới cùng - z thấp) */}
       <ScanLines />
       <div className="fixed inset-0 bg-[url('/assets/images/pixel-grid.png')] opacity-[0.03] pointer-events-none z-0" aria-hidden="true" />
-      <div className="fixed inset-0 pointer-events-none z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.6)]" aria-hidden="true" />
+      <div className="fixed inset-0 pointer-events-none z-1 shadow-[inset_0_0_120px_rgba(0,0,0,0.6)]" aria-hidden="true" />
 
       {/* 3. Navigation: Nằm trong luồng flex, chiều cao tự nhiên */}
       {roomData?.status !== 'PLAYING' && (

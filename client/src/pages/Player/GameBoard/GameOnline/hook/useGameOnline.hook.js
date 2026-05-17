@@ -19,6 +19,8 @@ export const useGameOnline = () => {
     const [error, setError] = useState(null);
     const [isHydrated, setIsHydrated] = useState(false);
     const [disconnectCountdown, setDisconnectCountdown] = useState(null);
+    const [hasCompletedMatch, setHasCompletedMatch] = useState(false);
+    const [completedMatch, setCompletedMatch] = useState(null);
 
     const disconnectIntervalRef = useRef(null);
     const roomDataRef = useRef(null);
@@ -36,6 +38,8 @@ export const useGameOnline = () => {
         setIsConnecting(true);
         setError(null);
         setDisconnectCountdown(null);
+        setHasCompletedMatch(false);
+        setCompletedMatch(null);
         // joinedRoomIdRef.current = null; // commented out idk why but does this will work
     }, [roomId]);
 
@@ -45,6 +49,7 @@ export const useGameOnline = () => {
             console.log('[useGameOnline] Using initialRoomData from router state');
             setRoomData(initialData);
             setIsConnecting(false);
+            joinedRoomIdRef.current = roomId;
         }
     }, [location.state, roomId]);
 
@@ -102,8 +107,22 @@ export const useGameOnline = () => {
 
             prevParticipantCountRef.current = newCount;
             setRoomData(newRoom);
+            if (newRoom?.status === 'PLAYING') {
+                setHasCompletedMatch(false);
+            }
             setIsConnecting(false);
             setError(null);
+        }
+
+        function handleGameEnded(payload) {
+            if (payload?.result === 'WIN' || payload?.result === 'DRAW') {
+                setHasCompletedMatch(true);
+                setCompletedMatch({
+                    result: payload.result,
+                    winnerParticipantIndex: payload.winnerParticipantIndex ?? null,
+                    winningLine: Array.isArray(payload.winningLine) ? payload.winningLine : [],
+                });
+            }
         }
 
         function handleRoomRemoved() {
@@ -166,6 +185,7 @@ export const useGameOnline = () => {
 
         // Listeners setup
         socket.on('room:updated', handleRoomUpdated);
+        socket.on('game:ended', handleGameEnded);
         socket.on('room:removed', handleRoomRemoved);
         socket.on('player:disconnected', handlePlayerDisconnected);
         socket.on('player:reconnected', handlePlayerReconnected);
@@ -190,6 +210,7 @@ export const useGameOnline = () => {
             if (joinTimeoutId) clearTimeout(joinTimeoutId);
 
             socket.off('room:updated', handleRoomUpdated);
+            socket.off('game:ended', handleGameEnded);
             socket.off('room:removed', handleRoomRemoved);
             socket.off('player:disconnected', handlePlayerDisconnected);
             socket.off('player:reconnected', handlePlayerReconnected);
@@ -233,13 +254,21 @@ export const useGameOnline = () => {
         navigate('/lobby');
     }, [socket, roomData?.id, roomId, navigate]);
 
+    const handlePlayAgain = useCallback(() => {
+        setHasCompletedMatch(false);
+        setCompletedMatch(null);
+    }, []);
+
     return {
         roomData,
         isConnecting,
         isHydrated,
         error,
         disconnectCountdown,
+        hasCompletedMatch,
+        completedMatch,
         handleReady,
+        handlePlayAgain,
         handleLeaveRoom,
     };
 };

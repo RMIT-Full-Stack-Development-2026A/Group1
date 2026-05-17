@@ -179,7 +179,7 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
                         onClick={onBackToLobby}
                         className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-all"
                     >
-                        BACK
+                        BACK TO LOBBY
                     </button>
                 </div>
             </div>

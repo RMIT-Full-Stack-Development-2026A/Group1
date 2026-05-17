@@ -1,16 +1,23 @@
 import jwt from 'jsonwebtoken';
+import bcryptjs from 'bcryptjs';
 import { User } from '../../modules/auth/models/user.model.js';
 
 export const generateTestUser = async (overrides = {}) => {
+    // Generate a valid hash for integration
+    const plainTextPassword = overrides.plainTextPassword || 'Password123!';
+    const passwordHash = await bcryptjs.hash(plainTextPassword, 10);
+
     const defaultUser = {
         username: `testuser_${Date.now()}`,
         email: `test${Date.now()}@example.com`,
-        passwordHash: 'hashed_password', // Mocked, auth service handles raw
+        passwordHash: passwordHash, 
         country: 'VN',
         role: 'PLAYER',
         isActive: true,
         ...overrides
     };
+    delete defaultUser.plainTextPassword;
+
     const user = await User.create(defaultUser);
     
     // Generate a valid JWT for the access_token cookie
@@ -20,5 +27,5 @@ export const generateTestUser = async (overrides = {}) => {
         { expiresIn: '1h' }
     );
 
-    return { user, token, cookie: `access_token=${token}` };
+    return { user, token, cookie: `access_token=${token}`,plainTextPassword };
 };

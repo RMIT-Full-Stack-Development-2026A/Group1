@@ -29,19 +29,23 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
                 username: 'newplayer1',
                 email: 'new@example.com',
                 password: 'Password123!',
+                confirmPassword: 'Password123!', 
                 country: 'VN'
             });
             expect(res.statusCode).toEqual(201);
-            expect(res.body.data.user.username).toBe('newplayer1');
+            expect(res.body.data.username).toBe('newplayer1'); 
+            expect(res.body.data).toHaveProperty('id');
         });
 
         it('2. POST /api/v1/auth/login - Should login and return access_token cookie', async () => {
             const res = await request(app).post('/api/v1/auth/login').send({
-                email: 'admin@test.com',
-                password: 'Password123!'
+                identifier: 'admin@test.com', 
+                password: 'Password123!'      
             });
-            // Expecting 200 or 401 depending on bcrypt implementation in your app
-            expect(res.headers['set-cookie']).toBeDefined(); 
+            
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['set-cookie'][0]).toMatch(/access_token=/);
+            expect(res.body.data.email).toBe('admin@test.com');
         });
 
         it('3. POST /api/v1/auth/logout - Should clear auth cookie', async () => {
@@ -52,10 +56,12 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
         });
 
         it('4. GET /api/v1/auth/check-auth - Should return session payload', async () => {
-            const res = await request(app).get('/api/v1/auth/check-auth')
+           const res = await request(app).get('/api/v1/auth/check-auth')
                 .set('Cookie', playerTokenCookie);
+                
             expect(res.statusCode).toEqual(200);
             expect(res.body.data.user.id).toBe(String(testPlayerId));
+            expect(res.body.data).toHaveProperty('activeRoom');
         });
     });
 

@@ -159,15 +159,17 @@ export const AuthRepository = {
         return await PlatformMetric.findOneAndUpdate(
             { singletonId: 'GLOBAL_METRICS' },
             { $inc: { totalRevenue: amount } },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: true }
         );
     },
 
     getPlatformMetrics: async () => {
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1))); 
-        startOfWeek.setHours(0, 0, 0, 0);
+
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 

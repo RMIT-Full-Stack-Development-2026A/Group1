@@ -163,14 +163,14 @@ const gameRoomSchema = new mongoose.Schema({
     
     // Live Player State
     participants: [{
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        usernameSnapshot: String,
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+         usernameSnapshot: { type: String, required: true },
         avatarSnapshot: String,
         isPremiumSnapshot: Boolean,
         mark: { type: String, enum: ['X', 'O'] },
         isHost: { type: Boolean, default: false },
         isReady:{ type: Boolean, default: false },
-        joinedAt: Date
+        joinedAt: { type: Date, default: Date.now }
     }],
     
     // Live Match State

@@ -3,7 +3,7 @@ import { Transaction } from '../models/transaction.model.js';
 export const SubscriptionRepository = {
     // Save a new invoice (when the status is PENDING)
     createTransaction: async (transactionData) => {
-        // Upsert to ensure a single active Transaction per user (overwrite any existing record)
+        // Upsert to ensure a single active Transaction per user
         return await Transaction.findOneAndUpdate(
             { userId: transactionData.userId },
             { $set: transactionData },
@@ -27,6 +27,10 @@ export const SubscriptionRepository = {
 
     // Get the user's current active subscription details
     getActiveTransactionByUserId: async (userId) => {
-        return await Transaction.findOne({ userId });
+        return await Transaction.findOne({ 
+            userId,
+            status: 'SUCCESS',
+            subscriptionPeriodEnd: { $exists: true, $gt: new Date() },
+        });
     },
 };

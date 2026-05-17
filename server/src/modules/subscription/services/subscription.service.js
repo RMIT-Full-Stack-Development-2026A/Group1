@@ -111,8 +111,7 @@ const verifyPayPalWebhook = async (headers, payload) => {
             })
         });
 
-        // Distinguish transient errors (429, 408, 5xx), auth/configuration issues (401/403),
-        // and permanent verification failures (other 4xx).
+        // Distinguish transient errors (429, 408, 5xx), auth/configuration issues (401/403) and permanent verification failures (other 4xx).
         if (!response.ok) {
             if (response.status === 429 || response.status === 408 || response.status >= 500) {
                 console.error(`[Webhook Security] PayPal API returned transient error ${response.status}. Retrying later.`);
@@ -161,6 +160,19 @@ export const SubscriptionService = {
 
     // 2. Generate PayPal Order
     createOrder: async (userId) => {
+        user = await AuthInterface.getUserById(userId);
+
+        // Ensures SUCCESS transaction is not overwritten by a PENDING one.
+        if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {
+            throw {
+                statusCode: 409, // Conflict
+                error: "ALREADY_PREMIUM",
+                message: "Cannot create a new premium order.",
+                cause: "You already have an active premium subscription.",
+                valid_example: "Wait until your current subscription expires before purchasing again."
+            };
+        }
+
         const accessToken = await generateAccessToken();
         const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
             method: 'POST',
@@ -263,10 +275,15 @@ export const SubscriptionService = {
 
             // Update user's premium expiry date
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
-            await AuthInterface.incrementPlatformRevenue(parseFloat(PREMIUM_PRICE));
             const user = await AuthInterface.getUserById(userId);
 
-            // check if user exists
+            // Update total revenue
+            void AuthInterface.incrementPlatformRevenue(parseFloat(PREMIUM_PRICE)).catch((error) => {
+                 console.error('[CaptureOrder] Failed to increment platform revenue metric:', error);
+             });
+
+
+            // Check if user exists
             if (!user) {
                 console.error(`[CaptureOrder] CRITICAL: Payment captured but user ${userId} is missing!`);
                 throw {

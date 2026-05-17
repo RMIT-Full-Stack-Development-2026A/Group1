@@ -12,6 +12,16 @@ const platformMetricSchema = new mongoose.Schema({
         type: Number, 
         default: 0 
     }
+}, {
+    timestamps: true,
+    toJSON: {
+        transform: (_doc, ret) => {
+            ret.id = ret._id.toString();
+            delete ret._id;
+            delete ret.__v;
+            return ret;
+        }
+    }
 });
 
 export const PlatformMetric = mongoose.model('PlatformMetric', platformMetricSchema);

@@ -205,7 +205,7 @@ Base Path: `/api/v1/subscription`
 
 ### Notes
 - **Active Record Only:** The database enforces a 1-to-1 relationship between a user and their active subscription transaction. The `/history` endpoint reflects this by only returning the current active transaction. Expired transactions are automatically cleaned up via MongoDB TTL indexes.
-- A successful `capture-order` request overwrites any previous `Transaction` invoice via an `upsert`.
+- `POST /subscription/create-order` saves the pending PayPal order using an `upsert`, which can overwrite the user's current active `Transaction` record even if checkout is never completed. A successful `capture-order` then validates that pending order and activates premium.
 - If a `REFUND` or `CHARGEBACK` webhook event is received from PayPal, the system must update the corresponding `Transaction` status to `REFUNDED` and reset the user's `premiumExpiresAt` to null/past.
 ## 6. Admin APIs
 Base Path: `/api/v1/admin`

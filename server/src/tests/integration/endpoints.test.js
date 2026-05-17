@@ -1,17 +1,20 @@
 import { jest } from '@jest/globals';
-import request from 'supertest';
-import app from '../../app.js'; 
+import request from 'supertest'; 
 import { generateTestUser } from '../utils/test.utils.js';
 import { GameRoom } from '../../modules/room/models/gameRoom.model.js';
 import { ProfileService } from '../../modules/profile/services/profile.service.js';
 import { SubscriptionService } from '../../modules/subscription/services/subscription.service.js';
 
-// Setup Mock environment variables for tests
-process.env.JWT_SECRET = 'test_secret';
-
+let app;
 describe('Backend Integration Tests - 27 API Endpoints', () => {
 
     let playerTokenCookie, adminTokenCookie, testPlayerId;
+
+    beforeAll(async () => {
+         // Setup mock environment variables
+         process.env.JWT_SECRET = 'test_secret';
+         ({ default: app } = await import('../../app.js'));
+    });
 
     beforeEach(async () => {
         // Seed users before each test
@@ -182,7 +185,8 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
                     endedAt: new Date().toISOString()
                 });
                 
-            expect([200, 201]).toContain(res.statusCode);
+            expect(res.statusCode).toEqual(201);
+            expect(res.body.data.id).toBeDefined();
         });
 
         // [GET] /games -> PASSED
@@ -266,7 +270,7 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
             captureSpy.mockRestore();
         });
 
-        // [POST] /subscription/history -> PASSED
+        // [GET] /subscription/history -> PASSED
         it('18. [GET] /api/v1/subscription/history - Should fetch transaction log', async () => {
             const res = await request(app).get('/api/v1/subscription/history').set('Cookie', playerTokenCookie);
             expect(res.statusCode).toEqual(200);

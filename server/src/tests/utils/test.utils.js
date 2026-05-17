@@ -3,20 +3,32 @@ import bcryptjs from 'bcryptjs';
 import { User } from '../../modules/auth/models/user.model.js';
 
 export const generateTestUser = async (overrides = {}) => {
+    const {
+         username,
+         email,
+         country,
+         role,
+         isActive,
+         passwordHash: overridePasswordHash,
+         plainTextPassword: overridePlainTextPassword
+     } = overrides;
+
     // Generate a valid hash for integration
-    const plainTextPassword = overrides.plainTextPassword || 'Password123!';
-    const passwordHash = await bcryptjs.hash(plainTextPassword, 10);
+    const plainTextPassword = overridePlainTextPassword || 'Password123!';
+    const generatedPasswordHash = await bcryptjs.hash(plainTextPassword, 10);
+    const passwordHash = Object.prototype.hasOwnProperty.call(overrides, 'passwordHash')
+         ? overridePasswordHash
+         : generatedPasswordHash;
 
     const defaultUser = {
-        username: `testuser_${Date.now()}`,
-        email: `test${Date.now()}@example.com`,
-        passwordHash: passwordHash, 
-        country: 'VN',
-        role: 'PLAYER',
-        isActive: true,
+        username: username || `testuser_${Date.now()}`,
+        email: email || `test${Date.now()}@example.com`,
+        passwordHash,
+        country: country || 'VN',
+        role: role || 'PLAYER',
+        isActive: typeof isActive === 'boolean' ? isActive : true,
         ...overrides
     };
-    delete defaultUser.plainTextPassword;
 
     const user = await User.create(defaultUser);
     

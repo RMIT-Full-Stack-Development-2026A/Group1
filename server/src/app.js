@@ -6,7 +6,7 @@ import { swaggerSpec } from "./config/swagger.config.js";
 import { generalRateLimit } from './middlewares/rateLimitMiddleware.js';
 import { errorMiddleware, notFoundHandler } from './middlewares/errorMiddleware.js';
 
-// import module router
+// Route modules
 import authRoutes from './modules/auth/routes/auth.routes.js';
 import adminRoutes from './modules/admin/routes/admin.routes.js';
 import profileRoutes from './modules/profile/routes/profile.routes.js';
@@ -27,10 +27,10 @@ app.use(cookieParser());
 app.use(express.json()); 
 app.use(generalRateLimit);
 
-// Swagger Documentation Route
+// Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Routes
+// API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/admin', adminRoutes);
@@ -38,6 +38,7 @@ app.use('/api/v1/games', gameRoutes);
 app.use('/api/v1/rooms', roomRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
 
+// Error handling
 app.use(notFoundHandler);
 app.use(errorMiddleware);
 

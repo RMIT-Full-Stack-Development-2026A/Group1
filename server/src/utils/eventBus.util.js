@@ -3,23 +3,22 @@ import EventEmitter from 'events';
 class SystemEventBus extends EventEmitter {
     constructor() {
         super();
-        // Prevent memory leak warnings if the system scales up
         this.setMaxListeners(30); 
     }
 
     /**
-     * Publishes an event to the system.
-     * @param {string} eventName - Use SYSTEM_EVENTS constants
-     * @param {Object} payload - Data to send
+     * Emits an event to the system.
+     * @param {string} eventName - Target event name.
+     * @param {Object} payload - Event data payload.
      */
     publish(eventName, payload) {
         this.emit(eventName, payload);
     }
 
     /**
-     * Subscribes to an event with a built-in safety net for async errors.
-     * @param {string} eventName - Use SYSTEM_EVENTS constants
-     * @param {Function} listener - The callback function
+     * Attaches an asynchronous, error-safe listener to an event.
+     * @param {string} eventName - Target event name.
+     * @param {Function} listener - Callback function.
      */
     subscribe(eventName, listener) {
         const safeListener = async (...args) => {
@@ -34,5 +33,4 @@ class SystemEventBus extends EventEmitter {
     }
 }
 
-// Export 
 export const eventBus = new SystemEventBus();

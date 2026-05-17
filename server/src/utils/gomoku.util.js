@@ -1,24 +1,38 @@
+/**
+ * Evaluates the board state to determine if the last move resulted in a Gomoku win.
+ * @param {Array} moves - List of all board moves.
+ * @param {number} boardSize - Dimension of the grid.
+ * @param {number} lastMoveRow - Row index of the last move.
+ * @param {number} lastMoveCol - Column index of the last move.
+ * @param {number} playerIndex - Participant index making the move.
+ * @returns {Array|null} Winning line coordinate array, or null if no win.
+ */
 export const checkGomokuWin = (moves, boardSize, lastMoveRow, lastMoveCol, playerIndex) => {
-    // Declare variable
     const playerMoves = new Set();
+    
+    // Cache player move coordinates
     for (const m of moves) {
         if (m.byParticipantIndex === playerIndex) {
             playerMoves.add(`${m.row},${m.col}`);
         }
     }
 
-    // Define the 4 axes (Horizontal, Vertical, Diagonal Down, Diagonal Up)
+    // Directional axes: [Horizontal, Vertical, Diagonal Down, Diagonal Up]
     const axes = [
-        [[0, 1], [0, -1]],   // Horizontal (Right, Left)
-        [[1, 0], [-1, 0]],   // Vertical (Down, Up)
-        [[1, 1], [-1, -1]],  // Diagonal (Bottom-Right, Top-Left)
-        [[1, -1], [-1, 1]]   // Diagonal (Bottom-Left, Top-Right)
+        [[0, 1], [0, -1]],
+        [[1, 0], [-1, 0]],
+        [[1, 1], [-1, -1]],
+        [[1, -1], [-1, 1]]
     ];
 
-    // Generate the Algebraic coordinate (A1, A2, ...)
+    /**
+     * Converts matrix indices to algebraic notation.
+     * @param {number} r - Row index.
+     * @param {number} c - Column index.
+     * @returns {string} Algebraic coordinate (e.g., A1).
+     */
     const getCoordinate = (r, c) => `${String.fromCharCode(65 + c)}${r + 1}`;
 
-    // Check each axis
     for (const [dir1, dir2] of axes) {
         let count = 1;
         const winningLine = [{ 
@@ -27,12 +41,15 @@ export const checkGomokuWin = (moves, boardSize, lastMoveRow, lastMoveCol, playe
             coordinate: getCoordinate(lastMoveRow, lastMoveCol) 
         }];
 
-        // Helper to traverse in one specific direction
+        /**
+         * Traverses the board in a specific directional vector.
+         * @param {number} dRow - Row delta.
+         * @param {number} dCol - Column delta.
+         */
         const traverse = (dRow, dCol) => {
             let r = lastMoveRow + dRow;
             let c = lastMoveCol + dCol;
             
-            // Keep walking while inside bounds AND the cell belongs to the player
             while (r >= 0 && r < boardSize && c >= 0 && c < boardSize && playerMoves.has(`${r},${c}`)) {
                 count++;
                 winningLine.push({ row: r, col: c, coordinate: getCoordinate(r, c) });
@@ -41,15 +58,11 @@ export const checkGomokuWin = (moves, boardSize, lastMoveRow, lastMoveCol, playe
             }
         };
 
-        // Walk both ways along the current axis
         traverse(dir1[0], dir1[1]);
         traverse(dir2[0], dir2[1]);
 
-        // Win condition
-        if (count >= 5) {
-            return winningLine; 
-        }
+        if (count >= 5) return winningLine; 
     }
 
-    return null; // No win
+    return null;
 };

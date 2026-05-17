@@ -1,6 +1,10 @@
 import bcrypt from 'bcrypt';
 import { User } from '../modules/auth/models/user.model.js';
 
+/**
+ * Seeds the initial admin account.
+ * @returns {Promise<Object>} The seeded admin user document.
+ */
 export const seedAdmin = async () => {
     const passwordHash = await bcrypt.hash('Admin@123!', 10);
 

@@ -479,6 +479,8 @@ const gameRoomSchema = new mongoose.Schema({
 
 **Purpose**: Stores immutable financial history for subscription purchases.
 
+**Note:** `GET /api/v1/subscription/history` now returns the Current Subscription Details and will only ever return an array containing 1 item (the active transaction) or 0 items (if expired/none).
+
 ```js
 const transactionSchema = new mongoose.Schema({
     userId: {

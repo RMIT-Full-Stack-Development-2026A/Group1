@@ -3,8 +3,12 @@ import { Transaction } from '../models/transaction.model.js';
 export const SubscriptionRepository = {
     // Save a new invoice (when the status is PENDING)
     createTransaction: async (transactionData) => {
-        const newTransaction = new Transaction(transactionData);
-        return await newTransaction.save();
+        // Upsert to ensure a single active Transaction per user (overwrite any existing record)
+        return await Transaction.findOneAndUpdate(
+            { userId: transactionData.userId },
+            { $set: transactionData },
+            { upsert: true, returnDocument: 'after' }
+        );
     },
 
     // Find an invoice by the PayPal order ID

@@ -54,7 +54,7 @@ const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live'
     : 'https://api-m.sandbox.paypal.com';
 
 // Subscription configuration
-const PREMIUM_PRICE = '5.00';
+const PREMIUM_PRICE = '10.00';
 const PREMIUM_DURATION_DAYS = 30;
 
 /**

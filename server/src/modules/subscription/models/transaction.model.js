@@ -5,8 +5,8 @@ const transactionSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId, // User who owns this transaction
         ref: 'User', 
-        required: true, 
-        index: true 
+        required: true,
+        unique: true
     },
 
     type: {
@@ -57,7 +57,7 @@ const transactionSchema = new mongoose.Schema({
     subscriptionPeriodEnd: {
         type: Date, // End date of premium period for subscription transactions
         default: null, 
-        index: true 
+        index: true
     },
 
     metadata: {
@@ -68,5 +68,7 @@ const transactionSchema = new mongoose.Schema({
 
 transactionSchema.index({ userId: 1, createdAt: -1 }); // Fast latest-transactions lookup per user
 transactionSchema.index({ userId: 1, type: 1, createdAt: -1 }); // Fast filtered history by user and transaction type
+// Auto-delete expired subscription transactions when subscriptionPeriodEnd passes
+transactionSchema.index({ subscriptionPeriodEnd: 1 }, { expireAfterSeconds: 0 });
 
 export const Transaction = mongoose.model('Transaction', transactionSchema);

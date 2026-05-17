@@ -185,7 +185,7 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
         });
 
         // [GET] /games/:id -> PASSED
-        it('12. GET /api/v1/games/:id - Should fetch replay data', async () => {
+        it('12. [GET] /api/v1/games/:id - Should fetch replay data', async () => {
             // Mock fetching a non-existent ID
             const res = await request(app).get('/api/v1/games/60d21b4667d0d8992e610c85').set('Cookie', playerTokenCookie);
             expect(res.statusCode).toEqual(404); // Assert error format
@@ -224,7 +224,7 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
         });
 
         // [POST] /subscription/create-order -> PASSED
-        it('16. POST /api/v1/subscription/create-order - Should return PayPal URL', async () => {
+        it('16. [POST] /api/v1/subscription/create-order - Should return PayPal URL', async () => {
             const res = await request(app).post('/api/v1/subscription/create-order').set('Cookie', playerTokenCookie);
             // In test environments without real PayPal credentials or network access, the service throws a 500 (Missing Credentials) or 502 (PayPal API Error).
             expect([200, 201, 500, 502, 504]).toContain(res.statusCode);

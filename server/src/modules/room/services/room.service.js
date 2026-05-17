@@ -9,7 +9,13 @@ import {
     validateRoomQuery, validateObjectId, validateRoomCreate, validateRoomJoin, 
     validateRoomLeave, validateGameMove, validateChatSend, 
     validateRoomUpdateSettings, validateRoomSetFirstTurn, validateRoomReady 
-} from '../validators/room.validator.js'; 
+} from '../validators/room.validator.js';
+
+import { eventBus } from '../../../utils/eventBus.util.js';
+import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
+
+// Compute isPremium from user
+const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
 export const RoomService = {
     getArenaRooms: async (query, requestingUser) => {
@@ -137,6 +143,8 @@ export const RoomService = {
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
                     role: 'HUMAN'
                 })),
@@ -149,6 +157,12 @@ export const RoomService = {
                 endedAt: closedAt
             });
         }
+
+        // Signal the Socket layer to kick the players out
+        eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
+            roomId: String(roomId),
+            endedAt: closedAt 
+        });
         
         return true;
     },
@@ -174,6 +188,8 @@ export const RoomService = {
             participants: [{
                 userId: user._id,
                 usernameSnapshot: user.username,
+                avatarSnapshot: user.avatar,
+                isPremiumSnapshot: computeIsPremium(user),
                 mark: marker,
                 joinedAt: new Date(),
                 isHost: true,
@@ -203,6 +219,8 @@ export const RoomService = {
         const updatedRoom = await RoomRepository.addParticipant(roomId, {
             userId: user._id,
             usernameSnapshot: user.username,
+            avatarSnapshot: user.avatar,
+            isPremiumSnapshot: computeIsPremium(user),
             mark: joinerMark,
             joinedAt: new Date(),
             isHost: false,
@@ -271,6 +289,8 @@ export const RoomService = {
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
                     role: 'HUMAN' 
                 })),
@@ -357,6 +377,8 @@ export const RoomService = {
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
                     role: 'HUMAN'
                 })),

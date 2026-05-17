@@ -44,6 +44,19 @@ export const GameService = {
         const moves = Array.isArray(payload.moves) ? payload.moves : [];
         const totalMoves = moves.length;
 
+        const DEFAULT_BOT_AVATAR = null; // placeholder
+        const normalizeParticipants = (parts = []) => (Array.isArray(parts) ? parts.map(p => ({
+            userId: p.userId ?? null,
+            usernameSnapshot: p.usernameSnapshot,
+            avatarSnapshot: p.avatarSnapshot ?? (p.role === 'AI' ? DEFAULT_BOT_AVATAR : null),
+            isPremiumSnapshot: p.isPremiumSnapshot ?? false, // Default to false if not provided
+            role: p.role,
+            mark: p.mark,
+            aiDifficulty: p.aiDifficulty ?? null
+        })) : []);
+
+        const participants = normalizeParticipants(payload.participants);
+
         let endedReason = null;
         let winnerParticipantIndex = null;
         let winningLine = [];
@@ -77,7 +90,7 @@ export const GameService = {
             ...(payload.boardStyle && { boardStyle: payload.boardStyle }),
             ...(payload.markerStyle && { markerStyle: payload.markerStyle }),
 
-            participants: payload.participants,
+            participants: participants,
             firstTurnParticipantIndex: payload.firstTurnParticipantIndex,
             
             status: payload.status,

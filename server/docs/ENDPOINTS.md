@@ -200,7 +200,7 @@ Base Path: `/api/v1/subscription`
 | GET | `/subscription/status` | Yes | Get premium status and expiry date | Yes |
 | POST | `/subscription/create-order` | Yes | Generate PayPal payment link/order ID | Yes |
 | POST | `/subscription/capture-order` | Yes | Validate PayPal successful payment and activate premium | Yes |
-| GET | `/subscription/history` | Yes | Get paginated payment transaction history | Yes |
+| GET | `/subscription/history` | Yes | Get current subscription detail | Yes |
 | POST | `/subscription/paypal-events` | No | Listen for PayPal async events to revoke premium | Yes |
 ### Notes
 - A successful `capture-order` request should update the `premiumExpiresAt` state and record an immutable `Transaction` invoice.

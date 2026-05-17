@@ -2,6 +2,8 @@
 const toParticipant = (participant) => ({
     userId: participant.userId,
     usernameSnapshot: participant.usernameSnapshot,
+    avatar: participant.avatarSnapshot ?? null,
+    isPremium: participant.isPremiumSnapshot ?? false,
     mark: participant.mark ?? null,
     joinedAt: participant.joinedAt ?? null,
     isHost: participant.isHost ?? false,

@@ -10,6 +10,16 @@ export const roomParticipantSchema = new mongoose.Schema({
         type: String, // Username copied at the moment they joined the room
         required: true 
     },
+    // Avatar URL snapshot 
+    avatarSnapshot: { 
+        type: String, 
+        default: null 
+    },
+    // Premium status snapshot 
+    isPremiumSnapshot: {
+        type: Boolean,
+        default: false
+    },
     mark: {
         type: String, // X or O assigned to the player in this room
         enum: ['X', 'O'], 

@@ -6,6 +6,8 @@ import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery } from '../validators/admin.validator.js';
 
 import { eventBus } from '../../../utils/eventBus.util.js';
+import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
+
 export const AdminService = {
 
     getDashboard: async () => {
@@ -101,7 +103,7 @@ export const AdminService = {
         const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
 
         if (!isActive) {
-            eventBus.emit("admin:user_deactivated", { 
+            eventBus.emit(SYSTEM_EVENTS.USER_DEACTIVATED, { 
                 userId: playerId, 
                 reason: "System policy violation." 
             });
@@ -109,6 +111,7 @@ export const AdminService = {
 
         return AdminDTO.toPlayerDetail(updatedUser);
     },
+    
     getRooms: async (query) => {
         const { filter, sort, pagination } = validateAdminRoomQuery(query);
         

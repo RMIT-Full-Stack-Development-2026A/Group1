@@ -72,6 +72,7 @@ Clone the repository:
     ```
 
     > Sample Admin / User account
+
     | Username | Email | Password | Note |
     |----------|------|----------|-------|
     | admin_tictactoang | admin@tictactoang.com | Admin@123! | Admin |
@@ -84,9 +85,26 @@ Clone the repository:
     ```bash
     npm run dev # or node ./src/index.js
     ``` 
+
 `Note`: The server will run on `http://localhost:5000` by default and uses `nodemon` to automatically restart on file changes.
 
 **`📚 API Documentation`**: Once the server is running, you can view the Swagger/OpenAPI docs at http://localhost:5000/api-docs.
+
+### Integration Test Execution (Server)
+This project uses **Jest** and **Supertest** for comprehensive integration testing across all API modules (Auth, Profile, Game, Room, Subscription, and Admin). The test suite interacts with an in-memory or test database and runs sequentially to prevent data conflicts.
+
+To execute the test suite:
+
+1. Ensure you are in the `server` directory.
+2. Run the test script:
+    ```bash
+    npm run test
+    ```
+
+**Under the hood:**
+The test script automatically sets `NODE_ENV=test` and uses `--runInBand` to execute tests one by one. It also enables Node's experimental VM modules to support ES6 imports during testing. 
+
+*Note: Ensure your `.env` file is properly configured before running tests, though the test suite will automatically mock critical third-party services like PayPal.*
 
 ### Frontend Setup (Client)
 1. Open a new terminal window and navigate to the client directory:
@@ -101,4 +119,4 @@ Clone the repository:
     ```Bash
     npm run dev
     ```
-`Note`: The React frontend typically runs on `http://localhost:5173`. Make sure this matches the `CLIENT_URL` in your backend `.env` file to prevent CORS issues.
+`Note`: The React frontend typically runs on `http://localhost:8000`. Make sure this matches the `CLIENT_URL` in your backend `.env` file to prevent CORS issues.

@@ -25,7 +25,7 @@ export const SubscriptionRepository = {
         );
     },
 
-    // Get a user's transaction history with pagination
+    // Get the user's current active subscription details
     getHistoryByUserId: async (userId, page, limit) => {
         const skip = (page - 1) * limit;
         

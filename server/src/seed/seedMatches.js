@@ -1,19 +1,29 @@
 import { GameSession } from '../modules/game/models/gameSession.model.js';
 import { ulid } from 'ulid';
 
-// Compute isPremium from user 
+/**
+ * Determines user premium status based on expiration date.
+ * @param {Object} user - User document.
+ * @returns {boolean} True if premium is active.
+ */
 const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
+/**
+ * Seeds a completed match between two players.
+ * @param {Object} player1 - First player document.
+ * @param {Object} player2 - Second player document.
+ * @returns {Promise<void>}
+ */
 export const seedMatches = async (player1, player2) => {
     console.log('Seeding Game Matches & History...');
 
-    // await GameSession.deleteMany({ status: { $in: ['FINISHED', 'DRAW', 'ABORTED'] } });
-
-    // P1 plays F6, F7, F8, F9, F10. P2 plays G6, G7, G8, G9
+    /**
+     * Generates a predefined sequence of moves for the match.
+     * @returns {Array<Object>} List of move objects.
+     */
     const generateMoves = () => {
         const moves = [];
         for (let i = 0; i < 5; i++) {
-            // Player 1 (X)
             moves.push({
                 moveNumber: i * 2 + 1,
                 byParticipantIndex: 0,
@@ -21,7 +31,7 @@ export const seedMatches = async (player1, player2) => {
                 coordinate: `F${6 + i}`, 
                 placedAt: new Date(Date.now() - (10 - i * 2) * 60000)
             });
-            // Player 2 (O) - Stops at 4 moves since P1 wins
+            
             if (i < 4) {
                 moves.push({
                     moveNumber: i * 2 + 2,
@@ -60,7 +70,7 @@ export const seedMatches = async (player1, player2) => {
             }
         ],
         firstTurnParticipantIndex: 0,
-        winnerParticipantIndex: 0, // Player 1 wins
+        winnerParticipantIndex: 0, 
         status: 'FINISHED',
         endedReason: 'WIN',
         winningLine: [
@@ -72,7 +82,7 @@ export const seedMatches = async (player1, player2) => {
         ],
         moves: generateMoves(),
         totalMoves: 9,
-        startedAt: new Date(Date.now() - 15 * 60000), // 15 mins ago
+        startedAt: new Date(Date.now() - 15 * 60000), // 15 minutes ago
         endedAt: new Date(),
         durationMs: 15 * 60000
     };

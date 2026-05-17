@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
 
+// Configures and exports the Cloudinary SDK using environment variables
 dotenv.config();
 
 cloudinary.config({

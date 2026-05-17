@@ -1,11 +1,14 @@
 import bcrypt from 'bcrypt';
 import { User } from '../modules/auth/models/user.model.js';
 
+/**
+ * Seeds standard, premium, and banned player accounts.
+ * @returns {Promise<Array<Object>>} Array of seeded user documents.
+ */
 export const seedPlayers = async () => {
     console.log('Seeding Player accounts...');
     const passwordHash = await bcrypt.hash('Player@123!', 10);
 
-    // Premium expires in 1 year
     const nextYear = new Date();
     nextYear.setFullYear(nextYear.getFullYear() + 1);
 

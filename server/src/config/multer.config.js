@@ -1,11 +1,17 @@
 import multer from 'multer';
 
-// Use memory storage to pass buffer directly to Sharp
+// Store files in a memory buffer
 const storage = multer.memoryStorage();
 
-// Validate file type
+/**
+ * Validates the uploaded file's MIME type against allowed image formats.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} file - The uploaded file object.
+ * @param {Function} cb - The Multer callback function to signal success or failure.
+ */
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -13,10 +19,11 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+// Export the Multer instance
 export const upload = multer({
     storage,
     fileFilter,
     limits: { 
-        fileSize: 2 * 1024 * 1024 // 2MB max file size
+        fileSize: 2 * 1024 * 1024  // 2MB limit
     } 
 });

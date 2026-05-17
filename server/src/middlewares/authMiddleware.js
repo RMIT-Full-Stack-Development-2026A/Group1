@@ -1,7 +1,14 @@
 import jwt from "jsonwebtoken";
 
+/**
+ * Validates the JWT access token from cookies and attaches user data to the request.
+ * * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @returns {Object|void} JSON error response or calls next().
+ */
 export const verifyToken = (req, res, next) => {
-    // JWT stored in httpOnly cookie named 'access_token'
+    // Extract token from HTTP-only cookie
     const token = req.cookies.access_token;
     
     if (!token) {
@@ -14,6 +21,7 @@ export const verifyToken = (req, res, next) => {
     }
 
     try {
+        // Cryptographically verify the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         if (!decoded) { 
@@ -25,7 +33,7 @@ export const verifyToken = (req, res, next) => {
             }); 
         }
 
-        // JWT payload contains 
+        // Attach decoded payload to the request for downstream use
         req.user = { 
             id: decoded.userId, 
             role: decoded.role,

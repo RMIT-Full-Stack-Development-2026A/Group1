@@ -261,9 +261,9 @@ export const SubscriptionService = {
                 metadata: captureData // Store raw PayPal response for audit
             });
 
-            // Update user's premium expiry date in Auth module
+            // Update user's premium expiry date
             await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
-
+            await AuthInterface.incrementPlatformRevenue(parseFloat(PREMIUM_PRICE));
             const user = await AuthInterface.getUserById(userId);
 
             // check if user exists

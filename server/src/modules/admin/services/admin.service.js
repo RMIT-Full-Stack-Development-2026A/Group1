@@ -12,18 +12,16 @@ export const AdminService = {
 
     getDashboard: async () => {
         // Fetch all metrics concurrently for performance
-        const [authMetrics, totalMatches, activeRooms, totalRevenue] = await Promise.all([
+        const [authMetrics, totalMatches, activeRooms] = await Promise.all([
             AuthInterface.getPlatformMetrics(),
             GameInterface.getTotalPlatformMatches(),
-            RoomInterface.getActiveRoomsCount(),
-            SubscriptionInterface.getTotalRevenue(),
+            RoomInterface.getActiveRoomsCount()
         ]);
 
         return AdminDTO.toDashboard({
-            ...authMetrics,
+            ...authMetrics, 
             totalMatches,
-            activeRooms,
-            totalRevenue
+            activeRooms
         });
     },
     

@@ -34,28 +34,33 @@ const baseSchemaOptions = {
 
 ```js
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true, index: true },
-    email:    { type: String, required: true, unique: true, index: true },
-    passwordHash: { type: String, required: true },
-    role:     { type: String, enum: ['PLAYER', 'ADMIN'], default: 'PLAYER' },
-    country:  { type: String, default: 'VN' },
-    avatar:   { type: String, default: null },
-    isActive: { type: Boolean, default: true },
+    username: { 
+        type: String, required: true, unique: true, trim: true, 
+        match: /^[a-zA-Z0-9_-]{6,30}$/, index: true 
+    },
+    email: { 
+        type: String, required: true, unique: true, lowercase: true, trim: true, 
+        match: /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, maxlength: 254, index: true 
+    },
+    passwordHash: { type: String, required: true, select: false },
+    country:      { type: String, required: true, trim: true },
+    role:         { type: String, enum: ['PLAYER', 'ADMIN'], default: 'PLAYER', index: true },
+    avatar:       { type: String, default: null },
+    isActive:     { type: Boolean, default: true, index: true },
     
+    premiumExpiresAt: { type: Date, default: null, index: true },
+
     // Auth security & tracking
     auth: {
-        loginAttempts: { type: Number, default: 0 },
-        lockUntil:     { type: Date, default: null },
-        lastLoginAt:   { type: Date, default: null }
-    },
-    
-    // Subscription State (Source of Truth)
-    premiumExpiresAt: { type: Date, default: null, index: true }
+        lastLoginAt:   { type: Date, default: null },
+        loginAttempts: { type: Number, default: 0, select: false },
+        lockUntil:     { type: Date, default: null, select: false }
+    }
 }, baseSchemaOptions);
 
 // Virtual for boolean premium checks
 userSchema.virtual('isPremium').get(function () {
-    return this.premiumExpiresAt && this.premiumExpiresAt > new Date();
+    return !!this.premiumExpiresAt && this.premiumExpiresAt > new Date();
 });
 ```
 
@@ -82,29 +87,42 @@ const platformMetricSchema = new mongoose.Schema({
 **Purpose**: Immutable record of finished matches for history, stats aggregation, and replay generation.
 
 ```js
+// Embedded Sub-Documents (_id: false)
+const sessionParticipantSchema = {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Null if AI
+    usernameSnapshot: { type: String, required: true, trim: true },
+    avatarSnapshot: { type: String, default: null },
+    isPremiumSnapshot: { type: Boolean, default: false },
+    role: { type: String, enum: ['HUMAN', 'AI'], required: true },
+    mark: { type: String, enum: ['X', 'O'], required: true },
+    aiDifficulty: { type: String, enum: ['EASY', 'MEDIUM', 'HARD'], default: null }
+};
+
+const sessionMoveSchema = {
+    moveNumber: { type: Number, required: true },
+    byParticipantIndex: { type: Number, enum: [0, 1], required: true },
+    row: { type: Number, required: true, min: 0 },
+    col: { type: Number, required: true, min: 0 },
+    coordinate: { type: String, required: true, match: /^[A-O](?:[1-9]|1[0-5])$/ },
+    placedAt: { type: Date, default: Date.now }
+};
+
+// Main Session Schema
 const gameSessionSchema = new mongoose.Schema({
-    sessionNumber: { type: String, required: true, unique: true, index: true },
-    sourceRoomId:  { type: mongoose.Schema.Types.ObjectId, default: null }, // Link back to live room if online
+    sessionNumber: { type: String, required: true, unique: true, index: true, default: () => `GS-${ulid()}` },
+    sourceRoomId:  { type: mongoose.Schema.Types.ObjectId, ref: 'GameRoom', default: null }, 
     gameType: {
         type: String,
         enum: ['SINGLE_PLAYER', 'TWO_PLAYERS', 'ONLINE_MATCH'],
         required: true,
         index: true
     },
-    boardSize:  { type: Number, required: true, enum: [10, 15] },
-    boardStyle: { type: String, default: 'CLASSIC' },
-    markerStyle:{ type: String, default: 'CLASSIC' },
+    boardSize:  { type: Number, required: true, enum: [10, 15], index: true },
+    boardStyle: { type: String, enum: ['CLASSIC', 'DARK', 'NEON'], default: 'CLASSIC' },
+    markerStyle:{ type: String, enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' },
     
     // Historical Snapshots
-    participants: [{
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-        usernameSnapshot: { type: String, required: true },
-        avatarSnapshot: { type: String, default: null },
-        isPremiumSnapshot: { type: Boolean, default: false },
-        role: { type: String, enum: ['HUMAN', 'AI'], required: true },
-        mark: { type: String, enum: ['X', 'O'], required: true },
-        aiDifficulty: { type: String, enum: ['EASY', 'MEDIUM', 'HARD'], default: null }
-    }],
+    participants: [sessionParticipantSchema],
     
     // Match Results
     status: {
@@ -124,23 +142,14 @@ const gameSessionSchema = new mongoose.Schema({
     winningLine: [{ row: Number, col: Number, coordinate: String }],
     
     // Replay Data
+    moves: [sessionMoveSchema],
     totalMoves: { type: Number, default: 0 },
-    moves: [{
-        moveNumber: Number,
-        byParticipantIndex: Number,
-        row: Number,
-        col: Number,
-        coordinate: String,
-        placedAt: Date
-    }],
     
     // Time Tracking
-    startedAt:  { type: Date, required: true },
-    endedAt:    { type: Date, required: true },
-    durationMs: { type: Number, required: true }
+    startedAt:  { type: Date, required: true, default: Date.now },
+    endedAt:    { type: Date, default: null, index: true },
+    durationMs: { type: Number, default: 0 }
 }, baseSchemaOptions);
-
-gameSessionSchema.index({ "participants.userId": 1, createdAt: -1 });
 ```
 
 ## 4. Room Module Model (`gameRoom.model.js`)
@@ -149,11 +158,34 @@ gameSessionSchema.index({ "participants.userId": 1, createdAt: -1 });
 **Note**: These documents are automatically deleted or converted into `GameSession` documents once a match ends.
 
 ```js
+// Embedded Sub-Documents (_id: false)
+const roomParticipantSchema = {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    usernameSnapshot: { type: String, required: true },
+    avatarSnapshot: { type: String, default: null },
+    isPremiumSnapshot: { type: Boolean, default: false },
+    mark: { type: String, enum: ['X', 'O'], default: null },
+    joinedAt: { type: Date, default: Date.now },
+    isHost: { type: Boolean, default: false },
+    isReady: { type: Boolean, default: false }
+};
+
+const roomMoveSchema = {
+    moveNumber: Number,
+    byParticipantIndex: { type: Number, enum: [0, 1] }, 
+    row: Number, 
+    col: Number, 
+    coordinate: { type: String, match: /^[A-O](?:[1-9]|1[0-5])$/ },
+    placedAt: { type: Date, default: Date.now }
+};
+
+// Main Room Schema
 const gameRoomSchema = new mongoose.Schema({
-    roomNumber: { type: String, required: true, unique: true, index: true },
-    boardSize:  { type: Number, required: true, enum: [10, 15] },
-    boardStyle: { type: String, default: 'CLASSIC' },
-    markerStyle:{ type: String, default: 'CLASSIC' },
+    roomNumber: { type: String, required: true, unique: true, index: true, default: () => `RM-${ulid()}` },
+    boardSize:  { type: Number, required: true, enum: [10, 15], index: true },
+    boardStyle: { type: String, enum: ['CLASSIC', 'DARK', 'NEON'], default: 'CLASSIC' },
+    markerStyle:{ type: String, enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' },
+    
     status: {
         type: String,
         enum: ['WAITING', 'READY', 'PLAYING', 'ABORTED', 'CLOSED'],
@@ -161,30 +193,13 @@ const gameRoomSchema = new mongoose.Schema({
         index: true
     },
     
-    // Live Player State
-    participants: [{
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        usernameSnapshot: { type: String, required: true },
-        avatarSnapshot: String,
-        isPremiumSnapshot: Boolean,
-        mark: { type: String, enum: ['X', 'O'] },
-        isHost: { type: Boolean, default: false },
-        isReady:{ type: Boolean, default: false },
-        joinedAt: { type: Date, default: Date.now }
-    }],
-    
-    // Live Match State
-    firstTurnParticipantIndex: { type: Number, default: 0 },
-    currentTurnParticipantIndex: { type: Number, default: null },
+    // Live State
+    participants: [roomParticipantSchema], 
+    firstTurnParticipantIndex:   { type: Number, enum: [0, 1], default: 0 },
+    currentTurnParticipantIndex: { type: Number, enum: [0, 1], default: null },
     moveCount: { type: Number, default: 0 },
-    moves: [{
-        moveNumber: Number,
-        byParticipantIndex: Number,
-        row: Number,
-        col: Number,
-        coordinate: String,
-        placedAt: Date
-    }],
+    moves: [roomMoveSchema], 
+    
     lastMove: {
         row: { type: Number, default: null },
         col: { type: Number, default: null },
@@ -197,8 +212,10 @@ const gameRoomSchema = new mongoose.Schema({
     endedAt:   { type: Date, default: null },
     closedBy:  { type: String, enum: ['PLAYER', 'ADMIN', 'SYSTEM'], default: null }
 }, baseSchemaOptions);
-```
 
+// 10 min TTL cleanup on `endedAt` to prevent abandoned room bloat.
+gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*10 })
+```
 ## 5. Transaction Module Model (`transaction.model.js`)
 
 **Purpose**: Stores the current active financial invoice for subscription purchases. Acts as an audit log for PayPal Webhooks.
@@ -210,54 +227,59 @@ const gameRoomSchema = new mongoose.Schema({
 ```js
 const transactionSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User', 
         required: true, 
         unique: true // Enforces 1 active transaction per user
     },
     type: {
-        type: String, // Business category of transaction
+        type: String,
         enum: ['SUBSCRIPTION'], 
         required: true, 
         index: true 
     },
-   provider: {
-        type: String, // Payment source/provider used for this transaction
+    provider: {
+        type: String,
         enum: ['STRIPE', 'PAYPAL'], 
         required: true, 
         default: 'PAYPAL' 
     },
     amount: {
-        type: Number, // Money amount for this transaction
+        type: Number, 
         required: true, 
-        min: 0 // Prevent negative stored amount
+        min: 0 
     },
     currency: {
-        type: String, // Currency code 
+        type: String, 
         default: 'USD' 
     },
     status: {
-        type: String, // Processing outcome of the transaction
+        type: String,
         enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], 
         required: true, 
         default: 'PENDING', 
         index: true 
     },
     externalTransactionId: {
-        type: String, // ID from Stripe/PayPal/other provider if one exists
+        type: String, 
         default: null, 
         index: true,
         sparse: true 
     },
     subscriptionPeriodStart: {
-        type: Date, // Start date of premium period
+        type: Date,
         default: null 
     },
     subscriptionPeriodEnd: {
-        type: Date, // Start date of premium perio
-        default: null, 
+        type: Date,
+        default: null
+    },
+    metadata: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
     }
 }, baseSchemaOptions);
-// Auto-delete expired subscription transactions when subscriptionPeriodEnd passes
+
+// Auto-delete when subscriptionPeriodEnd passes
 transactionSchema.index({ subscriptionPeriodEnd: 1 }, { expireAfterSeconds: 0 });
 ```

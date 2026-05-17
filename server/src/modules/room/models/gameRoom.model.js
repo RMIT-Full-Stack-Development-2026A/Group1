@@ -97,7 +97,7 @@ const gameRoomSchema = new mongoose.Schema({
 
 gameRoomSchema.index({ status: 1, createdAt: -1 }); // Fast arena queries by room status
 gameRoomSchema.index({ 'participants.userId': 1, status: 1 }); // Fast reconnect lookup for a user's active room
-gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*60 }) // TTL: Engine auto-deletes document 1 hr after closure
+gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*10 }) // TTL: Engine auto-deletes document 10 minutes after closure
 //auto remove the Room with status WATING for 30mins
 gameRoomSchema.index(
     { createdAt: 1 }, 

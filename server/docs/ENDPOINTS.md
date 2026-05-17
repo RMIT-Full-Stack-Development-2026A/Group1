@@ -200,10 +200,12 @@ Base Path: `/api/v1/subscription`
 | GET | `/subscription/status` | Yes | Get premium status and expiry date | Yes |
 | POST | `/subscription/create-order` | Yes | Generate PayPal payment link/order ID | Yes |
 | POST | `/subscription/capture-order` | Yes | Validate PayPal successful payment and activate premium | Yes |
-| GET | `/subscription/history` | Yes | Current Subscription Details — returns an array with 1 item (active transaction) or 0 items (if expired/none) | Yes |
+| GET | `/subscription/history` | Yes | Current Subscription Details — returns an array with 1 item (the active transaction) or 0 items (if expired/none) | Yes |
 | POST | `/subscription/paypal-events` | No | Listen for PayPal async events to revoke premium | Yes |
+
 ### Notes
-- A successful `capture-order` request should update the `premiumExpiresAt` state and record an immutable `Transaction` invoice.
+- **Active Record Only:** The database enforces a 1-to-1 relationship between a user and their active subscription transaction. The `/history` endpoint reflects this by only returning the current active transaction. Expired transactions are automatically cleaned up via MongoDB TTL indexes.
+- A successful `capture-order` request overwrites any previous `Transaction` invoice via an `upsert`.
 - If a `REFUND` or `CHARGEBACK` webhook event is received from PayPal, the system must update the corresponding `Transaction` status to `REFUNDED` and reset the user's `premiumExpiresAt` to null/past.
 ## 6. Admin APIs
 Base Path: `/api/v1/admin`

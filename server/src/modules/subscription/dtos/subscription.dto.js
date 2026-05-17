@@ -28,10 +28,10 @@ export const SubscriptionDTO = {
 
     toHistoryItem,
 
-    toHistory: (transactions, pagination) => ({
-        items: Array.isArray(transactions) ? transactions.map(toHistoryItem) : [],
-        total: pagination?.total ?? 0,
-        page: pagination?.page ?? 1,
-        limit: pagination?.limit ?? 20
+    toHistory: (transaction) => ({
+        items: transaction ? [toHistoryItem(transaction)] : [],
+        total: transaction ? 1 : 0,
+        page: 1,  
+        limit: 1 
     })
 };

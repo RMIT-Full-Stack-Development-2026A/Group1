@@ -131,7 +131,7 @@ export const responses = {
     },
 
     TransactionListResponse: {
-        description: 'Paginated transaction history.',
+        description: 'Current Subscription Details. Returns a paginated wrapper containing max 1 active transaction.',
         content: {
             'application/json': {
                 schema: {
@@ -143,7 +143,12 @@ export const responses = {
                                 data: {
                                     type: 'object',
                                     properties: {
-                                        items: { type: 'array', items: { $ref: '#/components/schemas/Transaction' } },
+                                        items: { 
+                                            type: 'array', 
+                                            description: 'Array containing max 1 active transaction.',
+                                            maxItems: 1,
+                                            items: { $ref: '#/components/schemas/Transaction' } 
+                                        },
                                     },
                                 },
                             },

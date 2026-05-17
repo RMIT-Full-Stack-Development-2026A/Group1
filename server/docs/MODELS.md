@@ -477,17 +477,19 @@ const gameRoomSchema = new mongoose.Schema({
 ## 6. Transaction Model (`transaction.model.js`)
 **Owned by**: subscription module
 
-**Purpose**: Stores immutable financial history for subscription purchases.
+**Purpose**: Stores the current active financial invoice for subscription purchases.
 
-**Note:** `GET /api/v1/subscription/history` now returns the Current Subscription Details and will only ever return an array containing 1 item (the active transaction) or 0 items (if expired/none).
+### Key Constraints:
+- **1-to-1 Enforcement:** `userId` enforces `unique: true`. A new purchase completely overwrites the user's previous transaction record.
+- **Auto-Cleanup (TTL):** A TTL (Time-To-Live) index automatically deletes the transaction document from the database when the `subscriptionPeriodEnd` date passes.
 
 ```js
 const transactionSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId, // User who owns this transaction
+        type: mongoose.Schema.Types.ObjectId, 
         ref: 'User', 
         required: true, 
-        index: true 
+        unique: true // Enforces 1 active transaction per user
     },
     type: {
         type: String, // Business category of transaction
@@ -501,7 +503,6 @@ const transactionSchema = new mongoose.Schema({
         required: true, 
         default: 'PAYPAL' 
     },
-
     amount: {
         type: Number, // Money amount for this transaction
         required: true, 
@@ -525,17 +526,13 @@ const transactionSchema = new mongoose.Schema({
         sparse: true 
     },
     subscriptionPeriodStart: {
-        type: Date, // Start date of premium period for subscription transactions
+        type: Date, // Start date of premium period
         default: null 
     },
     subscriptionPeriodEnd: {
-        type: Date, // End date of premium period for subscription transactions
+        type: Date,
         default: null, 
         index: true 
-    },
-    metadata: {
-        type: mongoose.Schema.Types.Mixed, // Extra provider-specific details if needed
-        default: {}
     }
 }, baseSchemaOptions);
 ```

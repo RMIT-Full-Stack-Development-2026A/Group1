@@ -26,28 +26,7 @@ export const SubscriptionRepository = {
     },
 
     // Get the user's current active subscription details
-    getHistoryByUserId: async (userId, page, limit) => {
-        const skip = (page - 1) * limit;
-        
-        const [transactions, total] = await Promise.all([
-            Transaction.find({ userId })
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit),
-            Transaction.countDocuments({ userId })
-        ]);
-
-        return { transactions, total };
+    getActiveTransactionByUserId: async (userId) => {
+        return await Transaction.findOne({ userId });
     },
-
-    // Calculate total revenue for the entire server (for the Admin Dashboard)
-    getTotalRevenue: async () => {
-        const result = await Transaction.aggregate([
-            { $match: { status: 'SUCCESS' } },
-            { $group: { _id: null, totalRevenue: { $sum: '$amount' } } }
-        ]);
-        
-        // Return 0 if there is no revenue
-        return result.length > 0 ? result[0].totalRevenue : 0;
-    }
 };

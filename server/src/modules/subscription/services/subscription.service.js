@@ -291,8 +291,8 @@ export const SubscriptionService = {
 
     // 4. Get Current Active Subscription Details
     getHistory: async (userId, page, limit) => {
-        const { transactions, total } = await SubscriptionRepository.getHistoryByUserId(userId, page, limit);
-        return SubscriptionDTO.toHistory(transactions, { total, page, limit });
+        const transaction = await SubscriptionRepository.getActiveTransactionByUserId(userId);
+        return SubscriptionDTO.toHistory(transaction);
     },
 
     // 5. Process Webhook (Refunds/Chargebacks)

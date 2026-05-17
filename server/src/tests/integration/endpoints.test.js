@@ -1,7 +1,10 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../../app.js'; 
 import { generateTestUser } from '../utils/test.utils.js';
 import { GameRoom } from '../../modules/room/models/gameRoom.model.js';
+import { ProfileService } from '../../modules/profile/services/profile.service.js';
+import { SubscriptionService } from '../../modules/subscription/services/subscription.service.js';
 
 // Setup Mock environment variables for tests
 process.env.JWT_SECRET = 'test_secret';
@@ -133,16 +136,21 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
             expect(failRes.statusCode).toEqual(400);
             expect(failRes.body.error).toBe('BAD_REQUEST');
 
-            // Case 2: Test File Processing
-            // Use a valid 1x1 pixel PNG buffer so 'sharp' parses it successfully without crashing
+            // Case 2: Test File Processing (Mocked Dependency)
+            const uploadSpy = jest.spyOn(ProfileService, 'uploadAvatar').mockResolvedValue({
+                avatar: 'https://mock-cloudinary-url.com/avatar.png'
+            });
+
             const validPngBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
             
             const res = await request(app).post('/api/v1/profile/avatar')
                 .set('Cookie', playerTokenCookie)
                 .attach('avatar', validPngBuffer, 'avatar.png');
+        
+            expect(res.statusCode).toEqual(200); 
+            expect(uploadSpy).toHaveBeenCalled();
             
-            // Either succeed (200) or fail during the real upload attempt (500).
-            expect([200, 500]).toContain(res.statusCode); 
+            uploadSpy.mockRestore(); // Clean up mock
         });
     });
 
@@ -225,20 +233,37 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
 
         // [POST] /subscription/create-order -> PASSED
         it('16. [POST] /api/v1/subscription/create-order - Should return PayPal URL', async () => {
+            // Mock PayPal order creation
+            const createOrderSpy = jest.spyOn(SubscriptionService, 'createOrder').mockResolvedValue({
+                orderId: 'MOCK_PAYPAL_ORDER_123',
+                approveLink: 'https://sandbox.paypal.com/mock-approve'
+            });
+
             const res = await request(app).post('/api/v1/subscription/create-order').set('Cookie', playerTokenCookie);
-            // In test environments without real PayPal credentials or network access, the service throws a 500 (Missing Credentials) or 502 (PayPal API Error).
-            expect([200, 201, 500, 502, 504]).toContain(res.statusCode);
+            
+            expect(res.statusCode).toEqual(201); // Strict assertion
+            expect(res.body.data.orderId).toBe('MOCK_PAYPAL_ORDER_123');
+            
+            createOrderSpy.mockRestore();
         });
 
         // [POST] /subscription/capture-order -> PASSED
         it('17. [POST] /api/v1/subscription/capture-order - Should capture PayPal order', async () => {
+            // Mock PayPal capture verification
+            const captureSpy = jest.spyOn(SubscriptionService, 'captureOrder').mockResolvedValue({
+                status: { isPremium: true, premiumExpiresAt: new Date().toISOString() },
+                transaction: { id: 'TXN_123', status: 'SUCCESS' }
+            });
+
             const res = await request(app)
                 .post('/api/v1/subscription/capture-order')
                 .set('Cookie', playerTokenCookie)
-                .send({ orderId: 'MOCK_ID' });
+                .send({ orderId: 'MOCK_PAYPAL_ORDER_123' });
                 
-            // Depending on PayPal mock
-            expect([200, 400, 404]).toContain(res.statusCode); 
+            expect(res.statusCode).toEqual(200); // Strict assertion
+            expect(res.body.message).toContain('captured');
+            
+            captureSpy.mockRestore();
         });
 
         // [POST] /subscription/history -> PASSED
@@ -249,10 +274,16 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
 
         // [POST] /subscription/paypal-events -> PASSED
         it('19. [POST] /api/v1/subscription/paypal-events - Should process webhook (No Auth)', async () => {
-            const res = await request(app).post('/api/v1/subscription/paypal-events').send({ event_type: 'PAYMENT.SALE.REFUNDED' });
-            // In tests without PAYPAL_WEBHOOK_ID in .env, it throws a 500 (WEBHOOK_MISCONFIGURED).
-            // If it has a fake ID, it returns 403 (INVALID_WEBHOOK_SIGNATURE). 
-            expect([200, 400, 403, 500]).toContain(res.statusCode);
+            const webhookSpy = jest.spyOn(SubscriptionService, 'processWebhook').mockResolvedValue(true);
+
+            const res = await request(app).post('/api/v1/subscription/paypal-events').send({ 
+                event_type: 'PAYMENT.SALE.REFUNDED' 
+            });
+            
+            expect(res.statusCode).toEqual(200); // Strict assertion
+            expect(webhookSpy).toHaveBeenCalled();
+            
+            webhookSpy.mockRestore();
         });
     });
 
@@ -261,7 +292,7 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
     // ==========================================
     describe('Admin APIs', () => {
         // [GET] /admin/dashboard -> PASSED
-        it('20b. [GET] /api/v1/admin/dashboard - Should fail for PLAYER role', async () => {
+        it('20a. [GET] /api/v1/admin/dashboard - Should fail for PLAYER role', async () => {
             const res = await request(app).get('/api/v1/admin/dashboard').set('Cookie', playerTokenCookie);
             expect(res.statusCode).toEqual(403); // RBAC security test
         });

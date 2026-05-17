@@ -27,5 +27,5 @@ export const generateTestUser = async (overrides = {}) => {
         { expiresIn: '1h' }
     );
 
-    return { user, token, cookie: `access_token=${token}`,plainTextPassword };
+    return { user, token, cookie: `access_token=${token}`, plainTextPassword };
 };

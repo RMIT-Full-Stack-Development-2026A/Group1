@@ -160,7 +160,7 @@ export const SubscriptionService = {
 
     // 2. Generate PayPal Order
     createOrder: async (userId) => {
-        user = await AuthInterface.getUserById(userId);
+        const user = await AuthInterface.getUserById(userId);
 
         // Ensures SUCCESS transaction is not overwritten by a PENDING one.
         if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {

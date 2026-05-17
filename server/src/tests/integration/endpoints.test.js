@@ -271,7 +271,7 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
         });
 
         // [GET] /subscription/history -> PASSED
-        it('18. [GET] /api/v1/subscription/history - Should fetch transaction log', async () => {
+        it('18. [GET] /api/v1/subscription/history - Should get current subscription details', async () => {
             const res = await request(app).get('/api/v1/subscription/history').set('Cookie', playerTokenCookie);
             expect(res.statusCode).toEqual(200);
         });

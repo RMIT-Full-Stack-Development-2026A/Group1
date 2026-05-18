@@ -1,4 +1,7 @@
 import { useSocketStore } from '@/stores/socket/SocketStore';
+import classicBg from '@/assets/themes/classic/bg.png';
+import neonBg from '@/assets/themes/neon/bg.png';
+import blockBg from '@/assets/themes/block/bg.png';
 
 /**
  * Customization Service
@@ -14,28 +17,33 @@ const BOARD_SIZES = [
 
 // Maps frontend lowercase to backend UPPERCASE
 const GRID_STYLES = [
-    { id: "CLASSIC", displayId: "classic", name: "RETRO-VEC 1.0", label: "CLASSIC GRID" },
-    { id: "NEON", displayId: "neon", name: "CYBER-LITE HI-FI", label: "NEON WIRE" },
-    { id: "DARK", displayId: "block", name: "SOLID-STATE 40", label: "BLOCK MESH" },
+    { id: "CLASSIC", displayId: "classic", name: "JUNGLE" },
+    { id: "NEON", displayId: "neon", name: "DARK"},
+    { id: "DARK", displayId: "block", name: "LAVA"},
 ];
 
 // Maps frontend numeric IDs to backend enum names
-const BOARD_THEMES = {
+export const BOARD_THEMES = {
     classic: {
-        wrapper: 'bg-surface-card border border-outline-variant',
-        cellBorder: 'border-[#2a2a4e]',
-        boardBorder: 'border-l border-t border-[#2a2a4e]',
+        wrapper: 'bg-[#0a0a1a] border-4 border-[#276112]',
+        cellBorder: 'border-1 border-[#276112] bg-[#0a0a1a]',
+        boardBorder: 'border-4 border-[#2a2a4e]/40',
+        glow: { boxShadow: '0 0 20px rgba(16, 184, 55, 0.57), inset 0 0 14px rgba(16, 184, 55, 0.57)' },
+        bgImage: classicBg
     },
     neon: {
-        wrapper: 'bg-[#0a0a1a] border border-[#4cc9f0]',
-        cellBorder: 'border-[#4cc9f0]/40',
-        boardBorder: 'border-l border-t border-[#4cc9f0]/40',
-        glow: { boxShadow: '0 0 20px rgba(76,201,240,0.15), inset 0 0 20px rgba(76,201,240,0.05)' },
+        wrapper: 'bg-[#0a0a1a] border-4 border-[#4cc9f0]',
+        cellBorder: 'border-1 border-[#4cc9f0] bg-[#0a0a1a]',
+        boardBorder: 'border-4 border-[#4cc9f0]/40',
+        glow: { boxShadow: '0 0 24px rgba(76, 201, 240, 0.18), inset 0 0 18px rgba(76, 201, 240, 0.08)' },
+        bgImage: neonBg
     },
     block: {
-        wrapper: 'bg-[#0f0f0f] border-4 border-[#3a3a3a]',
-        cellBorder: 'border-[#2a2a2a]',
-        boardBorder: 'border-l-2 border-t-2 border-[#2a2a2a]',
+        wrapper: 'bg-[#0a0a0a] border-4 border-[#ff3d00]',
+        cellBorder: 'border-1 border-[#ff3d00] bg-[#0a0a1a]',
+        boardBorder: 'border-4 border-[#ff3d00]/40',
+        glow: { boxShadow: '0 0 18px rgba(255, 61, 0, 0.2), inset 0 0 10px rgba(255, 61, 0, 0.06)' },
+        bgImage: blockBg
     },
 };
 // 'CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'

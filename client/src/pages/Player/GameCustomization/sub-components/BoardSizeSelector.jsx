@@ -11,7 +11,7 @@ export default function BoardSizeSelector({ selectedSize, onSelect }) {
             <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-[#fad100]"></div>
                 <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
-                    01. BOARD SIZE
+                    01. BOARD SIZES
                 </h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -28,7 +28,7 @@ export default function BoardSizeSelector({ selectedSize, onSelect }) {
                         <span className="font-headline text-2xl text-[#4cc9f0] mb-2">
                             {size.label}
                         </span>
-                        <span className="text-[10px] tracking-widest opacity-50 font-bold">
+                        <span className="text-[12px] tracking-widest opacity-50 font-bold">
                             {size.subtitle}
                         </span>
                     </SoundButton>

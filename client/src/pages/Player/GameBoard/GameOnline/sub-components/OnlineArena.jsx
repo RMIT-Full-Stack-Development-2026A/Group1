@@ -29,17 +29,29 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const { socket, isConnected, connectSocket } = useSocketStore();
   const { setMarkerVariant } = useCustomizationStore();
 
-  const rawMap = {
+  const GRID_STYLES_MAP = {
     CLASSIC: "classic",
-    DARK: "neon",
     NEON: "neon",
-    BLOCK: "block",
+    DARK: "block", 
   };
+  
   const boardStyleKey = roomData?.boardStyle || "NEON";
-  const mappedStyle = rawMap[boardStyleKey] || boardStyleKey.toLowerCase();
+  const mappedStyle = GRID_STYLES_MAP[boardStyleKey] || "neon";
   const theme = getTheme(mappedStyle);
 
-  const markerVariant = roomData?.markerStyle || "PIXEL";
+  const MARKER_VARIANTS_MAP = {
+    CLASSIC: 1,
+    GLOW: 2,
+    SKETCH: 3,
+    STONE: 4,
+    PIXEL: 5,
+    MINIMAL: 6,
+  };
+  
+  const markerStyleKey = roomData?.markerStyle || "PIXEL";
+
+  const mappedMarkerVariant = MARKER_VARIANTS_MAP[markerStyleKey] || 1; 
+
   const boardSize = roomData?.boardSize || 10;
 
   const player1 = roomData?.participants?.[0] || {
@@ -50,14 +62,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     usernameSnapshot: "WAITING FOR OPPONENT...",
     mark: "O",
   };
-
-  // Convert the numeric/string markerVariant to its display style
-  const activeMarkerStyle =
-    typeof markerVariant === "number"
-      ? markerVariant === 1
-        ? "default"
-        : `custom_${markerVariant}`
-      : markerVariant;
 
   const [board, setBoard] = useState(() => {
     return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
@@ -157,8 +161,8 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   }, [roomId]);
 
   const markerVariantData = useMemo(
-    () => getMarkerVariant(markerVariant),
-    [markerVariant],
+    () => getMarkerVariant(mappedMarkerVariant),
+    [mappedMarkerVariant],
   );
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
@@ -424,9 +428,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
           />
 
           <BoardArea
-            markerVariant={activeMarkerStyle}
+            markerVariant={mappedMarkerVariant}
             gridStyle={mappedStyle}
             board={board}
+            theme={theme}
             boardSize={boardSize}
             matchTitle={`ROOM: ${roomData?.roomNumber || "CONNECTING..."}`}
             winnerData={winnerData}

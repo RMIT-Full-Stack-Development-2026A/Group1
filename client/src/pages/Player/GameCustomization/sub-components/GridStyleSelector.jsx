@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { getGridStyles } from "../service/customization.service";
-import SoundButton from "../../../../components/reusable/sound/SoundButton";
+import { getGridStyles, BOARD_THEMES } from "../service/customization.service"; 
+import SoundButton from "@/components/reusable/sound/SoundButton";
 
 export default function GridStyleSelector({ selectedStyle, onSelect }) {
     const gridStyles = getGridStyles();
@@ -11,76 +11,68 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
             <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-[#fad100]"></div>
                 <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
-                    02. GRID RENDERER
+                    02. GRID STYLES
                 </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {gridStyles.map((style) => (
-                    <SoundButton
-                        key={style.id}
-                        onClick={() => onSelect(style.displayId)}
-                        className={`bg-[#12121f] border p-1 cursor-pointer transition-all ${
-                            selectedStyle === style.displayId
-                                ? "border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#343342]"
-                                : "border border-[#3d484d] hover:border-[#4cc9f0]"
-                        }`}
-                    >
-                        <div className="w-full h-32 bg-slate-900 flex items-center justify-center relative overflow-hidden">
-                            {style.displayId === "classic" && (
-                                <div
-                                    className="absolute inset-0 opacity-20"
-                                    style={{
-                                        backgroundImage:
-                                            "linear-gradient(#2a2a4e 1px, transparent 1px), linear-gradient(90deg, #2a2a4e 1px, transparent 1px)",
-                                        backgroundSize: "15px 15px",
-                                    }}
-                                ></div>
-                            )}
-                            {style.displayId === "neon" && (
-                                <div
-                                    className="absolute inset-0 opacity-60"
-                                    style={{
-                                        backgroundImage:
-                                            "linear-gradient(rgba(76,201,240,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(76,201,240,0.3) 1px, transparent 1px)",
-                                        backgroundSize: "20px 20px",
-                                    }}
-                                ></div>
-                            )}
-                            {style.displayId === "block" && (
-                                <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-1 p-2">
-                                    {Array(24)
-                                        .fill(0)
-                                        .map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className="bg-[#292937]"
-                                            ></div>
-                                        ))}
-                                </div>
-                            )}
-                            <span
-                                className={`text-[10px] font-bold z-10 ${
-                                    style.displayId === "neon"
-                                        ? "text-[#4cc9f0] drop-shadow-[0_0_5px_#4cc9f0]"
-                                        : "text-[#bcc8ce]"
-                                }`}
-                            >
-                                {style.label}
-                            </span>
-                        </div>
-                        <div
-                            className={`p-2 text-center ${
-                                style.displayId === "neon"
-                                    ? "bg-[#4cc9f0] text-[#003543]"
-                                    : "bg-[#292937]"
+                {gridStyles.map((style) => {
+                    
+                    const themeConfig = BOARD_THEMES[style.displayId] || BOARD_THEMES.classic;
+
+                    return (
+                        <SoundButton
+                            key={style.id}
+                            onClick={() => onSelect(style.displayId)}
+                            className={`bg-[#12121f] border p-1 cursor-pointer transition-all ${
+                                selectedStyle === style.displayId
+                                    ? "border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#343342]"
+                                    : "border border-[#3d484d] hover:border-[#4cc9f0]"
                             }`}
                         >
-                            <span className="text-[9px] font-bold tracking-tighter">
-                                {style.name}
-                            </span>
-                        </div>
-                    </SoundButton>
-                ))}
+                            <div className="w-full h-32 bg-[#05050a] flex flex-col items-center justify-center relative overflow-hidden">
+                                
+                                {themeConfig.bgImage && (
+                                    <img 
+                                        src={themeConfig.bgImage} 
+                                        alt={`${style.name} background`}
+                                        className="absolute inset-0 w-full h-full object-cover opacity-40 z-0 pointer-events-none"
+                                    />
+                                )}
+                                {/* --- MINI BOARD PREVIEW --- */}
+                                <div 
+                                    className={`p-1 relative z-10 ${themeConfig.wrapper}`}
+                                    style={themeConfig.glow ? themeConfig.glow : {}}
+                                >
+                                 
+                                    <div className={`grid grid-cols-3 ${themeConfig.boardBorder}`}>
+                                        {Array(9).fill(null).map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className={`w-6 h-6 ${themeConfig.cellBorder}`}
+                                            ></div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* --- END MINI BOARD PREVIEW --- */}
+
+                            </div>
+                            <div
+                                className={`p-2 text-center ${
+                                    style.displayId === "neon" ? 
+                                    "bg-[#4cc9f0] text-[#003543] drop-shadow-[0_0_5px_#4cc9f0]" : 
+                                    style.displayId === "classic" ? 
+                                    "bg-[#27872c] text-[#003543] drop-shadow-[0_0_5px_#27872c]": 
+                                    "bg-[#ff3d00] text-[#003543] drop-shadow-[0_0_5px_#ff3d00]"
+                                }`}
+                            >
+
+                                <span className="text-[15px] font-bold tracking-tighter">
+                                    {style.name}
+                                </span>
+                            </div>
+                        </SoundButton>
+                    );
+                })}
             </div>
         </section>
     );

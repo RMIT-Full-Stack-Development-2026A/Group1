@@ -206,7 +206,26 @@ export const RoomService = {
 
         const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
-        if (room.status !== ROOM_STATUS.WAITING) throw { statusCode: 400, error: "ROOM_NOT_WAITING", message: "Room is already full or playing." };
+        
+        // if the room is "PLAYING" and the user is already a participant, allow them to rejoin (e.g. after accidental disconnect)
+        const isExistingParticipant = room.participants.some(
+            (p) => p.userId.toString() === userId.toString()
+        );
+
+        if (room.status === ROOM_STATUS.PLAYING && isExistingParticipant) {
+            const gameState = RoomDTO.toGameStatePayload({ room, board: room.moves });
+            return {
+                action: 'rejoined',
+                room: RoomDTO.toRoomSummary(room),
+                gameState,
+            };
+        }
+        
+        // end rejoin brnach
+
+        if (room.status !== ROOM_STATUS.WAITING) {
+            throw { statusCode: 400, error: "ROOM_NOT_WAITING", message: "Room is already full or playing." };
+        }
         
         if (room.participants[0].userId.toString() === userId.toString()) {
             throw { statusCode: 400, error: "ALREADY_IN_ROOM", message: "You are already in this room." };

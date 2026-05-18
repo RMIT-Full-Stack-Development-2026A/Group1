@@ -77,8 +77,10 @@ export const useLobby = () => {
             setRooms((prevRooms) => {
                 const currentRooms = Array.isArray(prevRooms) ? prevRooms : [];
 
-                if (normalizedRoom.status !== 'waiting') {
-                    const filteredRooms = currentRooms.filter((existingRoom) => existingRoom.id !== normalizedRoom.id);
+                const ACTIVE_LOBBY_STATUSES = ['waiting', 'ready', 'playing'];
+                if (!ACTIVE_LOBBY_STATUSES.includes(normalizedRoom.status)) {
+                    // Terminal status (aborted, closed) — remove from list
+                    const filteredRooms = currentRooms.filter((r) => r.id !== normalizedRoom.id);
                     setOnlineCount(LobbyService.getOnlineCount(filteredRooms));
                     return filteredRooms;
                 }

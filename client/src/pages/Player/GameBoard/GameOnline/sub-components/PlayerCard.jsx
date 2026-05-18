@@ -10,7 +10,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
   if (!participant) {
     return (
       <div
-        className={`w-[260px] shrink-0 flex flex-col items-center justify-center gap-4 bg-[#1e1e2c] px-6
+        className={`w-[260px] shrink-0 flex flex-col p-12 items-center justify-center gap-2 bg-[#1e1e2c] px-6 border border-[#3d484d]
           ${side === 'left'
             ? 'border-r border-[#3d484d]'
             : 'border-l border-[#3d484d]'}
@@ -76,7 +76,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
           : 'border-l border-[#3d484d]'}
         ${isCurrentUser
           ? 'border-2 border-[#4cc9f0] shadow-[0px_0px_12px_rgba(76,201,240,0.25)]'
-          : 'border-2 border-[#ff3d00] shadow-[0px_0px_12px_rgba(255,61,0,0.2)]'}
+          : 'border-2 border-[#3d6472] shadow-[0px_0px_12px_rgba(61,100,114,0.3)]'}
       `}
     >
 

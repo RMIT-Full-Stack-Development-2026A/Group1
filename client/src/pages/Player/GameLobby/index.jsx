@@ -8,6 +8,7 @@ import { LobbyHeader, PlayerStats, RecentActivity, RoomGrid } from "./sub-compon
 
 export default function GameLobby() {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setGameMode } = useModeStore();
     const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby } = useLobby();
@@ -22,8 +23,23 @@ export default function GameLobby() {
 
     const handleJoinRoom = (roomId) => {
         const room = rooms.find((r) => r.id === roomId);
-        if (room && room.status === "waiting") {
+        if (!room) return;
+
+        if (room.status === 'waiting') {
             navigate(`/room/online/${roomId}`, { state: { room } });
+            return;
+        }
+
+        if (room.status === 'playing') {
+            // Rejoin — only navigate if current user is a participant in this room
+            const isParticipant = Array.isArray(room.participantIds) &&
+                room.participantIds.includes(String(user?.id));
+            if (isParticipant) {
+                // No location state needed — useGameOnline will emit room:join and backend
+                // will respond with game:state for the current board.
+                navigate(`/room/online/${roomId}`);
+            }
+            // If not a participant, do nothing (button should already be disabled in RoomCard)
         }
     };
 
@@ -40,6 +56,10 @@ export default function GameLobby() {
             handleJoinRoom(randomRoom.id);
         }
     };
+
+    const activePlayingRoom = rooms.find(
+        (r) => r.status === 'playing' && Array.isArray(r.participantIds) && r.participantIds.includes(String(user?.id))
+    );
 
     if (isCheckingAuth || lobbyLoading) {
         return (
@@ -89,6 +109,25 @@ export default function GameLobby() {
                 }}
             ></div>
 
+            {/* Active Match Warning Banner */}
+            {activePlayingRoom && (
+                <div className="bg-[#ff3d00]/20 border-y-2 border-[#ff3d00] p-4 relative z-40 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(255,61,0,0.15)] backdrop-blur-sm">
+                    <div className="text-center sm:text-left">
+                        <h2 className="text-[#ff3d00] font-headline text-lg sm:text-md tracking-widest mb-1 shadow-[#ff3d00]">
+                            WARNING: YOU HAVE AN ONGOING MATCH!
+                        </h2>
+                        <p className="text-[#e3e0f4] font-mono text-sm tracking-tight opacity-90">
+                            You have a limited grace period to return before the match is aborted.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => handleJoinRoom(activePlayingRoom.id)}
+                        className="bg-[#ff3d00] text-[#1a0a0a] hover:bg-[#ff5722] hover:scale-105 active:scale-95 transition-all font-headline tracking-widest px-8 py-3 w-full sm:w-auto shadow-[0_0_15px_rgba(255,61,0,0.5)] border border-[#ff3d00]"
+                    >
+                        REJOIN MATCH
+                    </button>
+                </div>
+            )}
 
             {/* Mock Data Warning Banner */}
             {usingMockData && !lobbyError && (
@@ -112,6 +151,7 @@ export default function GameLobby() {
                     rooms={rooms}
                     onJoinRoom={handleJoinRoom}
                     onCreateRoom={handleCreateRoom}
+                    currentUserId={user?.id}
                 />
             </main>
         </div>

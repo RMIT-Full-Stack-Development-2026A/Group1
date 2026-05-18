@@ -60,6 +60,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const [showAbortModal, setShowAbortModal] = useState(false);
   const [showAbortNotification, setShowAbortNotification] = useState(false);
   const [disconnectCountdown, setDisconnectCountdown] = useState(null);
+  const [reconnectFlash, setReconnectFlash] = useState(false);
   const didInitiateAbortRef = useRef(false);
   const matchEndedRef = useRef(false);
 
@@ -119,8 +120,8 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         setDisconnectCountdown((prev) => prev - 1);
       }, 1000);
     } else if (disconnectCountdown === 0) {
-      // If 60s pass and opponent hasn't returned, kick back to lobby
-      navigate("/lobby");
+      // Show the "MATCH ABORTED" state for 1.5s before redirecting
+      timer = setTimeout(() => navigate("/lobby"), 1500);
     }
     return () => clearInterval(timer);
   }, [disconnectCountdown, navigate]);
@@ -186,16 +187,22 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     socket.on("game:ended", handleGameEnded);
 
     // 3. Handle network disconnection (Newly added from Contract)
-    socket.on("player:disconnected", (payload) => {
-      setDisconnectCountdown(payload.timeLeft || 60);
-    });
+    const handlePlayerDisconnected = (payload) => {
+      setDisconnectCountdown(payload.timeLeft ?? 60);
+    };
 
-    socket.on("player:reconnected", () => {
-      setDisconnectCountdown(null); // Clear countdown, resume game
-    });
+    const handlePlayerReconnected = () => {
+      setReconnectFlash(true);
+      setDisconnectCountdown(null);
+      setTimeout(() => setReconnectFlash(false), 2000);
+    };
+
+    socket.on("player:disconnected", handlePlayerDisconnected);
+    socket.on("player:reconnected", handlePlayerReconnected);
 
     const handleRoomRemoved = () => {
       if (didInitiateAbortRef.current || matchEndedRef.current) return;
+      // Only show notification if game:ended didn't already trigger it
       setShowAbortModal(false);
       setShowAbortNotification(true);
     };
@@ -205,8 +212,8 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     return () => {
       socket.off("game:state", handleGameState);
       socket.off("game:ended", handleGameEnded);
-      socket.off("player:disconnected");
-      socket.off("player:reconnected");
+      socket.off("player:disconnected", handlePlayerDisconnected);
+      socket.off("player:reconnected", handlePlayerReconnected);
       socket.off("room:removed", handleRoomRemoved);
       window.removeEventListener(
         "account:deactivated",
@@ -226,11 +233,14 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   };
 
   const handleAbortConfirm = () => {
-    // mark local user as initiator so we don't show the notification modal when the server emits the abort
     didInitiateAbortRef.current = true;
-    socket.emit("room:leave", { roomId: roomData?.id || roomId });
+    // Explicit player-initiated abort — bypasses grace period on the backend.
+    socket.emit('room:leave', {
+        roomId: roomData?.id || roomId,
+        intent: 'abort',
+    });
     setShowAbortModal(false);
-    navigate("/lobby");
+    navigate('/lobby');
   };
 
   const handleMarkerChange = (val) => {
@@ -298,12 +308,42 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       />
 
       <main className="relative z-10 flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-350 w-full mx-auto">
-        {/* --- SHOW WARNING IF OPPONENT DISCONNECTS --- */}
+        {/* Grace-Period Overlay — shown when opponent disconnected */}
         {disconnectCountdown !== null && (
-          <div className="z-50 border border-[#ff3d00] bg-[#ff3d00]/20 px-6 py-2 text-center w-full max-w-150 rounded animate-pulse">
-            <p className="font-headline text-[10px] text-[#ff3d00] uppercase tracking-widest">
-              OPPONENT DISCONNECTED — WAITING {disconnectCountdown}S TO ABORT
-            </p>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                <div className={`border-2 ${disconnectCountdown === 0 ? 'border-[#555]' : 'border-[#ff3d00]'} bg-[#1a0a0a] px-8 py-6 max-w-sm w-full text-center shadow-[0_0_40px_rgba(255,61,0,0.4)]`}>
+                    <p className="font-headline text-[10px] text-[#ff3d00] uppercase tracking-widest mb-2">
+                        {disconnectCountdown === 0 ? 'MATCH ABORTED' : 'CONNECTION LOST'}
+                    </p>
+                    <p className="font-mono text-[#e3e0f4] text-sm mb-4">
+                        {disconnectCountdown === 0
+                            ? 'Opponent did not return in time.'
+                            : 'Opponent disconnected. Waiting for them to return...'}
+                    </p>
+                    {disconnectCountdown > 0 && (
+                        <div className="font-headline text-5xl text-[#ff3d00] tabular-nums mb-4">
+                            {disconnectCountdown}
+                        </div>
+                    )}
+                    <p className="font-mono text-[10px] text-outline uppercase tracking-widest">
+                        {disconnectCountdown === 0
+                            ? 'RETURNING TO LOBBY...'
+                            : disconnectCountdown <= 10
+                                ? 'ABORTING SOON...'
+                                : 'MATCH WILL ABORT IF THEY DO NOT RETURN'}
+                    </p>
+                </div>
+            </div>
+        )}
+
+        {/* Reconnect flash — shown briefly after opponent returns */}
+        {reconnectFlash && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            <div className="border-2 border-[#00e5ff] bg-[#001a1f] px-8 py-4 text-center shadow-[0_0_40px_rgba(0,229,255,0.4)]">
+              <p className="font-headline text-[10px] text-[#00e5ff] uppercase tracking-widest">
+                OPPONENT RECONNECTED
+              </p>
+            </div>
           </div>
         )}
 
@@ -343,7 +383,9 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
             winnerData={winnerData}
             isDraw={isDraw}
             isLocked={
-              roomData?.status !== "PLAYING" || currentPlayerMark !== userMark
+              roomData?.status !== "PLAYING" ||
+              currentPlayerMark !== userMark ||
+              disconnectCountdown !== null
             }
             onCellClick={handleCellClick}
             onMarkerChange={handleMarkerChange}

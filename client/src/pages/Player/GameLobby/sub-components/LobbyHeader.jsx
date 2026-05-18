@@ -8,8 +8,8 @@ export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin, on
                     ONLINE ARENA
                 </h1>
                 <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 bg-primary-cyan rounded-full animate-pulse"></span>
-                    <span className="font-mono text-sm text-primary-cyan tracking-widest uppercase">
+                    <span className="w-2 h-2 bg-primary-cyan rounded-full animate-pulse p-1"></span>
+                    <span className="font-mono text-sm text-primary-cyan tracking-widest p-2 uppercase">
                         {onlineCount} ONLINE
                     </span>
                 </div>

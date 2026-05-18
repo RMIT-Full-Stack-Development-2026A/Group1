@@ -25,6 +25,9 @@ const normalizeLobbyRoom = (room) => {
         status: String(room?.status || 'waiting').toLowerCase(),
         players: participants.length || room?.players || 0,
         maxPlayers: room?.maxPlayers || 2,
+        participantIds: participants
+            .map((p) => (p.userId ? String(p.userId) : null))
+            .filter(Boolean),
     };
 };
 
@@ -37,7 +40,7 @@ export const LobbyService = {
     getRooms: async () => {
         try {
             // Fetch rooms with status filter for waiting/available rooms
-            const rooms = await gameLobbyService.getRooms({ status: "WAITING" });
+            const rooms = await gameLobbyService.getRooms({ status: "ACTIVE" });
             
             // If developer explicitly requested mock rooms, return them immediately
             if (FORCE_USE_MOCK) {

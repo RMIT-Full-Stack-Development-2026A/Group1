@@ -1,7 +1,7 @@
 import React from "react";
 import RoomCard from "./RoomCard";
 
-export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
+export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserId }) {
     // Ensure rooms is always an array
     const roomList = Array.isArray(rooms) ? rooms : [];
 
@@ -10,7 +10,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom }) {
             {/* Room Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
                 {roomList.map((room) => (
-                    <RoomCard key={room.id} room={room} onJoin={onJoinRoom} />
+                    <RoomCard key={room.id} room={room} onJoin={onJoinRoom} currentUserId={currentUserId} />
                 ))}
             </div>
 

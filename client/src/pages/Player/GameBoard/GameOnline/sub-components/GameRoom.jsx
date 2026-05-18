@@ -40,7 +40,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
   }, [playClick, onLeave]);
 
   return (
-    <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden bg-background">
+    <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden bg-deep-bg">
 
       <div className="flex-none flex flex-col py-2 items-center pt-8 pb-2 px-8 gap-1">
         <h1 className="font-headline text-2xl text-[#4cc9f0] drop-shadow-[0_0_12px_rgba(76,201,240,0.6)] uppercase tracking-widest">

@@ -1,10 +1,13 @@
 import React from "react";
 
-export default function RoomCard({ room, onJoin }) {
+export default function RoomCard({ room, onJoin, currentUserId }) {
     const normalizedStatus = String(room.status || "waiting").toLowerCase();
     const isJoinable = normalizedStatus === "waiting";
     const isReady = normalizedStatus === "ready";
     const isPlaying = normalizedStatus === "playing";
+    const isMyPlayingRoom = isPlaying &&
+        Array.isArray(room.participantIds) &&
+        room.participantIds.includes(String(currentUserId));
 
     return (
         <div
@@ -86,6 +89,13 @@ export default function RoomCard({ room, onJoin }) {
                         className="w-full border-2 border-primary-cyan text-primary-cyan py-2 font-mono font-bold hover:bg-primary-cyan hover:text-[#003543] transition-all uppercase tracking-tighter text-sm shadow-[2px_2px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1"
                     >
                         JOIN ROOM
+                    </button>
+                ) : isMyPlayingRoom ? (
+                    <button
+                        onClick={() => onJoin(room.id)}
+                        className="w-full border-2 border-[#fad100] text-[#fad100] py-2 font-mono font-bold hover:bg-[#fad100]/10 transition-all uppercase tracking-tighter text-sm shadow-[2px_2px_0px_0px_#3b2f00] animate-pulse cursor-pointer"
+                    >
+                        ↩ REJOIN MATCH
                     </button>
                 ) : (
                     <div className={`w-full py-2 font-mono text-center text-xs uppercase tracking-tighter font-bold cursor-not-allowed ${

@@ -23,6 +23,7 @@ export const useGameOnline = () => {
     const [completedMatch, setCompletedMatch] = useState(null);
 
     const disconnectIntervalRef = useRef(null);
+    const disconnectCountdownRef = useRef(null);
     const roomDataRef = useRef(null);
     const prevParticipantCountRef = useRef(0);
 
@@ -40,7 +41,7 @@ export const useGameOnline = () => {
         setDisconnectCountdown(null);
         setHasCompletedMatch(false);
         setCompletedMatch(null);
-        // joinedRoomIdRef.current = null; // commented out idk why but does this will work
+        joinedRoomIdRef.current = null; // commented out idk why but does this will work
     }, [roomId]);
 
     useEffect(() => {
@@ -52,27 +53,6 @@ export const useGameOnline = () => {
             joinedRoomIdRef.current = roomId;
         }
     }, [location.state, roomId]);
-
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            const currentRoom = roomDataRef.current;
-            const activeStatuses = ['WAITING', 'READY', 'PLAYING'];
-            const { socket: currentSocket } = useSocketStore.getState();
-
-            if (currentSocket?.connected && currentRoom?.id && activeStatuses.includes(currentRoom?.status)) {
-                currentSocket.emit('room:leave', { roomId: currentRoom.id });
-            }
-        };
-
-        // Listen to both pagehide and beforeunload for better reliability across browsers
-        window.addEventListener('pagehide', handleBeforeUnload);
-        window.addEventListener('beforeunload', handleBeforeUnload);
-
-        return () => {
-            window.removeEventListener('pagehide', handleBeforeUnload);
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, []);
 
     // init socket connection on mount
     useEffect(() => {
@@ -126,32 +106,23 @@ export const useGameOnline = () => {
         }
 
         function handleRoomRemoved() {
+            // Guard using the ref, not roomDataRef, because roomData can be stale
+            // at the time this event fires (e.g. during component unmount timing).
+            if (disconnectCountdownRef.current !== null) return;
             navigate('/lobby');
         }
 
+        // useGameOnline only seeds the initial countdown value.
+        // The tick interval lives exclusively in OnlineArena.jsx to avoid
+        // a double-decrement race condition.
         function handlePlayerDisconnected(payload) {
-            setDisconnectCountdown(payload.timeLeft);
-            if (disconnectIntervalRef.current) {
-                clearInterval(disconnectIntervalRef.current);
-            }
-            disconnectIntervalRef.current = setInterval(() => {
-                setDisconnectCountdown((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(disconnectIntervalRef.current);
-                        disconnectIntervalRef.current = null;
-                        return null;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+            disconnectCountdownRef.current = payload.timeLeft ?? 60;
+            setDisconnectCountdown(payload.timeLeft ?? 60);
         }
 
         function handlePlayerReconnected() {
+            disconnectCountdownRef.current = null;
             setDisconnectCountdown(null);
-            if (disconnectIntervalRef.current) {
-                clearInterval(disconnectIntervalRef.current);
-                disconnectIntervalRef.current = null;
-            }
         }
 
         function handleServerError(payload) {
@@ -183,6 +154,23 @@ export const useGameOnline = () => {
             }
         }
 
+        function handleGameState() {
+            // On the rejoin path the backend sends room:updated then game:state.
+            // Clear the ghost-room timeout and connecting spinner here as a safety net
+            // in case room:updated already cleared them (idempotent — safe to call twice).
+            if (joinTimeoutId) {
+                clearTimeout(joinTimeoutId);
+                joinTimeoutId = null;
+            }
+            setIsConnecting(false);
+            setError(null);
+            // Force hydration so the arena renders immediately.
+            // The normal hydration useEffect only triggers when roomData?.status changes
+            // to 'PLAYING', but on rejoin the status is already PLAYING when roomData
+            // first arrives, so the useEffect dependency may not re-fire.
+            setIsHydrated(true);
+        }
+
         // Listeners setup
         socket.on('room:updated', handleRoomUpdated);
         socket.on('game:ended', handleGameEnded);
@@ -190,6 +178,7 @@ export const useGameOnline = () => {
         socket.on('player:disconnected', handlePlayerDisconnected);
         socket.on('player:reconnected', handlePlayerReconnected);
         socket.on('error', handleServerError);
+        socket.on('game:state', handleGameState);
 
         if (joinedRoomIdRef.current !== roomId && socket.connected) {
             joinedRoomIdRef.current = roomId;
@@ -215,15 +204,15 @@ export const useGameOnline = () => {
             socket.off('player:disconnected', handlePlayerDisconnected);
             socket.off('player:reconnected', handlePlayerReconnected);
             socket.off('error', handleServerError);
-
-            if (disconnectIntervalRef.current) {
-                clearInterval(disconnectIntervalRef.current);
-                disconnectIntervalRef.current = null;
-            }
+            socket.off('game:state', handleGameState);
         };
     }, [socket, isConnected, roomId, navigate]);
 
-    // Hydration
+    // Hydration — also triggers on rejoin when roomData arrives with status PLAYING.
+    // We use roomData?.id as an additional dependency so the effect re-runs when a
+    // completely new roomData object arrives (e.g. after a rejoin resets roomData to null
+    // then sets it again with the same status value, which would NOT re-trigger
+    // if we only depend on roomData?.status).
     useEffect(() => {
         if (roomData?.status === 'PLAYING' && !isHydrated) {
             const sizeStr = `${roomData.boardSize}x${roomData.boardSize}`;
@@ -231,7 +220,7 @@ export const useGameOnline = () => {
             setCustomization(sizeStr, styleMap[roomData.boardStyle] || 'classic', 3);
             setIsHydrated(true);
         }
-    }, [roomData?.status, isHydrated, setCustomization]);
+    }, [roomData?.status, roomData?.id, isHydrated, setCustomization]);
 
     // Cleanup when user leaves page or gets disconnected
     useEffect(() => {
@@ -239,7 +228,13 @@ export const useGameOnline = () => {
             const currentRoom = roomDataRef.current;
             const activeStatuses = ['WAITING', 'READY', 'PLAYING'];
             if (socket && activeStatuses.includes(currentRoom?.status)) {
-                socket.emit('room:leave', { roomId: currentRoom?.id || roomId });
+                // SPA navigation: socket stays alive so the 'disconnect' handler
+                // never fires. Send intent so backend starts the grace period
+                // instead of aborting instantly.
+                socket.emit('room:leave', {
+                    roomId: currentRoom?.id || roomId,
+                    intent: 'navigate_away',
+                });
             }
         };
     }, [socket, roomId]);
@@ -250,7 +245,14 @@ export const useGameOnline = () => {
     }, [socket, roomData?.id]);
 
     const handleLeaveRoom = useCallback(() => {
-        if (socket) socket.emit('room:leave', { roomId: roomData?.id || roomId });
+        if (socket) {
+            socket.emit('room:leave', {
+                roomId: roomData?.id || roomId,
+                // Leave Room button in the pre-game lobby (WAITING/READY).
+                // Treat as navigate_away — there is no active match to abort.
+                intent: 'navigate_away',
+            });
+        }
         navigate('/lobby');
     }, [socket, roomData?.id, roomId, navigate]);
 

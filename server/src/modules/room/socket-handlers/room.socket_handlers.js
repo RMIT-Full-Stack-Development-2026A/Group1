@@ -20,10 +20,41 @@ export const registerRoomSocketHandlers = (io, socket) => {
     socket.on('room:join', async (payload) => {
         try {
             const result = await RoomService.handleRoomJoin(user.id, payload);
-            socket.join(result.room.id);
-            GameEmitter.emitRoomUpdated(io, result.room.id, { room: result.room });
-            if (result.gameState) {
-                GameEmitter.emitGameState(io, result.room.id, result.gameState);
+            const roomId = String(result.room.id);
+
+            // Always rejoin the socket room channel first
+            socket.join(roomId);
+
+            if (result.action === 'rejoined') {
+                // ── RECONNECT PATH ─────────────────────────────────────────────
+                // 1. Clear the 60s grace-period abort timer for this user (if running)
+                if (disconnectTimers.has(user.id)) {
+                    clearTimeout(disconnectTimers.get(user.id));
+                    disconnectTimers.delete(user.id);
+                    console.log(`[Socket] Grace timer cleared — user ${user.id} rejoined room ${roomId}.`);
+                }
+
+                // 2. Tell the opponent the disconnected player has come back
+                socket.to(roomId).emit('player:reconnected', { roomId });
+
+                // 3. Send room:updated ONLY to the rejoining player's socket first.
+                //    This ensures the frontend sets roomData (status: PLAYING, participants, etc.)
+                //    BEFORE the board state arrives. Without this, roomData stays null and
+                //    GameOnline/index.jsx renders the pre-game lobby instead of the arena.
+                socket.emit('room:updated', { room: result.room });
+
+                // 4. Send the current board state ONLY to the rejoining player's socket
+                //    (not to the whole room — the opponent's board is already correct)
+                if (result.gameState) {
+                    socket.emit('game:state', result.gameState);
+                }
+                // ── END RECONNECT PATH ─────────────────────────────────────────
+            } else {
+                // Normal new-join path — unchanged behavior
+                GameEmitter.emitRoomUpdated(io, roomId, { room: result.room });
+                if (result.gameState) {
+                    GameEmitter.emitGameState(io, roomId, result.gameState);
+                }
             }
         } catch (err) {
             GameEmitter.emitError(socket, 'room:join', err);
@@ -52,8 +83,69 @@ export const registerRoomSocketHandlers = (io, socket) => {
 
     socket.on('room:leave', async (payload) => {
         try {
-            const result = await RoomService.handleRoomLeave(user.id, { roomId: payload?.roomId });
-            
+            const intent = payload?.intent;   // 'abort' | 'navigate_away'
+            const roomId = payload?.roomId;
+
+            // ── NAVIGATE-AWAY PATH ───────────────────────────────────────────────
+            // When the React component unmounts (Back button, link click, etc.) the
+            // socket is still alive, so the 'disconnect' handler never fires.
+            // We manually replicate the grace-period logic here.
+            if (intent === 'navigate_away') {
+                const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
+
+                // Only intercept when a match is actually in progress.
+                if (activeRoom && activeRoom.status === 'PLAYING') {
+                    // Clear any pre-existing timer for this user (defensive).
+                    if (disconnectTimers.has(user.id)) {
+                        clearTimeout(disconnectTimers.get(user.id));
+                        disconnectTimers.delete(user.id);
+                    }
+
+                    // Tell the opponent a grace period has started.
+                    GameEmitter.emitPlayerDisconnected(io, activeRoom.id, {
+                        roomId: activeRoom.id,
+                        timeLeft: 60,
+                    });
+
+                    // Start the 60-second abort timer.
+                    const timerId = setTimeout(async () => {
+                        try {
+                            const result = await RoomService.handleRoomLeave(
+                                user.id,
+                                { roomId: activeRoom.id, isTimeout: true },
+                            );
+                            if (result.action === 'ignored') return;
+                            if (result.gameEnded) {
+                                GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);
+                            }
+                            if (result.action === 'removed' || result.action === 'aborted') {
+                                GameEmitter.emitRoomRemoved(io, result.roomId);
+                                io.in(result.roomId).socketsLeave(result.roomId);
+                            }
+                        } catch (e) {
+                            if (e.error !== 'ROOM_NOT_FOUND') {
+                                console.error('[Grace timer] Timeout leave failed:', e);
+                            }
+                        }
+                        disconnectTimers.delete(user.id);
+                    }, 60_000);
+
+                    disconnectTimers.set(user.id, timerId);
+
+                    // The socket itself stays connected; the player left the React
+                    // component but may return via the Lobby's "REJOIN" button.
+                    socket.leave(activeRoom.id);
+                    return; // Do NOT fall through to the instant-abort path.
+                }
+
+                // Room is in WAITING / READY — fall through to normal leave logic.
+            }
+            // ── END NAVIGATE-AWAY PATH ───────────────────────────────────────────
+
+            // ── NORMAL / ABORT PATH ──────────────────────────────────────────────
+            // intent === 'abort', or any non-PLAYING room leave.
+            const result = await RoomService.handleRoomLeave(user.id, { roomId });
+
             if (result.action === 'ignored') return;
 
             if (result.action === 'removed' || result.action === 'aborted') {
@@ -61,9 +153,10 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 GameEmitter.emitRoomRemoved(io, result.roomId);
                 io.in(result.roomId).socketsLeave(result.roomId);
             } else {
-                socket.leave(result.roomId); 
+                socket.leave(result.roomId);
                 GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
             }
+            // ── END NORMAL / ABORT PATH ──────────────────────────────────────────
         } catch (err) {
             GameEmitter.emitError(socket, 'room:leave', err);
         }
@@ -112,7 +205,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
         try {
             const userSockets = await io.in(user.id.toString()).allSockets();
             if (userSockets.size > 0) return;
-            
+
             const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
             if (!activeRoom) return;
 

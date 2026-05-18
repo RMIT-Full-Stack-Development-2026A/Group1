@@ -7,7 +7,7 @@ import { RoomInterface } from "../../room/interfaces/room.interface.js";
 
 // Service contains auth business rules and throws standardized errors for errorMiddleware.
 export const AuthService = {
-    
+     // [POST] /auth/register endponit
     registerUser: async (userData) => {
         const validationErrors = validateRegisterInput(userData);
         if (validationErrors.length > 0) {
@@ -40,6 +40,7 @@ export const AuthService = {
         return AuthDTO.toUserResponse(newUser);
     },
 
+     // [POST] /auth/login endponit
     loginUser: async (loginData, res) => {
         const validationErrors = validateLoginInput(loginData);
         if (validationErrors.length > 0) {
@@ -121,6 +122,7 @@ export const AuthService = {
         return AuthDTO.toUserResponse(safeUser);
     },
 
+     // [POST] /auth/logout endponit
     logoutUser: async (res) => {
         res.clearCookie("access_token", {
             httpOnly: true,
@@ -130,6 +132,7 @@ export const AuthService = {
         });
     },
 
+     // [GET] /auth/check-auth endponit
     checkAuthUser: async (userId) => {
         const user = await AuthRepository.findById(userId);
 

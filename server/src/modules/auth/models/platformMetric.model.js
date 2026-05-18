@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-// A Singleton schema to hold running tallies
+// A Singleton schema 
 const platformMetricSchema = new mongoose.Schema({
     singletonId: { 
         type: String, 
@@ -15,6 +15,12 @@ const platformMetricSchema = new mongoose.Schema({
 }, {
     timestamps: true,
     toJSON: {
+        /**
+         * Formats document for responses.
+         * @param {Object} _doc - Raw document.
+         * @param {Object} ret - Plain object.
+         * @returns {Object}
+         */
         transform: (_doc, ret) => {
             ret.id = ret._id.toString();
             delete ret._id;

@@ -2,6 +2,7 @@ import { AuthService } from "../services/auth.service.js";
 
 // Controller delegates all business rules to AuthService.
 export const AuthController = {
+    // [POST] /auth/register endponit
     register: async (req, res, next) => {
         try {
             const safeUser = await AuthService.registerUser(req.body);
@@ -15,6 +16,7 @@ export const AuthController = {
         }
     },
 
+     // [POST] /auth/login endponit
     login: async (req, res, next) => {
         try {
             const loginData = {
@@ -33,6 +35,7 @@ export const AuthController = {
         }
     },
 
+     // [POST] /auth/logout endponit
     logout: async (req, res, next) => {
         try {
             await AuthService.logoutUser(res);
@@ -46,6 +49,7 @@ export const AuthController = {
         }
     },
 
+     // [GET] /auth/check-auth endponit
     checkAuth: async (req, res, next) => {
         try {
             if (!req.user || !req.user.id) {

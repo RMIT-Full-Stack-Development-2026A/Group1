@@ -445,7 +445,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
             }
             markerVariantData={markerVariantData}
             avatarUrl={
-              currentUserId === player2.userId ? userAvatarUrl : roomData?.participants?.[0]?.avatar
+              currentUserId === player2.userId ? userAvatarUrl : roomData?.participants?.[1]?.avatar
             }
           />
         </div>

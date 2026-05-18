@@ -146,6 +146,7 @@ export const RoomService = {
                     avatarSnapshot: p.avatarSnapshot ?? null,
                     isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
+                    markerStyle: p.markerStyle ?? 'CLASSIC',
                     role: 'HUMAN'
                 })),
                 firstTurnParticipantIndex,
@@ -475,12 +476,16 @@ export const RoomService = {
         if (playerIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "User is not a participant of this room." };
         
         const isHost = room.participants[playerIndex].isHost;
+        let hasChanged = false;
         
         // Only host can change board-level settings
-        if (boardStyle && isHost) room.boardStyle = boardStyle;
+        if (boardStyle !== undefined && isHost && room.boardStyle !== boardStyle) {
+            room.boardStyle = boardStyle;
+            hasChanged = true;
+        }
         
         // Only host can change marker assignments
-        if (marker && isHost && room.participants[playerIndex].mark !== marker) {
+        if (marker !== undefined && isHost && room.participants[playerIndex].mark !== marker) {
             room.participants[playerIndex].mark = marker;
             
             // If there is another player, swap their marker
@@ -488,17 +493,22 @@ export const RoomService = {
             if (room.participants[otherPlayerIndex]) {
                 room.participants[otherPlayerIndex].mark = marker === 'X' ? 'O' : 'X';
             }
+            hasChanged = true;
         }
 
         // Any player can change their own markerStyle
-        if (markerStyle && room.participants[playerIndex]) {
+        if (markerStyle !== undefined && room.participants[playerIndex] && room.participants[playerIndex].markerStyle !== markerStyle) {
             room.participants[playerIndex].markerStyle = markerStyle;
+            hasChanged = true;
         }
 
-        // Reset ready state for both players whenever settings change
-        room.participants.forEach(p => p.isReady = false); 
-        
-        await room.save();
+        if (hasChanged) {
+            // Reset ready state for both players whenever settings change
+            room.participants.forEach(p => p.isReady = false);
+
+            await room.save();
+        }
+
         return { roomId, room: RoomDTO.toRoomSummary(room) };
     },
 

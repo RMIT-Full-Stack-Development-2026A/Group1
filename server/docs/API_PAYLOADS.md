@@ -754,7 +754,6 @@ GET /api/v1/rooms?status=WAITING&boardSize=10
         "roomNumber": "ROOM-2026-001235",
         "boardSize": 10,
         "boardStyle": "CLASSIC",
-        "markerStyle": "CLASSIC",
         "status": "WAITING",
         "participants": [
           {
@@ -762,7 +761,8 @@ GET /api/v1/rooms?status=WAITING&boardSize=10
             "usernameSnapshot": "waitingplayer",
             "mark": "X",
             "isReady": false,
-            "isHost": true
+            "isHost": true,
+            "markerStyle": "CLASSIC"
           }
         ],
         "moveCount": 0,
@@ -800,7 +800,6 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
     "boardStyle": "CLASSIC",
-    "markerStyle": "CLASSIC",
     "status": "PLAYING",
     "participants": [
       {
@@ -808,14 +807,16 @@ GET /api/v1/rooms/507f1f77bcf86cd799439016
         "usernameSnapshot": "player123",
         "mark": "X",
         "isReady": false,
-        "isHost": true
+        "isHost": true,
+        "markerStyle": "CLASSIC"
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "usernameSnapshot": "opponent456",
         "mark": "O",
         "isReady": false,
-        "isHost": false
+        "isHost": false,
+        "markerStyle": "CLASSIC"
       }
     ],
     "currentTurnParticipantIndex": 1,
@@ -1640,7 +1641,6 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
     "boardStyle": "CLASSIC",
-    "markerStyle": "CLASSIC",
     "status": "WAITING",
     "createdAt": "2026-01-15T10:30:00.000Z",
     "participants": [
@@ -1649,7 +1649,8 @@ All WebSocket events use `namespace:action` format and accept/return object payl
         "usernameSnapshot": "player123",
         "mark": "X",
         "isHost": true,
-        "isReady": false
+        "isReady": false,
+        "markerStyle": "CLASSIC"
       }
     ],
     "moveCount": 0
@@ -1669,7 +1670,6 @@ All WebSocket events use `namespace:action` format and accept/return object payl
     "roomNumber": "ROOM-2026-001235",
     "boardSize": 10,
     "boardStyle": "CLASSIC",
-    "markerStyle": "CLASSIC",
     "status": "PLAYING",
     "participants": [
       {
@@ -1677,14 +1677,16 @@ All WebSocket events use `namespace:action` format and accept/return object payl
         "usernameSnapshot": "player123",
         "mark": "X",
         "isReady": false,
-        "isHost": true
+        "isHost": true,
+        "markerStyle": "CLASSIC"
       },
       {
         "userId": "507f1f77bcf86cd799439013",
         "usernameSnapshot": "opponent456",
         "mark": "O",
         "isReady": false,
-        "isHost": false
+        "isHost": false,
+        "markerStyle": "CLASSIC"
       }
     ],
     "moveCount": 0,

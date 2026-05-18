@@ -119,7 +119,6 @@ const gameSessionSchema = new mongoose.Schema({
     },
     boardSize:  { type: Number, required: true, enum: [10, 15], index: true },
     boardStyle: { type: String, enum: ['CLASSIC', 'DARK', 'NEON'], default: 'CLASSIC' },
-    markerStyle:{ type: String, enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' },
     
     // Historical Snapshots
     participants: [sessionParticipantSchema],
@@ -184,7 +183,6 @@ const gameRoomSchema = new mongoose.Schema({
     roomNumber: { type: String, required: true, unique: true, index: true, default: () => `RM-${ulid()}` },
     boardSize:  { type: Number, required: true, enum: [10, 15], index: true },
     boardStyle: { type: String, enum: ['CLASSIC', 'DARK', 'NEON'], default: 'CLASSIC' },
-    markerStyle:{ type: String, enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' },
     
     status: {
         type: String,

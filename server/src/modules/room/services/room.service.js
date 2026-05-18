@@ -470,27 +470,32 @@ export const RoomService = {
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         if (room.status === ROOM_STATUS.PLAYING) throw { statusCode: 400, error: "INVALID_STATE", message: "Cannot change settings while playing." };
         
-        const hostIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString() && p.isHost);
-        if (hostIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
-
-       // Update basic settings
-        if (boardStyle) room.boardStyle = boardStyle;
-        if (markerStyle && room.participants[hostIndex]) {
-            room.participants[hostIndex].markerStyle = markerStyle;
-        }
-
-        // Swap marker logic
-        if (marker && room.participants[hostIndex].mark !== marker) {
-            room.participants[hostIndex].mark = marker;
+        // Find the requesting player's index
+        const playerIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
+        if (playerIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "User is not a participant of this room." };
+        
+        const isHost = room.participants[playerIndex].isHost;
+        
+        // Only host can change board-level settings
+        if (boardStyle && isHost) room.boardStyle = boardStyle;
+        
+        // Only host can change marker assignments
+        if (marker && isHost && room.participants[playerIndex].mark !== marker) {
+            room.participants[playerIndex].mark = marker;
             
-            // If there is a guest (index 1 if host is 0, or index 0 if host is 1)
-            const guestIndex = hostIndex === 0 ? 1 : 0;
-            if (room.participants[guestIndex]) {
-                room.participants[guestIndex].mark = marker === 'X' ? 'O' : 'X';
+            // If there is another player, swap their marker
+            const otherPlayerIndex = playerIndex === 0 ? 1 : 0;
+            if (room.participants[otherPlayerIndex]) {
+                room.participants[otherPlayerIndex].mark = marker === 'X' ? 'O' : 'X';
             }
         }
 
-        // Prevent changing rules right as someone clicks ready
+        // Any player can change their own markerStyle
+        if (markerStyle && room.participants[playerIndex]) {
+            room.participants[playerIndex].markerStyle = markerStyle;
+        }
+
+        // Reset ready state for both players whenever settings change
         room.participants.forEach(p => p.isReady = false); 
         
         await room.save();

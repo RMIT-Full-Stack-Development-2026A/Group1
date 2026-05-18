@@ -94,6 +94,7 @@ export const RoomDTO = {
         lastMove: room.lastMove ?? null,
         moveCount: room.moveCount ?? 0,
         status: room.status,
+        participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         winningLine: Array.isArray(room.winningLine) ? room.winningLine.map(toWinningCell) : []
     }),
 

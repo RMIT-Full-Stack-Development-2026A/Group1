@@ -140,21 +140,27 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       console.log("[game:state] Payload from BE:", payload);
 
       if (payload.board && Array.isArray(payload.board)) {
+        // Create a new empty board
         const reconstructedBoard = Array.from({ length: boardSize }, () =>
           Array(boardSize).fill(null),
         );
 
+        // Get move history from BE, translate to X/O, and apply to the empty board
         payload.board.forEach((move) => {
+          // Extract the marker (X or O) based on the participant index
           const mark = roomData?.participants?.[move.byParticipantIndex]?.mark;
 
+          // If coordinates are valid, fill the 2D array
           if (mark && move.row !== undefined && move.col !== undefined) {
             reconstructedBoard[move.row][move.col] = mark;
           }
         });
 
+        // Update UI
         setBoard(reconstructedBoard);
       }
 
+      // Update the next turn
       const turnIndex =
         payload.currentTurnParticipantIndex !== undefined
           ? payload.currentTurnParticipantIndex

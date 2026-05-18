@@ -17,7 +17,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {gridStyles.map((style) => {
                     
-                    const themeConfig = BOARD_THEMES[style.displayId] || BOARD_THEMES.classic;
+                    const themeConfig = BOARD_THEMES[style.displayId] || BOARD_THEMES.jungle;
 
                     return (
                         <SoundButton
@@ -58,9 +58,9 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                             </div>
                             <div
                                 className={`p-2 text-center ${
-                                    style.displayId === "neon" ? 
+                                    style.displayId === "dark" ? 
                                     "bg-[#4cc9f0] text-[#003543] drop-shadow-[0_0_5px_#4cc9f0]" : 
-                                    style.displayId === "classic" ? 
+                                    style.displayId === "jungle" ? 
                                     "bg-[#27872c] text-[#003543] drop-shadow-[0_0_5px_#27872c]": 
                                     "bg-[#ff3d00] text-[#003543] drop-shadow-[0_0_5px_#ff3d00]"
                                 }`}

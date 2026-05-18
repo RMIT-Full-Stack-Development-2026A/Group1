@@ -30,9 +30,9 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const { setMarkerVariant } = useCustomizationStore();
 
   const GRID_STYLES_MAP = {
-    CLASSIC: "classic",
-    NEON: "neon",
-    DARK: "block", 
+    JUNGLE: "jungle",
+    DARK: "dark",
+    LAVA: "lava", 
   };
   
   const boardStyleKey = roomData?.boardStyle || "NEON";
@@ -404,7 +404,8 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
           <div className="fixed top-20 right-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
-              className="border-2 border-[#ffb4ab] text-[#ffb4ab] font-headline text-[8px] px-4 py-2 uppercase hover:bg-[#ffb4ab]/10 transition-all cursor-pointer"
+              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[8px] px-4 py-2 uppercase bg-[#b82b1a]
+                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-all cursor-pointer"
             >
               ABORT
             </button>

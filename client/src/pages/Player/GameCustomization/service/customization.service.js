@@ -17,28 +17,28 @@ const BOARD_SIZES = [
 
 // Maps frontend lowercase to backend UPPERCASE
 const GRID_STYLES = [
-    { id: "CLASSIC", displayId: "classic", name: "JUNGLE" },
-    { id: "NEON", displayId: "neon", name: "DARK"},
-    { id: "DARK", displayId: "block", name: "LAVA"},
+    { id: "JUNGLE", displayId: "jungle", name: "JUNGLE" },
+    { id: "DARK", displayId: "dark", name: "DARK"},
+    { id: "LAVA", displayId: "lava", name: "LAVA"},
 ];
 
 // Maps frontend numeric IDs to backend enum names
 export const BOARD_THEMES = {
-    classic: {
+    jungle: {
         wrapper: 'bg-[#0a0a1a] border-4 border-[#276112]',
         cellBorder: 'border-1 border-[#276112] bg-[#0a0a1a]',
         boardBorder: 'border-4 border-[#2a2a4e]/40',
         glow: { boxShadow: '0 0 20px rgba(16, 184, 55, 0.57), inset 0 0 14px rgba(16, 184, 55, 0.57)' },
         bgImage: classicBg
     },
-    neon: {
+    dark: {
         wrapper: 'bg-[#0a0a1a] border-4 border-[#4cc9f0]',
         cellBorder: 'border-1 border-[#4cc9f0] bg-[#0a0a1a]',
         boardBorder: 'border-4 border-[#4cc9f0]/40',
         glow: { boxShadow: '0 0 24px rgba(76, 201, 240, 0.18), inset 0 0 18px rgba(76, 201, 240, 0.08)' },
         bgImage: neonBg
     },
-    block: {
+    lava: {
         wrapper: 'bg-[#0a0a0a] border-4 border-[#ff3d00]',
         cellBorder: 'border-1 border-[#ff3d00] bg-[#0a0a1a]',
         boardBorder: 'border-4 border-[#ff3d00]/40',
@@ -131,7 +131,7 @@ export const transformToBackendFormat = (selection) => {
   
     const currentGridStyle = String(selection.gridStyle).toLowerCase();
     const gridStyleObj = GRID_STYLES.find(s => s.displayId === currentGridStyle);
-    const boardStyle = gridStyleObj?.id || 'CLASSIC'; 
+    const boardStyle = gridStyleObj?.id || 'JUNGLE'; 
     const currentMarkerId = Number(selection.markerVariant); 
     const markerVariantObj = MARKER_VARIANTS.find(m => m.displayId === currentMarkerId);
     const markerStyle = markerVariantObj?.id || 'CLASSIC';

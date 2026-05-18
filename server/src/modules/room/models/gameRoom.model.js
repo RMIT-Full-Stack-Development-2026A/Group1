@@ -23,8 +23,8 @@ const gameRoomSchema = new mongoose.Schema({
 
     boardStyle: {
         type: String, 
-        enum: ['CLASSIC', 'DARK', 'NEON'], 
-        default: 'CLASSIC'
+        enum: ['JUNGLE', 'DARK', 'LAVA'], 
+        default: 'JUNGLE'
     },
 
     markerStyle: {

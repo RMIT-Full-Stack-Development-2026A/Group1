@@ -6,6 +6,10 @@ import { useSocketStore } from "@/stores/socket/SocketStore";
 import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useCustomizationStore } from "@/stores/game/CustomizationStore";
 
+// Audio
+import { useAudio } from "@/hooks/useAudio";
+import { AUDIO_FILES } from "@/config/audioConfig";
+
 // Utils
 import { getMarkerVariant } from "@/utils/markerRenderer";
 
@@ -38,6 +42,15 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const markerVariant = roomData?.markerStyle || "PIXEL";
   const boardSize = roomData?.boardSize || 10;
 
+  const player1 = roomData?.participants?.[0] || {
+    usernameSnapshot: "WAITING...",
+    mark: "X",
+  };
+  const player2 = roomData?.participants?.[1] || {
+    usernameSnapshot: "WAITING FOR OPPONENT...",
+    mark: "O",
+  };
+
   // Convert the numeric/string markerVariant to its display style
   const activeMarkerStyle =
     typeof markerVariant === "number"
@@ -61,6 +74,14 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const [showAbortNotification, setShowAbortNotification] = useState(false);
   const [disconnectCountdown, setDisconnectCountdown] = useState(null);
   const [reconnectFlash, setReconnectFlash] = useState(false);
+
+  // STATE FOR OVERLAY DELAY
+  const [showWinOverlay, setShowWinOverlay] = useState(false);
+
+  // AUDIO HOOKS
+  const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
+  const { play: playLoseSound } = useAudio(AUDIO_FILES.GAME_LOSE);
+
   const didInitiateAbortRef = useRef(false);
   const matchEndedRef = useRef(false);
 
@@ -89,21 +110,50 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     };
   }, [completedMatch, roomData?.participants, winnerData, isDraw]);
 
+  const userMark =
+    roomData?.participants?.find((p) => p.userId === currentUserId)?.mark ||
+    "X";
+  const winnerDataToShow = resolvedOutcome.winnerData;
+  const isDrawToShow = resolvedOutcome.isDraw;
+  const perspective = isDrawToShow
+    ? "draw"
+    : winnerDataToShow
+      ? winnerDataToShow.player === userMark
+        ? "winner"
+        : "loser"
+      : null;
+  const gameOver = !!winnerDataToShow || isDrawToShow;
+
+  useEffect(() => {
+    if (gameOver) {
+      // Play sound immediately
+      if (perspective === 'loser') {
+        playLoseSound();
+      } else if (perspective === 'winner') {
+        playVictorySound();
+      }
+
+      // Wait 4s before showing the overlay
+      const timer = setTimeout(() => {
+        setShowWinOverlay(true);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+    
+  }, [gameOver, perspective, playVictorySound, playLoseSound]);
+
   useEffect(() => {
     if (completedMatch?.result === 'DRAW' || completedMatch?.result === 'WIN') {
       matchEndedRef.current = true;
     } else if (!completedMatch) {
       matchEndedRef.current = false;
-      setWinnerData(null);
-      setIsDraw(false);
     }
   }, [completedMatch]);
 
   // Reset abort initiator state when entering a new room
   useEffect(() => {
     didInitiateAbortRef.current = false;
-    setShowAbortModal(false);
-    setShowAbortNotification(false);
   }, [roomId]);
 
   const markerVariantData = useMemo(
@@ -249,27 +299,14 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     setMarkerVariant(newVariant || 1);
   };
 
-  const player1 = roomData?.participants?.[0] || {
-    usernameSnapshot: "WAITING...",
-    mark: "X",
+  const handlePlayAgain = () => {
+    // Hide the overlay immediately
+    setShowWinOverlay(false);
+    setWinnerData(null);
+    setIsDraw(false);
+    // Call the original prop function
+    if (onPlayAgain) onPlayAgain();
   };
-  const player2 = roomData?.participants?.[1] || {
-    usernameSnapshot: "WAITING FOR OPPONENT...",
-    mark: "O",
-  };
-  const userMark =
-    roomData?.participants?.find((p) => p.userId === currentUserId)?.mark ||
-    "X";
-  const winnerDataToShow = resolvedOutcome.winnerData;
-  const isDrawToShow = resolvedOutcome.isDraw;
-  const perspective = isDrawToShow
-    ? "draw"
-    : winnerDataToShow
-      ? winnerDataToShow.player === userMark
-        ? "winner"
-        : "loser"
-      : null;
-  const gameOver = !!winnerDataToShow || isDrawToShow;
 
   if (isCheckingAuth || !isConnected) {
     return (
@@ -408,12 +445,12 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         </div>
       </main>
 
-      {gameOver && (
+      {showWinOverlay && (
         <WinOverlay
           winnerData={winnerDataToShow}
           isDraw={isDrawToShow}
           perspective={perspective}
-          onRestart={onPlayAgain}
+          onRestart={handlePlayAgain}
           onBackToLobby={() => navigate("/lobby")}
         />
       )}

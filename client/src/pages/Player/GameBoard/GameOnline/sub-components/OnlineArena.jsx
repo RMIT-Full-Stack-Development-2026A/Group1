@@ -232,8 +232,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         setWinnerData({ player: mark, cells: winningCells });
         setIsDraw(false);
       } else if (payload.result === "ABORTED") {
-        // If we initiated the abort we already navigated away; otherwise show a notification modal
-        if (didInitiateAbortRef.current) return;
+        if (didInitiateAbortRef.current) {
+          navigate('/lobby');
+          return;
+        }
         setShowAbortModal(false);
         setShowAbortNotification(true);
       }
@@ -257,7 +259,12 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     socket.on("player:reconnected", handlePlayerReconnected);
 
     const handleRoomRemoved = () => {
-      if (didInitiateAbortRef.current || matchEndedRef.current) return;
+      if (didInitiateAbortRef.current) {
+        navigate('/lobby');
+        return;
+      }
+
+      if (matchEndedRef.current) return;
       // Only show notification if game:ended didn't already trigger it
       setShowAbortModal(false);
       setShowAbortNotification(true);
@@ -296,7 +303,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         intent: 'abort',
     });
     setShowAbortModal(false);
-    navigate('/lobby');
   };
 
   const handleMarkerChange = (val) => {

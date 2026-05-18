@@ -1,6 +1,6 @@
 // AbortModal.jsx
 import { AlertTriangle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * AbortModal — Confirm dialog before aborting a game.
@@ -22,32 +22,49 @@ const AbortModal = ({
     notificationText = 'OPPONENT ABORTED THE MATCH',
     autoReturnSeconds = 10
 }) => {
-    if (!isOpen) return null;
-
     const isOnline = gameMode === 'ONLINE_MATCH';
     const [secondsLeft, setSecondsLeft] = useState(autoReturnSeconds);
+    const onConfirmRef = useRef(onConfirm);
+    const autoReturnFiredRef = useRef(false);
 
     useEffect(() => {
+        onConfirmRef.current = onConfirm;
+    }, [onConfirm]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            autoReturnFiredRef.current = false;
+            return undefined;
+        }
+
         let timerId;
-        if (isNotification && isOpen) {
+        if (isNotification) {
             setSecondsLeft(autoReturnSeconds);
+            autoReturnFiredRef.current = false;
             timerId = setInterval(() => {
-                setSecondsLeft((s) => {
-                    if (s <= 1) {
-                        clearInterval(timerId);
-                        if (typeof onConfirm === 'function') onConfirm();
-                        return 0;
-                    }
-                    return s - 1;
-                });
+                setSecondsLeft((s) => Math.max(s - 1, 0));
             }, 1000);
         } else {
             setSecondsLeft(autoReturnSeconds);
+            autoReturnFiredRef.current = false;
         }
         return () => {
             if (timerId) clearInterval(timerId);
         };
-    }, [isNotification, isOpen, autoReturnSeconds, onConfirm]);
+    }, [isNotification, isOpen, autoReturnSeconds]);
+
+    useEffect(() => {
+        if (!isOpen || !isNotification) return;
+
+        if (secondsLeft !== 0 || autoReturnFiredRef.current) return;
+
+        autoReturnFiredRef.current = true;
+        if (typeof onConfirmRef.current === 'function') {
+            onConfirmRef.current();
+        }
+    }, [isOpen, isNotification, secondsLeft]);
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-200 bg-deep-bg/90 flex items-center justify-center animate-fade-in">

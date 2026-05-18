@@ -115,6 +115,10 @@ export const useGameOnline = () => {
         function handleRoomRemoved() {
             // Guard using the ref, not roomDataRef, because roomData can be stale
             // at the time this event fires (e.g. during component unmount timing).
+            if (roomDataRef.current?.status === 'PLAYING') {
+                return;
+            }
+
             if (disconnectCountdownRef.current !== null) return;
             navigate('/lobby');
         }

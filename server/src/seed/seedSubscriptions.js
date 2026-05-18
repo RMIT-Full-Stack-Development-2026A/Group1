@@ -29,7 +29,7 @@ export const seedSubscriptions = async (premiumUser) => {
     };
 
     await Transaction.findOneAndUpdate(
-        { userId: premiumUser._id, type: 'SUBSCRIPTION', status: 'SUCCESS' },
+        { userId: premiumUser._id },
         { $set: transactionData },
         { upsert: true, new: true }
     );

@@ -229,6 +229,10 @@ export const AuthService = {
         return null;
     },
 
+    incrementPlatformRevenue: async (amount) => {
+        return await AuthRepository.incrementPlatformRevenue(amount);
+    },
+
     getPlatformMetrics: async () => {
         return AuthRepository.getPlatformMetrics();
     },

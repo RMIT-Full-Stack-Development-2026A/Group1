@@ -2,7 +2,9 @@ import express from 'express';
 import { SubscriptionController } from '../controllers/subscription.controller.js';
 import { SubscriptionValidator } from '../validators/subscription.validator.js';
 import { verifyToken } from '../../../middlewares/authMiddleware.js';
+import { authorizeMiddleware } from '../../../middlewares/roleMiddleware.js';
 
+const requirePlayer = authorizeMiddleware(['PLAYER']); 
 const router = express.Router();
 
 /**
@@ -17,11 +19,7 @@ const router = express.Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-router.get(
-    '/status', 
-    verifyToken, 
-    SubscriptionController.getSubscriptionStatus
-);
+router.get('/status', verifyToken, requirePlayer, SubscriptionController.getSubscriptionStatus);
 
 /**
  * @openapi
@@ -35,11 +33,7 @@ router.get(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-router.post(
-    '/create-order', 
-    verifyToken, 
-    SubscriptionController.createPayPalOrder
-);
+router.post('/create-order', verifyToken, requirePlayer, SubscriptionController.createPayPalOrder);
 
 /**
  * @openapi
@@ -64,34 +58,22 @@ router.post(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-router.post(
-    '/capture-order', 
-    verifyToken, 
-    SubscriptionValidator.validateCaptureOrder,
-    SubscriptionController.capturePayPalOrder
-);
+router.post('/capture-order',  verifyToken, requirePlayer, SubscriptionValidator.validateCaptureOrder, SubscriptionController.capturePayPalOrder);
 
 /**
  * @openapi
  * /api/v1/subscription/history:
- *   get:
- *     tags: [Subscription]
- *     summary: Subscription payment history
- *     parameters:
- *       - $ref: '#/components/parameters/PageParam'
- *       - $ref: '#/components/parameters/LimitParam'
- *     responses:
- *       200:
- *         $ref: '#/components/responses/TransactionListResponse'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedResponse'
+ *  get:
+ *      tags: [Subscription]
+ *      summary: Current Subscription Details
+ *      description: Returns the current subscription detail. Will only ever return an array with 1 item (the active transaction) or 0 items (if expired/none).
+ *      responses:
+ *          200:
+ *              $ref: '#/components/responses/TransactionListResponse'
+ *          401:
+ *              $ref: '#/components/responses/UnauthorizedResponse'
  */
-router.get(
-    '/history', 
-    verifyToken, 
-    SubscriptionValidator.validatePagination,
-    SubscriptionController.getSubscriptionHistory
-);
+router.get('/history', verifyToken, requirePlayer, SubscriptionValidator.validatePagination, SubscriptionController.getSubscriptionHistory);
 
 /**
  * @openapi
@@ -103,9 +85,6 @@ router.get(
  *       200:
  *         description: Webhook received and processed successfully
  */
-router.post(
-    '/paypal-events', 
-    SubscriptionController.handlePayPalWebhook
-);
+router.post('/paypal-events', SubscriptionController.handlePayPalWebhook);
 
 export default router;

@@ -42,6 +42,8 @@ export default function GameOnline() {
       );
     }
 
+    console.log("ROOM DATA (ROOM): ", roomData);
+    
     if (!status || status === 'WAITING' || status === 'READY') {
       return (
         <GameRoom

@@ -62,6 +62,7 @@ export default function GameCustomization() {
                 gridStyle: selectedStyle,
                 markerVariant: selectedMarker,
             };
+            
 
             // Add AI difficulty for single player mode
             if (gameMode === 'SINGLE_PLAYER') {

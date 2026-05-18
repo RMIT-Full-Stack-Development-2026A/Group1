@@ -153,6 +153,11 @@ export default function GameLobby() {
                     onCreateRoom={handleCreateRoom}
                     currentUserId={user?.id}
                 />
+                <div className="fixed bottom-3 right-5 z-0 pointer-events-none select-none opacity-40">
+                    <span className="font-headline text-[12px] tracking-widest text-[#fad100] uppercase">
+                        refresh for newest room
+                    </span>
+                </div>
             </main>
         </div>
     );

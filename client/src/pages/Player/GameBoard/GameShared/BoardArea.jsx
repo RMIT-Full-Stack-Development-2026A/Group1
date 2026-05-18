@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import GridCell from '../GameOffline/sub-components/GridCell';
+import GridCell from './GridCell';
 import { useButtonSound } from '@/hooks/useButtonSound';
 import { AUDIO_FILES } from '@/config/audioConfig';
 import { getTheme } from '@/config/gameThemes.config';

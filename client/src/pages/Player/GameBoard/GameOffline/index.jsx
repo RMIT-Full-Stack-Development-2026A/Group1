@@ -1,6 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState, useEffect, useRef } from "react";
 
+// Sound
+import { useAudio } from '@/hooks/useAudio';
+import { AUDIO_FILES } from '@/config/audioConfig';
+
 // Stores
 import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useModeStore } from "@/stores/ai/ModeStore";
@@ -29,11 +33,12 @@ const GameBoard = () => {
   const navigate = useNavigate();
   // State for controlling the abort confirmation modal
   const [showAbortModal, setShowAbortModal] = useState(false);
+  // State to control when the WinOverlay actually renders
+  const [showWinOverlay, setShowWinOverlay] = useState(false);
 
   // Global state from stores
   const { user, isCheckingAuth } = useAuthStore();
-  const { gameMode, aiDifficulty, player2Name, startingPlayer } =
-    useModeStore();
+  const { gameMode, aiDifficulty, player2Name, startingPlayer } = useModeStore();
   const {
     boardSize: displaySize,
     gridStyle,
@@ -53,10 +58,6 @@ const GameBoard = () => {
 
   // Get user avatar URL (fallback to undefined if not available)
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
-
-  // Map the markerVariant number (1, 2, 3...) to a string (default, custom_1...) so that the BoardArea component understands it.
-  const activeMarkerStyle =
-    markerVariant === 1 ? "default" : `custom_${markerVariant}`;
 
   const theme = getTheme(gridStyle);
 
@@ -104,7 +105,7 @@ const GameBoard = () => {
     }
 
     return [player1, player2];
-  }, [user, gameMode, isBotMatch, p2Name, aiDifficulty]);
+  }, [user, isBotMatch, p2Name, aiDifficulty]);
 
   // Call hook useGame
   const {
@@ -121,7 +122,43 @@ const GameBoard = () => {
     isAborting,
   } = useGame(gameMode, playersInfo, initialBoardSize, startingPlayer);
 
+  // Audio hook
+  const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
+  const { play: playLoseSound } = useAudio(AUDIO_FILES.GAME_LOSE);
+
   const gameOver = !!winnerData || isDraw;
+
+  const userMark = "X";
+
+  const isLocalMatch = gameMode === "TWO_PLAYERS" || gameMode === "LOCAL_MULTIPLAYER";
+
+  const perspective = isDraw
+    ? "draw"
+    : winnerData
+      ? isLocalMatch
+        ? "local_result"
+        : winnerData.player === userMark
+          ? "winner"
+          : "loser"
+      : null;
+
+  useEffect(() => {
+      if (gameOver) {
+        if (perspective === 'loser') {
+            playLoseSound();
+        } else if (perspective === 'winner' || perspective === 'local_result') {
+            playVictorySound();
+        }
+
+        // Start the timer when the game ends
+        const timer = setTimeout(() => {
+          setShowWinOverlay(true);
+        }, 4000); // 4000ms = 4 seconds delay
+
+        // Cleanup function to prevent memory leaks if the user leaves early
+        return () => clearTimeout(timer);
+      }
+    }, [gameOver, perspective, playVictorySound, playLoseSound]);
 
   // Chat manager hook for all chat state and bot behaviour
   const {
@@ -165,19 +202,6 @@ const GameBoard = () => {
     };
   }, [gameOver, abortGame, navigate, isBotMatch]);
 
-  const userMark = "X";
-  const isLocalMatch =
-    gameMode === "TWO_PLAYERS" || gameMode === "LOCAL_MULTIPLAYER";
-  const perspective = isDraw
-    ? "draw"
-    : winnerData
-      ? isLocalMatch
-        ? "local_result"
-        : winnerData.player === userMark
-          ? "winner"
-          : "loser"
-      : null;
-
   // Handling dropdown events in the board area
   const handleMarkerChange = (val) => {
     // Convert 'default' or 'custom_1' back to an integer to save to the Store.
@@ -189,7 +213,15 @@ const GameBoard = () => {
   const handleAbortConfirm = async () => {
     await abortGame();
     setShowAbortModal(false);
-    navigate(isBotMatch ? "/game-mode-select" : "/lobby");
+    navigate("/play");
+  };
+
+  const handleRestart = () => {
+    // 1. Hide the WinOverlay immediately
+    setShowWinOverlay(false); 
+    
+    // 2. Call the core reset logic from your useGame hook
+    resetGame(); 
   };
 
   if (isCheckingAuth) {
@@ -233,8 +265,8 @@ const GameBoard = () => {
           <div className="fixed top-20 right-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
-              className="border-2 border-[#ffb4ab] text-[#ffb4ab] font-headline text-[8px] px-4 py-2 uppercase
-                       hover:bg-[#ffb4ab]/10 transition-all cursor-pointer"
+              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[8px] px-4 py-2 uppercase bg-[#b82b1a]
+                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-all cursor-pointer"
             >
               ABORT
             </button>
@@ -294,12 +326,12 @@ const GameBoard = () => {
         />
       </main>
 
-      {gameOver && (
+      {showWinOverlay && (
         <WinOverlay
           winnerData={winnerData}
           isDraw={isDraw}
           perspective={perspective}
-          onRestart={resetGame}
+          onRestart={handleRestart}
           onBackToLobby={() =>
             navigate(gameMode === "ONLINE_MATCH" ? "/lobby" : "/play")
           }

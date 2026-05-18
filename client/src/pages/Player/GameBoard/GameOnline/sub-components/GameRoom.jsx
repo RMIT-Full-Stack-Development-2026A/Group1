@@ -107,15 +107,17 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
             <div className="flex items-center justify-center gap-4 w-full">
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <div className={`w-2 h-2 transition-all duration-500 ${p?.isReady ? 'bg-neon-green shadow-glow-green' : 'bg-[#3d484d]'}`} />
-                  <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-neon-green' : 'text-[#879398]'}`}>
-                    {p?.usernameSnapshot?.slice(0, 10) || '???'}
+                  <div className={`w-2 h-2 transition-all duration-500 ${p?.isReady ? 'bg-[#24d642]' : 'bg-[#6d706d]'}`} />
+                  <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-[#24d642]' : 'text-[#6d706d]'}`}>
+                    {p?.usernameSnapshot || '???'}
                   </span>
                 </div>
               ))}
             </div>
-
+            
+            {/* READY BUTTON */}
             <ReadyButton isReady={isMyReady} isDisabled={!canReady} onReady={onReady} />
+
             <button
               onClick={handleLeaveWithSound}
               className="bg-transparent border border-[#ffb4ab] text-[#ffb4ab] cursor-pointer font-headline py-3 px-8 tracking-tight hover:bg-[#ffb4ab]/10 active:translate-y-0.5 transition-all text-xs w-full"

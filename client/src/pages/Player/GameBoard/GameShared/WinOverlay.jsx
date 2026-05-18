@@ -3,7 +3,7 @@ import { X, Eye } from 'lucide-react';
 
 const RESULT_UI_CONFIG = {
     winner: {
-        title: (winnerData) => `PLAYER ${winnerData?.player ?? 'X'} WINS!`,
+        title: (winnerData) => `YOU WIN!`,
         badge: 'CONGRATULATIONS',
         subtitle: (winnerData) => `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`,
         color: '#fad100',
@@ -11,7 +11,7 @@ const RESULT_UI_CONFIG = {
         badgeTextColor: '#3b2f00',
     },
     loser: {
-        title: (winnerData) => `PLAYER ${winnerData?.player ?? 'O'} WINS!`,
+        title: (winnerData) => `YOU LOSE!`,
         badge: 'GAME OVER',
         subtitle: 'BETTER LUCK NEXT TIME',
         color: '#ef6353',

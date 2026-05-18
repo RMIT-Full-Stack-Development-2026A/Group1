@@ -29,8 +29,18 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
   const { user } = useAuthStore();
   const { play: playClick } = useButtonSound(AUDIO_FILES.BUTTON_CLICK);
 
-  const hostAvatarUrl = host?.userId === currentUserId ? (user?.avatar || user?.profileImage || null) : (host?.avatarUrl || host?.profileImage || null);
-  const guestAvatarUrl = guest?.userId === currentUserId ? (user?.avatar || user?.profileImage || null) : (guest?.avatarUrl || guest?.profileImage || null);
+  const resolveAvatarUrl = (participant) => {
+    if (!participant) return null;
+
+    if (participant.userId === currentUserId) {
+      return user?.avatar || user?.profileImage || participant.avatarSnapshot || participant.avatar || null;
+    }
+
+    return participant.avatarSnapshot || participant.avatar || participant.avatarUrl || null;
+  };
+
+  const hostAvatarUrl = resolveAvatarUrl(host);
+  const guestAvatarUrl = resolveAvatarUrl(guest);
 
   const readyCount = [host, guest].filter((p) => p?.isReady).length;
 

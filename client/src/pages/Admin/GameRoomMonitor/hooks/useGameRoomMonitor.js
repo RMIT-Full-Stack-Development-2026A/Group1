@@ -125,17 +125,8 @@ export const useGameRoomMonitor = () => {
 
     try {
       setClosingRoomId(room.id);
-      const response = await gameRoomMonitorService.closeRoom(room.id);
-      const updatedRoom = response?.data?.room || response?.room || null;
-
-      if (updatedRoom) {
-        setRooms((currentRooms) =>
-          currentRooms.map((currentRoom) =>
-            currentRoom.id === updatedRoom.id ? normalizeRoom(updatedRoom) : currentRoom
-          )
-        );
-      }
-
+      await gameRoomMonitorService.closeRoom(room.id);
+      await fetchRooms();
       setError(null);
     } catch (err) {
       setError(err.message || "Failed to close the game room.");

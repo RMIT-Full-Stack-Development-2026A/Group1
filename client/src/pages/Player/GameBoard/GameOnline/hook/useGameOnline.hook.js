@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useSocketStore } from '@/stores/socket/SocketStore';
 import { useCustomizationStore } from '@/stores/game/CustomizationStore';
 import { useAuthStore } from '@/stores/auth/AuthStore';
-import { notifySuccess } from '@/utils/toast.util';
+import { notifyError, notifySuccess } from '@/utils/toast.util';
 
 export const useGameOnline = () => {
     const location = useLocation();
@@ -95,6 +95,13 @@ export const useGameOnline = () => {
         }
 
         function handleGameEnded(payload) {
+            if (payload?.result === 'ADMIN_FORCE_CLOSE') {
+                notifyError('The room was closed by the administrator. Returned to lobby...', {
+                    duration: 5000,
+                });
+                return;
+            }
+
             if (payload?.result === 'WIN' || payload?.result === 'DRAW') {
                 setHasCompletedMatch(true);
                 setCompletedMatch({

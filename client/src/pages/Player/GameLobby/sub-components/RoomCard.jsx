@@ -9,6 +9,14 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
         Array.isArray(room.participantIds) &&
         room.participantIds.includes(String(currentUserId));
 
+    const renderAvatar = (avatarUrl, label) => {
+        if (avatarUrl) {
+            return <img src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
+        }
+
+        return <span className="material-symbols-outlined text-primary-cyan">person</span>;
+    };
+
     return (
         <div
             className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all ${
@@ -33,7 +41,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                     {/* Host */}
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 border-2 border-primary-cyan flex items-center justify-center bg-deep-bg">
-                            <span className="material-symbols-outlined text-primary-cyan">person</span>
+                            {renderAvatar(room.hostAvatarUrl, room.host)}
                         </div>
                         <div className="flex flex-col">
                             <span className="font-mono text-[10px] text-outline uppercase tracking-wide">{room.host}</span>
@@ -49,7 +57,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                     {/* Opponent */}
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 border-2 border-primary-cyan flex items-center justify-center bg-deep-bg">
-                            <span className="material-symbols-outlined text-primary-cyan">person</span>
+                            {renderAvatar(room.opponentAvatarUrl, room.opponent || 'WAITING')}
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="font-mono text-[10px] text-primary-cyan font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>

@@ -163,6 +163,15 @@ export const RoomService = {
             roomId: String(roomId),
             endedAt: closedAt 
         });
+
+        // Remove the room document from the database so admin-closed rooms
+        // are not persisted (behaviour similar to a player leaving)
+        try {
+            await RoomRepository.deleteRoom(roomId);
+        } catch (deleteErr) {
+            // Deletion failure should not block the admin action; log and continue
+            console.error(`[RoomService] Failed to delete admin-closed room ${roomId}:`, deleteErr);
+        }
         
         return true;
     },

@@ -13,7 +13,7 @@ export default function PlayerManagementTable({ players, onToggleStatus, actionL
 						onError={(e) => {
 						// Replace broken or blocked remote images with a local placeholder
 						e.currentTarget.onerror = null;
-						e.currentTarget.src = '/images/Invencible GIF.gif';
+						e.currentTarget.src = '/images/avatar-placeholder.svg';	
 					}}
 				/>
 			);

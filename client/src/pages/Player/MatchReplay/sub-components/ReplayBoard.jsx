@@ -28,7 +28,6 @@ export default function ReplayBoard({ boardState, boardSize, markerStyle, boardS
                         {rows.map(r => <span key={r} className="h-full flex items-center text-[9px] text-[#879398] font-mono">{String(r).padStart(2, '0')}</span>)}
                     </div>
 
-                    {/* Grid chính */}
                     <div className="grid border border-[#3d484d] gap-[1px]"
                         style={{ gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))`, backgroundColor: theme.gap }}>
                         {boardState.map((row, rIdx) => row.map((cell, cIdx) => (

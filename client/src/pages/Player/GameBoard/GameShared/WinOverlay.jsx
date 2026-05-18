@@ -40,13 +40,6 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
     
     const [isMinimized, setIsMinimized] = useState(false);
 
-    // Reset minimize state when new result comes
-    useEffect(() => {
-        if (winnerData || isDraw) {
-            setIsMinimized(false);
-        }
-    }, [winnerData, isDraw]);
-
     // Lock scroll when overlay is active
     useEffect(() => {
         if (winnerData || isDraw) {

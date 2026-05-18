@@ -182,7 +182,6 @@ export const RoomService = {
         const newRoomData = {
             boardSize,
             boardStyle,
-            markerStyle,
             firstTurnParticipantIndex: 0,
             status: ROOM_STATUS.WAITING,
             participants: [{
@@ -191,6 +190,7 @@ export const RoomService = {
                 avatarSnapshot: user.avatar,
                 isPremiumSnapshot: computeIsPremium(user),
                 mark: marker,
+                markerStyle,
                 joinedAt: new Date(),
                 isHost: true,
                 isReady: false
@@ -202,7 +202,7 @@ export const RoomService = {
     },
 
     handleRoomJoin: async (userId, payload) => {
-        const { roomId } = validateRoomJoin(payload);
+        const { roomId, markerStyle: joinerMarkerStyle = 'CLASSIC' } = validateRoomJoin(payload);
 
         const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
@@ -236,6 +236,7 @@ export const RoomService = {
             avatarSnapshot: user.avatar,
             isPremiumSnapshot: computeIsPremium(user),
             mark: joinerMark,
+            markerStyle: joinerMarkerStyle,
             joinedAt: new Date(),
             isHost: false,
             isReady: false
@@ -299,14 +300,14 @@ export const RoomService = {
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
-                markerStyle: room.markerStyle,
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
                     isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
-                    role: 'HUMAN' 
+                    role: 'HUMAN',
+                    markerStyle: p.markerStyle ?? 'CLASSIC'
                 })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: isWin ? 'FINISHED' : 'DRAW',
@@ -387,14 +388,14 @@ export const RoomService = {
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
-                markerStyle: room.markerStyle,
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
                     isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
-                    role: 'HUMAN'
+                    role: 'HUMAN',
+                    markerStyle: p.markerStyle ?? 'CLASSIC'
                 })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
@@ -474,7 +475,9 @@ export const RoomService = {
 
        // Update basic settings
         if (boardStyle) room.boardStyle = boardStyle;
-        if (markerStyle) room.markerStyle = markerStyle;
+        if (markerStyle && room.participants[hostIndex]) {
+            room.participants[hostIndex].markerStyle = markerStyle;
+        }
 
         // Swap marker logic
         if (marker && room.participants[hostIndex].mark !== marker) {

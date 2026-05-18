@@ -25,6 +25,11 @@ export const roomParticipantSchema = new mongoose.Schema({
         enum: ['X', 'O'], 
         default: null 
     },
+    markerStyle: {
+        type: String,
+        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'],
+        default: 'CLASSIC'
+    },
     joinedAt: {
         type: Date, // When the player entered the room
         default: Date.now

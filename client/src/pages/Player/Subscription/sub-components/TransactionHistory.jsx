@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const STATUS_COLOR = {  
+const STATUS_COLOR = {
     SUCCESS: '#a8ff78',
     FAILED: '#ffb4ab',
     PENDING: '#fad100',
@@ -11,15 +11,16 @@ export default function TransactionHistory({ transactions }) {
     return (
         <section className="bg-[#0d0d1a] border border-[#3d484d] overflow-hidden mt-16">
             <div className="bg-[#1e1e2c] px-6 py-3 border-b border-[#3d484d]">
-                <h2 className="font-headline text-[10px] text-[#e3e0f4]">TRANSACTION_LOG.DAT</h2>
+                <h2 className="font-headline text-[10px] text-[#e3e0f4]">Current Subscription Details</h2>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left font-mono text-xs border-collapse table table-hover table-striped table-bordered">
                     <thead>
                         <tr className="bg-[#292937] border-b border-[#3d484d]">
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">TIMESTAMP (UTC)</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">AMOUNT</th>
                             <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">ORDER ID</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">TIMESTAMP (LOCAL)</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">AMOUNT</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">EXPIRES AT</th>
                             <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">STATUS</th>
                         </tr>
                     </thead>
@@ -31,26 +32,46 @@ export default function TransactionHistory({ transactions }) {
                                 </td>
                             </tr>
                         ) : (
-                            transactions.map((tx) => (
-                                <tr key={tx.externalTransactionId} className="hover:bg-[#1e1e2c] transition-colors">
-                                    <td className="px-6 py-4 text-[#879398]">
-                                        {new Date(tx.createdAt).toLocaleString('en-US', {
-                                            year: 'numeric', month: 'short', day: 'numeric',
-                                            hour: '2-digit', minute: '2-digit',
-                                        })}
-                                    </td>
-                                    <td className={`px-6 py-4 font-bold ${tx.type === 'REFUND' ? 'text-[#ffb4ab]' : 'text-[#a8ff78]'}`}>
-                                        {tx.type === 'REFUND' ? '-' : '+'}
-                                        ${typeof tx.amount === 'number' ? tx.amount.toFixed(2) : tx.amount} {tx.currency ?? 'USD'}
-                                    </td>
-                                    <td className="px-6 py-4 text-[#879398] font-mono text-[10px]">
-                                        {tx.externalTransactionId ? `${tx.externalTransactionId.slice(0, 16)}...` : '—'}
-                                    </td>
-                                    <td className="px-6 py-4 font-bold" style={{ color: STATUS_COLOR[tx.status] ?? '#879398' }}>
-                                        {tx.status}
-                                    </td>
-                                </tr>
-                            ))
+                            transactions.map((tx) => {
+                                const key = tx._id || tx.orderId || tx.externalTransactionId || JSON.stringify(tx);
+                                const orderId = tx.orderId || tx.externalTransactionId || tx._id || '—';
+                                const created = tx.createdAt ? new Date(tx.createdAt) : null;
+                                const expires = tx.expiresAt ? new Date(tx.expiresAt) : null;
+                                const amountFormatted = typeof tx.amount === 'number'
+                                    ? new Intl.NumberFormat(undefined, { style: 'currency', currency: tx.currency || 'USD' }).format(tx.amount)
+                                    : tx.amount;
+                                const plan = tx.planName || tx.plan || tx.description || '—';
+                                const statusKey = (tx.status || '').toUpperCase();
+                                return (
+                                    <tr key={key} className="hover:bg-[#1e1e2c] transition-colors">
+                                        <td className="px-6 py-4 text-[#879398] font-mono text-[10px]">
+                                            <button
+                                                type="button"
+                                                onClick={() => navigator.clipboard?.writeText(orderId)}
+                                                className="underline text-[#bfc9cc] hover:text-white"
+                                                title="Copy order id"
+                                            >
+                                                {orderId.length > 20 ? `${orderId.slice(0, 20)}...` : orderId}
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4 text-[#879398]">
+                                            {created ? created.toLocaleString(undefined, {
+                                                year: 'numeric', month: 'short', day: 'numeric',
+                                                hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+                                            }) : '—'}
+                                        </td>
+                                        <td className={`px-6 py-4 font-bold ${tx.type === 'REFUND' ? 'text-[#ffb4ab]' : 'text-[#a8ff78]'}`}>
+                                            {tx.type === 'REFUND' ? '-' : '+'}{amountFormatted}
+                                        </td>
+                                        <td className="px-6 py-4 text-[#879398]">
+                                            {expires ? expires.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) : '—'}
+                                        </td>
+                                        <td className="px-6 py-4 font-bold" style={{ color: STATUS_COLOR[statusKey] ?? '#879398' }}>
+                                            {tx.status || '—'}
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>

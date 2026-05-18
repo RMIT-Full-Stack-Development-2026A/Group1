@@ -46,7 +46,45 @@ export const useSubscription = () => {
             }
 
             const items = txData?.data?.items ?? txData?.items ?? [];
-            setTransactions(items);
+
+            // Normalize transactions for UI fields expected by TransactionHistory
+            const normalize = (tx) => {
+                const orderId = tx.orderId || tx.externalTransactionId || tx.id || tx._id || null;
+                const createdAt = tx.createdAt || tx.createdAtUtc || tx.created || null;
+                const amount = tx.amount ?? tx.total ?? null;
+                const currency = tx.currency || 'USD';
+                const planName = tx.planName || tx.plan || tx.description || null;
+                const subscriptionPeriodEnd = tx.subscriptionPeriodEnd || tx.expiresAt || null;
+                // fallback: use premiumExpiresAt from statusRes if available
+                const backendPremiumExpiresAt = statusRes?.data?.premiumExpiresAt ?? statusRes?.premiumExpiresAt ?? null;
+
+                let expiresAt = subscriptionPeriodEnd || backendPremiumExpiresAt || null;
+                // If still missing, compute expiresAt = createdAt + 30 days
+                if (!expiresAt && createdAt) {
+                    try {
+                        const createdMs = new Date(createdAt).getTime();
+                        if (!Number.isNaN(createdMs)) {
+                            const expiresMs = createdMs + 30 * 24 * 60 * 60 * 1000;
+                            expiresAt = new Date(expiresMs).toISOString();
+                        }
+                    } catch (e) {
+                        expiresAt = null;
+                    }
+                }
+
+                return {
+                    ...tx,
+                    orderId,
+                    createdAt,
+                    amount,
+                    currency,
+                    planName,
+                    expiresAt,
+                    status: tx.status || tx.state || null,
+                };
+            };
+
+            setTransactions(items.map(normalize));
         } catch (err) {
             console.error('[useSubscription] loadData error:', err);
             setError(err?.data?.message ?? 'Failed to load subscription data.');

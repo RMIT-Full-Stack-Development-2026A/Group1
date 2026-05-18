@@ -7,6 +7,7 @@ import { validateProfileUpdate, validatePasswordChange } from '../validators/pro
 import { getPublicIdFromUrl } from '../../../utils/getImageUrl.util.js';
 
 export const ProfileService = {
+    // [GET] /profile endpoint
     getProfile: async (userId) => {
         const user = await AuthInterface.getUserById(userId);
         if (!user) {
@@ -21,6 +22,7 @@ export const ProfileService = {
         return ProfileDTO.toBaseProfile(user);
     },
 
+    // [GET] /profile/overview endpoint
     getProfileOverview: async (userId) => {
         const user = await AuthInterface.getUserById(userId);
         if (!user) {
@@ -47,6 +49,7 @@ export const ProfileService = {
         return ProfileDTO.toProfileOverview({ user, subscription, stats, recentGames });
     },
 
+    // [PUT] /profile/update endpoint
     updateProfile: async (userId, updateData) => {
         const validationErrors = validateProfileUpdate(updateData);
         if (validationErrors.length > 0) {
@@ -60,6 +63,7 @@ export const ProfileService = {
             };
         }
 
+        // Map allowed fields
         const allowedUpdates = {};
         if (updateData.username) allowedUpdates.username = String(updateData.username).trim();
         if (updateData.email) allowedUpdates.email = String(updateData.email).trim().toLowerCase();
@@ -84,19 +88,20 @@ export const ProfileService = {
         return ProfileDTO.toBaseProfile(updatedUser);
     },
 
+    // [POST] /profile/avatar endpoint
     uploadAvatar: async (userId, file) => {
         try {
-            // Fetch current user to get the OLD avatar URL
+            // Fetch current user to get the old avatar URL
             const currentUser = await AuthInterface.getUserById(userId);
             const oldAvatarUrl = currentUser?.avatar;
 
-            // Process image with sharp: resize and convert to webp
+            // Process image with sharp
             const processedImageBuffer = await sharp(file.buffer)
                 .resize(200, 200, { fit: 'cover' })
                 .webp({ quality: 80 })
                 .toBuffer();
 
-            // Upload to Cloudinary 
+            // Upload image 
             const uploadToCloudinary = (buffer) => {
                 return new Promise((resolve, reject) => {
                     const uploadStream = cloudinary.uploader.upload_stream(
@@ -117,7 +122,7 @@ export const ProfileService = {
             const cloudinaryResult = await uploadToCloudinary(processedImageBuffer);
             const newAvatarUrl = cloudinaryResult.secure_url;
 
-            // Delete the old avatar from Cloudinary
+            // Remove the old avatar
             if (oldAvatarUrl && oldAvatarUrl.includes('cloudinary')) {
                 const oldPublicId = getPublicIdFromUrl(oldAvatarUrl);
                 if (oldPublicId) {
@@ -127,7 +132,7 @@ export const ProfileService = {
                 }
             }
 
-            // Update user profile in the database 
+            // Update database 
             const updatedUser = await AuthInterface.updateUserProfile(userId, { avatar: newAvatarUrl });
             
             return ProfileDTO.toBaseProfile(updatedUser);
@@ -144,6 +149,7 @@ export const ProfileService = {
         }
     },
 
+    // [PATCH] /profile/password endpoint
     changePassword: async (userId, passwordData) => {
         const validationErrors = validatePasswordChange(passwordData);
         if (validationErrors.length > 0) {
@@ -157,7 +163,6 @@ export const ProfileService = {
             };
         }
 
-        // Delegate to Auth module to handle bcrypt verification and hashing
         await AuthInterface.changePassword(userId, passwordData.oldPassword, passwordData.newPassword);
         
         return null;

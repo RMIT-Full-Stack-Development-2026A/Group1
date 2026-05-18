@@ -8,7 +8,7 @@ import { eventBus } from '../../../utils/eventBus.util.js';
 import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
 
 export const AdminService = {
-
+    // [GET] /admin/dashboard endpoint
     getDashboard: async () => {
         // Fetch all metrics concurrently for performance
         const [authMetrics, totalMatches, activeRooms] = await Promise.all([
@@ -24,6 +24,7 @@ export const AdminService = {
         });
     },
     
+    // [GET] /admin/players endpoint
     getPlayers: async (query) => {
         const { filter, sort, pagination } = validatePlayerQuery(query);
         
@@ -36,6 +37,7 @@ export const AdminService = {
         });
     },
 
+    // [GET] /admin/player/:id endpoint
     getPlayerDetail: async (playerId) => {
         if (!validateObjectId(playerId)) {
             throw {
@@ -64,6 +66,7 @@ export const AdminService = {
         return AdminDTO.toPlayerDetail(user, extraStats);
     },
 
+    // [PATCH] /admin/player/:id/deactivate & reactivate endpoint
     changePlayerStatus: async (playerId, isActive) => {
         if (!validateObjectId(playerId)) {
             throw {
@@ -109,6 +112,7 @@ export const AdminService = {
         return AdminDTO.toPlayerDetail(updatedUser);
     },
     
+    // [GET] /admin/rooms endpoint
     getRooms: async (query) => {
         const { filter, sort, pagination } = validateAdminRoomQuery(query);
         
@@ -123,11 +127,12 @@ export const AdminService = {
         };
     },
 
+    // [GET] /admin/rooms/:id endpoint
     getRoomDetail: async (roomId, requestingUser) => {
-        // Delegate to Room module
         return await RoomInterface.getRoomDetail(roomId, requestingUser);
     },
 
+    // [DELETE] /admin/rooms/:id endpoint
     forceCloseRoom: async (roomId) => {
         if (!validateObjectId(roomId)) {
             throw {

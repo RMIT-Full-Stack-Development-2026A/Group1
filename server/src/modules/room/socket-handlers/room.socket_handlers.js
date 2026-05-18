@@ -158,6 +158,10 @@ export const registerRoomSocketHandlers = (io, socket) => {
             }
             // ── END NORMAL / ABORT PATH ──────────────────────────────────────────
         } catch (err) {
+            if (err?.error === 'ROOM_NOT_FOUND') {
+                return;
+            }
+
             GameEmitter.emitError(socket, 'room:leave', err);
         }
     });
@@ -242,6 +246,10 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 }
             }
         } catch (err) {
+            if (err?.error === 'ROOM_NOT_FOUND') {
+                return;
+            }
+
             console.error('[Socket Disconnect Error]', err);
         }
     });

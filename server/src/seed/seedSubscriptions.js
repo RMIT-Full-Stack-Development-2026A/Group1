@@ -1,5 +1,10 @@
 import { Transaction } from '../modules/subscription/models/transaction.model.js';
 
+/**
+ * Seeds a successful subscription transaction for a premium user.
+ * @param {Object} premiumUser - Premium user document.
+ * @returns {Promise<void>}
+ */
 export const seedSubscriptions = async (premiumUser) => {
     console.log('Seeding Subscriptions...');
 

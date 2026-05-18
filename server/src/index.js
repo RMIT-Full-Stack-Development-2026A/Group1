@@ -8,24 +8,35 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
+// Logging utilities
 const log = {
+    /**
+     * Logs an info message.
+     * @param {string} msg - Message to log.
+     */
     info: (msg) => console.log(`[${new Date().toISOString()}] [INFO] ${msg}`),
+    
+    /**
+     * Logs an error message.
+     * @param {string} msg - Error message context.
+     * @param {Error} [err] - Error object.
+     */
     error: (msg, err) => console.error(`[${new Date().toISOString()}] [ERROR] ${msg}`, err ?? ""),
 };
 
+/**
+ * Initializes database, servers, and starts listening for connections.
+ * @returns {Promise<void>}
+ */
 const startServer = async () => {
     try {
         log.info("Connecting to database...");
-        await connectDB(); // Connect to database
+        await connectDB();
         log.info("Database connected successfully.");
 
-        // Create the HTTP server using the Express app
         const httpServer = http.createServer(app);
-
-        // Pass the HTTP server to Socket.io
         initSocketServer(httpServer);
 
-        // Call listen on the httpServer
         httpServer.listen(PORT, () => {
             log.info(`Server running on port: ${PORT}`);
             log.info(`Environment: ${process.env.NODE_ENV || "development"}`);

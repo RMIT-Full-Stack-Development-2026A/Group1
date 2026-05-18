@@ -4,7 +4,7 @@ import { verifyToken } from '../../../middlewares/authMiddleware.js';
 import { handleAvatarUpload } from '../../../middlewares/avatarMiddleware.js';
 
 const profileRoutes = express.Router();
-profileRoutes.use(verifyToken);
+profileRoutes.use(verifyToken); // Require authentication
 
 /**
  * @openapi

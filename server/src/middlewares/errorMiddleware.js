@@ -1,3 +1,10 @@
+/**
+ * Catches requests to undefined routes and returns a 404 response.
+ * * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @returns {Object} JSON 404 error response.
+ */
 export const notFoundHandler = (req, res, next) => {
     return res.status(404).json({
         error: "NOT_FOUND",
@@ -7,7 +14,13 @@ export const notFoundHandler = (req, res, next) => {
     });
 };
 
+/**
+ * Translates specific system/library errors into standardized API error formats.
+ * * @param {Error} error - The original error object thrown.
+ * @returns {Object} A standardized error payload containing statusCode, error, message, cause, and valid_example.
+ */
 const mapKnownError = (error) => {
+    // Handle empty or missing error objects
     if (!error) {
         return {
             statusCode: 500,
@@ -18,7 +31,7 @@ const mapKnownError = (error) => {
         };
     }
 
-    // Custom application/service errors thrown intentionally by the codebase
+    // Handle custom application errors with explicit status codes
     if (error.statusCode || error.error) {
         return {
             statusCode: error.statusCode || 500,
@@ -31,7 +44,7 @@ const mapKnownError = (error) => {
         };
     }
 
-    // Mongoose validation errors
+    // Handle Mongoose schema validation failures
     if (error.name === "ValidationError") {
         const details = Object.values(error.errors || {})
             .map((item) => item.message)
@@ -46,7 +59,7 @@ const mapKnownError = (error) => {
         };
     }
 
-    // Mongoose duplicate key errors 
+    // Handle Mongoose unique constraint (duplicate key) failures
     if (error.code === 11000) {
         const duplicatedFields = Object.keys(error.keyPattern || error.keyValue || {});
         const fieldList = duplicatedFields.length > 0 ? duplicatedFields.join(", ") : "unique field";
@@ -60,7 +73,7 @@ const mapKnownError = (error) => {
         };
     }
 
-    // Invalid ObjectId or malformed route parameter
+    // Handle MongoDB invalid ObjectId cast failures
     if (error.name === "CastError") {
         return {
             statusCode: 400,
@@ -71,7 +84,7 @@ const mapKnownError = (error) => {
         };
     }
 
-    // JSON body parse error from express.json()
+    // Handle express.json() payload parsing failures
     if (error.type === "entity.parse.failed") {
         return {
             statusCode: 400,
@@ -82,7 +95,7 @@ const mapKnownError = (error) => {
         };
     }
 
-    // Payload too large  (for large request bodies)
+    // Handle payload size limits exceeded
     if (error.status === 413 || error.statusCode === 413) {
         return {
             statusCode: 413,
@@ -93,6 +106,7 @@ const mapKnownError = (error) => {
         };
     }
 
+    // Default unhandled error fallback
     return {
         statusCode: 500,
         error: "SERVER_ERROR",
@@ -102,13 +116,22 @@ const mapKnownError = (error) => {
     };
 };
 
+/**
+ * Global error handler middleware that captures and formats all passed exceptions.
+ * * @param {Error} error - The error object passed via next(err).
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @returns {Object|void} JSON formatted error response or delegates to default Express handler.
+ */
 export const errorMiddleware = (error, req, res, next) => {
+    // Delegate to Express default handler if headers are already sent
     if (res.headersSent) {
         return next(error);
     }
-
     console.error("Error in errorMiddleware", error);
 
+    // Normalize error format for consistent API responses
     const normalizedError = mapKnownError(error);
 
     return res.status(normalizedError.statusCode).json({

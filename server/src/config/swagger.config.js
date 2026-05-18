@@ -5,7 +5,7 @@ import { parameters } from '../utils/swagger/parameters.utils.js';
 import { requestBodies } from '../utils/swagger/requestBodies.utils.js';
 import { responses } from '../utils/swagger/responses.utils.js';
 
-//  SWAGGER-JSDOC OPTIONS
+// The Swagger specification for API documentation
 const options = {
     definition: {
         openapi: '3.0.0',
@@ -27,18 +27,18 @@ const options = {
             { name: 'Profile',      description: 'User profile management.' },
             { name: 'Games',        description: 'Game history, replay, and local/AI session persistence.' },
             { name: 'Rooms',        description: 'HTTP room snapshots (mutations go through WebSocket).' },
-            { name: 'Subscription', description: 'Premium membership purchase and history.' },
+            { name: 'Subscription', description: 'Premium membership purchase.' },
             { name: 'Admin',        description: 'Admin-only dashboard, player management, and room monitoring.' },
         ],
 
         components: {
-            // Merge all component categories
+            // Consolidate all schema and component configurations
             schemas:      { ...sharedSchemas, ...domainSchemas },
             parameters,
             requestBodies,
             responses,
 
-            // Cookie-based JWT — no Authorization header needed
+            // Define HTTP-only JWT cookie authentication scheme
             securitySchemes: {
                 cookieAuth: {
                     type: 'apiKey',
@@ -53,6 +53,7 @@ const options = {
         security: [{ cookieAuth: [] }],
     },
 
+    // Target route files for endpoint documentation extraction
     apis: ['./src/modules/**/*.routes.js'],
 };
 

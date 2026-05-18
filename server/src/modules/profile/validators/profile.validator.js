@@ -1,8 +1,13 @@
+/**
+ * Validates profile update payload.
+ * @param {Object} data - Update payload.
+ * @returns {Array} Validation errors.
+ */
 export const validateProfileUpdate = (data) => {
     const { username, email, country } = data;
     const errors = [];
 
-    // Validate Username 
+    // Validate username 
     if (username) {
         const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
         if (!usernameRegex.test(username)) {
@@ -15,7 +20,7 @@ export const validateProfileUpdate = (data) => {
         }
     }
 
-    // Validate Email 
+    // Validate email 
     if (email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
         if (!emailRegex.test(email) || email.length >= 255) {
@@ -43,10 +48,16 @@ export const validateProfileUpdate = (data) => {
     return errors
 };
 
+/**
+ * Validates password change payload.
+ * @param {Object} data - Password payload.
+ * @returns {Array} Validation errors.
+ */
 export const validatePasswordChange = (data) => {
     const { oldPassword, newPassword, confirmPassword } = data || {};
     const errors = [];
 
+    // Validate presence
     if (!oldPassword || !newPassword || !confirmPassword) {
         errors.push({
             field: "all",
@@ -57,6 +68,7 @@ export const validatePasswordChange = (data) => {
         return errors;
     }
 
+    // Validate match
     if (newPassword !== confirmPassword) {
         errors.push({
             field: "confirmPassword",
@@ -66,6 +78,8 @@ export const validatePasswordChange = (data) => {
         });
     }
 
+
+    // Validate strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
         errors.push({

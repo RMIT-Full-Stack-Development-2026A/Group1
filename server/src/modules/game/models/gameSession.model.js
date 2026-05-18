@@ -39,12 +39,6 @@ const gameSessionSchema = new mongoose.Schema({
         default: 'CLASSIC'
     },
 
-    markerStyle: {
-        type: String, // Visual marker theme used in the match
-        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], 
-        default: 'CLASSIC' 
-    },
-
     participants: {
         type: [sessionParticipantSchema], // Stores exactly two participants of the match
         validate: {

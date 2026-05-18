@@ -1,9 +1,12 @@
 import express from 'express';
 import { GameController } from '../controllers/game.controller.js';
 import { verifyToken } from '../../../middlewares/authMiddleware.js';
+import { authorizeMiddleware } from '../../../middlewares/roleMiddleware.js';
 
 const gameRoutes = express.Router();
 gameRoutes.use(verifyToken);
+const requirePlayer = authorizeMiddleware(['PLAYER']);
+gameRoutes.use(requirePlayer);
 
 /**
  * @openapi

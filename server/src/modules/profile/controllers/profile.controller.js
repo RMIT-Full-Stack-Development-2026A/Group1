@@ -2,6 +2,7 @@ import { ProfileService } from '../services/profile.service.js';
 import { upload } from '../../../config/multer.config.js';
 
 export const ProfileController = {
+    // [GET] /profile endpoint
     getProfile: async (req, res, next) => {
         try {
             const safeProfile = await ProfileService.getProfile(req.user.id);
@@ -15,6 +16,7 @@ export const ProfileController = {
         }
     },
 
+    // [GET] /profile/overview endpoint
     getProfileOverview: async (req, res, next) => {
         try {
             const safeOverview = await ProfileService.getProfileOverview(req.user.id);
@@ -28,6 +30,7 @@ export const ProfileController = {
         }
     },
 
+    // [PUT] /profile/update endpoint
     updateProfile: async (req, res, next) => {
         try {
             const safeUpdatedProfile = await ProfileService.updateProfile(req.user.id, req.body);
@@ -41,6 +44,7 @@ export const ProfileController = {
         }
     },
 
+    // [POST] /profile/avatar endpoint
     uploadAvatar: async (req, res, next) => {
         try {
             if (!req.file) {
@@ -52,7 +56,7 @@ export const ProfileController = {
                 });
             }
 
-            // Delegate all image processing and DB logic to Service layer
+            // Controller -> Service layer
             const safeUpdatedProfile = await ProfileService.uploadAvatar(req.user.id, req.file);
             
             return res.status(200).json({
@@ -64,6 +68,7 @@ export const ProfileController = {
         }
     }, 
 
+    // [PATCH] /profile/password endpoint
     changePassword: async (req, res, next) => {
         try {
             await ProfileService.changePassword(req.user.id, req.body);

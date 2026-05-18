@@ -1,7 +1,6 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { RoomInterface } from '../../room/interfaces/room.interface.js';
-import { SubscriptionInterface } from '../../subscription/interfaces/subscription.interface.js';
 import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery } from '../validators/admin.validator.js';
 

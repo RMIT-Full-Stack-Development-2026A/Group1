@@ -1,9 +1,12 @@
 import { Transaction } from '../models/transaction.model.js';
 
 export const SubscriptionRepository = {
-    // Save a new invoice (when the status is PENDING)
+    /**
+     * Upserts a new transaction.
+     * @param {Object} transactionData - Transaction payload.
+     * @returns {Promise<Object>} Saved transaction.
+     */
     createTransaction: async (transactionData) => {
-        // Upsert to ensure a single active Transaction per user
         return await Transaction.findOneAndUpdate(
             { userId: transactionData.userId },
             { $set: transactionData },
@@ -11,12 +14,21 @@ export const SubscriptionRepository = {
         );
     },
 
-    // Find an invoice by the PayPal order ID
+    /**
+     * Finds transaction by external ID.
+     * @param {string} orderId - External transaction ID.
+     * @returns {Promise<Object>} Found transaction.
+     */
     findByExternalId: async (orderId) => {
         return await Transaction.findOne({ externalTransactionId: orderId });
     },
 
-    // Update the invoice status
+    /**
+     * Updates transaction status.
+     * @param {string} orderId - External transaction ID.
+     * @param {Object} updateData - Update payload.
+     * @returns {Promise<Object>} Updated transaction.
+     */
     updateTransactionStatus: async (orderId, updateData) => {
         return await Transaction.findOneAndUpdate(
             { externalTransactionId: orderId },
@@ -25,7 +37,11 @@ export const SubscriptionRepository = {
         );
     },
 
-    // Get the user's current active subscription details
+    /**
+     * Retrieves active transaction for a user.
+     * @param {string} userId - User ID.
+     * @returns {Promise<Object>} Active transaction.
+     */
     getActiveTransactionByUserId: async (userId) => {
         return await Transaction.findOne({ 
             userId,

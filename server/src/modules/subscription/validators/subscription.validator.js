@@ -1,4 +1,10 @@
 export const SubscriptionValidator = {
+    /**
+     * Validates capture order request payload.
+     * @param {Object} req - Express request.
+     * @param {Object} res - Express response.
+     * @param {Function} next - Next middleware.
+     */
     validateCaptureOrder: (req, res, next) => {
         const { orderId } = req.body;
         
@@ -13,6 +19,12 @@ export const SubscriptionValidator = {
         next();
     },
 
+    /**
+     * Validates pagination parameters.
+     * @param {Object} req - Express request.
+     * @param {Object} res - Express response.
+     * @param {Function} next - Next middleware.
+     */
     validatePagination: (req, res, next) => {
         const page = req.query.page ? Number(req.query.page) : 1;
         const limit = req.query.limit ? Number(req.query.limit) : 20;

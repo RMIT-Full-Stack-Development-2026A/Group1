@@ -1,6 +1,5 @@
 import { AuthService } from "../services/auth.service.js";
 
-// Interface exposes auth-owned user operations to other modules without leaking repository details.
 export const AuthInterface = {
     getUserStatus: async (userId) => AuthService.getUserStatus(userId),
     

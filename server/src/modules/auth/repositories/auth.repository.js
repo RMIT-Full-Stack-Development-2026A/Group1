@@ -1,11 +1,10 @@
 import { Revenue } from "../models/platformMetric.model.js";
 import { User } from "../models/user.model.js";
 
-// Repository owns direct database access for auth-related user operations.
 export const AuthRepository = {
+    /** Finds user by email or username. */
     findByEmailOrUsername: async (identifier) => {
         const normalizedIdentifier = String(identifier).trim();
-
         return await User.findOne({
             $or: [
                 { email: normalizedIdentifier.toLowerCase() },
@@ -14,34 +13,38 @@ export const AuthRepository = {
         }).select("+passwordHash");
     },
 
+    /** Checks email existence. */
     existsByEmail: async (email) => {
         const normalizedEmail = String(email).trim().toLowerCase();
         return !!(await User.exists({ email: normalizedEmail }));
     },
 
+    /** Checks username existence. */
     existsByUsername: async (username) => {
         const normalizedUsername = String(username).trim();
         return !!(await User.exists({ username: normalizedUsername }));
     },
 
+    /** Creates a new user. */
     createUser: async (userData) => {
         const newUser = new User(userData);
         return await newUser.save();
     },
 
+    /** Finds user by ID. */
     findById: async (id) => {
         return await User.findById(id);
     },
 
+    /** Finds user by ID including password. */
     findByIdWithPassword: async (id) => {
         return await User.findById(id).select("+passwordHash");
     },
 
+    /** Increments login attempt count. */
     incrementLoginAttempts: async (user) => {
         const currentAttempts = user?.auth?.loginAttempts || 0;
-        const updates = {
-            $inc: { "auth.loginAttempts": 1 }
-        };
+        const updates = { $inc: { "auth.loginAttempts": 1 } };
 
         if (currentAttempts + 1 >= 5) {
             updates.$set = { "auth.lockUntil": new Date(Date.now() + 60 * 1000) };
@@ -50,44 +53,34 @@ export const AuthRepository = {
         return await User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' });
     },
 
+    /** Resets login attempts. */
     resetLoginAttempts: async (userId) => {
         return await User.findByIdAndUpdate(
             userId,
-            {
-                $set: {
-                    "auth.loginAttempts": 0,
-                    "auth.lockUntil": null
-                }
-            },
+            { $set: { "auth.loginAttempts": 0, "auth.lockUntil": null } },
             { returnDocument: 'after' }
         );
     },
 
+    /** Clears expired account locks. */
     clearExpiredLock: async (userId) => {
         return await User.findByIdAndUpdate(
             userId,
-            {
-                $set: {
-                    "auth.loginAttempts": 0,
-                    "auth.lockUntil": null
-                }
-            },
+            { $set: { "auth.loginAttempts": 0, "auth.lockUntil": null } },
             { returnDocument: 'after' }
         );
     },
 
+    /** Updates last login timestamp. */
     updateLastLogin: async (userId) => {
         return await User.findByIdAndUpdate(
             userId,
-            {
-                $set: {
-                    "auth.lastLoginAt": new Date()
-                }
-            },
+            { $set: { "auth.lastLoginAt": new Date() } },
             { returnDocument: 'after' }
         );
     },
 
+    /** Updates premium expiration. */
     updatePremiumExpiry: async (userId, premiumExpiresAt) => {
         return await User.findByIdAndUpdate(
             userId,
@@ -96,6 +89,7 @@ export const AuthRepository = {
         );
     },
 
+    /** Updates account status. */
     updateAccountStatus: async (userId, isActive) => {
         return await User.findByIdAndUpdate(
             userId,
@@ -104,14 +98,16 @@ export const AuthRepository = {
         );
     },
 
+    /** Updates generic user fields. */
     updateUser: async (userId, updates) => {
         return await User.findByIdAndUpdate(
             userId,
             { $set: updates },
             { returnDocument: 'after', runValidators: true }
-        ).select('-passwordHash'); // Exclude password from the returned document
+        ).select('-passwordHash');
     },
 
+    /** Updates user password. */
     updatePassword: async (userId, passwordHash) => {
         return await User.findByIdAndUpdate(
             userId,
@@ -120,6 +116,7 @@ export const AuthRepository = {
         );
     },
 
+    /** Validates profile uniqueness. */
     checkProfileConflicts: async (userId, email, username) => {
         const orConditions = [];
         if (email) orConditions.push({ email });
@@ -128,7 +125,7 @@ export const AuthRepository = {
         if (orConditions.length === 0) return null;
 
         const conflict = await User.findOne({
-            _id: { $ne: userId }, // Don't match the user who is currently updating
+            _id: { $ne: userId },
             $or: orConditions
         });
 
@@ -152,9 +149,10 @@ export const AuthRepository = {
                 };
             }
         }
-        return null; // No conflicts found
+        return null;
     },
 
+    /** Increments total revenue. */
     incrementPlatformRevenue: async (amount) => {
         return await Revenue.findOneAndUpdate(
             { singletonId: 'GLOBAL_METRICS' },
@@ -163,6 +161,7 @@ export const AuthRepository = {
         );
     },
 
+    /** Retrieves global metrics. */
     getPlatformMetrics: async () => {
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -173,7 +172,6 @@ export const AuthRepository = {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-        // The concurrent Promise.all
         const [totalPlayers, activePlayers, premiumPlayers, todayAgg, weekAgg, monthAgg, metricsDoc] = await Promise.all([
             User.countDocuments({ role: 'PLAYER' }),
             User.countDocuments({ role: 'PLAYER', isActive: true }),
@@ -194,7 +192,7 @@ export const AuthRepository = {
                 { $group: { _id: { $dayOfMonth: "$createdAt" }, count: { $sum: 1 } } }
             ]),
             
-            Revenue.findOne({ singletonId: 'GLOBAL_METRICS' }) // Fetch global revenue
+            Revenue.findOne({ singletonId: 'GLOBAL_METRICS' }) 
         ]);
 
         const registeredToday = Array(24).fill(0);
@@ -209,7 +207,6 @@ export const AuthRepository = {
         const registeredThisMonth = Array(daysInMonth).fill(0);
         monthAgg.forEach(item => { registeredThisMonth[item._id - 1] = item.count; });
 
-        // Extract total revenue safely
         const totalRevenue = metricsDoc ? metricsDoc.totalRevenue : 0;
 
         return { 
@@ -219,12 +216,13 @@ export const AuthRepository = {
         };
     },
     
+    /** Retrieves paginated users. */
     findUsersPaginated: async (filter, sort, skip, limit) => {
         const users = await User.find(filter)
             .sort(sort)
             .skip(skip)
             .limit(limit)
-            .select('-passwordHash'); // Ensure passwords are never leaked to admin dashboard
+            .select('-passwordHash');
 
         const total = await User.countDocuments(filter);
 

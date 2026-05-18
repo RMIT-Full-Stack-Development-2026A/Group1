@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { connectDB } from '../config/db.config.js';
 
-// Import Domain Seeders
 import { seedAdmin } from './seedAdmin.js';
 import { seedPlayers } from './seedPlayers.js';
 import { seedSubscriptions } from './seedSubscriptions.js';
@@ -10,21 +9,26 @@ import { seedMatches } from './seedMatches.js';
 
 dotenv.config();
 
+/**
+ * Orchestrates the database seeding process.
+ * @returns {Promise<void>}
+ */
 const runSeeder = async () => {
     try {
         console.log('Starting TicTacToang Database Seeder...');
         
-        // Connect to MongoDB
+        // Connect database
         await connectDB();
 
-        // Run Seeders
+        // Run standalone seeders
         await seedAdmin();
         const players = await seedPlayers();
         
+        // Extract specific users
         const premiumPlayer = players.find(p => p.username === 'premium_player');
         const normalPlayer = players.find(p => p.username === 'normal_player');
 
-        // Dependent Seeders (Require User IDs)
+        // Run dependent seeders
         await seedSubscriptions(premiumPlayer);
         await seedMatches(normalPlayer, premiumPlayer);
 
@@ -33,7 +37,7 @@ const runSeeder = async () => {
     } catch (error) {
         console.error('Error during seeding:', error);
     } finally {
-        // Disconnect to exit the process
+        // Disconnect database
         await mongoose.connection.close();
         console.log('Database connection closed.');
     }

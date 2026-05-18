@@ -1,12 +1,12 @@
 /**
- * authorizeMiddleware - Authorization middleware for role-based access control
- * @param {string[]} allowedRoles - Array of roles that are permitted to access the route
- * @returns {Function} Middleware function
+ * Restricts route access based on an array of permitted user roles.
+ * * @param {string[]} allowedRoles - Array of roles permitted to access the route.
+ * @returns {Function} Express middleware function handling authorization validation.
  */
 export const authorizeMiddleware = (allowedRoles = []) => {
     return (req, res, next) => {
         try {
-            // Validate if user exists
+            // Ensure the user payload was attached by prior auth middleware
             if (!req.user || !req.user.role) { 
                 return res.status(401).json({
                     error: "UNAUTHORIZED_ROLE",
@@ -16,7 +16,7 @@ export const authorizeMiddleware = (allowedRoles = []) => {
                 });
             }
 
-            // Check user's role is in the allowed roles array
+            // Verify the user's role exists within the allowed scope
             if (!allowedRoles.includes(req.user.role)) {
                 return res.status(403).json({
                     error: "FORBIDDEN",

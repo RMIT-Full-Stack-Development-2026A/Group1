@@ -1,7 +1,7 @@
 import { AdminService } from '../services/admin.service.js';
 
 export const AdminController = {
-
+    // [GET] /admin/dashboard endpoint
     getDashboard: async (req, res, next) => {
         try {
             const safeData = await AdminService.getDashboard();
@@ -15,6 +15,7 @@ export const AdminController = {
         }
     },
     
+    // [GET] /admin/players endpoint
     getPlayers: async (req, res, next) => {
         try {
             const safeData = await AdminService.getPlayers(req.query);
@@ -28,6 +29,7 @@ export const AdminController = {
         }
     },
 
+     // [GET] /admin/player/:id endpoint
     getPlayerDetail: async (req, res, next) => {
         try {
             const safeData = await AdminService.getPlayerDetail(req.params.id);
@@ -41,6 +43,7 @@ export const AdminController = {
         }
     },
     
+     // [PATCH] /admin/player/:id/deactivate endpoint
     deactivatePlayer: async (req, res, next) => {
         try {
             const safeData = await AdminService.changePlayerStatus(req.params.id, false);
@@ -54,6 +57,7 @@ export const AdminController = {
         }
     },
 
+     // [PATCH] /admin/player/:id/reactivate endpoint
     reactivatePlayer: async (req, res, next) => {
         try {
             const safeData = await AdminService.changePlayerStatus(req.params.id, true);
@@ -67,6 +71,7 @@ export const AdminController = {
         }
     },
 
+     // [GET] /admin/rooms endpoint
     getRooms: async (req, res, next) => {
         try {
             const safeData = await AdminService.getRooms(req.query);
@@ -80,6 +85,7 @@ export const AdminController = {
         }
     },
 
+     // [GET] /admin/rooms/:id endpoint
     getRoomDetail: async (req, res, next) => {
         try {
             const safeData = await AdminService.getRoomDetail(req.params.id, req.user);
@@ -93,6 +99,7 @@ export const AdminController = {
         }
     },
 
+     // [DELETE] /admin/rooms/:id endpoint
     forceCloseRoom: async (req, res, next) => {
         try {
             await AdminService.forceCloseRoom(req.params.id);

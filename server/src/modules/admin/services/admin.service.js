@@ -1,7 +1,6 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { RoomInterface } from '../../room/interfaces/room.interface.js';
-import { SubscriptionInterface } from '../../subscription/interfaces/subscription.interface.js';
 import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery } from '../validators/admin.validator.js';
 
@@ -9,24 +8,23 @@ import { eventBus } from '../../../utils/eventBus.util.js';
 import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
 
 export const AdminService = {
-
+    // [GET] /admin/dashboard endpoint
     getDashboard: async () => {
         // Fetch all metrics concurrently for performance
-        const [authMetrics, totalMatches, activeRooms, totalRevenue] = await Promise.all([
+        const [authMetrics, totalMatches, activeRooms] = await Promise.all([
             AuthInterface.getPlatformMetrics(),
             GameInterface.getTotalPlatformMatches(),
-            RoomInterface.getActiveRoomsCount(),
-            SubscriptionInterface.getTotalRevenue(),
+            RoomInterface.getActiveRoomsCount()
         ]);
 
         return AdminDTO.toDashboard({
-            ...authMetrics,
+            ...authMetrics, 
             totalMatches,
-            activeRooms,
-            totalRevenue
+            activeRooms
         });
     },
     
+    // [GET] /admin/players endpoint
     getPlayers: async (query) => {
         const { filter, sort, pagination } = validatePlayerQuery(query);
         
@@ -39,6 +37,7 @@ export const AdminService = {
         });
     },
 
+    // [GET] /admin/player/:id endpoint
     getPlayerDetail: async (playerId) => {
         if (!validateObjectId(playerId)) {
             throw {
@@ -67,6 +66,7 @@ export const AdminService = {
         return AdminDTO.toPlayerDetail(user, extraStats);
     },
 
+    // [PATCH] /admin/player/:id/deactivate & reactivate endpoint
     changePlayerStatus: async (playerId, isActive) => {
         if (!validateObjectId(playerId)) {
             throw {
@@ -112,6 +112,7 @@ export const AdminService = {
         return AdminDTO.toPlayerDetail(updatedUser);
     },
     
+    // [GET] /admin/rooms endpoint
     getRooms: async (query) => {
         const { filter, sort, pagination } = validateAdminRoomQuery(query);
         
@@ -126,11 +127,12 @@ export const AdminService = {
         };
     },
 
+    // [GET] /admin/rooms/:id endpoint
     getRoomDetail: async (roomId, requestingUser) => {
-        // Delegate to Room module
         return await RoomInterface.getRoomDetail(roomId, requestingUser);
     },
 
+    // [DELETE] /admin/rooms/:id endpoint
     forceCloseRoom: async (roomId) => {
         if (!validateObjectId(roomId)) {
             throw {

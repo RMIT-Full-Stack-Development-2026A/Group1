@@ -1,5 +1,6 @@
 import { AuthRepository } from '../repositories/auth.repository.js';
 
+/** Validates register payload. */
 export const validateRegisterInput = (data) => {
     const { username, email, password, confirmPassword, country } = data;
     const errors = [];
@@ -56,6 +57,7 @@ export const validateRegisterInput = (data) => {
     return errors;
 };
 
+/** Checks registration conflicts. */
 export const validateRegisterConflicts = async (email, username) => {
     const emailConflict = await AuthRepository.findByEmailOrUsername(email);
     const usernameConflict = await AuthRepository.findByEmailOrUsername(username);
@@ -81,6 +83,7 @@ export const validateRegisterConflicts = async (email, username) => {
     }
 };
 
+/** Validates login payload. */
 export const validateLoginInput = (data) => {
     const { identifier, password } = data;
     const errors = [];

@@ -1,6 +1,7 @@
 import { SubscriptionService } from '../services/subscription.service.js';
 
 export const SubscriptionController = {
+    // [GET] /subscription/status endpoint
     getSubscriptionStatus: async (req, res, next) => {
         try {
             const status = await SubscriptionService.getStatus(req.user.id);
@@ -13,6 +14,7 @@ export const SubscriptionController = {
         }
     },
 
+    // [POST] /subscription/createe-order endpoint
     createPayPalOrder: async (req, res, next) => {
         try {
             const orderData = await SubscriptionService.createOrder(req.user.id);
@@ -25,6 +27,7 @@ export const SubscriptionController = {
         }
     },
 
+    // [POST] /subscription/capture-order endpoint
     capturePayPalOrder: async (req, res, next) => {
         try {
             const result = await SubscriptionService.captureOrder(req.user.id, req.body.orderId);
@@ -37,9 +40,10 @@ export const SubscriptionController = {
         }
     },
 
+    // [GET] /subscription/history endpoint
     getSubscriptionHistory: async (req, res, next) => {
         try {
-            const history = await SubscriptionService.getHistory(req.user.id, req.query.page, req.query.limit);
+            const history = await SubscriptionService.getHistory(req.user.id);
             res.status(200).json({
                 data: history,
                 message: "Subscription history fetched successfully."
@@ -49,6 +53,7 @@ export const SubscriptionController = {
         }
     },
 
+    // [POST] /subscription/paypal-events endpoint
     handlePayPalWebhook: async (req, res) => {
         try {
             await SubscriptionService.processWebhook(req.body, req.headers);

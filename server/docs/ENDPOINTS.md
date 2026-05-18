@@ -70,38 +70,16 @@ Base Path: `/api/v1/auth`
 
 These APIs handle account creation, login, logout, and session bootstrap.
 
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| POST | `/auth/register` | No | Register a new player | Yes |
-| POST | `/auth/login` | No | Login with username/email and password | Yes |
-| POST | `/auth/logout` | Yes | Clear auth cookie and logout current user | Yes |
-| GET | `/auth/check-auth` | Yes | Validate session and return current session payload | Yes |
+| POST | `/auth/register` | PULIC | Register a new player | Yes |
+| POST | `/auth/login` | PUBLIC | Login with username/email and password | Yes |
+| POST | `/auth/logout` | AUTHENTICATED | Clear auth cookie and logout current user | Yes |
+| GET | `/auth/check-auth` | AUTHENTICATED | Validate session and return current session payload | Yes |
 
 ### Notes
 - `POST /auth/login` must enforce brute-force protection (lock after 5 failed attempts within 60 seconds).
 - `GET /auth/check-auth` should return enough data for app bootstrap so FE does **not** need an immediate second API call after page refresh.
-
-Recommended payload for `GET /auth/check-auth`:
-
-```json
-{
-  "data": {
-    "user": {
-      "id": "...",
-      "username": "...",
-      "email": "...",
-      "role": "PLAYER",
-      "country": "VN",
-      "avatar": "...",
-      "isPremium": false,
-      "isActive": true,
-      "createdAt": "2026-03-21T14:30:00.000Z"
-    },
-    "activeRoom": null
-  },
-  "message": "Authenticated"
-}
-```
 
 `activeRoom` helps FE restore an unfinished online match without extra round-trips.
 
@@ -110,13 +88,13 @@ Base Path: `/api/v1/profile`
 
 These APIs manage user profile data and provide an optimized overview payload for the Profile page.
 
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/profile` | Yes | Get current user's base profile | Yes |
-| GET | `/profile/overview` | Yes | Get profile + subscription + recent game stats in one call | Yes |
-| PUT | `/profile/update` | Yes | Update username, email, or country | Yes |
-| PATCH | `/profile/password` | Yes | Change current user's password | Yes |
-| POST | `/profile/avatar` | Yes | Upload avatar image | Yes |
+| GET | `/profile` | AUTHENTICATED | Get current user's base profile | Yes |
+| GET | `/profile/overview` | AUTHENTICATED | Get profile + subscription + recent game stats in one call | Yes |
+| PUT | `/profile/update` | AUTHENTICATED | Update username, email, or country | Yes |
+| PATCH | `/profile/password` | AUTHENTICATED | Change current user's password | Yes |
+| POST | `/profile/avatar` | AUTHENTICATED | Upload avatar image | Yes |
 
 ```json
 {
@@ -141,11 +119,11 @@ Base Path: `/api/v1/games`
 
 These APIs cover local play history, AI history, online match history, search/filter/sort, and replay data.
 
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| POST | `/games` | Yes | Save a completed local / local-vs-local / AI game session | Yes |
-| GET | `/games` | Yes | List current user's game sessions with pagination, search, filter, and sort | Yes |
-| GET | `/games/:id` | Yes | Get one game session detail including replay payload | Yes |
+| POST | `/games` | PLAYER | Save a completed local / local-vs-local / AI game session | Yes |
+| GET | `/games` | PLAYER | List current user's game sessions with pagination, search, filter, and sort | Yes |
+| GET | `/games/:id` | PLAYER | Get one game session detail including replay payload | Yes |
 
 ### `POST /games`
 Use this endpoint for **non-online matches created on the frontend**:
@@ -172,10 +150,10 @@ Base Path: `/api/v1/rooms`
 
 Room creation/join/leave/gameplay happen through WebSocket. HTTP is used only for **initial snapshot** and **recovery/reconnect**.
 
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/rooms` | Yes | Get current arena snapshot (all joinable or active rooms) | Yes |
-| GET | `/rooms/:id` | Yes | Get one room snapshot for reconnect/recovery | Yes |
+| GET | `/rooms` | PLAYER | Get current arena snapshot (all joinable or active rooms) | Yes |
+| GET | `/rooms/:id` | PLAYER | Get one room snapshot for reconnect/recovery | Yes |
 |
 
 ### `GET /rooms` query params
@@ -195,25 +173,28 @@ To minimize API calls and avoid broadcast storms, the arena page should:
 ## 5. Subscription APIs
 Base Path: `/api/v1/subscription`
 
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/subscription/status` | Yes | Get premium status and expiry date | Yes |
-| POST | `/subscription/create-order` | Yes | Generate PayPal payment link/order ID | Yes |
-| POST | `/subscription/capture-order` | Yes | Validate PayPal successful payment and activate premium | Yes |
-| GET | `/subscription/history` | Yes | Get current subscription detail | Yes |
-| POST | `/subscription/paypal-events` | No | Listen for PayPal async events to revoke premium | Yes |
+| GET | `/subscription/status` | PLAYER | Get premium status and expiry date | Yes |
+| POST | `/subscription/create-order` | PLAYER | Generate PayPal payment link/order ID | Yes |
+| POST | `/subscription/capture-order` | PLAYER | Validate PayPal successful payment and activate premium | Yes |
+| GET | `/subscription/history` | PLAYER | Current Subscription Details — returns an array with 1 item (the active transaction) or 0 items (if expired/none) | Yes |
+| POST | `/subscription/paypal-events` | PUBLIC | Listen for PayPal async events to revoke premium | Yes |
+
 ### Notes
-- A successful `capture-order` request should update the `premiumExpiresAt` state and record an immutable `Transaction` invoice.
+- **Active Record Only:** The database enforces a 1-to-1 relationship between a user and their active subscription transaction. The `/history` endpoint reflects this by only returning the current active transaction. Expired transactions are automatically cleaned up via MongoDB TTL indexes.
+- `POST /subscription/create-order` saves the pending PayPal order using an `upsert`, which can overwrite the user's current active `Transaction` record even if checkout is never completed. A successful `capture-order` then validates that pending order and activates premium.
 - If a `REFUND` or `CHARGEBACK` webhook event is received from PayPal, the system must update the corresponding `Transaction` status to `REFUNDED` and reset the user's `premiumExpiresAt` to null/past.
+
 ## 6. Admin APIs
 Base Path: `/api/v1/admin`
 
 All endpoints require `ADMIN` role.
 
 ### 6.1 Dashboard
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/admin/dashboard` | Admin | Aggregated dashboard metrics for the admin home screen | Yes |
+| GET | `/admin/dashboard` | ADMIN | Aggregated dashboard metrics for the admin home screen | Yes |
 
 Admin dashboard data:
 - totalPlayers
@@ -229,12 +210,12 @@ Admin dashboard data:
 This avoids multiple parallel admin summary calls.
 
 ### 6.2 Player Management
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/admin/players` | Admin | List players with pagination and filters | Yes |
-| GET | `/admin/player/:id` | Admin | Get one player's admin detail | Yes |
-| PATCH | `/admin/player/:id/deactivate` | Admin | Deactivate account | Yes |
-| PATCH | `/admin/player/:id/reactivate` | Admin | Reactivate account | Yes |
+| GET | `/admin/players` | ADMIN | List players with pagination and filters | Yes |
+| GET | `/admin/player/:id` | ADMIN | Get one player's admin detail | Yes |
+| PATCH | `/admin/player/:id/deactivate` | ADMIN | Deactivate account | Yes |
+| PATCH | `/admin/player/:id/reactivate` | ADMIN | Reactivate account | Yes |
 
 #### `GET /admin/players` query params
 | Query | Type | Description |
@@ -249,11 +230,11 @@ This avoids multiple parallel admin summary calls.
 |
 
 ### 6.3 Room Monitoring
-| Method | Endpoint | Auth | Description | Implemented |
+| Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| GET | `/admin/rooms` | Admin | List active/waiting rooms | Yes |
-| GET | `/admin/rooms/:id` | Admin | Get room detail and live snapshot | Yes |
-| DELETE | `/admin/rooms/:id` | Admin | Force close a room | Yes |
+| GET | `/admin/rooms` | ADMIN | List active/waiting rooms | Yes |
+| GET | `/admin/rooms/:id` | ADMIN | Get room detail and live snapshot | Yes |
+| DELETE | `/admin/rooms/:id` | ADMIN | Force close a room | Yes |
 
 ## 7. WebSocket Contract
 Namespace/Endpoint: `/ws/game`

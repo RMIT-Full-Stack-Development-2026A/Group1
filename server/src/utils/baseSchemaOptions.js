@@ -1,12 +1,18 @@
 export const baseSchemaOptions = {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
     toJSON: {
-        virtuals: true, // Include virtual fields like isPremium
-        versionKey: false, // Remove __v from API responses
+        virtuals: true,
+        versionKey: false,
+        /**
+         * Formats the document for API responses.
+         * @param {Object} _doc - The original Mongoose document.
+         * @param {Object} ret - The plain object representation.
+         * @returns {Object} Formatted object.
+         */
         transform: function (_doc, ret) {
-        ret.id = ret._id; // Expose Mongo _id as id for frontend consistency
-        delete ret._id; // Hide raw Mongo field
-        return ret;
+            ret.id = ret._id; // Map _id to id
+            delete ret._id;   // Remove raw _id
+            return ret;
         }
     }
 };

@@ -3,61 +3,53 @@ import { baseSchemaOptions } from "../../../utils/baseSchemaOptions.js";
 
 const userSchema = new mongoose.Schema({
     username: {
-        type: String, // Account username used for login/display
+        type: String,
         required: true, 
         unique: true, 
         trim: true, 
-        match: /^[a-zA-Z0-9_-]{6,30}$/, // Only allow letters, numbers, underscore, hyphen, 6-30 characters 
+        match: /^[a-zA-Z0-9_-]{6,30}$/, 
         index: true 
     },
-
     email: {
-        type: String, // Main email address of the account
+        type: String, 
         required: true, 
         unique: true, 
         lowercase: true, 
         trim: true, 
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Basic email format validation
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
         maxlength: 254, 
         index: true 
     },
-
     passwordHash: {
-        type: String, // Stores hashed password, never plain text password
+        type: String, 
         required: true, 
         select: false
     },
-
     country: {
-        type: String, // User-selected country 
+        type: String, 
         required: true,
         trim: true 
     },
-
     role: {
         type: String, 
         enum: ['PLAYER', 'ADMIN'], 
         default: 'PLAYER',
         index: true 
     },
-
     avatar: {
-        type: String, // URL/path to the user's uploaded avatar image
+        type: String, 
         default: null 
     },
-
     isActive: {
         type: Boolean, 
         default: true,
         index: true,
     },
-
     premiumExpiresAt: {
-        type: Date, // Date-time when premium membership ends
+        type: Date, 
         default: null, 
         index: true
     },
-
     auth: {
         lastLoginAt: {
             type: Date, 
@@ -66,22 +58,23 @@ const userSchema = new mongoose.Schema({
         loginAttempts: {
             type: Number, 
             default: 0, 
-            select: false // Security metadata hidden from standard queries
+            select: false 
         },
         lockUntil: {
             type: Date,
             default: null, 
-            select: false // Security metadata hidden from standard queries
+            select: false 
         }
     }
 }, baseSchemaOptions);
 
-// Does not take up database storage
+// Virtuals
 userSchema.virtual('isPremium').get(function () {
   return !!this.premiumExpiresAt && this.premiumExpiresAt > new Date();
 });
 
-userSchema.index({ createdAt: -1 }); // Helps sort newest users first
-userSchema.index({ username: 'text', email: 'text' }); // Helps text search in admin/player listings
+// Indexes
+userSchema.index({ createdAt: -1 }); 
+userSchema.index({ username: 'text', email: 'text' }); 
 
 export const User = mongoose.model('User', userSchema);

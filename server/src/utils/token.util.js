@@ -1,9 +1,16 @@
 import jwt from 'jsonwebtoken';
 
-// Generate JWT and store it in the httpOnly cookie
+/**
+ * Generates a JWT and sets it as an HttpOnly cookie on the response.
+ * @param {Object} res - Express response object.
+ * @param {string} userId - User identifier.
+ * @param {string} role - User role.
+ * @param {boolean} isPremium - Subscription status.
+ * @returns {string} The generated JWT token.
+ */
 export const generateTokenAndSetCookie = (res, userId, role, isPremium) => {
     const token = jwt.sign({ userId, role, isPremium }, process.env.JWT_SECRET, {
-        expiresIn: "7d", // 7 days
+        expiresIn: "7d",
     });
 
     res.cookie('access_token', token, {

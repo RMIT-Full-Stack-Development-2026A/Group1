@@ -4,10 +4,20 @@ import mongoose from 'mongoose';
 export const ACTIVE_ROOM_STATUSES = ['WAITING', 'READY', 'PLAYING'];
 export const ALL_ROOM_STATUSES = [...ACTIVE_ROOM_STATUSES, 'ABORTED', 'CLOSED'];
 
+/**
+ * Validates MongoDB ObjectId format.
+ * @param {string} id - Identifier to check.
+ * @returns {boolean} True if valid.
+ */
 export const validateObjectId = (id) => {
     return mongoose.Types.ObjectId.isValid(id);
 };
 
+/**
+ * Validates and sanitizes player query parameters.
+ * @param {Object} query - Request query object.
+ * @returns {Object} Structured filter, sort, and pagination payload.
+ */
 export const validatePlayerQuery = (query) => {
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20)); // Limit at 100
@@ -42,6 +52,11 @@ export const validatePlayerQuery = (query) => {
     return { filter, sort, pagination: { page, limit, skip } };
 };
 
+/**
+ * Validates and sanitizes room query parameters.
+ * @param {Object} query - Request query object.
+ * @returns {Object} Structured filter, sort, and pagination payload.
+ */
 export const validateAdminRoomQuery = (query) => {
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20)); 

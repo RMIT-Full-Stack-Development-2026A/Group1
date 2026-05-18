@@ -1,4 +1,8 @@
-// DTO helpers for admin dashboard, player management, and room monitoring responses.
+/**
+ * Maps user document to admin player DTO.
+ * @param {Object} user - Raw user document.
+ * @returns {Object} Admin player item payload.
+ */
 const toAdminPlayerItem = (user) => ({
     id: user.id || user._id,
     username: user.username,
@@ -12,6 +16,11 @@ const toAdminPlayerItem = (user) => ({
 });
 
 export const AdminDTO = {
+    /**
+     * Maps metrics to dashboard DTO.
+     * @param {Object} metrics - Raw metrics data.
+     * @returns {Object} Dashboard payload.
+     */
     toDashboard: (metrics = {}) => ({
         totalPlayers: metrics.totalPlayers ?? 0,
         activePlayers: metrics.activePlayers ?? 0,
@@ -28,6 +37,12 @@ export const AdminDTO = {
 
     toPlayerItem: toAdminPlayerItem,
 
+    /**
+     * Maps user list to paginated DTO.
+     * @param {Array} users - User documents.
+     * @param {Object} pagination - Pagination metadata.
+     * @returns {Object} Paginated player list payload.
+     */
     toPlayerList: (users, pagination) => ({
         items: Array.isArray(users) ? users.map(toAdminPlayerItem) : [],
         total: pagination?.total ?? 0,
@@ -35,6 +50,12 @@ export const AdminDTO = {
         limit: pagination?.limit ?? 20
     }),
 
+    /**
+     * Maps user document and extra stats to detail DTO.
+     * @param {Object} user - Raw user document.
+     * @param {Object} extra - Extra player stats.
+     * @returns {Object} Player detail payload.
+     */
     toPlayerDetail: (user, extra = {}) => ({
         ...toAdminPlayerItem(user),
         lastLoginAt: user?.auth?.lastLoginAt ?? null,

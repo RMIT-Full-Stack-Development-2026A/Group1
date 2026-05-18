@@ -24,4 +24,4 @@ const platformMetricSchema = new mongoose.Schema({
     }
 });
 
-export const PlatformMetric = mongoose.model('PlatformMetric', platformMetricSchema);
+export const Revenue = mongoose.model('revenue', platformMetricSchema, 'revenue');

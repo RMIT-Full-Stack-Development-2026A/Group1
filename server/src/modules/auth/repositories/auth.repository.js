@@ -1,4 +1,4 @@
-import { PlatformMetric } from "../models/platformMetric.model.js";
+import { Revenue } from "../models/platformMetric.model.js";
 import { User } from "../models/user.model.js";
 
 // Repository owns direct database access for auth-related user operations.
@@ -156,7 +156,7 @@ export const AuthRepository = {
     },
 
     incrementPlatformRevenue: async (amount) => {
-        return await PlatformMetric.findOneAndUpdate(
+        return await Revenue.findOneAndUpdate(
             { singletonId: 'GLOBAL_METRICS' },
             { $inc: { totalRevenue: amount } },
             { upsert: true, returnDocument: true }
@@ -194,7 +194,7 @@ export const AuthRepository = {
                 { $group: { _id: { $dayOfMonth: "$createdAt" }, count: { $sum: 1 } } }
             ]),
             
-            PlatformMetric.findOne({ singletonId: 'GLOBAL_METRICS' }) // Fetch global revenue
+            Revenue.findOne({ singletonId: 'GLOBAL_METRICS' }) // Fetch global revenue
         ]);
 
         const registeredToday = Array(24).fill(0);

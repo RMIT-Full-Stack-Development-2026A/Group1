@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
 import { X, Eye } from 'lucide-react';
-import { useAudio } from '@/hooks/useAudio';
-import { AUDIO_FILES } from '@/config/audioConfig';
-
-let lastPlayedResultSignature = null;
 
 const RESULT_UI_CONFIG = {
     winner: {
@@ -41,11 +37,8 @@ const RESULT_UI_CONFIG = {
 };
 
 const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby }) => {
-
-    const { play: playVictorySound } = useAudio(AUDIO_FILES.GAME_WIN);
-    const { play: playLoseSound } = useAudio(AUDIO_FILES.GAME_LOSE);
-    const [isMinimized, setIsMinimized] = useState(false);
     
+    const [isMinimized, setIsMinimized] = useState(false);
 
     // Reset minimize state when new result comes
     useEffect(() => {
@@ -53,27 +46,6 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
             setIsMinimized(false);
         }
     }, [winnerData, isDraw]);
-
-    useEffect(() => {
-        const resultSignature = winnerData
-            ? `winner:${winnerData.player}:${winnerData.cells?.join('-') ?? ''}`
-            : isDraw
-                ? 'draw'
-                : null;
-
-        if (resultSignature && resultSignature !== lastPlayedResultSignature) {
-            if (perspective === 'loser') {
-                playLoseSound();
-            } else if (perspective === 'winner' || perspective === 'local_result') {
-                playVictorySound();
-            }
-            lastPlayedResultSignature = resultSignature;
-        }
-
-        if (!winnerData && !isDraw) {
-            lastPlayedResultSignature = null;
-        }
-    }, [winnerData, isDraw, perspective, playVictorySound, playLoseSound]);
 
     // Lock scroll when overlay is active
     useEffect(() => {

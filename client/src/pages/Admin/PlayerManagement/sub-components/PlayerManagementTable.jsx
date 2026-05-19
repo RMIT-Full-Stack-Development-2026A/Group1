@@ -21,7 +21,7 @@ export default function PlayerManagementTable({ players, onToggleStatus, actionL
 
 		return (
 			<div className="flex h-full w-full items-center justify-center bg-slate-900 text-[10px] font-bold tracking-widest text-outline">
-				{player.name.slice(0, 2)}
+				{(player.name || "").slice(0, 2).toUpperCase()}
 			</div>
 		);
 	};
@@ -54,7 +54,7 @@ export default function PlayerManagementTable({ players, onToggleStatus, actionL
 						<th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">ID</th>
 						<th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Player</th>
 						<th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Email Node</th>
-						<th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Rank</th>
+						<th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Premium</th>
 						<th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Status</th>
 						<th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Action</th>
 					</tr>

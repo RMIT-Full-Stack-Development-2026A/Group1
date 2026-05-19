@@ -29,7 +29,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
   const getParticipantId = (participant) => {
     if (!participant?.userId) return "-";
 
-    return String(participant.userId);
+    return String(participant.userId).slice(0, 5);
   };
 
   const renderAvatar = (participant, label) => {
@@ -74,7 +74,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
                 {room.playerOneName}
               </span>
               <span className="font-mono text-[10px] uppercase tracking-wide text-[#fad100]">
-                ID: {getParticipantId(room.participants?.[0])}
+                #{getParticipantId(room.participants?.[0])}
               </span>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
                 {room.playerTwoName}
               </span>
               <span className="font-mono text-[10px] uppercase tracking-wide text-[#fad100]">
-                ID: {getParticipantId(room.participants?.[1])}
+                #{getParticipantId(room.participants?.[1])}
               </span>
             </div>
           </div>

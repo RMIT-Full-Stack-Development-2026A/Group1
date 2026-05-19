@@ -9,7 +9,7 @@ const mapPlayerRow = (player) => {
 
 	return {
 		id: player.id,
-		name: (player.username || "UNKNOWN").toUpperCase(),
+		name: player.username || "Unknown",
 		email: player.email || "-",
 		avatar: player.avatar || "",
 		status: isActive ? "ACTIVE" : "INACTIVE",

@@ -17,6 +17,11 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
         return <span className="material-symbols-outlined text-primary-cyan">person</span>;
     };
 
+    const formatRoomParticipantId = (value) => {
+        if (!value) return "-";
+        return String(value).slice(0, 5);
+    };
+
     return (
         <div
             className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all ${
@@ -45,7 +50,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                         </div>
                         <div className="flex flex-col">
                             <span className="font-mono text-[10px] text-outline uppercase tracking-wide">{room.host}</span>
-                            <span className="font-mono text-[10px] text-[#fad100]" title={room.hostUserId}>{room.hostUserId || room.hostRank}</span>
+                            <span className="font-mono text-[10px] text-[#fad100] uppercase" title={room.hostUserId}>#{formatRoomParticipantId(room.hostUserId || room.hostRank)}</span>
                         </div>
                     </div>
 
@@ -61,7 +66,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="font-mono text-[10px] text-primary-cyan font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>
-                            <span className="font-mono text-[10px] text-[#fad100]" title={room.opponentUserId}>{room.opponentUserId || room.opponentRank}</span>
+                            <span className="font-mono text-[10px] text-[#fad100]" uppercase title={room.opponentUserId}>#{formatRoomParticipantId(room.opponentUserId || room.opponentRank)}</span>
                         </div>
                     </div>
                 </div>

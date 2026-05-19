@@ -272,6 +272,11 @@ export const useGameOnline = () => {
         setCompletedMatch(null);
     }, []);
 
+    const handleSetFirstTurn = useCallback((firstTurnParticipantIndex) => {
+        if (!socket || !roomData?.id) return;
+        socket.emit('room:set_first_turn', { roomId: roomData.id, firstTurnParticipantIndex });
+    }, [socket, roomData?.id]);
+
     return {
         roomData,
         isConnecting,
@@ -283,5 +288,6 @@ export const useGameOnline = () => {
         handleReady,
         handlePlayAgain,
         handleLeaveRoom,
+        handleSetFirstTurn,
     };
 };

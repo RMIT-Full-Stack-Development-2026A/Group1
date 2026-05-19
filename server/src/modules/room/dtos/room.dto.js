@@ -33,6 +33,8 @@ export const RoomDTO = {
         boardSize: room.boardSize,
         boardStyle: room.boardStyle ?? 'CLASSIC',
         markerStyle: room.markerStyle ?? 'CLASSIC',
+        firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
+        currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         moveCount: room.moveCount ?? 0,
@@ -44,11 +46,13 @@ export const RoomDTO = {
 
     // Summary shape used by arena/listing pages.
     toRoomSummary: (room) => ({
+        currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
         boardStyle: room.boardStyle ?? 'CLASSIC',
         markerStyle: room.markerStyle ?? 'CLASSIC',
+        firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         moveCount: room.moveCount ?? 0,
@@ -72,6 +76,7 @@ export const RoomDTO = {
         boardSize: room.boardSize,
         boardStyle: room.boardStyle ?? 'CLASSIC',
         markerStyle: room.markerStyle ?? 'CLASSIC',
+        firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,

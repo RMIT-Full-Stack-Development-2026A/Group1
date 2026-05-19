@@ -17,17 +17,21 @@ import Footer from '@/components/reusable/Footer';
 //   );
 // }
 
-export default function GameRoom({ roomData, currentUserId, onReady, onLeave, disconnectCountdown }) {
+export default function GameRoom({ roomData, currentUserId, onReady, onLeave, onSetFirstTurn, disconnectCountdown }) {
   const host = roomData?.participants?.[0] || null;
   const guest = roomData?.participants?.[1] || null;
   const myParticipant = roomData?.participants?.find((p) => p.userId === currentUserId) || null;
   const isMyReady = myParticipant?.isReady || false;
+  const isHost = host?.userId === currentUserId;
   // The room should only allow Ready Up once both participants are present.
   // The backend may also mirror this in room status, but participant count is the direct UI gate.
   const canReady = roomData?.participants?.length === 2;
 
   const { user } = useAuthStore();
   const { play: playClick } = useButtonSound(AUDIO_FILES.BUTTON_CLICK);
+  
+  const firstTurnIndex = roomData?.firstTurnParticipantIndex ?? 0;
+  const firstPlayerMark = firstTurnIndex === 0 ? 'X' : 'O';
 
   const resolveAvatarUrl = (participant) => {
     if (!participant) return null;
@@ -48,6 +52,13 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
     playClick();
     onLeave();
   }, [playClick, onLeave]);
+
+  const handleToggleFirstTurn = useCallback(() => {
+    if (!isHost) return;
+    playClick();
+    const newFirstTurnIndex = firstTurnIndex === 0 ? 1 : 0;
+    onSetFirstTurn(newFirstTurnIndex);
+  }, [isHost, firstTurnIndex, playClick, onSetFirstTurn]);
 
   return (
     <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden bg-deep-bg">
@@ -106,11 +117,25 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, di
               </div>
             </div>
 
-            {/* FIRST MOVE */}
-            <div className="flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-[#3d484d] shadow-[2px_2px_0px_#343342]">
-              <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">FIRST MOVE</span>
-              <span className="font-headline text-sm text-[#fad100]">PLAYER X</span>
-            </div>
+            {/* FIRST MOVE - Toggle for host only */}
+            <button
+              onClick={handleToggleFirstTurn}
+              disabled={!isHost}
+              className={`flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-[#3d484d] shadow-[2px_2px_0px_#343342] transition-all ${
+                isHost
+                  ? 'cursor-pointer hover:bg-[#252535] hover:border-[#4cc9f0] active:translate-y-0.5'
+                  : 'cursor-not-allowed opacity-60'
+              }`}
+              title={isHost ? 'Click to toggle first player' : 'Only host can change first player'}
+            >
+              <div className="flex flex-col gap-0.5">
+                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">FIRST MOVE</span>
+                {isHost && (
+                  <span className="font-mono text-[10px] text-[#4cc9f0] uppercase tracking-wider font-bold">CLICK TO CHANGE</span>
+                )}
+              </div>
+              <span className="font-headline text-sm text-[#fad100]">PLAYER {firstPlayerMark}</span>
+            </button>
           </div>
 
           <div className="flex flex-col items-center gap-3 w-full max-w-[260px] flex-none min-h-[140px]">

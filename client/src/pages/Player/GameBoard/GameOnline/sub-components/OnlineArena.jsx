@@ -288,6 +288,9 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const handleCellClick = (rowIndex, colIndex) => {
     if (winnerData || isDraw || roomData?.status !== "PLAYING") return;
 
+    // Check if it's the current user's turn
+    if (currentPlayerMark !== userMark) return;
+
     socket.emit("game:move", {
       roomId: roomData?.id || roomId,
       row: rowIndex,

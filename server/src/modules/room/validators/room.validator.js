@@ -164,7 +164,7 @@ export const validateRoomLeave = (payload) => {
     if (isTimeout !== undefined && typeof isTimeout !== 'boolean') {
          throw {
              statusCode: 400,
-             error: "INVALID_IS_TIMEOUT",
+             error: "INVALID_TIMEOUT_FLAG",
              message: "isTimeout must be a boolean."
          };
      }

@@ -10,14 +10,12 @@ const StatCard = ({ label, value, tone = "text-primary" }) => (
 export default function GameSessionMonitorStats({ sessions }) {
   const totalSessions = sessions.length;
   const finishedSessions = sessions.filter((session) => String(session.viewerResult || session.status).toUpperCase() === "FINISHED").length;
-  const drawSessions = sessions.filter((session) => String(session.viewerResult || session.status).toUpperCase() === "DRAW").length;
   const abortedSessions = sessions.filter((session) => String(session.viewerResult || session.status).toUpperCase() === "ABORTED").length;
 
   return (
-    <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
+    <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <StatCard label="Total sessions" value={totalSessions} />
       <StatCard label="Finished" value={finishedSessions} tone="text-primary" />
-      <StatCard label="Draws" value={drawSessions} tone="text-[#ffd60a]" />
       <StatCard label="Aborted" value={abortedSessions} tone="text-[#ffb4ab]" />
     </section>
   );

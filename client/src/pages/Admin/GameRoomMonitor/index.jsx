@@ -3,6 +3,7 @@ import { useGameRoomMonitor } from "./hooks/useGameRoomMonitor";
 import { useGameSessionMonitor } from "./hooks/useGameSessionMonitor";
 import GameRoomMonitorHeader from "./sub-components/GameRoomMonitorHeader";
 import GameRoomMonitorFilters from "./sub-components/GameRoomMonitorFilters";
+import GameSessionMonitorFilters from "./sub-components/GameSessionMonitorFilters";
 import GameRoomMonitorStats from "./sub-components/GameRoomMonitorStats";
 import GameRoomGrid from "./sub-components/GameRoomGrid";
 import GameSessionGrid from "./sub-components/GameSessionGrid";
@@ -34,6 +35,7 @@ export default function GameRoomMonitor() {
 		visiblePageRooms,
 	} = useGameRoomMonitor();
 
+	const [sessionFilters, setSessionFilters] = React.useState({});
 	const {
 		sessions,
 		loading: sessionsLoading,
@@ -45,7 +47,7 @@ export default function GameRoomMonitor() {
 		totalPages: sessionTotalPages,
 		changePage: changeSessionPage,
 		pageSize: sessionPageSize,
-	} = useGameSessionMonitor();
+	} = useGameSessionMonitor(sessionFilters);
 	const activeSessions = allSessions.filter((session) => !["FINISHED", "DRAW", "ABORTED"].includes(getSessionStatus(session))).length;
 	const closedSessions = allSessions.filter((session) => ["FINISHED", "DRAW", "ABORTED"].includes(getSessionStatus(session))).length;
 
@@ -60,7 +62,7 @@ export default function GameRoomMonitor() {
 					totalRooms={selectedView === "rooms" ? totalRooms : totalSessions}
 					activeRooms={selectedView === "rooms" ? activeRooms : activeSessions}
 					closedRooms={selectedView === "rooms" ? closedRooms : closedSessions}
-					onRefresh={selectedView === "rooms" ? refreshRooms : refreshSessions}
+					onRefresh={() => (selectedView === "rooms" ? refreshRooms() : refreshSessions(1, sessionFilters))}
 					selectedView={selectedView}
 					onChangeView={(v) => setSelectedView(v)}
 				/>
@@ -82,15 +84,24 @@ export default function GameRoomMonitor() {
 					<GameSessionMonitorStats sessions={allSessions} />
 				)}
 
-				{selectedView === "rooms" && (
-					<GameRoomMonitorFilters
-						searchTerm={searchTerm}
-						setSearchTerm={setSearchTerm}
-						onResetSearch={resetSearch}
-						onRefresh={refreshRooms}
-						loading={loading}
-					/>
-				)}
+								{selectedView === "rooms" && (
+									<GameRoomMonitorFilters
+										searchTerm={searchTerm}
+										setSearchTerm={setSearchTerm}
+										onResetSearch={resetSearch}
+										onRefresh={refreshRooms}
+										loading={loading}
+									/>
+								)}
+
+								{selectedView === "sessions" && (
+									<GameSessionMonitorFilters
+										initialFilters={sessionFilters}
+										onApply={(f) => setSessionFilters(f || {})}
+										onRefresh={() => refreshSessions(1, sessionFilters)}
+										loading={sessionsLoading}
+									/>
+								)}
 
 				{selectedView === "rooms" ? (
 					<GameRoomGrid

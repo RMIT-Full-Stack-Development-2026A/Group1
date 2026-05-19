@@ -41,7 +41,7 @@ const normalizeSession = (session) => {
   };
 };
 
-export const useGameSessionMonitor = () => {
+export const useGameSessionMonitor = (filters = {}) => {
   const [sessions, setSessions] = useState([]);
   const [page, setPage] = useState(1);
   const [totalSessions, setTotalSessions] = useState(0);
@@ -49,10 +49,11 @@ export const useGameSessionMonitor = () => {
   const [error, setError] = useState(null);
   const pageSize = 5;
 
-  const fetchSessions = useCallback(async (pageToLoad = 1) => {
+  const fetchSessions = useCallback(async (pageToLoad = 1, localFilters = {}) => {
     try {
       setLoading(true);
-      const response = await gameRoomMonitorService.getSessions({ page: pageToLoad, limit: pageSize });
+      const params = { page: pageToLoad, limit: pageSize, ...localFilters };
+      const response = await gameRoomMonitorService.getSessions(params);
       const payload = response?.data || response || {};
       const items = Array.isArray(payload.items) ? payload.items : [];
 
@@ -70,8 +71,15 @@ export const useGameSessionMonitor = () => {
   }, []);
 
   useEffect(() => {
-    fetchSessions(1);
-  }, [fetchSessions]);
+    // Initial load
+    fetchSessions(1, filters);
+  }, []);
+
+  // Auto-refetch when filters change
+  useEffect(() => {
+    setPage(1);
+    fetchSessions(1, filters);
+  }, [filters, fetchSessions]);
 
   const totalPages = Math.max(1, Math.ceil(totalSessions / pageSize));
 
@@ -83,7 +91,7 @@ export const useGameSessionMonitor = () => {
 
   const changePage = (nextPage) => {
     const normalizedPage = Math.min(Math.max(1, nextPage), totalPages);
-    fetchSessions(normalizedPage);
+    fetchSessions(normalizedPage, filters);
   };
 
   return {

@@ -13,19 +13,12 @@ export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedR
         Live-room feed for admin review.
       </p>
       <div className="pt-3">
-        <button
-          type="button"
-          onClick={() => onRefresh && onRefresh()}
-          className="inline-flex items-center gap-2 rounded-md border border-cyan-500/25 bg-surface-card px-3 py-2 text-xs font-mono uppercase tracking-[0.18em] text-white/90 hover:brightness-105"
-        >
-          REFRESH
-        </button>
-        <div className="inline-block ml-3 align-middle">
+        <div className="inline-block align-middle">
           <label className="sr-only">View Mode</label>
           <select
             value={selectedView}
             onChange={(e) => onChangeView && onChangeView(e.target.value)}
-            className="ml-3 rounded-md border border-outline px-2 py-1 bg-surface-card text-xs font-mono uppercase tracking-[0.12em] text-white/90"
+            className="rounded-md border border-outline px-2 py-1 bg-surface-card text-xs font-mono uppercase tracking-[0.12em] text-white/90"
           >
             <option value="rooms">Game Rooms</option>
             <option value="sessions">Game Sessions</option>

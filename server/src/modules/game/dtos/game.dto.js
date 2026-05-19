@@ -105,6 +105,8 @@ export const GameDTO = {
             return { opponentName: opp.name, opponentAvatar: opp.avatar };
         })(),
         viewerResult: deriveViewerResult(session, viewerUserId),
+        winnerParticipantIndex: session.winnerParticipantIndex ?? null,
+        participants: Array.isArray(session.participants) ? session.participants.map(toParticipant) : [],
         startedAt: session.startedAt,
         endedAt: session.endedAt
     }),

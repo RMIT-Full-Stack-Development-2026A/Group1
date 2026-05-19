@@ -6,6 +6,10 @@ import { RoomInterface } from '../../modules/room/interfaces/room.interface.js';
 import { GameEmitter } from '../emitters/game.emitter.js'; 
 import { SYSTEM_EVENTS } from '../../utils/constants/event.containts.js';
 
+/**
+ * Configures game namespace.
+ * @param {Object} io - Socket.io instance.
+ */
 export const setupGameNamespace = (io) => {
     const gameNamespace = io.of('/ws/game');
     gameNamespace.use(socketAuthMiddleware);

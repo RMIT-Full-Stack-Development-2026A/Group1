@@ -1,6 +1,7 @@
 import { RoomService } from '../services/room.service.js';
 
 export const RoomController = {
+    // [GET] /rooms endpoint
     getRooms: async (req, res, next) => {
         try {
             const safeData = await RoomService.getArenaRooms(req.query, req.user);
@@ -14,6 +15,7 @@ export const RoomController = {
         }
     },
 
+    // [GET] /rooms/:id endpoint
     getRoomDetail: async (req, res, next) => {
         try {
             const safeData = await RoomService.getRoomDetail(req.params.id, req.user);

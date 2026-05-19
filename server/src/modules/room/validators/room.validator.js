@@ -49,8 +49,8 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
             filter.status = upperStatus;
         }  else if (ALL_ROOM_STATUSES.includes(upperStatus)) {
              if (isAdmin) {
-                 // ONLY Admins can query terminal statuses (CLOSED, ABORTED)
-                 filter.status = upperStatus;
+                // Only Admins can query terminal statuses (CLOSED, ABORTED)
+                filter.status = upperStatus;
              } else {
                  throw {
                      statusCode: 403,
@@ -120,24 +120,26 @@ export const validateRoomCreate = (payload) => {
  * @returns {Object} Validated payload.
  */
 export const validateRoomJoin = (payload) => {
-    const { roomId, markerStyle: rawMarkerStyle } = payload || {};
-    const markerStyle = typeof rawMarkerStyle === 'string' ? rawMarkerStyle.trim().toUpperCase() : rawMarkerStyle;
-    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
-
-    if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) 
+     if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
         throw { 
             statusCode: 400, 
             error: "INVALID_ROOM_ID", 
             message: "Valid Room ID is required." 
         };
-    if (markerStyle && !allowedMarkerStyles.includes(markerStyle))
-        throw { 
-            statusCode: 400, 
-            error: "INVALID_MARKER_STYLE", 
-            message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}`
-        };
-
-    return { roomId, markerStyle };
+    }
+    if (payload?.markerStyle) {
+        const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+        const markerStyle = String(payload.markerStyle).trim().toUpperCase();
+        if (!allowedMarkerStyles.includes(markerStyle)) {
+            throw { 
+                statusCode: 400, 
+                error: "INVALID_MARKER_STYLE", 
+                message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` 
+            };
+        }
+        return { roomId: payload.roomId, markerStyle };
+    }
+    return { roomId: payload.roomId };
 };
 
 /**

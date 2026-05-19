@@ -52,7 +52,7 @@ export const GameEmitter = {
     /** Emits error event. */
     emitError: (socket, eventName, errorObj) => {
         console.error(`[Socket Error - ${eventName}]`, errorObj);
-        socket.emit('error:response', {
+        socket.emit('error', {
             event: eventName,
             error: errorObj.error || 'SERVER_ERROR',
             message: errorObj.message || 'An unexpected error occurred.',

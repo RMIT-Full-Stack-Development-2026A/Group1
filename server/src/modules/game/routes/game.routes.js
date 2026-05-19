@@ -4,9 +4,8 @@ import { verifyToken } from '../../../middlewares/authMiddleware.js';
 import { authorizeMiddleware } from '../../../middlewares/roleMiddleware.js';
 
 const gameRoutes = express.Router();
-gameRoutes.use(verifyToken);
 const requirePlayer = authorizeMiddleware(['PLAYER']);
-gameRoutes.use(requirePlayer);
+gameRoutes.use(verifyToken, requirePlayer);
 
 /**
  * @openapi

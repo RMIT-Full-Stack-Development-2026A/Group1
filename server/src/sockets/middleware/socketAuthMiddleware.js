@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 
+/**
+ * Authenticates socket connections.
+ * @param {Object} socket - Socket instance.
+ * @param {Function} next - Next middleware.
+ */
 export const socketAuthMiddleware = (socket, next) => {
     try {
         // Parse cookies from the initial handshake request

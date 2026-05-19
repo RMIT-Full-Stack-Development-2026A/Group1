@@ -2,7 +2,7 @@ import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { RoomInterface } from '../../room/interfaces/room.interface.js';
 import { AdminDTO } from '../dtos/admin.dto.js';
-import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery } from '../validators/admin.validator.js';
+import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery, validateAdminPlayerGameQuery } from '../validators/admin.validator.js';
 
 import { eventBus } from '../../../utils/eventBus.util.js';
 import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
@@ -148,5 +148,22 @@ export const AdminService = {
         await RoomInterface.forceCloseRoomByAdmin(roomId);
         
         return null; // Return empty data for 200 OK
-    }
+    },
+
+    // [GET] /admin/players/games endpoint
+    getPlayerGames: async (query) => {
+        const { pagination } = validateAdminPlayerGameQuery(query);
+        
+        // Construct the query specifically for the Game Module to handle
+        const historyQuery = {
+            page: pagination.page,
+            limit: pagination.limit,
+            gameType: 'ONLINE_MATCH'
+        };
+
+        // Pass null for userId so the GameService fetches matches across all players
+        const result = await GameInterface.listUserGameSessions(null, historyQuery);
+        
+        return result;
+    },
 };

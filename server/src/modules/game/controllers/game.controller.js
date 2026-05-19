@@ -1,8 +1,7 @@
 import { GameService } from "../services/game.service.js";
 
 export const GameController = {
-    
-    // create local game session API
+    // [POST] /games endpoint
     createLocalSession: async (req, res, next) => {
         try {
             const viewerUserId = req.user.id; 
@@ -17,7 +16,7 @@ export const GameController = {
         }
     },
 
-    // get game list API
+    // [GET] /games endpoint
     getGames: async (req, res, next) => {
         try {
             const safeData = await GameService.listUserGameSessions(req.user.id, req.query);
@@ -31,7 +30,7 @@ export const GameController = {
         }
     },
 
-    // get game detail API
+    // [GET] /games/:id endpoint
     getGameDetail: async (req, res, next) => {
         try {
             const safeData = await GameService.getGameSessionDetail(req.user.id, req.params.id, req.user);

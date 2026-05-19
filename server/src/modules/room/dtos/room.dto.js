@@ -1,4 +1,8 @@
-// DTO helpers for room snapshots, auth bootstrap summaries, and socket payloads.
+/**
+ * Maps participant to DTO.
+ * @param {Object} participant - Raw participant data.
+ * @returns {Object} Participant payload.
+ */
 const toParticipant = (participant) => ({
     userId: participant.userId,
     usernameSnapshot: participant.usernameSnapshot,
@@ -11,6 +15,11 @@ const toParticipant = (participant) => ({
     isReady: participant.isReady ?? false
 });
 
+/**
+ * Maps move to DTO.
+ * @param {Object} move - Raw move data.
+ * @returns {Object} Move payload.
+ */
 const toMove = (move) => ({
     moveNumber: move.moveNumber,
     byParticipantIndex: move.byParticipantIndex,
@@ -20,6 +29,11 @@ const toMove = (move) => ({
     placedAt: move.placedAt
 });
 
+/**
+ * Maps cell to DTO.
+ * @param {Object} cell - Raw cell data.
+ * @returns {Object} Cell payload.
+ */
 const toWinningCell = (cell) => ({
     row: cell.row,
     col: cell.col,
@@ -27,7 +41,7 @@ const toWinningCell = (cell) => ({
 });
 
 export const RoomDTO = {
-    // Minimal shape used by auth check-auth bootstrap.
+    /** Maps room to active summary DTO. */
     toActiveRoomSummary: (room) => ({
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
@@ -44,7 +58,7 @@ export const RoomDTO = {
         createdAt: room.createdAt ?? null
     }),
 
-    // Summary shape used by arena/listing pages.
+    /** Maps room to summary DTO. */
     toRoomSummary: (room) => ({
         currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,
         id: String(room.id || room._id),
@@ -61,6 +75,7 @@ export const RoomDTO = {
         createdAt: room.createdAt ?? null
     }),
 
+    /** Maps rooms to paginated response DTO. */
     toRoomListResponse: (rooms, pagination) => ({
         items: Array.isArray(rooms) ? rooms.map((room) => RoomDTO.toRoomSummary(room)) : [],
         total: pagination?.total ?? 0,
@@ -68,7 +83,7 @@ export const RoomDTO = {
         limit: pagination?.limit ?? 20
     }),
 
-    // Detail shape used by GET /rooms/:id recovery endpoints or admin room details.
+    /** Maps room to detail DTO. */
     toRoomDetail: (room) => ({
         id: String(room.id || room._id),
         roomNumber: room.roomNumber,
@@ -87,10 +102,16 @@ export const RoomDTO = {
         createdAt: room.createdAt
     }),
 
+    /** Maps room to socket created DTO. */
     toSocketRoomCreated: (room) => ({ room: RoomDTO.toRoomSummary(room) }),
+    
+    /** Maps room to socket updated DTO. */
     toSocketRoomUpdated: (room) => ({ room: RoomDTO.toRoomSummary(room) }),
+    
+    /** Maps room ID to socket removed DTO. */
     toSocketRoomRemoved: (roomId) => ({ roomId: String(roomId) }),
 
+    /** Maps game state to payload DTO. */
     toGameStatePayload: ({ room, board }) => ({
         roomId: String(room.id || room._id),
         board,
@@ -102,6 +123,7 @@ export const RoomDTO = {
         winningLine: Array.isArray(room.winningLine) ? room.winningLine.map(toWinningCell) : []
     }),
 
+    /** Maps ended game to payload DTO. */
     toGameEndedPayload: ({ roomId, winnerParticipantIndex, winningLine, result, endedAt }) => ({
         roomId: String(roomId),
         winnerParticipantIndex: winnerParticipantIndex ?? null,
@@ -110,6 +132,7 @@ export const RoomDTO = {
         endedAt: endedAt ?? null
     }),
 
+    /** Maps chat message to payload DTO. */
     toChatMessagePayload: ({ roomId, sender, message, timestamp }) => ({
         roomId: String(roomId),
         sender,

@@ -103,3 +103,20 @@ export const validateAdminRoomQuery = (query) => {
 
     return { filter, sort, pagination: { page, limit, skip } };
 };
+
+/**
+ * Validates and sanitizes the room monitoring game history query.
+ * @param {Object} query - Request query object.
+ * @returns {Object} Structured filter and pagination payload.
+ */
+export const validateAdminPlayerGameQuery = (query) => {
+    const page = Math.max(1, parseInt(query.page) || 1);
+    // Force a higher default limit (300) for room monitoring, max 300.
+    const limit = Math.max(1, Math.min(300, parseInt(query.limit) || 300)); 
+    const skip = (page - 1) * limit;
+
+    return {
+        filter: { gameType: 'ONLINE_MATCH' },
+        pagination: { page, limit, skip }
+    };
+};

@@ -2,6 +2,7 @@ import { ACTIVE_ROOM_STATUSES, ROOM_STATUS } from '../constants/room.constants.j
 import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {
+    /** Retrieves paginated rooms. */
     findPaginated: async (filter, sort, skip, limit) => {
         const summaryProjection = {
             roomNumber: 1,
@@ -17,6 +18,7 @@ export const RoomRepository = {
             createdAt: 1
         };
 
+        /** Fetches paginated rooms and the total number of matching rooms. */
         const [rooms, total] = await Promise.all([
             GameRoom.find(filter)
                 .select(summaryProjection)
@@ -29,11 +31,12 @@ export const RoomRepository = {
         return { rooms, total };
     },
 
+    /** Finds room by ID. */
     findById: async (id) => {
         return await GameRoom.findById(id).lean();
     },
 
-    // Interface lookup for Auth module
+    /** Finds active room by user ID. */
     findActiveRoomByUserId: async (userId) => {
         return await GameRoom.findOne({
             "participants.userId": userId,
@@ -41,17 +44,20 @@ export const RoomRepository = {
         }).lean();
     },
 
-    // Interface lookup for Admin dashboard
+    /** Counts active rooms. */
     countActiveRooms: async () => {
         return await GameRoom.countDocuments({
             status: { $in: ACTIVE_ROOM_STATUSES }
         });
     },
     
+    /** Creates a room. */
     createRoom: async (roomData) => {
         const room = new GameRoom(roomData);
         return await room.save();
     },
+
+    /** Adds participant to room. */
     addParticipant: async (roomId, participant, newStatus) => {
         return await GameRoom.findOneAndUpdate(
             { 
@@ -67,6 +73,7 @@ export const RoomRepository = {
         ).lean();
     },
 
+    /** Pushes move to room. */
     pushMove: async (roomId, move, nextTurnIndex) => {
         return await GameRoom.findByIdAndUpdate(
             roomId,
@@ -82,6 +89,7 @@ export const RoomRepository = {
         ).lean();
     },
 
+    /** Updates room status. */
     updateRoomStatus: async (roomId, updateFields) => {
         return await GameRoom.findByIdAndUpdate(
             roomId, 
@@ -89,7 +97,7 @@ export const RoomRepository = {
             { returnDocument: 'after' }
         ).lean();
     },
-
+    
     deleteRoom: async (roomId) => {
         return await GameRoom.findByIdAndDelete(roomId);
     }

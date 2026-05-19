@@ -170,4 +170,35 @@ adminRoutes.get('/rooms', AdminController.getRooms);
 adminRoutes.get('/rooms/:id', AdminController.getRoomDetail);
 adminRoutes.delete('/rooms/:id', AdminController.forceCloseRoom);
 
+/**
+ * @openapi
+ * /api/v1/admin/players/games:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Get all online match history (Room Monitoring)
+ *     description: Fetches a paginated list of completed online matches (GameSessions) across all players.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 300
+ *           maximum: 300
+ *         description: Number of items per page (Max 300)
+ *     responses:
+ *       200:
+ *         description: List of game sessions fetched successfully.
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedResponse'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenResponse'
+ */
+adminRoutes.get('/players/games', AdminController.getPlayerGames);
+
 export default adminRoutes;

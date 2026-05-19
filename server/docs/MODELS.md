@@ -95,6 +95,7 @@ const sessionParticipantSchema = {
     isPremiumSnapshot: { type: Boolean, default: false },
     role: { type: String, enum: ['HUMAN', 'AI'], required: true },
     mark: { type: String, enum: ['X', 'O'], required: true },
+    markerStyle: { type: String, enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' },
     aiDifficulty: { type: String, enum: ['EASY', 'MEDIUM', 'HARD'], default: null }
 };
 
@@ -164,6 +165,7 @@ const roomParticipantSchema = {
     avatarSnapshot: { type: String, default: null },
     isPremiumSnapshot: { type: Boolean, default: false },
     mark: { type: String, enum: ['X', 'O'], default: null },
+    markerStyle: { type: String, enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' },
     joinedAt: { type: Date, default: Date.now },
     isHost: { type: Boolean, default: false },
     isReady: { type: Boolean, default: false }
@@ -224,58 +226,16 @@ gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*10 })
 
 ```js
 const transactionSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', 
-        required: true, 
-        unique: true // Enforces 1 active transaction per user
-    },
-    type: {
-        type: String,
-        enum: ['SUBSCRIPTION'], 
-        required: true, 
-        index: true 
-    },
-    provider: {
-        type: String,
-        enum: ['STRIPE', 'PAYPAL'], 
-        required: true, 
-        default: 'PAYPAL' 
-    },
-    amount: {
-        type: Number, 
-        required: true, 
-        min: 0 
-    },
-    currency: {
-        type: String, 
-        default: 'USD' 
-    },
-    status: {
-        type: String,
-        enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], 
-        required: true, 
-        default: 'PENDING', 
-        index: true 
-    },
-    externalTransactionId: {
-        type: String, 
-        default: null, 
-        index: true,
-        sparse: true 
-    },
-    subscriptionPeriodStart: {
-        type: Date,
-        default: null 
-    },
-    subscriptionPeriodEnd: {
-        type: Date,
-        default: null
-    },
-    metadata: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {}
-    }
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    type: { type: String, enum: ['SUBSCRIPTION'], required: true, index: true },
+    provider: { type: String, enum: ['STRIPE', 'PAYPAL'], required: true, default: 'PAYPAL' },
+    amount: { type: Number, required: true, min: 0 },
+    currency: { type: String, default: 'USD' },
+    status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], required: true, default: 'PENDING', index: true },
+    externalTransactionId: { type: String, default: null, index: true, sparse: true },
+    subscriptionPeriodStart: { type: Date, default: null },
+    subscriptionPeriodEnd: { type: Date, default: null },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
 }, baseSchemaOptions);
 
 // Auto-delete when subscriptionPeriodEnd passes

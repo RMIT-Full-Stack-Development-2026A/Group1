@@ -111,5 +111,19 @@ export const AdminController = {
         } catch (error) {
             return next(error);
         }
-    }
+    },
+
+    // [GET] /admin/players/games endpoint
+    getPlayerGames: async (req, res, next) => {
+        try {
+            const safeData = await AdminService.getPlayerGames(req.query);
+            
+            return res.status(200).json({
+                data: safeData,
+                message: "Online match history fetched successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
+    },
 };

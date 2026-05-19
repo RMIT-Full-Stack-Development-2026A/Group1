@@ -1,7 +1,17 @@
 import mongoose from 'mongoose';
 
+/**
+ * Validates a MongoDB ObjectId.
+ * @param {string} id - Identifier to validate.
+ * @returns {boolean} True if valid.
+ */
 export const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+/**
+ * Validates the payload for local game creation.
+ * @param {Object} payload - Game session payload.
+ * @returns {Array} List of validation errors.
+ */
 export const validateGameCreation = (payload) => {
     const errors = [];
     const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
@@ -71,12 +81,23 @@ export const validateGameCreation = (payload) => {
     return errors;
 };
 
-export const validateGameQuery = (userId, query) => {
+/**
+ * Validates and sanitizes game query parameters.
+ * @param {string} userId - Requesting user ID.
+ * @param {Object} query - Request query string.
+ * @returns {Object} Structured filter, sort, and pagination.
+ */
+export const validateGameQuery = (query = {}, userId = null) => {
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const filter = { 'participants.userId': userId }; // Force filtering by requesting user
+    const filter = {}; 
+
+    // Filter if a specific userId is provided
+    if (userId) {
+        filter['participants.userId'] = userId;
+    }
 
     if (query.gameType) filter.gameType = query.gameType;
     
@@ -110,9 +131,5 @@ export const validateGameQuery = (userId, query) => {
         if (query.to) filter.endedAt.$lte = new Date(query.to);
     }
 
-    const sort = query.sortBy === 'startedAt' 
-        ? { startedAt: query.sortOrder === 'asc' ? 1 : -1 } 
-        : { endedAt: query.sortOrder === 'asc' ? 1 : -1 }; // default sort by endedAt descending
-
-    return { filter, sort, pagination: { page, limit, skip } };
+    return { filter, sort: { endedAt: -1 }, pagination: { page, limit, skip } };
 };

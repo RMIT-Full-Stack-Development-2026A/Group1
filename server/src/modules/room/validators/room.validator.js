@@ -120,18 +120,21 @@ export const validateRoomCreate = (payload) => {
  * @returns {Object} Validated payload.
  */
 export const validateRoomJoin = (payload) => {
-    const { roomId, markerStyle } = payload || {};
+    const { roomId, markerStyle: rawMarkerStyle } = payload || {};
+    const markerStyle = typeof rawMarkerStyle === 'string' ? rawMarkerStyle.trim().toUpperCase() : rawMarkerStyle;
+    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+
     if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) 
         throw { 
             statusCode: 400, 
             error: "INVALID_ROOM_ID", 
             message: "Valid Room ID is required." 
         };
-    if (markerStyle && !['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'].includes(markerStyle)) 
+    if (markerStyle && !allowedMarkerStyles.includes(markerStyle))
         throw { 
             statusCode: 400, 
             error: "INVALID_MARKER_STYLE", 
-            message: "Invalid markerStyle." 
+            message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}`
         };
 
     return { roomId, markerStyle };

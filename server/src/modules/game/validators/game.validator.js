@@ -92,7 +92,7 @@ export const validateGameQuery = (userId, query) => {
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const filter = { 'participants.userId': userId }; // Riltering by requesting user
+    const filter = { 'participants.userId': userId }; // Filtering by requesting user
 
     if (query.gameType) filter.gameType = query.gameType;
     

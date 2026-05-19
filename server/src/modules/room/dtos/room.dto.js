@@ -128,7 +128,7 @@ export const RoomDTO = {
         endedAt: endedAt ?? null
     }),
 
-    /** Maps room state to update payload DTO. */
+    /** Maps chat message to payload DTO. */
     toChatMessagePayload: ({ roomId, sender, message, timestamp }) => ({
         roomId: String(roomId),
         sender,

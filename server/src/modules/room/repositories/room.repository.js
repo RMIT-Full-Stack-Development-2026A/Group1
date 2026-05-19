@@ -18,7 +18,7 @@ export const RoomRepository = {
             createdAt: 1
         };
 
-        /** Finds room by ID. */
+        /** Fetches paginated rooms and the total number of matching rooms. */
         const [rooms, total] = await Promise.all([
             GameRoom.find(filter)
                 .select(summaryProjection)

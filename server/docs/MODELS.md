@@ -95,6 +95,7 @@ const sessionParticipantSchema = {
     isPremiumSnapshot: { type: Boolean, default: false },
     role: { type: String, enum: ['HUMAN', 'AI'], required: true },
     mark: { type: String, enum: ['X', 'O'], required: true },
+    markrStyle: { type: String,  enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' }
     aiDifficulty: { type: String, enum: ['EASY', 'MEDIUM', 'HARD'], default: null }
 };
 
@@ -164,6 +165,7 @@ const roomParticipantSchema = {
     avatarSnapshot: { type: String, default: null },
     isPremiumSnapshot: { type: Boolean, default: false },
     mark: { type: String, enum: ['X', 'O'], default: null },
+    markrStyle: { type: String,  enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], default: 'CLASSIC' }
     joinedAt: { type: Date, default: Date.now },
     isHost: { type: Boolean, default: false },
     isReady: { type: Boolean, default: false }

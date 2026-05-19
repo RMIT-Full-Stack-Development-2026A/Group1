@@ -3,6 +3,11 @@ import { GameEmitter } from '../../../sockets/emitters/game.emitter.js';
 
 export const disconnectTimers = new Map();
 
+/**
+ * Registers room socket event handlers.
+ * @param {Object} io - Socket.io instance.
+ * @param {Object} socket - Socket instance.
+ */
 export const registerRoomSocketHandlers = (io, socket) => {
     const user = socket.user;
 
@@ -11,7 +16,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
             const result = await RoomService.handleRoomCreate(user.id, payload);
             socket.join(result.room.id);
             GameEmitter.emitRoomCreated(socket, result);
-            // DO NOT broadcast to the entire server to prevent storms. Arena uses manual refresh.
+            // Do not broadcast to the entire server. Arena uses manual refresh.
         } catch (err) {
             GameEmitter.emitError(socket, 'room:create', err);
         }

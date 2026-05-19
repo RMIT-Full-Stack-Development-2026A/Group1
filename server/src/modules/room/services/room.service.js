@@ -18,6 +18,7 @@ import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
 const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
 export const RoomService = {
+     // [GET] /rooms endpoint
     getArenaRooms: async (query, requestingUser) => {
         const { filter, sort, pagination } = validateRoomQuery(query, requestingUser);
         
@@ -30,6 +31,7 @@ export const RoomService = {
         });
     },
 
+     // [GET] /rooms/:id endpoint
     getRoomDetail: async (roomId, requestingUser) => {
         if (!validateObjectId(roomId)) {
             throw {
@@ -72,16 +74,18 @@ export const RoomService = {
         return RoomDTO.toRoomDetail(room);
     },
 
+    /** Retrieves active room summary. */
     getActiveRoomSummaryByUserId: async (userId) => {
         const room = await RoomRepository.findActiveRoomByUserId(userId);
-        if (!room) return null;
-        return RoomDTO.toActiveRoomSummary(room);
+        return room ? RoomDTO.toActiveRoomSummary(room) : null;
     },
 
+    /** Retrieves active rooms count. */
     getActiveRoomsCount: async () => {
         return RoomRepository.countActiveRooms();
     },
 
+    /** Retrieves paginated rooms for admin. */
     getPaginatedRooms: async (filter, sort, skip, limit) => {
         const { rooms, total } = await RoomRepository.findPaginated(filter, sort, skip, limit);
         const page = limit > 0 ? Math.floor(skip / limit) + 1 : 1;
@@ -92,84 +96,35 @@ export const RoomService = {
         });
     },
 
+    /** Forces room closure. */
     forceCloseRoomByAdmin: async (roomId) => {
-        const room = await RoomRepository.findById(roomId);
-
-        if (!room) {
-            throw {
-                statusCode: 404,
-                error: "ROOM_NOT_FOUND",
-                message: "Room not found.",
-                cause: `No room record exists matching the ID: ${roomId}.`
-            };
-        }
-
-        if (['CLOSED', 'ABORTED'].includes(room.status)) {
-            throw {
-                statusCode: 409,
-                error: "ROOM_ALREADY_CLOSED",
-                message: "Room is already closed or aborted.",
-                cause: `The room ID ${roomId} is currently in a ${room.status} state.`
-            };
-        }
-
-        const closedAt = new Date();
-
-        const closedRoom = await RoomRepository.updateRoomStatus(roomId, {
-            status: 'CLOSED',
-            closedBy: 'ADMIN',
-            endedAt: closedAt
-        });
-
-        if (!closedRoom) {
-            throw {
-                statusCode: 500,
-                error: "UPDATE_FAILED",
-                message: "Failed to force close the room.",
-                cause: "The room status update failed unexpectedly due to a concurrent database modification.",
-                valid_example: "Please try the request again."
-            }; 
-        }
-
-        if (room.status === 'PLAYING') {
-            const firstTurnParticipantIndex = room.moves?.length
-                ? (room.moves[0]?.byParticipantIndex ?? 0)
-                : (room.currentTurnParticipantIndex || 0);
-
+        const room = await GameRoom.findById(roomId);
+        if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
+        if (room.status === ROOM_STATUS.PLAYING) {
+            const closedAt = new Date();
+            eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
+                roomId: String(roomId),
+                endAt: closedAt 
+            });
             await GameInterface.createOnlineGameSessionFromRoom({
-                sourceRoomId: room._id,
-                gameType: 'ONLINE_MATCH',
-                boardSize: room.boardSize,
-                participants: room.participants.map(p => ({ 
-                    userId: p.userId, 
-                    usernameSnapshot: p.usernameSnapshot, 
-                    avatarSnapshot: p.avatarSnapshot ?? null,
-                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
-                    mark: p.mark, 
-                    markerStyle: p.markerStyle ?? 'CLASSIC',
-                    role: 'HUMAN'
-                })),
-                firstTurnParticipantIndex,
+                ...room.toObject(),
                 status: 'ABORTED',
                 endedReason: 'ADMIN_FORCE_CLOSE',
-                moves: room.moves,
-                totalMoves: room.moveCount,
-                startedAt: room.startedAt,
                 endedAt: closedAt
             });
+        } else {
+            eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
+                roomId: String(roomId), 
+                endAt: closedAt 
+            });
         }
-
-        // Signal the Socket layer to kick the players out
-        eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
-            roomId: String(roomId),
-            endedAt: closedAt 
-        });
-        
-        return true;
+        await GameRoom.findByIdAndDelete(roomId);
     },
 
+    // =========================
     // --- WEBSOCKET METHODS ---
-
+    // =========================
+    /** Handles room creation. */
     handleRoomCreate: async (userId, payload) => {
         const { boardSize, marker, boardStyle, markerStyle } = validateRoomCreate(payload);
 
@@ -202,8 +157,9 @@ export const RoomService = {
         return RoomDTO.toSocketRoomCreated(room);
     },
 
+    /** Handles room join. */
     handleRoomJoin: async (userId, payload) => {
-        const { roomId, markerStyle: joinerMarkerStyle = 'CLASSIC' } = validateRoomJoin(payload);
+        const { roomId, markerStyle } = validateRoomJoin(payload);
 
         const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
@@ -255,6 +211,7 @@ export const RoomService = {
         return { room: RoomDTO.toRoomSummary(updatedRoom), gameState };
     },
 
+    /** Handles game moves. */
     handleGameMove: async (userId, payload) => {
         const { roomId, row, col } = validateGameMove(payload);
 
@@ -364,6 +321,7 @@ export const RoomService = {
         };
     },
 
+    /** Handles room leave. */
     handleRoomLeave: async (userId, payload) => {
         // Validation and parsing of roomId and isTimeout flag
         const { roomId, isTimeout } = validateRoomLeave(payload);
@@ -439,7 +397,7 @@ export const RoomService = {
         }
     },
 
-    // Helper: Delete room completely (called from socket layer for cleanup)
+    // Delete room completely (called from socket layer for cleanup)
     forceDeleteRoom: async (roomId) => {
         await RoomRepository.deleteRoom(roomId);
     },
@@ -464,6 +422,7 @@ export const RoomService = {
         });
     },
     
+    /** Handles room settings update. */
     handleUpdateSettings: async (userId, payload) => {
         const { roomId, boardStyle, markerStyle, marker } = validateRoomUpdateSettings(payload);
         const room = await GameRoom.findById(roomId);
@@ -512,6 +471,7 @@ export const RoomService = {
         return { roomId, room: RoomDTO.toRoomSummary(room) };
     },
 
+    /** Handles first turn assignment. */
     handleSetFirstTurn: async (userId, payload) => {
         const { roomId, firstTurnParticipantIndex } = validateRoomSetFirstTurn(payload);
         const room = await GameRoom.findById(roomId);
@@ -527,6 +487,7 @@ export const RoomService = {
         return { roomId, room: RoomDTO.toRoomSummary(room) };
     },
 
+    /** Handles room ready status. */
     handleRoomReady: async (userId, payload) => {
         const { roomId } = validateRoomReady(payload);
         const room = await GameRoom.findById(roomId);
@@ -554,6 +515,7 @@ export const RoomService = {
         return { roomId, room: RoomDTO.toRoomSummary(room), gameStart };
     },
 
+    /** Retrieves game state. */
     getGameState: async (roomId) => {
         const room = await GameRoom.findById(roomId);
         if (!room) return null;

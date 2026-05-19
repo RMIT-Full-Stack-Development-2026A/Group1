@@ -4,7 +4,7 @@ import { GameDTO } from '../dtos/game.dto.js';
 import { validateGameCreation, validateGameQuery, validateObjectId } from '../validators/game.validator.js';
 
 export const GameService = {
-    // Create Local Match
+    // [POST] /games endpoint
     createLocalGameSession: async (userId, payload) => {
         const validationErrors = validateGameCreation(payload);
         if (validationErrors.length > 0) {
@@ -44,12 +44,12 @@ export const GameService = {
         const moves = Array.isArray(payload.moves) ? payload.moves : [];
         const totalMoves = moves.length;
 
-        const DEFAULT_BOT_AVATAR = null; // placeholder
+        const DEFAULT_BOT_AVATAR = null;
         const normalizeParticipants = (parts = []) => (Array.isArray(parts) ? parts.map(p => ({
             userId: p.userId ?? null,
             usernameSnapshot: p.usernameSnapshot,
             avatarSnapshot: p.avatarSnapshot ?? (p.role === 'AI' ? DEFAULT_BOT_AVATAR : null),
-            isPremiumSnapshot: p.isPremiumSnapshot ?? false, // Default to false if not provided
+            isPremiumSnapshot: p.isPremiumSnapshot ?? false, 
             role: p.role,
             mark: p.mark,
             markerStyle: p.markerStyle ?? 'CLASSIC',
@@ -110,7 +110,7 @@ export const GameService = {
         return GameDTO.toGameDetail(savedSession, userId);
     },
 
-    // Get game list
+    // [GET] /games endpoint
     listUserGameSessions: async (userId, query) => {
         const { filter, sort, pagination } = validateGameQuery(userId, query);
         
@@ -119,7 +119,7 @@ export const GameService = {
         return GameDTO.toGameListResponse(items, { total, page: pagination.page, limit: pagination.limit }, userId);
     },
 
-    // Get game detail 
+    // [GET] /games/:id endpoint
     getGameSessionDetail: async (userId, gameId, viewerContext = {}) => {
         if (!validateObjectId(gameId)) {
             throw {
@@ -142,7 +142,7 @@ export const GameService = {
             };
         }
 
-        // Premium users can open shared replay links; non-premium users remain participant-only.
+        // Premium users can open shared replay links
         const isParticipant = session.participants.some(p => String(p.userId) === String(userId));
         const canViewReplay = isParticipant || viewerContext.isPremium === true || viewerContext.role === 'ADMIN';
 
@@ -159,12 +159,16 @@ export const GameService = {
         return GameDTO.toGameDetail(session, userId);
     },
 
+    //===============================
     // Interface/Cross-Module Methods
+    //===============================
+    /** Retrieves user game stats. */
     getUserGameStats: async (userId) => {
         const stats = await GameRepository.calculateUserStats(userId);
         return GameDTO.toStatsSummary(stats);
     },
 
+    /** Retrieves recent games for a user. */
     getRecentGames: async (userId, limit = 5) => {
         const sessions = await GameRepository.findRecentGamesByUser(userId, limit);
         return Array.isArray(sessions)
@@ -172,6 +176,7 @@ export const GameService = {
             : [];
     },
 
+    /** Creates an online session from a room closure. */
     createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
         const normalizedParticipants = Array.isArray(roomClosurePayload?.participants)
             ? roomClosurePayload.participants.map((participant) => ({
@@ -193,6 +198,7 @@ export const GameService = {
         return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);
     },
 
+    /** Retrieves total platform match count. */
     getTotalPlatformMatches: async () => {
          return GameRepository.countTotalMatches();
     }

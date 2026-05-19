@@ -1,4 +1,8 @@
-// DTO helpers for game history and one-fetch replay responses.
+/**
+ * Maps participant to DTO.
+ * @param {Object} participant - Raw participant data.
+ * @returns {Object} Participant payload.
+ */
 const toParticipant = (participant) => ({
     userId: participant.userId ?? null,
     usernameSnapshot: participant.usernameSnapshot,
@@ -10,6 +14,11 @@ const toParticipant = (participant) => ({
     aiDifficulty: participant.aiDifficulty ?? null
 });
 
+/**
+ * Maps move to DTO.
+ * @param {Object} move - Raw move data.
+ * @returns {Object} Move payload.
+ */
 const toMove = (move) => ({
     moveNumber: move.moveNumber,
     byParticipantIndex: move.byParticipantIndex,
@@ -19,12 +28,23 @@ const toMove = (move) => ({
     placedAt: move.placedAt
 });
 
+/**
+ * Maps cell to DTO.
+ * @param {Object} cell - Raw cell data.
+ * @returns {Object} Cell payload.
+ */
 const toWinningCell = (cell) => ({
     row: cell.row,
     col: cell.col,
     coordinate: cell.coordinate
 });
 
+/**
+ * Derives match result for the viewing user.
+ * @param {Object} session - Game session data.
+ * @param {string} viewerUserId - User ID.
+ * @returns {string} Result status.
+ */
 const deriveViewerResult = (session, viewerUserId) => {
     const viewerId = String(viewerUserId || "");
     const participantIndex = Array.isArray(session.participants)
@@ -38,6 +58,12 @@ const deriveViewerResult = (session, viewerUserId) => {
     return session.winnerParticipantIndex === participantIndex ? "WIN" : "LOSE";
 };
 
+/**
+ * Extracts opponent name.
+ * @param {Object} session - Game session data.
+ * @param {string} viewerUserId - User ID.
+ * @returns {string|null} Opponent username.
+ */
 const getOpponentName = (session, viewerUserId) => {
     const viewerId = String(viewerUserId || "");
     const opponent = Array.isArray(session.participants)
@@ -47,6 +73,12 @@ const getOpponentName = (session, viewerUserId) => {
     return opponent?.usernameSnapshot || null;
 };
 
+/**
+ * Extracts opponent info.
+ * @param {Object} session - Game session data.
+ * @param {string} viewerUserId - User ID.
+ * @returns {Object} Opponent details.
+ */
 const getOpponentInfo = (session, viewerUserId) => {
     const viewerId = String(viewerUserId || "");
     const opponent = Array.isArray(session.participants)
@@ -60,6 +92,7 @@ const getOpponentInfo = (session, viewerUserId) => {
 };
 
 export const GameDTO = {
+    /** Maps session to list item DTO. */
     toGameListItem: (session, viewerUserId) => ({
         id: session.id || session._id,
         sessionNumber: session.sessionNumber,
@@ -76,6 +109,7 @@ export const GameDTO = {
         endedAt: session.endedAt
     }),
 
+    /** Maps sessions to paginated response DTO. */
     toGameListResponse: (sessions, pagination, viewerUserId) => ({
         items: Array.isArray(sessions)
             ? sessions.map((session) => GameDTO.toGameListItem(session, viewerUserId))
@@ -85,6 +119,7 @@ export const GameDTO = {
         limit: pagination?.limit ?? 20
     }),
 
+    /** Maps session to detailed DTO. */
     toGameDetail: (session, viewerUserId) => ({
         id: session.id || session._id,
         sessionNumber: session.sessionNumber,
@@ -108,6 +143,7 @@ export const GameDTO = {
         createdAt: session.createdAt
     }),
 
+    /** Maps stats to summary DTO. */
     toStatsSummary: (stats = {}) => ({
         totalGames: stats.totalGames ?? 0,
         wins: stats.wins ?? 0,

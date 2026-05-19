@@ -34,11 +34,6 @@ export const GameEmitter = {
         io.to(String(roomId)).emit('game:state', payload);
     },
 
-    /** Emits game move payload. */
-    emitGameMoved: (io, roomId, payload) => {
-        io.to(String(roomId)).emit('game:moved', payload);
-    },
-
     /** Emits game end payload. */
     emitGameEnded: (io, roomId, payload) => {
         io.to(String(roomId)).emit('game:ended', payload);

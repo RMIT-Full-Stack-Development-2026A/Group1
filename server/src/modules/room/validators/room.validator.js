@@ -174,10 +174,11 @@ export const validateRoomLeave = (payload) => {
 /**
  * Validates game move payload.
  * @param {Object} payload - Move parameters.
- * @returns {Object} Validated payload.
+ * @returns {Object} Validated payload containing numeric coordinates.
  */
 export const validateGameMove = (payload) => {
     const { roomId, row, col } = payload || {};
+    
     if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
         throw { 
             statusCode: 400, 
@@ -185,14 +186,19 @@ export const validateGameMove = (payload) => {
             message: "Valid Room ID is required." 
         };
     }
-    if (row === undefined || col === undefined || row < 0 || col < 0) {
+
+    const parsedRow = parseInt(row, 10);
+    const parsedCol = parseInt(col, 10);
+
+    if (Number.isNaN(parsedRow) || Number.isNaN(parsedCol) || parsedRow < 0 || parsedCol < 0) {
         throw { 
             statusCode: 400, 
             error: "INVALID_COORDINATES", 
-            message: "Valid row and column indices are required." 
+            message: "Valid numeric row and column indices are required." 
         };
     }
-    return { roomId, row: parseInt(row), col: parseInt(col) };
+
+    return { roomId, row: parsedRow, col: parsedCol };
 };
 
 /**

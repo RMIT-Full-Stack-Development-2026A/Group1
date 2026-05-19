@@ -39,7 +39,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const mappedStyle = rawMap[boardStyleKey] || boardStyleKey.toLowerCase();
   const theme = getTheme(mappedStyle);
 
-  const markerVariant = roomData?.markerStyle || "PIXEL";
   const boardSize = roomData?.boardSize || 10;
 
   const player1 = roomData?.participants?.[0] || {
@@ -51,13 +50,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     mark: "O",
   };
 
-  // Convert the numeric/string markerVariant to its display style
-  const activeMarkerStyle =
-    typeof markerVariant === "number"
-      ? markerVariant === 1
-        ? "default"
-        : `custom_${markerVariant}`
-      : markerVariant;
+  const player1MarkerStyle = player1?.markerStyle || roomData?.markerStyle || "CLASSIC";
+  const player2MarkerStyle = player2?.markerStyle || roomData?.markerStyle || "CLASSIC";
+
+  const activeMarkerStyle = player1MarkerStyle;
 
   const [board, setBoard] = useState(() => {
     return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
@@ -156,9 +152,13 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     didInitiateAbortRef.current = false;
   }, [roomId]);
 
-  const markerVariantData = useMemo(
-    () => getMarkerVariant(markerVariant),
-    [markerVariant],
+  const player1MarkerVariantData = useMemo(
+    () => getMarkerVariant(player1MarkerStyle),
+    [player1MarkerStyle],
+  );
+  const player2MarkerVariantData = useMemo(
+    () => getMarkerVariant(player2MarkerStyle),
+    [player2MarkerStyle],
   );
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
@@ -421,13 +421,16 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
               roomData?.status === "PLAYING"
             }
             avatarUrl={
-              currentUserId === player1.userId ? userAvatarUrl : roomData?.participants?.[0]?.avatar
+              currentUserId === player1.userId
+                ? userAvatarUrl
+                : roomData?.participants?.[0]?.avatarSnapshot || roomData?.participants?.[0]?.avatar || undefined
             }
-            markerVariantData={markerVariantData}
+            markerVariantData={player1MarkerVariantData}
           />
-
           <BoardArea
             markerVariant={activeMarkerStyle}
+            xMarkerVariant={player1MarkerStyle}
+            oMarkerVariant={player2MarkerStyle}
             gridStyle={mappedStyle}
             board={board}
             boardSize={boardSize}
@@ -452,10 +455,12 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
               !gameOver &&
               roomData?.status === "PLAYING"
             }
-            markerVariantData={markerVariantData}
             avatarUrl={
-              currentUserId === player2.userId ? userAvatarUrl : roomData?.participants?.[1]?.avatar
+              currentUserId === player2.userId
+                ? userAvatarUrl
+                : roomData?.participants?.[1]?.avatarSnapshot || roomData?.participants?.[1]?.avatar || undefined
             }
+            markerVariantData={player2MarkerVariantData}
           />
         </div>
       </main>

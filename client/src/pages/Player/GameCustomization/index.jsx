@@ -23,6 +23,7 @@ export default function GameCustomization() {
     const { setCustomization } = useCustomizationStore();
     const { gameMode, player2Name, startingPlayer, setAiDifficulty, setPlayer2Name, setStartingPlayer } = useModeStore();
     const { connectSocket } = useSocketStore();
+    const isOnlineMatch = gameMode === 'ONLINE_MATCH';
     const {
         selectedBoardSize,
         setSelectedBoardSize,
@@ -36,6 +37,10 @@ export default function GameCustomization() {
         setLoading,
     } = useGameCustomization();
 
+    // Per-player marker selections for local and AI matches
+    const [selectedMarkerP1, setSelectedMarkerP1] = React.useState(selectedMarker);
+    const [selectedMarkerP2, setSelectedMarkerP2] = React.useState(selectedMarker);
+
     // Redirect to landing page if not logged in
     useEffect(() => {
         if (!isCheckingAuth && !isAuthenticated) {
@@ -44,24 +49,35 @@ export default function GameCustomization() {
     }, [isAuthenticated, isCheckingAuth, navigate]);
 
     useEffect(() => {
-        if (gameMode === 'ONLINE_MATCH') {
+        if (isOnlineMatch) {
             connectSocket();
         }
-    }, [gameMode, connectSocket]);
+    }, [isOnlineMatch, connectSocket]);
 
     const handleCreateRoom = async () => {
         setLoading(true);
         try {
             // Save customization to global store (accessible from GameBoard)
-            setCustomization(selectedBoardSize, selectedStyle, selectedMarker);
+            // For online matches, keep previous behavior (host marker irrelevant)
+            if (isOnlineMatch) {
+                setCustomization(selectedBoardSize, selectedStyle, 3);
+            } else {
+                // For local or single-player, store per-player marker choices
+                setCustomization(selectedBoardSize, selectedStyle, { x: selectedMarkerP1, o: selectedMarkerP2 });
+            }
             setStartingPlayer(startingPlayer);
 
             // Prepare room data payload
             const roomPayload = {
                 boardSize: selectedBoardSize,
                 gridStyle: selectedStyle,
-                markerVariant: selectedMarker,
             };
+
+            if (!isOnlineMatch) {
+                // Attach per-player marker variants for local/AI modes
+                roomPayload.markerVariantX = selectedMarkerP1;
+                roomPayload.markerVariantO = selectedMarkerP2;
+            }
             
 
             // Add AI difficulty for single player mode
@@ -71,10 +87,10 @@ export default function GameCustomization() {
                 setAiDifficulty(selectedDifficulty);
             }
 
-            const roomData = await createGameRoom(roomPayload, gameMode === 'ONLINE_MATCH');
+            const roomData = await createGameRoom(roomPayload, isOnlineMatch);
 
             // Navigate to game board with room ID (online matches use different route)
-            if (gameMode === 'ONLINE_MATCH') {
+            if (isOnlineMatch) {
                 navigate(`/room/online/${roomData.roomId}`, { state: { initialRoomData: roomData } });
             } else {
                 navigate(`/game/${roomData.roomId}`, { state: { room: roomData } });
@@ -95,14 +111,14 @@ export default function GameCustomization() {
 
     if (isCheckingAuth) {
         return (
-            <div className="bg-[#0d0d1a] text-[#e3e0f4] min-h-screen flex items-center justify-center">
-                <div className="font-mono text-[#4cc9f0]">Checking authentication...</div>
+            <div className="bg-deep-bg text-[#e3e0f4] min-h-screen flex items-center justify-center">
+                <div className="font-mono text-primary-cyan">Checking authentication...</div>
             </div>
         );
     }
 
     return (
-        <div className="bg-[#0d0d1a] text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">
+        <div className="bg-deep-bg text-[#e3e0f4] font-body min-h-screen flex flex-col overflow-x-hidden">
             {/* Background Grid Pattern */}
             <div
                 className="fixed inset-0 opacity-10 pointer-events-none z-0"
@@ -122,14 +138,14 @@ export default function GameCustomization() {
             ></div>
 
             {/* Main Content */}
-            <main className="flex-grow pt-15 pb-20 px-6 flex flex-col items-center justify-start overflow-y-auto relative z-10">
+            <main className="grow pt-15 pb-20 px-6 flex flex-col items-center justify-start overflow-y-auto relative z-10">
                 <div className="max-w-4xl w-full space-y-12">
                     {/* Header Section */}
                     <div className="text-center space-y-2">
-                        <h1 className="font-headline text-3xl md:text-4xl text-[#4cc9f0] drop-shadow-[0_0_12px_rgba(76,201,240,0.6)]">
+                        <h1 className="font-headline text-3xl md:text-4xl text-primary-cyan drop-shadow-[0_0_12px_rgba(76,201,240,0.6)]">
                             ROOM SETUP
                         </h1>
-                        <div className="h-1 w-24 bg-[#4cc9f0] mx-auto"></div>
+                        <div className="h-1 w-24 bg-primary-cyan mx-auto"></div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-10">
@@ -146,10 +162,24 @@ export default function GameCustomization() {
                         />
 
                         {/* Section 3: Marker Variant */}
-                        <MarkerVariantSelector
-                            selectedMarker={selectedMarker}
-                            onSelect={setSelectedMarker}
-                        />
+                        {!isOnlineMatch && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm text-[#879398] mb-2 uppercase font-mono">Player 1 Marker</p>
+                                    <MarkerVariantSelector
+                                        selectedMarker={selectedMarkerP1}
+                                        onSelect={(v) => { setSelectedMarkerP1(v); }}
+                                    />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-[#879398] mb-2 uppercase font-mono">{gameMode === 'SINGLE_PLAYER' ? 'AI Marker' : 'Player 2 Marker'}</p>
+                                    <MarkerVariantSelector
+                                        selectedMarker={selectedMarkerP2}
+                                        onSelect={(v) => { setSelectedMarkerP2(v); }}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {/* Section 4: First Player (Only for Local and Single Player) */}
                         {gameMode !== 'ONLINE_MATCH' && (

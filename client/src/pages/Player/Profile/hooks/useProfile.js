@@ -29,7 +29,7 @@ export const useProfile = () => {
   // Filter and pagination state - inputs (what user is adjusting)
   const [searchQuery, setSearchQuery] = useState("");
   const [filterResult, setFilterResult] = useState("ALL RESULTS");
-  const [filterGameType, setFilterGameType] = useState("GAME TYPE");
+  const [filterGameType, setFilterGameType] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [sortBy, setSortBy] = useState("endedAt"); // 'endedAt' or 'startedAt'
@@ -40,7 +40,7 @@ export const useProfile = () => {
   // Applied filters state - only these trigger API calls
   const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
   const [appliedFilterResult, setAppliedFilterResult] = useState("ALL RESULTS");
-  const [appliedFilterGameType, setAppliedFilterGameType] = useState("GAME TYPE");
+  const [appliedFilterGameType, setAppliedFilterGameType] = useState("");
   const [appliedDateFrom, setAppliedDateFrom] = useState("");
   const [appliedDateTo, setAppliedDateTo] = useState("");
   const [appliedSortBy, setAppliedSortBy] = useState("endedAt");
@@ -202,7 +202,7 @@ export const useProfile = () => {
         const filters = {
           q: appliedSearchQuery,
           result: appliedFilterResult === "ALL RESULTS" ? undefined : appliedFilterResult,
-          gameType: appliedFilterGameType === "GAME TYPE" ? undefined : appliedFilterGameType,
+          gameType: appliedFilterGameType || undefined,
           from: appliedDateFrom ? new Date(appliedDateFrom).toISOString() : undefined,
           to: appliedDateTo ? new Date(appliedDateTo).toISOString() : undefined,
           sortBy: appliedSortBy,
@@ -377,12 +377,12 @@ export const useProfile = () => {
   const handleResetFilters = () => {
     setSearchQuery("");
     setFilterResult("ALL RESULTS");
-    setFilterGameType("GAME TYPE");
+    setFilterGameType("");
     setDateFrom("");
     setDateTo("");
     setAppliedSearchQuery("");
     setAppliedFilterResult("ALL RESULTS");
-    setAppliedFilterGameType("GAME TYPE");
+    setAppliedFilterGameType("");
     setAppliedDateFrom("");
     setAppliedDateTo("");
     setAppliedPage(1);

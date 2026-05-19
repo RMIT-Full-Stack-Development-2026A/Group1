@@ -15,6 +15,7 @@ import { getDifficultyLevels } from "@/pages/Player/GameCustomization/service/cu
 
 // Utils
 import { getMarkerVariant } from "@/utils/markerRenderer";
+import { getMarkerVariants } from '@/pages/Player/GameCustomization/service/customization.service';
 import { getTheme } from "@/config/gameThemes.config";
 import { useGame } from "./hook/useGame.hook";
 import { useChatManager } from "./hook/useChatManager.hook";
@@ -43,6 +44,8 @@ const GameBoard = () => {
     boardSize: displaySize,
     gridStyle,
     markerVariant,
+    markerVariantX,
+    markerVariantO,
     setMarkerVariant,
   } = useCustomizationStore();
 
@@ -51,10 +54,14 @@ const GameBoard = () => {
     return parseInt(displaySize.split("x")[0], 10) || 10;
   }, [displaySize]);
 
-  // Get the marker variant data based on the selected variant
-  const markerVariantData = useMemo(() => {
-    return getMarkerVariant(markerVariant);
-  }, [markerVariant]);
+  // Get the marker variant data based on the selected per-player variants
+  const markerVariantDataX = useMemo(() => {
+    return getMarkerVariant(markerVariantX ?? markerVariant);
+  }, [markerVariantX, markerVariant]);
+
+  const markerVariantDataO = useMemo(() => {
+    return getMarkerVariant(markerVariantO ?? markerVariant);
+  }, [markerVariantO, markerVariant]);
 
   // Get user avatar URL (fallback to undefined if not available)
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
@@ -90,6 +97,12 @@ const GameBoard = () => {
       usernameSnapshot: user?.username || user?.name || "PLAYER_01",
       role: "HUMAN",
       mark: "X",
+        // derive backend enum markerStyle from customization store
+        markerStyle: (() => {
+          const variants = getMarkerVariants();
+          const selected = variants.find(v => v.displayId === (markerVariantX ?? markerVariant));
+          return selected ? selected.id : 'CLASSIC';
+        })(),
     };
 
     let player2 = {
@@ -97,6 +110,11 @@ const GameBoard = () => {
       usernameSnapshot: p2Name,
       role: "HUMAN",
       mark: "O",
+        markerStyle: (() => {
+          const variants = getMarkerVariants();
+          const selected = variants.find(v => v.displayId === (markerVariantO ?? markerVariant));
+          return selected ? selected.id : 'CLASSIC';
+        })(),
     };
 
     if (isBotMatch) {
@@ -278,12 +296,13 @@ const GameBoard = () => {
           isBot={false}
           isActive={currentPlayer === "X" && !gameOver}
           avatarUrl={userAvatarUrl}
-          markerVariantData={markerVariantData}
+          markerVariantData={markerVariantDataX}
           gameOver={gameOver}
         />
 
         <BoardArea
-          markerVariant={markerVariant}
+          xMarkerVariant={markerVariantX ?? markerVariant}
+          oMarkerVariant={markerVariantO ?? markerVariant}
           gridStyle={gridStyle}
           theme={theme}
           board={board}
@@ -321,7 +340,7 @@ const GameBoard = () => {
           isBot={isBotMatch}
           isActive={currentPlayer === "O" && !gameOver}
           difficulty={isBotMatch ? aiDifficulty : undefined}
-          markerVariantData={markerVariantData}
+          markerVariantData={markerVariantDataO}
           gameOver={gameOver}
         />
       </main>

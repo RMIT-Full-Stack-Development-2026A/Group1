@@ -277,6 +277,11 @@ export const useGameOnline = () => {
         socket.emit('room:set_first_turn', { roomId: roomData.id, firstTurnParticipantIndex });
     }, [socket, roomData?.id]);
 
+    const handleSetMarkerStyle = useCallback((markerStyle) => {
+        if (!socket || !roomData?.id) return;
+        socket.emit('room:update_settings', { roomId: roomData.id, markerStyle });
+    }, [socket, roomData?.id]);
+
     return {
         roomData,
         isConnecting,
@@ -289,5 +294,6 @@ export const useGameOnline = () => {
         handlePlayAgain,
         handleLeaveRoom,
         handleSetFirstTurn,
+        handleSetMarkerStyle,
     };
 };

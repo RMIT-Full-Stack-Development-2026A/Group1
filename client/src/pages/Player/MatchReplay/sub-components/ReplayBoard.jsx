@@ -9,7 +9,7 @@ const BOARD_THEMES = {
     DARK: { wrapper: 'bg-[#0f0f0f] border-4 border-[#3a3a3a]', gap: '#1a1a1a', cellBg: '#0f0f0f' },
 };
 
-export default function ReplayBoard({ boardState, boardSize, markerStyle, boardStyle = 'CLASSIC' }) {
+export default function ReplayBoard({ boardState, boardSize, playerX = {}, playerO = {}, boardStyle = 'CLASSIC' }) {
     const columns = Array.from({ length: boardSize }, (_, i) => String.fromCharCode(65 + i));
     const rows = Array.from({ length: boardSize }, (_, i) => i + 1);
     const theme = BOARD_THEMES[boardStyle] ?? BOARD_THEMES.CLASSIC;
@@ -41,8 +41,8 @@ export default function ReplayBoard({ boardState, boardSize, markerStyle, boardS
                                     <>
                                         {/* Render marker */}
                                         {cell.mark === 'X'
-                                            ? renderXMarker(markerStyle, "w-[65%] h-[65%] flex items-center justify-center")
-                                            : renderOMarker(markerStyle, "w-[65%] h-[65%] flex items-center justify-center")
+                                            ? renderXMarker(playerX.markerStyle || playerO.markerStyle || 'CLASSIC', "w-[65%] h-[65%] flex items-center justify-center")
+                                            : renderOMarker(playerO.markerStyle || playerX.markerStyle || 'CLASSIC', "w-[65%] h-[65%] flex items-center justify-center")
                                         }
                                         <span className="absolute top-0.5 right-0.5 text-[7px] text-[#879398] font-mono">
                                             {String(cell.stepIndex).padStart(2, '0')}
@@ -65,6 +65,7 @@ export default function ReplayBoard({ boardState, boardSize, markerStyle, boardS
 ReplayBoard.propTypes = {
     boardState: PropTypes.arrayOf(PropTypes.array).isRequired,
     boardSize: PropTypes.number.isRequired,
-    markerStyle: PropTypes.string.isRequired,
+    playerX: PropTypes.object,
+    playerO: PropTypes.object,
     boardStyle: PropTypes.string,
 };

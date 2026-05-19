@@ -20,6 +20,7 @@ export default function GameOnline() {
     handlePlayAgain,
     handleLeaveRoom,
     handleSetFirstTurn,
+    handleSetMarkerStyle,
   } = useGameOnline();
 
   const { user } = useAuthStore();
@@ -53,6 +54,7 @@ export default function GameOnline() {
           onReady={handleReady}
           onLeave={handleLeaveRoom}
           onSetFirstTurn={handleSetFirstTurn}
+          onSetMarkerStyle={handleSetMarkerStyle}
           disconnectCountdown={disconnectCountdown}
         />
       );

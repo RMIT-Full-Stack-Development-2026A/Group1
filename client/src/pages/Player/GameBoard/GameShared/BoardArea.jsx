@@ -11,6 +11,8 @@ const BoardArea = ({
     board,
     boardSize,
     markerVariant,
+    xMarkerVariant,
+    oMarkerVariant,
     theme = getTheme('classic'),
     winnerData,
     isDraw,
@@ -30,7 +32,7 @@ const BoardArea = ({
         <section className="flex-1 flex items-center justify-center">
             <ScanLines />
             <div
-                className={`${theme.boardWrapper} p-3 grid aspect-square w-full max-w-[600px]`}
+                className={`${theme.boardWrapper} p-3 grid aspect-square w-full max-w-150`}
                 style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
             >
                 {/* Top labels */}
@@ -61,6 +63,8 @@ const BoardArea = ({
                                 key={`${rowIndex}-${colIndex}`}
                                 value={cellValue}
                                 markerVariant={markerVariant}
+                                xMarkerVariant={xMarkerVariant}
+                                oMarkerVariant={oMarkerVariant}
                                 cellBorderClass={theme.cellBorder}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
                                 onClick={() => {

@@ -1,8 +1,10 @@
 import React from 'react';
 import { renderOMarker, renderXMarker } from '@/utils/markerRenderer';
 
-const GridCell = ({ value, markerVariant, cellBorderClass, isWinCell, onClick, disabled }) => {
+const GridCell = ({ value, markerVariant, xMarkerVariant, oMarkerVariant, cellBorderClass, isWinCell, onClick, disabled }) => {
     const borderClass = cellBorderClass ?? 'border-r border-b border-[#2a2a4e]';
+    const resolvedXMarkerVariant = xMarkerVariant ?? markerVariant;
+    const resolvedOMarkerVariant = oMarkerVariant ?? markerVariant;
 
     return (
         <>
@@ -65,8 +67,8 @@ const GridCell = ({ value, markerVariant, cellBorderClass, isWinCell, onClick, d
                     relative z-10 flex items-center justify-center w-full h-full
                     ${isWinCell ? 'win-marker-master' : 'scale-100 transition-transform duration-300'}
                 `}>
-                    {value === 'X' && renderXMarker(markerVariant, "w-28 h-20 flex items-center justify-center")}
-                    {value === 'O' && renderOMarker(markerVariant, "w-28 h-20 flex items-center justify-center")}
+                    {value === 'X' && renderXMarker(resolvedXMarkerVariant, "w-28 h-20 flex items-center justify-center")}
+                    {value === 'O' && renderOMarker(resolvedOMarkerVariant, "w-28 h-20 flex items-center justify-center")}
                 </div>
             </div>
         </>

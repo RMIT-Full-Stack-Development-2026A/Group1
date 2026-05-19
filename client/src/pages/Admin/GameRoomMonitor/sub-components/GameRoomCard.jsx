@@ -26,6 +26,22 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
   const isClosing = closingRoomId === room.id;
   const isClosed = room.status === "closed";
 
+  const getParticipantId = (participant) => {
+    if (!participant?.userId) return "-";
+
+    return String(participant.userId);
+  };
+
+  const renderAvatar = (participant, label) => {
+    const avatarUrl = participant?.avatarSnapshot || participant?.avatar || participant?.avatarUrl || null;
+
+    if (avatarUrl) {
+      return <img src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
+    }
+
+    return <span className="material-symbols-outlined text-primary-cyan">person</span>;
+  };
+
   return (
     <article
       className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all ${style.wrapper}`}
@@ -48,7 +64,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center border-2 border-primary-cyan bg-deep-bg">
-              <span className="material-symbols-outlined text-primary-cyan">person</span>
+              {renderAvatar(room.participants?.[0], room.playerOneName || "Player 1")}
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-mono text-[10px] uppercase tracking-wide text-white/45">
@@ -56,6 +72,9 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
               </span>
               <span className="font-mono text-sm uppercase tracking-wide text-white">
                 {room.playerOneName}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-wide text-[#fad100]">
+                ID: {getParticipantId(room.participants?.[0])}
               </span>
             </div>
           </div>
@@ -66,7 +85,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
 
           <div className="flex items-center gap-3 lg:justify-end">
             <div className="flex h-11 w-11 items-center justify-center border-2 border-primary-cyan bg-deep-bg">
-              <span className="material-symbols-outlined text-primary-cyan">person</span>
+              {renderAvatar(room.participants?.[1], room.playerTwoName || "Player 2")}
             </div>
             <div className="flex flex-col gap-1 lg:items-end">
               <span className="font-mono text-[10px] uppercase tracking-wide text-white/45">
@@ -74,6 +93,9 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
               </span>
               <span className="font-mono text-sm uppercase tracking-wide text-white">
                 {room.playerTwoName}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-wide text-[#fad100]">
+                ID: {getParticipantId(room.participants?.[1])}
               </span>
             </div>
           </div>

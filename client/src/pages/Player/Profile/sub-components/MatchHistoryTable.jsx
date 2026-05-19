@@ -159,7 +159,7 @@ export default function MatchHistoryTable({
         {/* Filters */}
         <div className="flex flex-wrap gap-3 w-full md:w-auto">
           {/* Search Input */}
-          <div className="relative flex-grow md:w-64 flex flex-col gap-1">
+          <div className="relative grow md:w-64 flex flex-col gap-1">
             <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">SEARCH</label>
             <input
               className="w-full bg-surface-container-highest border-b-2 border-outline focus:border-primary-container outline-none px-4 py-2 text-xs font-body text-on-surface placeholder:text-outline-variant uppercase"
@@ -215,16 +215,16 @@ export default function MatchHistoryTable({
             value={filterGameType}
             onChange={(e) => onFilterGameTypeChange(e.target.value)}
           >
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ALL GAME TYPES</option>
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>SINGLE PLAYER</option>
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>TWO PLAYERS</option>
-            <option style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ONLINE MATCH</option>
+            <option value="" style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ALL GAME TYPES</option>
+            <option value="SINGLE_PLAYER" style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>SINGLE PLAYER</option>
+            <option value="TWO_PLAYERS" style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>TWO PLAYERS</option>
+            <option value="ONLINE_MATCH" style={{ backgroundColor: '#343342', color: '#e3e0f4' }}>ONLINE MATCH</option>
           </select>
 
           {/* Reset Filter Button */}
           <button
             onClick={onResetFilters}
-            className="bg-surface-container-highest text-outline px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-all active:translate-y-[2px]"
+            className="bg-surface-container-highest text-outline px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-all active:translate-y-0.5"
           >
             RESET
           </button>
@@ -232,7 +232,7 @@ export default function MatchHistoryTable({
           {/* Filter Button */}
           <button
             onClick={onApplyFilters}
-            className="bg-primary-container text-on-primary px-4 py-2 text-xs uppercase font-bold border border-primary-container hover:bg-primary hover:border-primary transition-all active:translate-y-[2px]"
+            className="bg-primary-container text-on-primary px-4 py-2 text-xs uppercase font-bold border border-primary-container hover:bg-primary hover:border-primary transition-all active:translate-y-0.5"
           >
             FILTER
           </button>
@@ -346,7 +346,7 @@ export default function MatchHistoryTable({
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             PREV
           </button>
@@ -418,7 +418,7 @@ export default function MatchHistoryTable({
                 <button
                   key={pageNum}
                   onClick={() => onPageChange(pageNum)}
-                  className={`px-3 py-1 text-xs active:translate-y-[2px] font-bold transition-all ${
+                  className={`px-3 py-1 text-xs active:translate-y-0.5 font-bold transition-all ${
                     currentPage === pageNum
                       ? "bg-primary-container text-on-primary border-2 border-primary-container shadow-[0_0_12px_rgba(76,201,240,0.6)] scale-105"
                       : "bg-surface-container-highest border border-outline hover:bg-outline hover:text-on-secondary"
@@ -433,7 +433,7 @@ export default function MatchHistoryTable({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             NEXT
           </button>

@@ -145,7 +145,7 @@ export const validateRoomJoin = (payload) => {
         
         result.markerStyle = markerStyle;
     }
-    return { result };
+    return result;
 };
 
 /**

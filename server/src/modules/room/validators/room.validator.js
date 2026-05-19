@@ -127,9 +127,14 @@ export const validateRoomJoin = (payload) => {
             message: "Valid Room ID is required." 
         };
     }
-    if (payload?.markerStyle) {
+
+    const result = { roomId: payload.roomId };
+
+    // Treat non-string/blank values as undefined
+    if (typeof payload.markerStyle === 'string' && payload.markerStyle.trim().length > 0) {
         const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
-        const markerStyle = String(payload.markerStyle).trim().toUpperCase();
+        const markerStyle = payload.markerStyle.trim().toUpperCase();
+        
         if (!allowedMarkerStyles.includes(markerStyle)) {
             throw { 
                 statusCode: 400, 
@@ -137,9 +142,10 @@ export const validateRoomJoin = (payload) => {
                 message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` 
             };
         }
-        return { roomId: payload.roomId, markerStyle };
+        
+        result.markerStyle = markerStyle;
     }
-    return { roomId: payload.roomId };
+    return { result };
 };
 
 /**

@@ -87,12 +87,17 @@ export const validateGameCreation = (payload) => {
  * @param {Object} query - Request query string.
  * @returns {Object} Structured filter, sort, and pagination.
  */
-export const validateGameQuery = (userId, query) => {
+export const validateGameQuery = (query = {}, userId = null) => {
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const filter = { 'participants.userId': userId }; // Filtering by requesting user
+    const filter = {}; 
+
+    // Filter if a specific userId is provided
+    if (userId) {
+        filter['participants.userId'] = userId;
+    }
 
     if (query.gameType) filter.gameType = query.gameType;
     
@@ -126,9 +131,5 @@ export const validateGameQuery = (userId, query) => {
         if (query.to) filter.endedAt.$lte = new Date(query.to);
     }
 
-    const sort = query.sortBy === 'startedAt' 
-        ? { startedAt: query.sortOrder === 'asc' ? 1 : -1 } 
-        : { endedAt: query.sortOrder === 'asc' ? 1 : -1 };
-
-    return { filter, sort, pagination: { page, limit, skip } };
+    return { filter, sort: { endedAt: -1 }, pagination: { page, limit, skip } };
 };

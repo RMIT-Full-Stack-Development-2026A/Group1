@@ -112,7 +112,7 @@ export const GameService = {
 
     // [GET] /games endpoint
     listUserGameSessions: async (userId, query) => {
-        const { filter, sort, pagination } = validateGameQuery(userId, query);
+        const { filter, sort, pagination } = validateGameQuery(query, userId);
         
         const { items, total } = await GameRepository.findPaginated(filter, sort, pagination.skip, pagination.limit);
         

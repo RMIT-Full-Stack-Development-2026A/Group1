@@ -200,6 +200,7 @@ Base Path: `/api/v1/admin`
 | GET | `/admin/rooms` | ADMIN | List active/waiting rooms | Yes |
 | GET | `/admin/rooms/:id` | ADMIN | Get room detail and live snapshot | Yes |
 | DELETE | `/admin/rooms/:id` | ADMIN | Force close a room | Yes |
+| `GET` | `/api/v1/admin/players/game` | ADMIN | Fetch completed online match history across all players | Yes
 
 ## 7. WebSocket Contract
 Namespace/Endpoint: `/ws/game`

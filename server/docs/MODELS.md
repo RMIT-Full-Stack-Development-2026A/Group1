@@ -226,58 +226,16 @@ gameRoomSchema.index({ endedAt: 1 }, { expireAfterSeconds: 60*10 })
 
 ```js
 const transactionSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', 
-        required: true, 
-        unique: true // Enforces 1 active transaction per user
-    },
-    type: {
-        type: String,
-        enum: ['SUBSCRIPTION'], 
-        required: true, 
-        index: true 
-    },
-    provider: {
-        type: String,
-        enum: ['STRIPE', 'PAYPAL'], 
-        required: true, 
-        default: 'PAYPAL' 
-    },
-    amount: {
-        type: Number, 
-        required: true, 
-        min: 0 
-    },
-    currency: {
-        type: String, 
-        default: 'USD' 
-    },
-    status: {
-        type: String,
-        enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], 
-        required: true, 
-        default: 'PENDING', 
-        index: true 
-    },
-    externalTransactionId: {
-        type: String, 
-        default: null, 
-        index: true,
-        sparse: true 
-    },
-    subscriptionPeriodStart: {
-        type: Date,
-        default: null 
-    },
-    subscriptionPeriodEnd: {
-        type: Date,
-        default: null
-    },
-    metadata: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {}
-    }
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    type: { type: String, enum: ['SUBSCRIPTION'], required: true, index: true },
+    provider: { type: String, enum: ['STRIPE', 'PAYPAL'], required: true, default: 'PAYPAL' },
+    amount: { type: Number, required: true, min: 0 },
+    currency: { type: String, default: 'USD' },
+    status: { type: String, enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'], required: true, default: 'PENDING', index: true },
+    externalTransactionId: { type: String, default: null, index: true, sparse: true },
+    subscriptionPeriodStart: { type: Date, default: null },
+    subscriptionPeriodEnd: { type: Date, default: null },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
 }, baseSchemaOptions);
 
 // Auto-delete when subscriptionPeriodEnd passes

@@ -168,8 +168,8 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
                 .send({ 
                     gameType: 'SINGLE_PLAYER', 
                     participants: [
-                        { userId: testPlayerId, usernameSnapshot: 'Player1', role: 'HUMAN', mark: 'X' }, 
-                        { userId: testPlayerId, usernameSnapshot: 'Bot', role: 'AI', mark: 'O' }
+                        { userId: testPlayerId, usernameSnapshot: 'Player1', role: 'HUMAN', mark: 'X', markerStyle: 'CLASSIC' }, 
+                        { userId: testPlayerId, usernameSnapshot: 'Bot', role: 'AI', mark: 'O', markerStyle: 'CLASSIC' }
                     ], 
                     status: 'FINISHED',
                     winnerParticipantIndex: 0,

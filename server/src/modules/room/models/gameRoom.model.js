@@ -27,12 +27,6 @@ const gameRoomSchema = new mongoose.Schema({
         default: 'CLASSIC'
     },
 
-    markerStyle: {
-        type: String, 
-        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'], 
-        default: 'CLASSIC'
-    },
-
     firstTurnParticipantIndex: {
         type: Number, 
         enum: [0, 1],

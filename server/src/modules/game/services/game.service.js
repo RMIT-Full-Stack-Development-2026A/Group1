@@ -52,6 +52,7 @@ export const GameService = {
             isPremiumSnapshot: p.isPremiumSnapshot ?? false, // Default to false if not provided
             role: p.role,
             mark: p.mark,
+            markerStyle: p.markerStyle ?? 'CLASSIC',
             aiDifficulty: p.aiDifficulty ?? null
         })) : []);
 
@@ -88,7 +89,6 @@ export const GameService = {
             boardSize: payload.boardSize || 10,
             
             ...(payload.boardStyle && { boardStyle: payload.boardStyle }),
-            ...(payload.markerStyle && { markerStyle: payload.markerStyle }),
 
             participants: participants,
             firstTurnParticipantIndex: payload.firstTurnParticipantIndex,
@@ -173,10 +173,23 @@ export const GameService = {
     },
 
     createOnlineGameSessionFromRoom: async (roomClosurePayload) => {
-        if (!roomClosurePayload.sessionNumber) {
-            roomClosurePayload.sessionNumber = `ONL-${ulid()}`;
+        const normalizedParticipants = Array.isArray(roomClosurePayload?.participants)
+            ? roomClosurePayload.participants.map((participant) => ({
+                ...participant,
+                markerStyle: participant?.markerStyle ?? 'CLASSIC'
+            }))
+            : [];
+
+        const sessionPayload = {
+            ...roomClosurePayload,
+            participants: normalizedParticipants
+        };
+
+        if (!sessionPayload.sessionNumber) {
+            sessionPayload.sessionNumber = `ONL-${ulid()}`;
         }
-        const session = await GameRepository.createSession(roomClosurePayload);
+
+        const session = await GameRepository.createSession(sessionPayload);
         return GameDTO.toGameDetail(session, roomClosurePayload?.viewerUserId || null);
     },
 

@@ -6,6 +6,7 @@ const toParticipant = (participant) => ({
     isPremium: participant.isPremiumSnapshot ?? false,
     role: participant.role,
     mark: participant.mark,
+    markerStyle: participant.markerStyle,
     aiDifficulty: participant.aiDifficulty ?? null
 });
 
@@ -91,7 +92,6 @@ export const GameDTO = {
         gameType: session.gameType,
         boardSize: session.boardSize,
         boardStyle: session.boardStyle,
-        markerStyle: session.markerStyle,
         firstTurnParticipantIndex: session.firstTurnParticipantIndex,
         winnerParticipantIndex: session.winnerParticipantIndex,
         status: session.status,

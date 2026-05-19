@@ -5,6 +5,7 @@ const toParticipant = (participant) => ({
     avatar: participant.avatarSnapshot ?? null,
     isPremium: participant.isPremiumSnapshot ?? false,
     mark: participant.mark ?? null,
+    markerStyle: participant.markerStyle ?? 'CLASSIC',
     joinedAt: participant.joinedAt ?? null,
     isHost: participant.isHost ?? false,
     isReady: participant.isReady ?? false
@@ -32,7 +33,6 @@ export const RoomDTO = {
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
         boardStyle: room.boardStyle ?? 'CLASSIC',
-        markerStyle: room.markerStyle ?? 'CLASSIC',
         firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
         currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,
         status: room.status,
@@ -51,7 +51,6 @@ export const RoomDTO = {
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
         boardStyle: room.boardStyle ?? 'CLASSIC',
-        markerStyle: room.markerStyle ?? 'CLASSIC',
         firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
         status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
@@ -75,9 +74,7 @@ export const RoomDTO = {
         roomNumber: room.roomNumber,
         boardSize: room.boardSize,
         boardStyle: room.boardStyle ?? 'CLASSIC',
-        markerStyle: room.markerStyle ?? 'CLASSIC',
         firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
-        status: room.status,
         participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         currentTurnParticipantIndex: room.currentTurnParticipantIndex ?? null,
         moveCount: room.moveCount ?? 0,
@@ -101,6 +98,7 @@ export const RoomDTO = {
         lastMove: room.lastMove ?? null,
         moveCount: room.moveCount ?? 0,
         status: room.status,
+        participants: Array.isArray(room.participants) ? room.participants.map(toParticipant) : [],
         winningLine: Array.isArray(room.winningLine) ? room.winningLine.map(toWinningCell) : []
     }),
 

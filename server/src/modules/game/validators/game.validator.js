@@ -4,6 +4,7 @@ export const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 export const validateGameCreation = (payload) => {
     const errors = [];
+    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
 
     if (!payload || typeof payload !== 'object') {
         errors.push({ field: "payload", error: "INVALID_BODY", cause: "Request body is missing or invalid." });
@@ -38,6 +39,25 @@ export const validateGameCreation = (payload) => {
 
     if (!Array.isArray(payload.participants) || payload.participants.length !== 2) {
         errors.push({ field: "participants", error: "INVALID_PARTICIPANTS", cause: "Must contain exactly 2 objects." });
+    } else {
+        payload.participants.forEach((participant, index) => {
+            if (!participant || typeof participant !== 'object') {
+                errors.push({
+                    field: `participants[${index}]`,
+                    error: 'INVALID_PARTICIPANT',
+                    cause: 'Each participant must be a valid object.'
+                });
+                return;
+            }
+
+            if (typeof participant.markerStyle !== 'string' || !allowedMarkerStyles.includes(participant.markerStyle)) {
+                errors.push({
+                    field: `participants[${index}].markerStyle`,
+                    error: 'INVALID_MARKER_STYLE',
+                    cause: `Must be one of: ${allowedMarkerStyles.join(', ')}.`
+                });
+            }
+        });
     }
 
     if (payload.firstTurnParticipantIndex !== 0 && payload.firstTurnParticipantIndex !== 1) {

@@ -31,6 +31,11 @@ export const sessionParticipantSchema = new mongoose.Schema({
         enum: ['X', 'O'], 
         required: true 
     },
+    markerStyle: {
+        type: String, // Visual marker theme used by this participant
+        enum: ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'],
+        default: 'CLASSIC'
+    },
     aiDifficulty: {
         type: String, // Difficulty of AI opponent if this participant is an AI
         enum: ['EASY', 'MEDIUM', 'HARD'], 

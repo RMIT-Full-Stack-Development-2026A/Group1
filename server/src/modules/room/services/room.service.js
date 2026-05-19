@@ -146,6 +146,7 @@ export const RoomService = {
                     avatarSnapshot: p.avatarSnapshot ?? null,
                     isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
+                    markerStyle: p.markerStyle ?? 'CLASSIC',
                     role: 'HUMAN'
                 })),
                 firstTurnParticipantIndex,
@@ -191,7 +192,6 @@ export const RoomService = {
         const newRoomData = {
             boardSize,
             boardStyle,
-            markerStyle,
             firstTurnParticipantIndex: 0,
             status: ROOM_STATUS.WAITING,
             participants: [{
@@ -200,6 +200,7 @@ export const RoomService = {
                 avatarSnapshot: user.avatar,
                 isPremiumSnapshot: computeIsPremium(user),
                 mark: marker,
+                markerStyle,
                 joinedAt: new Date(),
                 isHost: true,
                 isReady: false
@@ -211,7 +212,7 @@ export const RoomService = {
     },
 
     handleRoomJoin: async (userId, payload) => {
-        const { roomId } = validateRoomJoin(payload);
+        const { roomId, markerStyle: joinerMarkerStyle = 'CLASSIC' } = validateRoomJoin(payload);
 
         const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
@@ -250,6 +251,7 @@ export const RoomService = {
             avatarSnapshot: user.avatar,
             isPremiumSnapshot: computeIsPremium(user),
             mark: joinerMark,
+            markerStyle: joinerMarkerStyle,
             joinedAt: new Date(),
             isHost: false,
             isReady: false
@@ -313,14 +315,14 @@ export const RoomService = {
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
-                markerStyle: room.markerStyle,
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
                     isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
-                    role: 'HUMAN' 
+                    role: 'HUMAN',
+                    markerStyle: p.markerStyle ?? 'CLASSIC'
                 })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: isWin ? 'FINISHED' : 'DRAW',
@@ -401,14 +403,14 @@ export const RoomService = {
                 gameType: 'ONLINE_MATCH',
                 boardSize: room.boardSize,
                 boardStyle: room.boardStyle,
-                markerStyle: room.markerStyle,
                 participants: room.participants.map(p => ({ 
                     userId: p.userId, 
                     usernameSnapshot: p.usernameSnapshot, 
                     avatarSnapshot: p.avatarSnapshot ?? null,
                     isPremiumSnapshot: p.isPremiumSnapshot ?? false,
                     mark: p.mark, 
-                    role: 'HUMAN'
+                    role: 'HUMAN',
+                    markerStyle: p.markerStyle ?? 'CLASSIC'
                 })),
                 firstTurnParticipantIndex: room.firstTurnParticipantIndex ?? 0,
                 status: 'ABORTED',
@@ -483,28 +485,44 @@ export const RoomService = {
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         if (room.status === ROOM_STATUS.PLAYING) throw { statusCode: 400, error: "INVALID_STATE", message: "Cannot change settings while playing." };
         
-        const hostIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString() && p.isHost);
-        if (hostIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can change settings." };
-
-       // Update basic settings
-        if (boardStyle) room.boardStyle = boardStyle;
-        if (markerStyle) room.markerStyle = markerStyle;
-
-        // Swap marker logic
-        if (marker && room.participants[hostIndex].mark !== marker) {
-            room.participants[hostIndex].mark = marker;
+        // Find the requesting player's index
+        const playerIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
+        if (playerIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "User is not a participant of this room." };
+        
+        const isHost = room.participants[playerIndex].isHost;
+        let hasChanged = false;
+        
+        // Only host can change board-level settings
+        if (boardStyle !== undefined && isHost && room.boardStyle !== boardStyle) {
+            room.boardStyle = boardStyle;
+            hasChanged = true;
+        }
+        
+        // Only host can change marker assignments
+        if (marker !== undefined && isHost && room.participants[playerIndex].mark !== marker) {
+            room.participants[playerIndex].mark = marker;
             
-            // If there is a guest (index 1 if host is 0, or index 0 if host is 1)
-            const guestIndex = hostIndex === 0 ? 1 : 0;
-            if (room.participants[guestIndex]) {
-                room.participants[guestIndex].mark = marker === 'X' ? 'O' : 'X';
+            // If there is another player, swap their marker
+            const otherPlayerIndex = playerIndex === 0 ? 1 : 0;
+            if (room.participants[otherPlayerIndex]) {
+                room.participants[otherPlayerIndex].mark = marker === 'X' ? 'O' : 'X';
             }
+            hasChanged = true;
         }
 
-        // Prevent changing rules right as someone clicks ready
-        room.participants.forEach(p => p.isReady = false); 
-        
-        await room.save();
+        // Any player can change their own markerStyle
+        if (markerStyle !== undefined && room.participants[playerIndex] && room.participants[playerIndex].markerStyle !== markerStyle) {
+            room.participants[playerIndex].markerStyle = markerStyle;
+            hasChanged = true;
+        }
+
+        if (hasChanged) {
+            // Reset ready state for both players whenever settings change
+            room.participants.forEach(p => p.isReady = false);
+
+            await room.save();
+        }
+
         return { roomId, room: RoomDTO.toRoomSummary(room) };
     },
 

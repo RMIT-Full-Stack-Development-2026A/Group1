@@ -73,6 +73,7 @@ export const validateRoomCreate = (payload) => {
     const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : '';
     
     // Check type before trim() & toUpperCase()
+    // markerStyle is applied to the host participant.
     const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
     const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
 
@@ -99,6 +100,14 @@ export const validateRoomCreate = (payload) => {
 export const validateRoomJoin = (payload) => {
     if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {
         throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
+    }
+    if (payload?.markerStyle) {
+        const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+        const markerStyle = String(payload.markerStyle).trim().toUpperCase();
+        if (!allowedMarkerStyles.includes(markerStyle)) {
+            throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
+        }
+        return { roomId: payload.roomId, markerStyle };
     }
     return { roomId: payload.roomId };
 };
@@ -147,21 +156,21 @@ export const validateRoomUpdateSettings = (payload) => {
         throw { statusCode: 400, error: "INVALID_ROOM_ID", message: "Valid Room ID is required." };
     }
 
-    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
-    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
-    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : null;
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : undefined;
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : undefined;
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : undefined;
 
     const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
-    if (!allowedBoardStyles.includes(boardStyle)) {
+    if (boardStyle !== undefined && !allowedBoardStyles.includes(boardStyle)) {
         throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
     }
 
     const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
-    if (!allowedMarkerStyles.includes(markerStyle)) {
+    if (markerStyle !== undefined && !allowedMarkerStyles.includes(markerStyle)) {
         throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
     }
 
-    if (marker && !['X', 'O'].includes(marker)) {
+    if (marker !== undefined && !['X', 'O'].includes(marker)) {
         throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
     }
 

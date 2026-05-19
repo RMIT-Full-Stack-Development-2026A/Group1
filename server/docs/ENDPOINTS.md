@@ -244,22 +244,22 @@ The team policy already defines the event naming format as `namespace:action` an
 ### 7.1 Client → Server
 | Event | Payload | Description |
 |---|---|---|
-| `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room. Room status becomes `WAITING`. |
-| `room:join` | `{ roomId }` | Join an existing room. Room status becomes `READY`. |
+| `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room. `markerStyle` applies to the Host participant. Room status becomes `WAITING`. |
+| `room:join` | `{ roomId, markerStyle }` | Join an existing room. Optional `markerStyle` applies to the Guest participant (defaults to `CLASSIC`). Room status becomes `READY`. |
 | `room:set_first_turn` | `{ roomId, firstTurnParticipantIndex }` | Host selects who goes first. Resets `isReady` flag for both players. |
 | `room:ready` | `{ roomId }` | Player confirms ready. Renders Checkmark on UI. |
 | `room:leave` | `{ roomId }` | Leave a room before or during match. |
 | `game:move` | `{ roomId, row, col }` | Submit one move. |
 | `chat:send` | `{ roomId, message }` | Send in-game chat message. |
-| `room:update_settings` | `{ roomId, boardStyle, markerStyle, marker }` | Host changes game settings in lobby. Resets `isReady` for both. |
+| `room:update_settings` | `{ roomId, boardStyle, markerStyle, marker }` | Host updates the Host's own marker settings. `markerStyle` updates **only** the Host participant's style. Resets `isReady` for both players. Guest cannot update global settings via this event. |
 
 ### 7.2 Server → Client
 | Event | Payload | Description |
 |---|---|---|
-| `room:updated` | `{ room }` | Room snapshot updated (Player joined, someone left, host changed settings, etc.) |
+| `room:updated` | `{ room: { ..., participants: [{ ..., markerStyle, ... }, { ..., markerStyle, ... }], ... } }` | Room snapshot updated (Player joined, someone left, host changed settings, etc.). Each participant in the `participants` array now includes their individual `markerStyle`. |
 | `room:removed` | `{ roomId }` | Room destroyed (e.g., both players left or room timed out) |
 | `game:start` | `{ roomId, startedAt }` | Both players are ready. Match begins. |
-| `game:state` | `{ roomId, board, currentTurnParticipantIndex, lastMove, moveCount, status }` | Authoritative game state update |
+| `game:state` | `{ roomId, board, currentTurnParticipantIndex, lastMove, moveCount, status, participants: [{ ..., markerStyle, ... }, ...] }` | Authoritative game state update. Includes each participant's `markerStyle` for accurate board rendering. |
 | `player:disconnected` | `{ roomId, timeLeft }` | Opponent disconnected. Grace period (60s) countdown starts. |
 | `player:reconnected` | `{ roomId }` | Opponent reconnected. Grace period cancelled. Game resumes. |
 | `account:deactivated` | `{ message, reason }` | Sent specifically to a user when Admin deactivates their account. FE should display notification and call logout API. |
@@ -269,7 +269,8 @@ The team policy already defines the event naming format as `namespace:action` an
 
 ### Recommended server behavior
 - Rooms are **NOT** broadcasted on creation to prevent server overload. Clients use `GET /rooms` API with pagination.
-- When player 2 joins, room becomes `READY`. Broadcast `room:updated`.
+- When player 2 joins, room becomes `READY`. Broadcast `room:updated` with both participants' distinct marker styles.
+- When the Host updates settings (including their own `markerStyle`), reset both players' `isReady` flags and broadcast `room:updated`.
 - When both players trigger `room:ready`, status becomes `PLAYING` and server emits `game:start`.
 - **Grace Period**: If a player drops during `PLAYING`, emit `player:disconnected` and wait 60s before aborting the match.
-- **Rehydration**: When a client establishes a socket connection, if the backend detects they are part of an ongoing `PLAYING` match, the server should automatically emit `game:state` so FE can redraw the board.
+- **Rehydration**: When a client establishes a socket connection, if the backend detects they are part of an ongoing `PLAYING` match, the server should automatically emit `game:state` so FE can redraw the board with each participant's correct marker style.

@@ -113,11 +113,10 @@ export const validateRoomCreate = (payload) => {
     return { boardSize, marker, boardStyle, markerStyle };
 };
 
-
 /**
  * Validates room join payload.
  * @param {Object} payload - Join parameters.
- * @returns {Object} Validated payload.
+ * @returns {Object} Validated payload containing roomId and optionally markerStyle.
  */
 export const validateRoomJoin = (payload) => {
      if (!payload?.roomId || !mongoose.Types.ObjectId.isValid(payload.roomId)) {

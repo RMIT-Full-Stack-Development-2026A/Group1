@@ -97,21 +97,6 @@ export const RoomRepository = {
             { returnDocument: 'after' }
         ).lean();
     },
-
-    /** Removes participant from room. */
-    removeParticipant: async (roomId, userId) => {
-        const room = await GameRoom.findOneAndUpdate(
-            { _id: roomId, "participants.userId": userId },
-            { $pull: { participants: { userId: userId } } },
-            { returnDocument: 'after' }
-        );
-
-        if (room && room.participants.length === 0) {
-            await GameRoom.findByIdAndDelete(roomId);
-            return null; 
-        }
-        return room;
-    },
     
     deleteRoom: async (roomId) => {
         return await GameRoom.findByIdAndDelete(roomId);

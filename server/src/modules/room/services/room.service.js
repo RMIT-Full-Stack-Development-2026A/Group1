@@ -98,27 +98,79 @@ export const RoomService = {
 
     /** Forces room closure. */
     forceCloseRoomByAdmin: async (roomId) => {
-        const room = await GameRoom.findById(roomId);
-        if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
-        if (room.status === ROOM_STATUS.PLAYING) {
-            const closedAt = new Date();
-            eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
-                roomId: String(roomId),
-                endAt: closedAt 
-            });
+        const room = await RoomRepository.findById(roomId);
+
+        if (!room) {
+            throw {
+                statusCode: 404,
+                error: "ROOM_NOT_FOUND",
+                message: "Room not found.",
+                cause: `No room record exists matching the ID: ${roomId}.`
+            };
+        }
+
+        if (['CLOSED', 'ABORTED'].includes(room.status)) {
+            throw {
+                statusCode: 409,
+                error: "ROOM_ALREADY_CLOSED",
+                message: "Room is already closed or aborted.",
+                cause: `The room ID ${roomId} is currently in a ${room.status} state.`
+            };
+        }
+
+        const closedAt = new Date();
+
+        const closedRoom = await RoomRepository.updateRoomStatus(roomId, {
+            status: 'CLOSED',
+            closedBy: 'ADMIN',
+            endedAt: closedAt
+        });
+
+        if (!closedRoom) {
+            throw {
+                statusCode: 500,
+                error: "UPDATE_FAILED",
+                message: "Failed to force close the room.",
+                cause: "The room status update failed unexpectedly due to a concurrent database modification.",
+                valid_example: "Please try the request again."
+            }; 
+        }
+
+        if (room.status === 'PLAYING') {
+            const firstTurnParticipantIndex = room.moves?.length
+                ? (room.moves[0]?.byParticipantIndex ?? 0)
+                : (room.currentTurnParticipantIndex || 0);
+
             await GameInterface.createOnlineGameSessionFromRoom({
-                ...room.toObject(),
+                sourceRoomId: room._id,
+                gameType: 'ONLINE_MATCH',
+                boardSize: room.boardSize,
+                participants: room.participants.map(p => ({ 
+                    userId: p.userId, 
+                    usernameSnapshot: p.usernameSnapshot, 
+                    avatarSnapshot: p.avatarSnapshot ?? null,
+                    isPremiumSnapshot: p.isPremiumSnapshot ?? false,
+                    mark: p.mark, 
+                    markerStyle: p.markerStyle ?? 'CLASSIC',
+                    role: 'HUMAN'
+                })),
+                firstTurnParticipantIndex,
                 status: 'ABORTED',
                 endedReason: 'ADMIN_FORCE_CLOSE',
+                moves: room.moves,
+                totalMoves: room.moveCount,
+                startedAt: room.startedAt,
                 endedAt: closedAt
             });
-        } else {
-            eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
-                roomId: String(roomId), 
-                endAt: closedAt 
-            });
         }
-        await GameRoom.findByIdAndDelete(roomId);
+
+        // Signal the Socket layer to kick the players out
+        eventBus.publish(SYSTEM_EVENTS.ROOM_FORCE_CLOSED, { 
+            roomId: String(roomId),
+            endedAt: closedAt 
+        });
+        
+        return true;
     },
 
     // =========================
@@ -159,7 +211,7 @@ export const RoomService = {
 
     /** Handles room join. */
     handleRoomJoin: async (userId, payload) => {
-        const { roomId, markerStyle } = validateRoomJoin(payload);
+        const { roomId, markerStyle: joinerMarkerStyle = 'CLASSIC' } = validateRoomJoin(payload);
 
         const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };

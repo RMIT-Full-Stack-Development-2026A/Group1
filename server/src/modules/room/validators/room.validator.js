@@ -85,34 +85,34 @@ export const validateRoomQuery = (query = {}, requestingUser = {}) => {
  * @returns {Object} Validated payload.
  */
 export const validateRoomCreate = (payload) => {
-    const { boardSize, boardStyle, markerStyle, marker } = payload || {};
-    if (!boardSize || ![10, 15].includes(parseInt(boardSize))) 
-        throw { 
-            statusCode: 400, 
-            error: "INVALID_BOARD_SIZE", 
-            message: "boardSize must be 10 or 15." 
-        };
-    if (boardStyle && !['CLASSIC', 'DARK', 'NEON'].includes(boardStyle)) 
-        throw { 
-            statusCode: 400, 
-            error: "INVALID_BOARD_STYLE", 
-            message: "boardStyle must be CLASSIC, DARK, or NEON."
-        };
-    if (markerStyle && !['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'].includes(markerStyle)) 
-        throw { 
-            statusCode: 400, 
-            error: "INVALID_MARKER_STYLE", 
-            message: "Invalid markerStyle." 
-        };
-    if (marker && !['X', 'O'].includes(marker)) 
-        throw { 
-            statusCode: 400, 
-            error: "INVALID_MARKER", 
-            message: "marker must be 'X' or 'O'." 
-        };
+    const boardSize = parseInt(payload?.boardSize);
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : '';
+    
+    // Check type before trim() & toUpperCase()
+    // markerStyle is applied to the host participant.
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
 
-    return { boardSize: parseInt(boardSize), boardStyle, markerStyle, marker };
+    if (![10, 15].includes(boardSize)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_SIZE", message: "Board size must be 10 or 15." };
+    }
+    if (!['X', 'O'].includes(marker)) {
+        throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
+    }
+
+    const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
+    if (!allowedBoardStyles.includes(boardStyle)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
+    }
+
+    const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];
+    if (!allowedMarkerStyles.includes(markerStyle)) {
+        throw { statusCode: 400, error: "INVALID_MARKER_STYLE", message: `Marker style must be one of: ${allowedMarkerStyles.join(', ')}` };
+    }
+
+    return { boardSize, marker, boardStyle, markerStyle };
 };
+
 
 /**
  * Validates room join payload.
@@ -151,7 +151,14 @@ export const validateRoomLeave = (payload) => {
             message: "Valid Room ID is required." 
         };
     }
-    return { roomId, isTimeout: !!isTimeout };
+    if (isTimeout !== undefined && typeof isTimeout !== 'boolean') {
+         throw {
+             statusCode: 400,
+             error: "INVALID_IS_TIMEOUT",
+             message: "isTimeout must be a boolean."
+         };
+     }
+     return { roomId, isTimeout: isTimeout === true };
 };
 
 /**

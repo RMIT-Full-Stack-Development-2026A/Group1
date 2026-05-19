@@ -78,7 +78,7 @@ export default function Navigation() {
                                             : "text-[#e2e8f0] opacity-80 border-b-transparent hover:text-[#4cc9f0] hover:border-b-[#4cc9f0]"
                                     }`}
                                 >
-                                    ROOMS
+                                    GAME ROOMS
                                 </SoundButton>
                             </div>
                         ) : (

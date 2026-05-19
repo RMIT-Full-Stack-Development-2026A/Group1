@@ -7,7 +7,7 @@ export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedR
           Admin Control Deck
       </p>
       <h1 className="font-headline text-3xl uppercase tracking-[0.25em] text-white glow-text-cyan">
-          Game Room Management
+          Game Rooms Management
       </h1>
       <p className="max-w-2xl font-mono text-xs uppercase tracking-[0.18em] text-white/55">
         Live-room feed for admin review.

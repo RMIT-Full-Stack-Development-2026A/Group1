@@ -63,14 +63,16 @@ const normalizeRoom = (room) => {
 export const useGameRoomMonitor = () => {
   const [rooms, setRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [closingRoomId, setClosingRoomId] = useState(null);
+  const pageSize = 5;
 
   const fetchRooms = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await gameRoomMonitorService.getRooms();
+      const response = await gameRoomMonitorService.getRooms({ page: 1, limit: 100 });
       const payload = response?.data || response || {};
       const items = Array.isArray(payload.items) ? payload.items : [];
 
@@ -108,6 +110,20 @@ export const useGameRoomMonitor = () => {
     });
   }, [rooms, searchTerm]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredRooms.length / pageSize));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedRooms = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+
+    return filteredRooms.slice(startIndex, startIndex + pageSize);
+  }, [filteredRooms, page]);
+
   const totalRooms = rooms.length;
   const activeRooms = rooms.filter((room) => room.status !== "closed").length;
   const waitingRooms = rooms.filter((room) => room.status === "waiting").length;
@@ -116,6 +132,11 @@ export const useGameRoomMonitor = () => {
 
   const resetSearch = () => {
     setSearchTerm("");
+    setPage(1);
+  };
+
+  const changePage = (nextPage) => {
+    setPage(Math.min(Math.max(1, nextPage), totalPages));
   };
 
   const closeRoom = async (room) => {
@@ -141,6 +162,10 @@ export const useGameRoomMonitor = () => {
     searchTerm,
     setSearchTerm,
     resetSearch,
+    page,
+    pageSize,
+    totalPages,
+    changePage,
     loading,
     error,
     closeRoom,
@@ -151,5 +176,6 @@ export const useGameRoomMonitor = () => {
     inProgressRooms,
     closedRooms,
     visibleRooms: filteredRooms.length,
+    visiblePageRooms: paginatedRooms,
   };
 };

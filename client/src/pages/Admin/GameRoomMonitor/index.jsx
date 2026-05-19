@@ -1,11 +1,17 @@
 import React from "react";
 import { useGameRoomMonitor } from "./hooks/useGameRoomMonitor";
+import { useGameSessionMonitor } from "./hooks/useGameSessionMonitor";
 import GameRoomMonitorHeader from "./sub-components/GameRoomMonitorHeader";
 import GameRoomMonitorFilters from "./sub-components/GameRoomMonitorFilters";
 import GameRoomMonitorStats from "./sub-components/GameRoomMonitorStats";
 import GameRoomGrid from "./sub-components/GameRoomGrid";
+import GameSessionGrid from "./sub-components/GameSessionGrid";
+import GameRoomMonitorPagination from "./sub-components/GameRoomMonitorPagination";
+import GameSessionMonitorStats from "./sub-components/GameSessionMonitorStats";
 
 export default function GameRoomMonitor() {
+	const getSessionStatus = (session) => String(session?.viewerResult || session?.status || "").toUpperCase();
+
 	const {
 		rooms,
 		searchTerm,
@@ -21,8 +27,29 @@ export default function GameRoomMonitor() {
 		waitingRooms,
 		inProgressRooms,
 		closedRooms,
-		visibleRooms,
+		page: roomPage,
+		totalPages: roomTotalPages,
+		changePage: changeRoomPage,
+		pageSize: roomPageSize,
+		visiblePageRooms,
 	} = useGameRoomMonitor();
+
+	const {
+		sessions,
+		loading: sessionsLoading,
+		refreshSessions,
+		error: sessionsError,
+		allSessions,
+		totalSessions,
+		page: sessionPage,
+		totalPages: sessionTotalPages,
+		changePage: changeSessionPage,
+		pageSize: sessionPageSize,
+	} = useGameSessionMonitor();
+	const activeSessions = allSessions.filter((session) => !["FINISHED", "DRAW", "ABORTED"].includes(getSessionStatus(session))).length;
+	const closedSessions = allSessions.filter((session) => ["FINISHED", "DRAW", "ABORTED"].includes(getSessionStatus(session))).length;
+
+	const [selectedView, setSelectedView] = React.useState("rooms");
 
 	return (
 		<main className="relative mx-auto w-full max-w-360 px-4 py-8 font-body text-on-surface md:px-8 md:py-10">
@@ -30,39 +57,73 @@ export default function GameRoomMonitor() {
 
 			<div className="relative z-10 space-y-8">
 				<GameRoomMonitorHeader
-					totalRooms={totalRooms}
-					activeRooms={activeRooms}
-					closedRooms={closedRooms}
-					onRefresh={refreshRooms}
+					totalRooms={selectedView === "rooms" ? totalRooms : totalSessions}
+					activeRooms={selectedView === "rooms" ? activeRooms : activeSessions}
+					closedRooms={selectedView === "rooms" ? closedRooms : closedSessions}
+					onRefresh={selectedView === "rooms" ? refreshRooms : refreshSessions}
+					selectedView={selectedView}
+					onChangeView={(v) => setSelectedView(v)}
 				/>
 
-				{error && (
+				{(selectedView === "rooms" ? error : sessionsError) && (
 					<div className="border border-error-container bg-error/10 px-4 py-3 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-error">
-						{error}
+						{selectedView === "rooms" ? error : sessionsError}
 					</div>
 				)}
 
-				<GameRoomMonitorStats
-					activeRooms={activeRooms}
-					waitingRooms={waitingRooms}
-					inProgressRooms={inProgressRooms}
-					closedRooms={closedRooms}
-				/>
+				{selectedView === "rooms" ? (
+					<GameRoomMonitorStats
+						activeRooms={activeRooms}
+						waitingRooms={waitingRooms}
+						inProgressRooms={inProgressRooms}
+						closedRooms={closedRooms}
+					/>
+				) : (
+					<GameSessionMonitorStats sessions={allSessions} />
+				)}
 
-				<GameRoomMonitorFilters
-					searchTerm={searchTerm}
-					setSearchTerm={setSearchTerm}
-					onResetSearch={resetSearch}
-					onRefresh={refreshRooms}
-					loading={loading}
-				/>
+				{selectedView === "rooms" && (
+					<GameRoomMonitorFilters
+						searchTerm={searchTerm}
+						setSearchTerm={setSearchTerm}
+						onResetSearch={resetSearch}
+						onRefresh={refreshRooms}
+						loading={loading}
+					/>
+				)}
 
-				<GameRoomGrid
-					rooms={rooms}
-					onCloseRoom={closeRoom}
-					closingRoomId={closingRoomId}
-					loading={loading}
-				/>
+				{selectedView === "rooms" ? (
+					<GameRoomGrid
+						rooms={visiblePageRooms}
+						onCloseRoom={closeRoom}
+						closingRoomId={closingRoomId}
+						loading={loading}
+					/>
+				) : (
+					<GameSessionGrid sessions={sessions} loading={sessionsLoading} />
+				)}
+
+				{selectedView === "sessions" && (
+					<GameRoomMonitorPagination
+						page={sessionPage}
+						totalPages={sessionTotalPages}
+						totalItems={totalSessions}
+						pageSize={sessionPageSize}
+						onPageChange={changeSessionPage}
+						label="SESSIONS"
+					/>
+				)}
+
+				{selectedView === "rooms" && (
+					<GameRoomMonitorPagination
+						page={roomPage}
+						totalPages={roomTotalPages}
+						totalItems={rooms.length}
+						pageSize={roomPageSize}
+						onPageChange={changeRoomPage}
+						label="ROOMS"
+					/>
+				)}
 			</div>
 		</main>
 	);

@@ -123,7 +123,7 @@ export default function AdminDashboard() {
           Registration Analytics
         </h3>
         
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {/* Today - Line Chart */}
           <RegistrationLineChart
             data={metrics?.registrationsByHour || []}

@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
         DEACTIVATE: (id) => `/admin/players/${id}/deactivate`,
         REACTIVATE: (id) => `/admin/players/${id}/reactivate`,
         ROOMS: "/admin/rooms",
+        SESSIONS: "/admin/players/games",
         ROOM_DETAILS: (roomId) => `/admin/rooms/${roomId}`,
         CLOSE_ROOM: (roomId) => `/admin/rooms/${roomId}`,
     }

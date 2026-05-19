@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedRooms, onRefresh }) {
+export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedRooms, onRefresh, selectedView, onChangeView }) {
   return (
     <header className="space-y-2">
       <p className="font-mono text-xs uppercase tracking-[0.35em] text-primary">
@@ -20,6 +20,17 @@ export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedR
         >
           REFRESH
         </button>
+        <div className="inline-block ml-3 align-middle">
+          <label className="sr-only">View Mode</label>
+          <select
+            value={selectedView}
+            onChange={(e) => onChangeView && onChangeView(e.target.value)}
+            className="ml-3 rounded-md border border-outline px-2 py-1 bg-surface-card text-xs font-mono uppercase tracking-[0.12em] text-white/90"
+          >
+            <option value="rooms">Game Rooms</option>
+            <option value="sessions">Game Sessions</option>
+          </select>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
         <div className="rounded-lg border border-cyan-500/25 bg-surface-card px-4 py-3 text-primary">

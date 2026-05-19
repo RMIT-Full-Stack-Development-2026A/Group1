@@ -132,6 +132,23 @@ export const gameRoomMonitorService = {
     };
   },
 
+  async getSessions(params = {}) {
+    if (!USE_MOCK_ROOMS) {
+      const response = await http.get(API_ENDPOINTS.ADMIN.SESSIONS, params);
+
+      return {
+        data: response?.data || response || {},
+      };
+    }
+
+    return {
+      data: {
+        items: [],
+        total: 0,
+      },
+    };
+  },
+
   resetMockRooms() {
     if (!USE_MOCK_ROOMS) {
       return;

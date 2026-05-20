@@ -109,6 +109,24 @@ export default function MatchHistoryTable({
     }
   };
 
+  const renderOpponentAvatar = (src, alt) => {
+    if (src) {
+      return (
+        <img
+          src={src}
+          alt={alt}
+          className="h-8 w-8 shrink-0 border border-outline-variant object-cover"
+        />
+      );
+    }
+
+    return (
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-outline-variant bg-surface-container-highest text-[10px] font-bold text-outline">
+        ?
+      </div>
+    );
+  };
+
   const calculateDuration = (startTime, endTime) => {
     if (!startTime || !endTime) return "--";
     
@@ -289,7 +307,10 @@ export default function MatchHistoryTable({
                   </td>
                   <td className="px-6 py-4">{match.gameType}</td>
                   <td className={`px-6 py-4 ${getOpponentColor(match.result)}`}>
-                    {match.opponent}
+                    <div className="flex items-center gap-3">
+                      {renderOpponentAvatar(match.opponentAvatar, match.opponent || "UNKNOWN")}
+                      <span>{match.opponent}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <span

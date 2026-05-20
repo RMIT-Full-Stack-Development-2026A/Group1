@@ -112,7 +112,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
           </div>
           <div className="border border-dashed border-[#2a2a4e] bg-deep-bg px-4 py-3">
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
-              End time
+              {room.endTimeLabel || "End time"}
             </p>
             <p className="mt-1 font-mono text-sm uppercase tracking-[0.18em] text-primary">
               {room.endTimeDisplay}

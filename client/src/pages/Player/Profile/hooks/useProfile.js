@@ -175,6 +175,7 @@ export const useProfile = () => {
       date: extractDateFromISO(backendMatch.startedAt),
       gameType: backendMatch.gameType,
       opponent: backendMatch.opponentName,
+      opponentAvatar: backendMatch.opponentAvatar || null,
       result: mapResult(backendMatch.viewerResult),
       startTime: extractTimeFromISO(backendMatch.startedAt),
       endTime: extractTimeFromISO(backendMatch.endedAt),

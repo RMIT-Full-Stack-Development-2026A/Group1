@@ -21,11 +21,31 @@ const formatDateTime = (value) => {
   }).format(date);
 };
 
+const formatDuration = (fromValue, toValue) => {
+  if (!fromValue || !toValue) {
+    return "-";
+  }
+
+  const fromDate = new Date(fromValue);
+  const toDate = new Date(toValue);
+
+  if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+    return "-";
+  }
+
+  const totalSeconds = Math.max(0, Math.floor((toDate.getTime() - fromDate.getTime()) / 1000));
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+
+  return `${hours}:${minutes}:${seconds}`;
+};
+
 const getParticipantName = (participant, fallback) => {
   return participant?.usernameSnapshot || participant?.username || participant?.name || fallback;
 };
 
-const normalizeRoom = (room) => {
+const normalizeRoom = (room, snapshotNow = Date.now()) => {
   const status = String(room.status || "").toUpperCase();
   const participants = Array.isArray(room.participants) ? room.participants : [];
   const playerOne = getParticipantName(participants[0], "PLAYER 1");
@@ -45,6 +65,7 @@ const normalizeRoom = (room) => {
 
   const startTimeValue = room.startedAt || room.startTime || room.createdAt;
   const endTimeValue = room.endedAt || room.endTime;
+  const activeDurationValue = formatDuration(startTimeValue || room.createdAt, snapshotNow);
 
   return {
     ...room,
@@ -55,7 +76,8 @@ const normalizeRoom = (room) => {
     statusTone: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
     canClose: !isClosed,
     startTimeDisplay: formatDateTime(startTimeValue),
-    endTimeDisplay: isClosed ? formatDateTime(endTimeValue) : "ACTIVE",
+    endTimeLabel: isClosed ? "End time" : "Active duration (HH:MM:SS)",
+    endTimeDisplay: isClosed ? formatDateTime(endTimeValue) : activeDurationValue,
     playerTwoName: isWaiting ? "WAITING" : playerTwo,
   };
 };
@@ -72,11 +94,12 @@ export const useGameRoomMonitor = () => {
   const fetchRooms = useCallback(async () => {
     try {
       setLoading(true);
+      const snapshotNow = Date.now();
       const response = await gameRoomMonitorService.getRooms({ page: 1, limit: 100 });
       const payload = response?.data || response || {};
       const items = Array.isArray(payload.items) ? payload.items : [];
 
-      setRooms(items.map(normalizeRoom));
+      setRooms(items.map((room) => normalizeRoom(room, snapshotNow)));
       setError(null);
     } catch (err) {
       setRooms([]);

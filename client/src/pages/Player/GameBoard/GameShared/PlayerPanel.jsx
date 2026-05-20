@@ -31,12 +31,12 @@ const PlayerPanel = ({
 
     return (
         <aside
-            className={`w-55 flex flex-col gap-4 self-start mt-8 transition-opacity duration-300 ${
+            className={`w-full md:w-[260px] flex flex-col gap-3 md:gap-4 self-start mt-4 md:mt-8 transition-opacity duration-300 shrink-0 ${
                 isActive ? 'opacity-100' : 'opacity-50'
             }`}
         >
             <div
-                className={`bg-[#12121f] border-2 p-6 flex flex-col items-center gap-5 relative transition-all duration-300 ${
+                className={`bg-[#12121f] border-2 p-4 md:p-6 flex flex-col items-center gap-4 md:gap-5 relative transition-all duration-300 ${
                     isActive ? 'border-primary-cyan glow-cyan' : 'border-outline-variant'
                 }`}
             >
@@ -47,11 +47,11 @@ const PlayerPanel = ({
                 )}
 
                 {/* Design team: replace this icon with pixel avatar image if needed */}
-                <div className="w-28 h-28 border-2 border-outline-variant bg-[#1e1e2c] flex items-center justify-center relative overflow-hidden">
+                <div className="w-20 h-20 md:w-28 md:h-28 border-2 border-outline-variant bg-[#1e1e2c] flex items-center justify-center relative overflow-hidden">
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={playerName} className="w-full h-full object-cover" />
                     ) : (
-                        isBot ? <Bot size={52} color="#879398" /> : <User size={52} color="#879398" />
+                        isBot ? <Bot size={36} color="#879398" /> : <User size={36} color="#879398" />
                     )}
                     
                     {difficulty && (
@@ -61,16 +61,16 @@ const PlayerPanel = ({
                     )}
                 </div>
 
-                <p className="font-headline text-[10px] tracking-tighter uppercase"
+                <p className="font-headline text-[9px] md:text-[10px] tracking-tighter uppercase"
                    style={{ color: isActive ? '#93e2ff' : '#879398' }}>
                     {playerName}
                 </p>
 
                 <div className="flex items-center justify-center">
                     {markerVariantData ? (
-                        <Marker variantData={markerVariantData} className="w-24 h-24 text-6xl flex items-center justify-center" />
+                        <Marker variantData={markerVariantData} className="w-20 h-20 md:w-24 md:h-24 text-5xl md:text-6xl flex items-center justify-center" />
                     ) : (
-                        <span className="font-headline text-8xl leading-none" style={{ color: markerColor, textShadow: markerGlow }}>
+                        <span className="font-headline text-6xl md:text-8xl leading-none" style={{ color: markerColor, textShadow: markerGlow }}>
                             {role}
                         </span>
                     )}

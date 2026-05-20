@@ -19,7 +19,7 @@ const GameModeSelect = () => {
       <div className="fixed inset-0 scanlines opacity-30 pointer-events-none z-50"></div>
 
       {/* Main Content */}
-      <main className="pb-20 px-12 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <main className="pt-20 pb-20 px-6 md:px-12 flex flex-col items-center justify-center min-h-screen relative z-10">
         {/* Page Header */}
         <header className="mb-16 text-center">
           <h1 className="font-headline text-4xl text-primary-container drop-shadow-[0_0_12px_rgba(76,201,240,0.6)] mb-2">

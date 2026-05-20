@@ -24,7 +24,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
 
     return (
         <div
-            className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all ${
+            className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all w-full ${
                 isJoinable
                     ? "border-outline-variant hover:border-primary-cyan hover:shadow-[0_0_12px_#4cc9f0]"
                     : isReady

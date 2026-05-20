@@ -35,33 +35,61 @@ const normalizeLobbyRoom = (room) => {
     };
 };
 
+const paginateRooms = (rooms, page = 1, limit = 6) => {
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.max(1, Number(limit) || 6);
+    const start = (safePage - 1) * safeLimit;
+    return {
+        items: rooms.slice(start, start + safeLimit),
+        total: rooms.length,
+        page: safePage,
+        limit: safeLimit,
+    };
+};
+
 export const LobbyService = {
     /**
      * Get available rooms from backend
      * Returns joinable rooms (status: WAITING)
      * Falls back to empty array if rooms endpoint not yet implemented
      */
-    getRooms: async () => {
+    getRooms: async ({ page = 1, limit = 6, status, boardSize } = {}) => {
         try {
-            // Fetch rooms with status filter for waiting/available rooms
-            const rooms = await gameLobbyService.getRooms({ status: "ACTIVE" });
-            
             // If developer explicitly requested mock rooms, return them immediately
             if (FORCE_USE_MOCK) {
                 console.log('[Lobby Service] FORCE_USE_MOCK enabled, returning mock rooms');
-                return LobbyService._getMockRooms();
+                const mockRooms = LobbyService._getMockRooms()
+                    .filter((room) => !status || String(room.status || '').toUpperCase() === String(status).toUpperCase())
+                    .filter((room) => !boardSize || String(room.boardSize).startsWith(String(boardSize)));
+                return paginateRooms(mockRooms.map(normalizeLobbyRoom), page, limit);
             }
+
+            const requestParams = {
+                page,
+                limit,
+                ...(status && { status }),
+                ...(boardSize && { boardSize }),
+            };
+
+            // Fetch rooms with backend pagination support
+            const response = await gameLobbyService.getRooms(requestParams);
             
             // Map backend room shape to UI-friendly shape and normalize status
-            const normalizedRooms = (rooms || []).map(normalizeLobbyRoom);
+            const payload = response?.data || response || {};
+            const normalizedRooms = (payload.items || []).map(normalizeLobbyRoom);
 
             console.log('[Lobby Service] Fetched rooms from backend (normalized):', normalizedRooms);
 
-            return normalizedRooms;
+            return {
+                items: normalizedRooms,
+                total: Number(payload.total || normalizedRooms.length || 0),
+                page: Number(payload.page || page || 1),
+                limit: Number(payload.limit || limit || 6),
+            };
         } catch (error) {
             console.error('[Lobby Service] Failed to fetch rooms:', error);
             // Return mock data as fallback while backend is being implemented
-            return LobbyService._getMockRooms();
+            return paginateRooms(LobbyService._getMockRooms().map(normalizeLobbyRoom), page, limit);
         }
     },
 

@@ -18,15 +18,93 @@
 }
 
 html, body, #root {
-    background-color: var(--color-deep-bg);
-    color: #e3e0f4;
-    overflow-x: hidden;
+  background-color: var(--color-deep-bg);
+  color: #e3e0f4;
+  /* Allow horizontal scrolling on very small viewports so nav/boards can be panned */
+  overflow-x: auto;
 }
 
 body {
     margin: 0;
     padding: 0;
     font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Responsive adjustments for navbar and board */
+/* Hide default scrollbar for overflowed nav on small screens */
+.nav-scrollable {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+.nav-scrollable::-webkit-scrollbar { display: none; }
+
+/* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
+.board-wrapper {
+  width: clamp(240px, 75vmin, 480px);
+  margin: 0 auto;
+}
+.board-grid {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  /* columns controlled inline by BoardArea via gridTemplateColumns */
+}
+.grid-cell, .board-grid > * {
+  touch-action: manipulation;
+  min-width: 18px;
+  min-height: 18px;
+  padding: 4px;
+}
+
+/* Reflow side panels on small screens: stack vertically on narrow viewports */
+@media (max-width: 768px) {
+  main.responsive-game-layout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    overflow:auto;
+  }
+
+  aside.w-55 {
+    width: 100%;
+    margin-top: 8px;
+    align-self: center;
+  }
+
+  /* Mobile menu dropdown spacing */
+  .mobile-nav-dropdown {
+    position: absolute;
+    left: 0; right: 0; top: 100%;
+    background: var(--color-deep-bg);
+    z-index: 60;
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  }
+
+  /* Ensure player columns and board column behave predictably on mobile */
+  .player-column {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .board-column {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  /* Stronger centering for the board wrapper on mobile */
+  .board-wrapper {
+    width: clamp(240px, 90vw, 480px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 }
 
 /* Pixel font for headlines only */

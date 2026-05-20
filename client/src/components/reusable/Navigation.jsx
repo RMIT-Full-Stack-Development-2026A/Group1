@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Volume2, VolumeX } from "lucide-react";
@@ -7,6 +7,7 @@ import { useAudioStore } from "../../stores/audio/AudioStore";
 import SoundButton from '@/components/reusable/sound/SoundButton';
 
 export default function Navigation() {
+    const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const { isAuthenticated, isLoading, logout, user } = useAuthStore();
@@ -44,7 +45,9 @@ export default function Navigation() {
                 </span>
 
                 {isAuthenticated && !isLoading && (
-                    <div className="flex items-center gap-4">
+                    <>
+                        {/* Desktop menu */}
+                        <div className="hidden md:flex items-center gap-4">
                         {isAdmin ? (
                             /* Admin Navigation */
                             <div className="flex items-center gap-3">
@@ -113,11 +116,60 @@ export default function Navigation() {
                                 </SoundButton>
                             </>
                         )}
-                    </div>
+                        </div>
+
+                        {/* Mobile: hamburger trigger */}
+                        <button
+                            onClick={() => setMobileOpen(o => !o)}
+                            aria-expanded={mobileOpen}
+                            aria-label="Toggle menu"
+                            className="md:hidden ml-2 p-2 bg-transparent border rounded text-[#e3e0f4]"
+                        >
+                            <span className="material-symbols-outlined">menu</span>
+                        </button>
+
+                        {/* Mobile dropdown menu (visible when open) */}
+                        {mobileOpen && (
+                            <div className="mobile-nav-dropdown md:hidden">
+                                <div className="flex flex-col gap-2">
+                                    {isAdmin ? (
+                                        <>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/admin'); }} className="text-left px-2 py-2">ADMIN DASHBOARD</SoundButton>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/admin/players'); }} className="text-left px-2 py-2">PLAYERS</SoundButton>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/admin/rooms'); }} className="text-left px-2 py-2">GAME ROOMS</SoundButton>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/play'); }} className="text-left px-2 py-2">GAME MODES</SoundButton>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/profile'); }} className="text-left px-2 py-2">PROFILE</SoundButton>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/subscription'); }} className="text-left px-2 py-2">SUBSCRIPTION</SoundButton>
+                                        </>
+                                    )}
+
+                                    <hr className="border-t border-[#2b2b33] my-2" />
+
+                                    {/* Music toggle in mobile menu */}
+                                    <SoundButton onClick={() => { toggleBackgroundMusic(); setMobileOpen(false); }} className="text-left px-2 py-2">
+                                        {isBackgroundMusicEnabled ? 'MUSIC ON' : 'MUSIC OFF'}
+                                    </SoundButton>
+
+                                    {/* Auth actions */}
+                                    {!isLoading && isAuthenticated ? (
+                                        <SoundButton onClick={() => { setMobileOpen(false); handleLogout(); }} className="text-left px-2 py-2">LOGOUT</SoundButton>
+                                    ) : (
+                                        <>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/login'); }} className="text-left px-2 py-2">LOGIN</SoundButton>
+                                            <SoundButton onClick={() => { setMobileOpen(false); navigate('/register'); }} className="text-left px-2 py-2">REGISTER</SoundButton>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
                 <SoundButton
                     onClick={toggleBackgroundMusic}
                     className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs px-4 py-2 border transition-all shadow-[2px_2px_0px_#1e1e2c] ${isBackgroundMusicEnabled
@@ -155,6 +207,8 @@ export default function Navigation() {
                     </>
                 )}
             </div>
+
+            {/* Mobile controls: moved into the mobile dropdown to avoid being clipped */}
         </nav>
     );
 }

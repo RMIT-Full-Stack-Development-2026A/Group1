@@ -376,7 +376,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-350 w-full mx-auto">
+      <main className="relative z-10 flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden px-4 md:px-6 gap-4 md:gap-6 items-center justify-start md:justify-center font-mono max-w-350 w-full mx-auto">
         {/* Grace-Period Overlay — shown when opponent disconnected */}
         {disconnectCountdown !== null && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -428,7 +428,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
           </div>
         )}
 
-        <div className="flex w-full items-center justify-center gap-6">
+        <div className="flex w-full flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
           <PlayerPanel
             role={player1.mark}
             playerName={player1.usernameSnapshot}

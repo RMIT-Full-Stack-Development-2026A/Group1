@@ -40,8 +40,8 @@ export default function ReplayControls({
     };
 
     return (
-        <div className="fixed bottom-0 left-auto right-auto z-50 w-200 bg-[#0d0d1a] border-4 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-8 py-4 my-12 border-surface-container">
-            <div className="mb-5">
+        <div className="fixed bottom-0 left-0 right-0 z-50 w-full bg-[#0d0d1a] border-4 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-3 sm:px-6 lg:px-8 py-4 border-surface-container">
+            <div className="mx-auto w-full max-w-[1200px] mb-5">
                 <div className="flex justify-between mb-1">
                     <span className="font-mono text-[10px] text-[#4cc9f0]">STEP {currentStep || '--'}</span>
                     <span className="font-mono text-[10px] text-[#879398]">{totalMoves} MOVES</span>
@@ -55,8 +55,8 @@ export default function ReplayControls({
                 </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
+            <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center justify-center gap-2 flex-wrap sm:flex-nowrap">
                     <IconBtn icon="first_page" onClick={onGoToStart} disabled={currentStep === 0} />
                     <IconBtn icon="chevron_left" onClick={onStepBack} disabled={currentStep === 0} />
                     <IconBtn icon={isPlaying ? 'pause' : 'play_arrow'} size="md" onClick={onTogglePlay} disabled={disablePlay} />
@@ -64,7 +64,7 @@ export default function ReplayControls({
                     <IconBtn icon="last_page" onClick={onGoToEnd} disabled={currentStep >= totalMoves} />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2 flex-wrap">
                     {[1, 2, 4].map((value) => (
                         <SoundButton
                             key={value}

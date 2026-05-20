@@ -9,11 +9,11 @@ import Footer from "@/components/reusable/Footer";
 // Routes that must fill exactly the viewport height (h-screen).
 // Content that exceeds the viewport on these routes will still scroll
 // naturally inside the <main> — this only constrains the outer shell.
-const CONSTRAINED_ROUTES = ['/subscription', '/play', '/success', '/cancel', '/lobby'];
+const CONSTRAINED_ROUTES = ['/subscription', '/play', '/success', '/cancel', '/lobby', '/game/offline/'];
 
 // Routes where the navbar is completely hidden (full-screen immersive UI).
 // These are also constrained by default.
-const IMMERSIVE_ROUTES = ['/game/', '/room/online/'];
+const IMMERSIVE_ROUTES = ['/game/', '/room/online/', '/game/offline/'];
 
 export default function Layout({ children }) {
     const location = useLocation();

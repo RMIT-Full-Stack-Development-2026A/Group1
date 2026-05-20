@@ -21,7 +21,6 @@ import { useGame } from "./hook/useGame.hook";
 import { useChatManager } from "./hook/useChatManager.hook";
 
 // Components
-import Footer from "@/components/reusable/Footer";
 import AbortModal from "../GameShared/AbortModal";
 import ScanLines from "@/components/reusable/custom/ScanLines";
 import PlayerPanel from "../GameShared/PlayerPanel";
@@ -251,7 +250,7 @@ const GameBoard = () => {
   }
 
   return (
-  <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-auto md:overflow-hidden relative">
+  <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden overscroll-none relative">
       {theme.bgImage && (
         <div
           aria-hidden="true"
@@ -270,15 +269,15 @@ const GameBoard = () => {
       <ParticleLayer theme={theme} className="z-10" />
 
       <div
-        className="fixed inset-0 scanlines z-[2] pointer-events-none"
+        className="fixed inset-0 scanlines z-2 pointer-events-none"
         aria-hidden="true"
       />
       <div
-        className="fixed inset-0 pixel-grid z-[1] pointer-events-none"
+        className="fixed inset-0 pixel-grid z-1 pointer-events-none"
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex flex-col md:flex-row overflow-auto px-6 gap-6 items-start md:items-center justify-start md:justify-center md:pt-0 font-mono max-w-[1400px] w-full mx-auto responsive-game-layout">
+      <main className="relative z-10 flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden px-4 md:px-6 gap-4 md:gap-6 items-center justify-start md:justify-center font-mono max-w-350 w-full mx-auto">
         {!gameOver && (
           <div className="fixed top-20 right-6 z-50">
             <button
@@ -290,7 +289,7 @@ const GameBoard = () => {
             </button>
           </div>
         )}
-        <div className="w-full md:w-[260px] flex-none player-column">
+        <div className="flex w-full flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
           <PlayerPanel
             role="X"
             playerName={playersInfo[0].usernameSnapshot}
@@ -300,45 +299,24 @@ const GameBoard = () => {
             markerVariantData={markerVariantDataX}
             gameOver={gameOver}
           />
-        </div>
 
-        <div className="flex-1 flex items-center justify-center board-column">
           <BoardArea
-          xMarkerVariant={markerVariantX ?? markerVariant}
-          oMarkerVariant={markerVariantO ?? markerVariant}
-          gridStyle={gridStyle}
-          theme={theme}
-          board={board}
-          boardSize={boardSize}
-          matchTitle={matchTitle}
-          winnerData={winnerData}
-          isDraw={isDraw}
-          isLocked={isLocked}
-          onCellClick={handleMove}
-          onReset={resetGame}
-          onSizeChange={setBoardSize}
-          onMarkerChange={handleMarkerChange}
+            xMarkerVariant={markerVariantX ?? markerVariant}
+            oMarkerVariant={markerVariantO ?? markerVariant}
+            gridStyle={gridStyle}
+            theme={theme}
+            board={board}
+            boardSize={boardSize}
+            matchTitle={matchTitle}
+            winnerData={winnerData}
+            isDraw={isDraw}
+            isLocked={isLocked}
+            onCellClick={handleMove}
+            onReset={resetGame}
+            onSizeChange={setBoardSize}
+            onMarkerChange={handleMarkerChange}
           />
-        </div>
 
-        {isChatEnabled && (
-          <ChatOverlay
-            isOpen={chatOpen}
-            onClose={toggleChat}
-            onToggle={toggleChat}
-            messages={messages}
-            typingPlayer={typingPlayer}
-            playerMark="X"
-            playerName={playersInfo[0].usernameSnapshot}
-            opponentName={playersInfo[1].usernameSnapshot}
-            onSend={sendMessage}
-            onTyping={(isTyping) => setTyping("X", isTyping)}
-            gameOver={gameOver}
-            unreadCount={unreadCount}
-          />
-        )}
-
-        <div className="w-full md:w-[260px] flex-none player-column">
           <PlayerPanel
             role="O"
             playerName={playersInfo[1].usernameSnapshot}
@@ -350,6 +328,23 @@ const GameBoard = () => {
           />
         </div>
       </main>
+
+      {isChatEnabled && (
+        <ChatOverlay
+          isOpen={chatOpen}
+          onClose={toggleChat}
+          onToggle={toggleChat}
+          messages={messages}
+          typingPlayer={typingPlayer}
+          playerMark="X"
+          playerName={playersInfo[0].usernameSnapshot}
+          opponentName={playersInfo[1].usernameSnapshot}
+          onSend={sendMessage}
+          onTyping={(isTyping) => setTyping("X", isTyping)}
+          gameOver={gameOver}
+          unreadCount={unreadCount}
+        />
+      )}
 
       {showWinOverlay && (
         <WinOverlay
@@ -369,7 +364,6 @@ const GameBoard = () => {
         onConfirm={handleAbortConfirm}
         onCancel={() => setShowAbortModal(false)}
       />
-      <Footer />
     </div>
   );
 };

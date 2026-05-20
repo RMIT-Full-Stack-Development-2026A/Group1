@@ -56,7 +56,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
             )}
 
             {pagination && pagination.total > 0 && (
-                <div className="mt-auto p-6 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="p-6 flex flex-col md:flex-row justify-between items-center">
                     <p className="text-[10px] font-bold text-outline">
                         SHOWING {showFrom}-
                         {showTo} OF {pagination.total} ROOMS

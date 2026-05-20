@@ -172,11 +172,6 @@ export default function GameLobby() {
                     pagination={pagination}
                     onPageChange={setPage}
                 />
-                <div className="fixed bottom-15 right-5 z-0 pointer-events-none select-none opacity-40">
-                    <span className="font-headline text-[12px] tracking-widest text-[#fad100] uppercase">
-                        refresh for newest room
-                    </span>
-                </div>
             </main>
         </div>
     );

@@ -301,8 +301,8 @@ const GameBoard = () => {
           />
 
           <BoardArea
-            xMarkerVariant={markerVariantX ?? markerVariant}
-            oMarkerVariant={markerVariantO ?? markerVariant}
+            p1MarkerVariant={markerVariantX ?? markerVariant}
+            p2MarkerVariant={markerVariantO ?? markerVariant}
             gridStyle={gridStyle}
             theme={theme}
             board={board}

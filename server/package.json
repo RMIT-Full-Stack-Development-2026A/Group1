@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "start": "NODE_ENV=production node ./src/index.js",
-    "build": "npm install"
+    "build": "npm install",
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "",
@@ -13,18 +14,32 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@cloudinary/react": "^1.14.4",
+    "@cloudinary/url-gen": "^1.22.0",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mailtrap": "^4.4.0",
+    "express-rate-limit": "^8.3.2",
     "mongodb": "^7.1.1",
-    "mongoose": "^9.3.0"
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.3.0",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.6",
+    "sharp": "^0.34.5",
+    "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "ulid": "^3.0.2"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "nodemon": "^3.1.14"
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.1.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }

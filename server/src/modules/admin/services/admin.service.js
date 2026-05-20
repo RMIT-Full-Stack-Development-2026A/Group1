@@ -1,0 +1,169 @@
+import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
+import { GameInterface } from '../../game/interfaces/game.interface.js';
+import { RoomInterface } from '../../room/interfaces/room.interface.js';
+import { AdminDTO } from '../dtos/admin.dto.js';
+import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery, validateAdminPlayerGameQuery } from '../validators/admin.validator.js';
+
+import { eventBus } from '../../../utils/eventBus.util.js';
+import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
+
+export const AdminService = {
+    // [GET] /admin/dashboard endpoint
+    getDashboard: async () => {
+        // Fetch all metrics concurrently for performance
+        const [authMetrics, totalMatches, activeRooms] = await Promise.all([
+            AuthInterface.getPlatformMetrics(),
+            GameInterface.getTotalPlatformMatches(),
+            RoomInterface.getActiveRoomsCount()
+        ]);
+
+        return AdminDTO.toDashboard({
+            ...authMetrics, 
+            totalMatches,
+            activeRooms
+        });
+    },
+    
+    // [GET] /admin/players endpoint
+    getPlayers: async (query) => {
+        const { filter, sort, pagination } = validatePlayerQuery(query);
+        
+        const { users, total } = await AuthInterface.getPaginatedUsers(filter, sort, pagination.skip, pagination.limit);
+        
+        return AdminDTO.toPlayerList(users, { 
+            total, 
+            page: pagination.page, 
+            limit: pagination.limit 
+        });
+    },
+
+    // [GET] /admin/player/:id endpoint
+    getPlayerDetail: async (playerId) => {
+        if (!validateObjectId(playerId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Failed to fetch player. Invalid user ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        const user = await AuthInterface.getUserById(playerId);
+        if (!user) {
+            throw {
+                statusCode: 404,
+                error: "PLAYER_NOT_FOUND",
+                message: "Player not found.",
+                cause: `No user record exists in the database matching ID: ${playerId}.`,
+                valid_example: "Ensure the user ID exists before requesting details."
+            };
+        }
+
+        // Orchestrate extra stats gathering
+        const extraStats = await GameInterface.getUserGameStats(playerId);
+
+        return AdminDTO.toPlayerDetail(user, extraStats);
+    },
+
+    // [PATCH] /admin/player/:id/deactivate & reactivate endpoint
+    changePlayerStatus: async (playerId, isActive) => {
+        if (!validateObjectId(playerId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Status update failed. Invalid user ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        const existingUser = await AuthInterface.getUserById(playerId);
+        if (!existingUser) {
+            throw { 
+                statusCode: 404, 
+                error: "PLAYER_NOT_FOUND",
+                message: "Status update failed. Player not found.",
+                cause: `No user record exists in the database matching ID: ${playerId}.`,
+                valid_example: "A valid User ID currently existing in the database."
+            }; 
+        }
+
+        if (existingUser.isActive === isActive) {
+            throw {
+                statusCode: 409,
+                error: "CONFLICT",
+                message: `Status update failed. Player is already ${isActive ? 'active' : 'deactivated'}.`,
+                cause: "The requested status matches the user's current status.",
+                valid_example: `Request to deactivate an currently active player.`
+            };
+        }
+
+        // Update user account status in the database
+        const updatedUser = await AuthInterface.setAccountStatus(playerId, isActive);
+
+        if (!isActive) {
+            eventBus.emit(SYSTEM_EVENTS.USER_DEACTIVATED, { 
+                userId: playerId, 
+                reason: "System policy violation." 
+            });
+        }
+
+        return AdminDTO.toPlayerDetail(updatedUser);
+    },
+    
+    // [GET] /admin/rooms endpoint
+    getRooms: async (query) => {
+        const { filter, sort, pagination } = validateAdminRoomQuery(query);
+        
+        // Delegate to Room module
+        const result = await RoomInterface.getPaginatedRooms(filter, sort, pagination.skip, pagination.limit);
+        
+        return {
+            items: result.items,
+            total: result.total,
+            page: pagination.page,
+            limit: pagination.limit
+        };
+    },
+
+    // [GET] /admin/rooms/:id endpoint
+    getRoomDetail: async (roomId, requestingUser) => {
+        return await RoomInterface.getRoomDetail(roomId, requestingUser);
+    },
+
+    // [DELETE] /admin/rooms/:id endpoint
+    forceCloseRoom: async (roomId) => {
+        if (!validateObjectId(roomId)) {
+            throw {
+                statusCode: 400,
+                error: "INVALID_IDENTIFIER",
+                message: "Failed to close room. Invalid room ID format.",
+                cause: "The provided ID string is not a valid MongoDB ObjectId.",
+                valid_example: "Use a valid 24-character hex string."
+            };
+        }
+
+        // Delegate to Room module
+        await RoomInterface.forceCloseRoomByAdmin(roomId);
+        
+        return null; // Return empty data for 200 OK
+    },
+
+    // [GET] /admin/players/games endpoint
+    getPlayerGames: async (query) => {
+        const { pagination } = validateAdminPlayerGameQuery(query);
+        
+        // Construct the query specifically for the Game Module to handle
+        const historyQuery = {
+            page: pagination.page,
+            limit: pagination.limit,
+            gameType: 'ONLINE_MATCH'
+        };
+
+        // Pass null for userId so the GameService fetches matches across all players
+        const result = await GameInterface.listUserGameSessions(null, historyQuery);
+        
+        return result;
+    },
+};

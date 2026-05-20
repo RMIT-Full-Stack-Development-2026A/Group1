@@ -1,3 +1,5 @@
+export const API_BASE_URL = "http://localhost:5000/api/v1";
+
 export const API_ENDPOINTS = {
     AUTH: {
         REGISTER: "/auth/register",
@@ -25,8 +27,9 @@ export const API_ENDPOINTS = {
     },
     SUBSCRIPTION: {
         STATUS: "/subscription/status",
-        SUBSCRIBE: "/subscription/subscribe",
-        HISTORY: "/subscription/history",
+        CREATE_ORDER: "/subscription/create-order", 
+        CAPTURE_ORDER: "/subscription/capture-order", 
+        HISTORY: "/subscription/history",            
     },
     WALLET: {
         BALANCE: "/wallet",
@@ -39,7 +42,9 @@ export const API_ENDPOINTS = {
         DEACTIVATE: (id) => `/admin/players/${id}/deactivate`,
         REACTIVATE: (id) => `/admin/players/${id}/reactivate`,
         ROOMS: "/admin/rooms",
+        SESSIONS: "/admin/players/games",
         ROOM_DETAILS: (roomId) => `/admin/rooms/${roomId}`,
         CLOSE_ROOM: (roomId) => `/admin/rooms/${roomId}`,
     }
 };
+

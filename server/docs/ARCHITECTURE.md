@@ -1,48 +1,87 @@
 # TicTacToang Backend Architecture
 
-This backend architecture strictly adheres to a Modular Monolith approach and an N-Tier layer hierarchy. Each module is strictly separated by bounded contexts, and internal layers enforce a strict directional dependency flow. 
+Modular Monolith structure with strict N-Tier dependency flow and socket-first online game flow.
+
+## 1. Architectural Principles
+
+### 1.1 Modular Monolith
+Single deployable Node.js application divided into bounded contexts. Each module **Owns** its business rules, DTOs, repositories, and models.
+
+### 1.2 N-Tier Flow
+Dependencies flow in one direction:
+`Route/Socket` → `Controller` → `Service` → `Repository/Interface` → `Model`
+
+**Rules:**
+- Routes/sockets never access models directly.
+- Services never bypass repositories.
+- Cross-module access requires interfaces. No direct service imports.
+- DTOs format responses and hide sensitive fields.
+- EventBus (Pub/Sub) handles cross-domain execution decoupling.
+
+### 1.3 API Strategy
+- **HTTP:** Authentication, profiles, history, subscriptions, admin actions, room snapshots, rehydration.
+- **WebSocket:** Room lifecycle, moves, game state sync, premium chat.
+
+## 2. High-Level Folder Structure
 
 ```text
-backend/
+server/
 ├── src/
-│   ├── config/                       # Global configuration files (e.g., Database, Environment). Organized separately as it does not follow the Tier structure.
-│   ├── middlewares/                  # Dedicated middleware layer to authorize users and prevent privilege escalation.
-│   │   ├── authMiddleware.js         # Validates JWS tokens.
-│   │   └── roleMiddleware.js         # Ensures Players cannot access Admin APIs.
-│   ├── utils/                        # Global utilities (e.g., error formatters, loggers) organized separately.
-│   ├── modules/                      # Applies Modular Monolith Architecture. Each module handles a specific business feature.
-│   │   │
-│   │   ├── auth/                     # Bounded context for identity and authentication (/api/v1/auth).
-│   │   │   ├── routes/               # Route Layer: Defines API endpoints.
-│   │   │   ├── controllers/          # Controller Layer: Handles incoming HTTP requests.
-│   │   │   ├── services/             # Service Layer: Contains business logic.
-│   │   │   ├── repositories/         # Repository Layer: Defines database query statements.
-│   │   │   ├── models/               # Model Layer: *OWNS* the `User.js` schema.
-│   │   │   ├── dtos/                 # DTO Layer: Filters sensitive data in responses.
-│   │   │   └── interfaces/           # Exposes external services (e.g., `userInterface.js`) so other modules do NOT call the Service Layer directly.
-│   │   │
-│   │   ├── profile/                  # Bounded context for user profiles (/api/v1/profile). 
-│   │   │   └── (No Model Layer)      # Retrieves and updates user data by calling `auth/interfaces/user.interface.js`.
-│   │   │
-│   │   ├── game/                     # Bounded context for past game history (/api/v1/game). 
-│   │   │   └── models/               # *OWNS* the `GameSession.js` schema.
-│   │   │
-│   │   ├── room/                     # Bounded context for active multiplayer sessions (/api/v1/rooms). 
-│   │   │   └── models/               # *OWNS* the `GameRoom.js` schema.
-│   │   │
-│   │   ├── wallet/                   # Bounded context for fund deposits (/api/v1/wallet). 
-│   │   │   ├── models/               # *OWNS* the `Transaction.js` schema.
-│   │   │   └── interfaces/           # Exposes payment processing capabilities.
-│   │   │
-│   │   ├── subscription/             # Bounded context for premium status (/api/v1/subscription). 
-│   │   │   └── (No Model Layer)      # Processes subscriptions by calling `wallet/interfaces/transaction.interface.js` and `auth/interfaces/user.interface.js`.
-│   │   │
-│   │   └── admin/                    # Bounded context for monitoring and management (/api/v1/admin). 
-│   │       └── (No Model Layer)      # Interacts with users and rooms by calling the interfaces of the `auth` and `room` modules.
-│   │
-│   ├── sockets/                      # WebSocket configurations for real-time game synchronization (/ws/game namespace).
-│   ├── app.js                        # Main Express application entry point.
-│   └── index.js                     # HTTP and WebSocket server initialization.
-|
-├── docs/                             # Documents
-└── package.json                      # Node.js dependencies.
+│   ├── config/                  # Global configuration (DB, Swagger, Multer, Cloudinary)
+│   ├── middlewares/             # Shared Express middlewares (Auth, Roles, Errors, Rate Limit)
+│   ├── modules/                 # Bounded contexts (Modular Monolith)
+│   │   ├── auth/                   # Owns User model (Registration, Login, Sessions)
+│   │   ├── profile/                # Orchestration layer (No model, aggregates user data)
+│   │   ├── game/                   # Owns GameSession model (History, Replays, Stats)
+│   │   ├── room/                   # Owns GameRoom model (Live WebSocket state)
+│   │   ├── subscription/           # Owns Transaction model (PayPal orders, Webhooks)
+│   │   └── admin/                  # Orchestration layer (No model, dashboards & moderation)
+│   ├── seed/                    # Database seeders for initial data and testing
+│   ├── sockets/                 # Socket.io bootstrap, namespaces, and emitters
+│   ├── tests/                   # Test suites and setup files
+│   ├── utils/                   # Helpers, constants, and the internal EventBus
+│   ├── app.js                   # Express application setup
+│   └── index.js                 # Entry point: HTTP + WebSocket server bootstrap
+├── docs/                        # API documentation and markdown guides
+├── .env                         # Environment variables (BE)
+├── jest.config.js               # Jest testing framework configuration
+├── package-lock.json            # Dependency lockfile
+└── package.json                 # Project metadata and dependencies
+```
+
+## 3. Module **Responsibilities**
+### 3.1 `auth` Module
+
+****Owns****: User model.
+
+**Responsibilities**: Registration, login, password hashing, brute-force protection, JWT cookie management, session payloads.
+
+### 3.2 `profile` Module
+
+**Owns**: No model.
+
+**Responsibilities**: Orchestrates user updates, password changes, avatar uploads, and aggregates profile overview data via interfaces.
+
+### 3.3 `game` Module
+
+**Owns**: GameSession model.
+
+**Responsibilities**: Persists finished matches, handles paginated history, provides replay payloads, calculates user and global statistics.
+
+### 3.4 `room` Module
+
+**Owns**: GameRoom model.
+
+**Responsibilities**: Manages live WebSocket room state, enforces turn rules, broadcasts state updates, validates premium chat, persists completed rooms to GameSession.
+
+### 3.5 `subscription` Module
+
+**Owns**: Transaction model.
+
+**Responsibilities**: Processes PayPal orders, handles webhooks, manages premiumExpiresAt state, tracks revenue metrics.
+
+### 3.6 `admin` Module
+
+**Owns**: No model.
+
+**Responsibilities**: Aggregates dashboard metrics, manages player statuses, monitors live rooms, executes force-closures.

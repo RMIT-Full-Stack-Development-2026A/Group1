@@ -124,9 +124,10 @@ export const RoomDTO = {
     }),
 
     /** Maps ended game to payload DTO. */
-    toGameEndedPayload: ({ roomId, winnerParticipantIndex, winningLine, result, endedAt }) => ({
+    toGameEndedPayload: ({ roomId, winnerParticipantIndex, winnerUserId, winningLine, result, endedAt }) => ({
         roomId: String(roomId),
         winnerParticipantIndex: winnerParticipantIndex ?? null,
+        winnerUserId: winnerUserId ?? null,
         winningLine: Array.isArray(winningLine) ? winningLine.map(toWinningCell) : [],
         result,
         endedAt: endedAt ?? null

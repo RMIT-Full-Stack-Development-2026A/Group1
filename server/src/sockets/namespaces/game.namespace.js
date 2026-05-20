@@ -68,35 +68,42 @@ export const setupGameNamespace = (io) => {
             console.error(`[EventBus] Error kicking players from closed room ${roomId}:`, err);
         }
     });
+
+    eventBus.subscribe(SYSTEM_EVENTS.DUPLICATE_LOGIN, async ({ userId }) => {
+        const stringPlayerId = userId.toString();
+
+        try {
+            // Take all sockets is connecting to this account
+            const existingSockets = await gameNamespace.in(stringPlayerId).fetchSockets();
+
+            // If there are old sockets, kick them out
+            existingSockets.forEach(socket => {
+                socket.emit('auth:force_logout', {
+                    reason: "Your account was logged in from another location."
+                });
+                
+                socket.disconnect(true);
+            });
+
+            if (existingSockets.length > 0) {
+                console.log(`[Socket] Force disconnected ${existingSockets.length} old session(s) for user: ${stringPlayerId}`);
+            }
+        } catch (err) {
+            console.error(`[EventBus] Error kicking duplicate user ${stringPlayerId}:`, err);
+        }
+    });
     
     gameNamespace.on('connection', async (socket) => {
         console.log(`[Socket] User ${socket.user.id} connected to /ws/game`);
 
         socket.join(socket.user.id.toString());
         
-        // Habdle user reconnect after refresh 
+        // Handle user reconnect after refresh 
         try {
             const activeRoom = await RoomService.getActiveRoomSummaryByUserId(socket.user.id);
             if (activeRoom) {
                 // Rejoin the correct chat/game channel
                 socket.join(String(activeRoom.id));
-                
-                if (activeRoom.status === 'PLAYING') {
-                    // Clear the 60s disconnect countdown timer
-                    if (disconnectTimers.has(socket.user.id)) {
-                        clearTimeout(disconnectTimers.get(socket.user.id));
-                        disconnectTimers.delete(socket.user.id);
-                    }
-
-                    // Notify the opponent that this player has reconnected
-                    socket.to(String(activeRoom.id)).emit('player:reconnected', { roomId: activeRoom.id });
-
-                    // Sync the latest board state to both players
-                    const gameState = await RoomService.getGameState(activeRoom.id);
-                    if (gameState) {
-                        GameEmitter.emitGameState(gameNamespace, activeRoom.id, gameState);
-                    }
-                }
             }
         } catch (error) {
             console.error('[Rehydration Error]', error);

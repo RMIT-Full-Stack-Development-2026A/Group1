@@ -366,6 +366,7 @@ export const RoomService = {
             gameEnded = RoomDTO.toGameEndedPayload({
                 roomId,
                 winnerParticipantIndex: isWin ? pIndex : null,
+                winnerUserId: isWin ? userId.toString() : null,
                 winningLine: winningLine || [],
                 result: isWin ? 'WIN' : 'DRAW',
                 endedAt
@@ -454,6 +455,9 @@ export const RoomService = {
             // One player remains, promote them to host, revert to WAITING, and clear ready state
             remainingParticipants[0].isHost = true;
             remainingParticipants[0].isReady = false;
+
+            remainingParticipants[0].mark = 'X'
+            room.firstTurnParticipantIndex = 0
             
             room.participants = remainingParticipants;
             room.status = ROOM_STATUS.WAITING;

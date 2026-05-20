@@ -81,7 +81,7 @@ export const useSocketStore = create((set, get) => ({
             get().disconnectSocket();
             
             // Clear auth state and cookies
-            void useAuthStore.getState  ().logout();
+            void useAuthStore.getState().logout();
             window.location.href = '/login?reason=duplicate';
         });
 

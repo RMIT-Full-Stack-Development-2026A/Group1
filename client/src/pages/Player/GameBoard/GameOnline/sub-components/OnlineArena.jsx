@@ -66,8 +66,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const player1MarkerStyle = player1?.markerStyle || roomData?.markerStyle || "CLASSIC";
   const player2MarkerStyle = player2?.markerStyle || roomData?.markerStyle || "CLASSIC";
 
-  const activeMarkerStyle = player1MarkerStyle;
-
   const [board, setBoard] = useState(() => {
     return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
   });
@@ -173,10 +171,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     () => getMarkerVariant(player2MarkerStyle),
     [player2MarkerStyle],
   );
-  const markerVariantData = useMemo(
-    () => getMarkerVariant(mappedMarkerVariant),
-    [mappedMarkerVariant],
-  );
+
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
   // --- TIMEOUT EFFECT FOR DISCONNECTED OPPONENT ---
@@ -446,8 +441,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
             markerVariantData={player1MarkerVariantData}
           />
           <BoardArea
-            xMarkerVariant={player1MarkerStyle}
-            oMarkerVariant={player2MarkerStyle}
+            p1MarkerVariant={player1MarkerStyle}
+            p2MarkerVariant={player2MarkerStyle}
+            player1Mark={player1.mark}
+            player2Mark={player2.mark}
             markerVariant={mappedMarkerVariant}
             gridStyle={mappedStyle}
             board={board}

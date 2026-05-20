@@ -7,17 +7,6 @@ import ReadyButton from './ReadyButton';
 import MarkerStyleSelector from './MarkerStyleSelector';
 import Footer from '@/components/reusable/Footer';
 
-// function MatchConfigChip({ label, value }) {
-//   return (
-//     <div
-//       className="flex flex-col items-center gap-1 px-4 py-2 bg-surface-container-high border-t-2 border-t-primary border border-outline-variant/60 min-w-[80px]"
-//     >
-//       <span className="font-mono text-[7px] text-outline uppercase tracking-widest whitespace-nowrap">{label}</span>
-//       <span className="font-headline text-[8px] text-on-surface-variant whitespace-nowrap">{value}</span>
-//     </div>
-//   );
-// }
-
 export default function GameRoom({ roomData, currentUserId, onReady, onLeave, onSetFirstTurn, onSetMarkerStyle, disconnectCountdown }) {
   const host = roomData?.participants?.[0] || null;
   const guest = roomData?.participants?.[1] || null;
@@ -32,7 +21,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
   const { play: playClick } = useButtonSound(AUDIO_FILES.BUTTON_CLICK);
   
   const firstTurnIndex = roomData?.firstTurnParticipantIndex ?? 0;
-  const firstPlayerMark = firstTurnIndex === 0 ? 'X' : 'O';
+  const firstPlayerMark = firstTurnIndex === 0 ? host.mark : guest.mark
   const canChangeMarkerStyle = roomData?.status === 'WAITING' || roomData?.status === 'READY';
   const currentMarkerStyle = myParticipant?.markerStyle ?? 'CLASSIC';
 

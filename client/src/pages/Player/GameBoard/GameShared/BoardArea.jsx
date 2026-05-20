@@ -11,8 +11,10 @@ const BoardArea = ({
     board,
     boardSize,
     markerVariant,
-    xMarkerVariant,
-    oMarkerVariant,
+    p1MarkerVariant,
+    p2MarkerVariant,
+    player1Mark,
+    player2Mark,
     theme = getTheme('jungle'),
     winnerData,
     isDraw,
@@ -63,8 +65,10 @@ const BoardArea = ({
                                 key={`${rowIndex}-${colIndex}`}
                                 value={cellValue}
                                 markerVariant={markerVariant}
-                                xMarkerVariant={xMarkerVariant}
-                                oMarkerVariant={oMarkerVariant}
+                                p1MarkerVariant={p1MarkerVariant}
+                                p2MarkerVariant={p2MarkerVariant}
+                                player1Mark={player1Mark}
+                                player2Mark={player2Mark}
                                 cellBorderClass={theme.cellBorder}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
                                 onClick={() => {

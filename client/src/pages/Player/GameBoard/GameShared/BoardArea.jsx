@@ -34,7 +34,7 @@ const BoardArea = ({
         <section className="flex-1 flex items-center justify-center">
             <ScanLines />
             <div
-                className={`${theme.boardWrapper} board-wrapper p-3 grid aspect-square`}
+                className={`${theme.boardWrapper} board-wrapper p-3 grid aspect-square  w-[min(96vw,96vh)] max-w-[1100px]`}
                 style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
             >
                 {/* Top labels */}

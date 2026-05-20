@@ -2,7 +2,7 @@ import React from "react";
 import RoomCard from "./RoomCard";
 
 export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserId, pagination, onPageChange }) {
-    // Đảm bảo rooms luôn là một mảng
+    
     const roomList = Array.isArray(rooms) ? rooms : [];
     const hasRooms = roomList.length > 0;
 
@@ -36,7 +36,6 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
     return (
         <div className="flex flex-col w-full flex-1 min-h-0">
             
-            {/* 1. Khu vực hiển thị Grid Phòng - Chỉ hiện khi CÓ phòng */}
             {hasRooms && (
                 <div className="flex-1 overflow-x-auto md:overflow-visible -mx-4 px-4 py-2">
                     <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 auto-rows-max">
@@ -75,7 +74,6 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
                 </div>
             )}
 
-            {/* 3. Phân trang - Giữ nguyên thiết kế đẹp từ trước */}
             {pagination && pagination.total > 0 && hasRooms && (
                 <div className="mt-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-outline-variant/30">
                     <p className="text-[11px] font-semibold text-outline tracking-wider">

@@ -6,6 +6,8 @@ import { useLogin } from "@/pages/Guest/Login/hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
 import toast from "react-hot-toast";
 
+let duplicateLoginToastShown = false;
+
 export default function LoginPage() {
     const navigate = useNavigate();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
@@ -25,8 +27,13 @@ export default function LoginPage() {
     const reason = searchParams.get('reason');
 
     useEffect(() => {
-        if (reason === 'duplicate') {
+        if (reason === 'duplicate' && !duplicateLoginToastShown) {
+            duplicateLoginToastShown = true;
             toast.error("Your account was logged in from another location.", { duration: 5000 });
+
+            window.setTimeout(() => {
+                duplicateLoginToastShown = false;
+            }, 1000);
         }
     }, [reason]);
 

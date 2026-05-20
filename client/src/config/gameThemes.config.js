@@ -3,7 +3,7 @@ import neonBg from '@/assets/themes/neon/bg.png';
 import blockBg from '@/assets/themes/block/bg.png';
 
 export const GAME_THEMES = {
-    jungle: {
+    JUNGLE: {
         boardWrapper: 'bg-[#0a0a1a] border-8 border-[#276112]',
         boardBorder: 'border-4 border-[#276112]',
         cellBorder: 'border-r border-b border-[#276112]/40',
@@ -20,7 +20,7 @@ export const GAME_THEMES = {
         particleDurMin: 8,
         particleDurMax: 20,
     },
-    dark: {
+    DARK: {
         boardWrapper: 'bg-[#0a0a1a] border-8 border-[#4cc9f0]',
         boardBorder: 'border-4 border-[#4cc9f0]',
         cellBorder: 'border-r border-b border-[#4cc9f0]/40',
@@ -37,7 +37,7 @@ export const GAME_THEMES = {
         particleDurMin: 5,
         particleDurMax: 13,
     },
-    lava: {
+    LAVA: {
         boardWrapper: 'bg-[#0a0a0a] border-8 border-[#ff3d00]',
         boardBorder: 'border-4 border-[#ff3d00]',
         cellBorder: 'border-r border-b border-[#ff3d00]/40',
@@ -56,4 +56,4 @@ export const GAME_THEMES = {
     },
 };
 
-export const getTheme = (gridStyle) => GAME_THEMES[gridStyle.toUpperCase()] ?? GAME_THEMES.jungle;
+export const getTheme = (gridStyle) => GAME_THEMES[gridStyle.toUpperCase()] ?? GAME_THEMES.JUNGLE;

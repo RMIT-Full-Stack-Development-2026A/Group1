@@ -71,18 +71,4 @@ export const authService = {
     checkAuth: async () => {
         return await http.get(API_ENDPOINTS.AUTH.CHECK_AUTH);
     },
-
-    // TODO: Backend needs to implement /auth/clear-failed-attempts endpoint
-    // This method should be uncommented once the backend endpoint is ready
-    // clearFailedAttempts: async () => {
-    //     try {
-    //         const response = await http.post(API_ENDPOINTS.AUTH.CLEAR_FAILED_ATTEMPTS);
-    //         console.log('[Auth Service] Failed login attempts cleared');
-    //         return response;
-    //     } catch (error) {
-    //         // If endpoint doesn't exist yet, log but don't fail
-    //         console.warn('[Auth Service] Could not clear failed attempts:', error.message);
-    //         return null;
-    //     }
-    // }
 };

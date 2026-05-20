@@ -9,12 +9,12 @@ import BackgroundMusicController from "@/components/reusable/sound/BackgroundMus
 function App() {
     const checkAuth = useAuthStore((state) => state.checkAuth);
     const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-
     // checkAuth once time when running the web
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
 
+    // Handle account deactivation
     useEffect(() => {
         const handleAccountDeactivated = (event) => {
             const payload = event.detail || {};
@@ -30,6 +30,22 @@ function App() {
         };
     }, []);
 
+    // Handle force logout (duplicate login)
+    useEffect(() => {
+        const handleForceLogout = (event) => {
+            const payload = event.detail || {};
+            const message = payload.message || 'Your account was logged in from another location.';
+            // Show toast notification with slightly longer duration for readability
+            toast.error(message, { duration: 5000 });
+        };
+
+        window.addEventListener('auth:force_logout', handleForceLogout);
+
+        return () => {
+            window.removeEventListener('auth:force_logout', handleForceLogout);
+        };
+    }, []);
+    
     // When checking auth, show loading screen
     if (isCheckingAuth) {
         return <div className="loading-screen">Validating system...</div>;

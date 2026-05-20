@@ -58,6 +58,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     usernameSnapshot: "WAITING...",
     mark: "X",
   };
+  
   const player2 = roomData?.participants?.[1] || {
     usernameSnapshot: "WAITING FOR OPPONENT...",
     mark: "O",
@@ -65,8 +66,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
 
   const player1MarkerStyle = player1?.markerStyle || roomData?.markerStyle || "CLASSIC";
   const player2MarkerStyle = player2?.markerStyle || roomData?.markerStyle || "CLASSIC";
-
-  const activeMarkerStyle = player1MarkerStyle;
 
   const [board, setBoard] = useState(() => {
     return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
@@ -103,9 +102,9 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       const winningCells = Array.isArray(completedMatch.winningLine)
         ? completedMatch.winningLine.map((cell) => [cell.row, cell.col])
         : [];
-      const mark =
-        roomData?.participants?.[completedMatch.winnerParticipantIndex]?.mark ||
-        'X';
+
+      const winner = roomData?.participants?.find(p => p.userId === completedMatch.winnerUserId);
+      const mark = winner?.mark || 'X';
 
       return {
         winnerData: { player: mark, cells: winningCells },
@@ -122,12 +121,14 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const userMark =
     roomData?.participants?.find((p) => p.userId === currentUserId)?.mark ||
     "X";
+
   const winnerDataToShow = resolvedOutcome.winnerData;
   const isDrawToShow = resolvedOutcome.isDraw;
+
   const perspective = isDrawToShow
     ? "draw"
     : winnerDataToShow
-      ? winnerDataToShow.player === userMark
+      ? currentUserId === completedMatch.winnerUserId
         ? "winner"
         : "loser"
       : null;
@@ -137,8 +138,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     if (gameOver) {
       // Play sound immediately
       if (perspective === 'loser') {
+        console.log(completedMatch)
         playLoseSound();
       } else if (perspective === 'winner') {
+        console.log(completedMatch)
         playVictorySound();
       }
 
@@ -150,7 +153,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       return () => clearTimeout(timer);
     }
     
-  }, [gameOver, perspective, playVictorySound, playLoseSound]);
+  }, [gameOver, perspective, playVictorySound, playLoseSound, completedMatch]);
 
   useEffect(() => {
     if (completedMatch?.result === 'DRAW' || completedMatch?.result === 'WIN') {
@@ -173,10 +176,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     () => getMarkerVariant(player2MarkerStyle),
     [player2MarkerStyle],
   );
-  const markerVariantData = useMemo(
-    () => getMarkerVariant(mappedMarkerVariant),
-    [mappedMarkerVariant],
-  );
+
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
   // --- TIMEOUT EFFECT FOR DISCONNECTED OPPONENT ---
@@ -240,14 +240,15 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         matchEndedRef.current = true;
         setIsDraw(true);
         setWinnerData(null);
+
       } else if (payload.result === "WIN") {
         matchEndedRef.current = true;
-        const winningCells =
-          payload.winningLine?.map((cell) => [cell.row, cell.col]) || [];
-        const mark =
-          roomData?.participants?.[payload.winnerParticipantIndex]?.mark || "X";
+        const winningCells = payload.winningLine?.map((cell) => [cell.row, cell.col]) || [];
+        const winner = roomData?.participants?.find(p => p.userId === payload.winnerUserId);
+        const mark = winner?.mark || "X";
         setWinnerData({ player: mark, cells: winningCells });
         setIsDraw(false);
+
       } else if (payload.result === "ABORTED") {
         if (didInitiateAbortRef.current) {
           navigate('/lobby');
@@ -446,8 +447,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
             markerVariantData={player1MarkerVariantData}
           />
           <BoardArea
-            xMarkerVariant={player1MarkerStyle}
-            oMarkerVariant={player2MarkerStyle}
+            p1MarkerVariant={player1MarkerStyle}
+            p2MarkerVariant={player2MarkerStyle}
+            player1Mark={player1.mark}
+            player2Mark={player2.mark}
             markerVariant={mappedMarkerVariant}
             gridStyle={mappedStyle}
             board={board}

@@ -21,7 +21,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
   const { play: playClick } = useButtonSound(AUDIO_FILES.BUTTON_CLICK);
   
   const firstTurnIndex = roomData?.firstTurnParticipantIndex ?? 0;
-  const firstPlayerMark = firstTurnIndex === 0 ? host.mark : guest.mark
+  const firstPlayerMark = roomData?.participants?.[firstTurnIndex]?.mark ?? 'X';
   const canChangeMarkerStyle = roomData?.status === 'WAITING' || roomData?.status === 'READY';
   const currentMarkerStyle = myParticipant?.markerStyle ?? 'CLASSIC';
 

@@ -102,9 +102,9 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       const winningCells = Array.isArray(completedMatch.winningLine)
         ? completedMatch.winningLine.map((cell) => [cell.row, cell.col])
         : [];
-      const mark =
-        roomData?.participants?.[completedMatch.winnerParticipantIndex]?.mark ||
-        'X';
+
+      const winner = roomData?.participants?.find(p => p.userId === completedMatch.winnerUserId);
+      const mark = winner?.mark || 'X';
 
       return {
         winnerData: { player: mark, cells: winningCells },
@@ -121,12 +121,14 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const userMark =
     roomData?.participants?.find((p) => p.userId === currentUserId)?.mark ||
     "X";
+
   const winnerDataToShow = resolvedOutcome.winnerData;
   const isDrawToShow = resolvedOutcome.isDraw;
+
   const perspective = isDrawToShow
     ? "draw"
     : winnerDataToShow
-      ? winnerDataToShow.player === userMark
+      ? currentUserId === completedMatch.winnerUserId
         ? "winner"
         : "loser"
       : null;
@@ -136,8 +138,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     if (gameOver) {
       // Play sound immediately
       if (perspective === 'loser') {
+        console.log(completedMatch)
         playLoseSound();
       } else if (perspective === 'winner') {
+        console.log(completedMatch)
         playVictorySound();
       }
 
@@ -149,7 +153,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       return () => clearTimeout(timer);
     }
     
-  }, [gameOver, perspective, playVictorySound, playLoseSound]);
+  }, [gameOver, perspective, playVictorySound, playLoseSound, completedMatch]);
 
   useEffect(() => {
     if (completedMatch?.result === 'DRAW' || completedMatch?.result === 'WIN') {
@@ -236,14 +240,15 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
         matchEndedRef.current = true;
         setIsDraw(true);
         setWinnerData(null);
+
       } else if (payload.result === "WIN") {
         matchEndedRef.current = true;
-        const winningCells =
-          payload.winningLine?.map((cell) => [cell.row, cell.col]) || [];
-        const mark =
-          roomData?.participants?.[payload.winnerParticipantIndex]?.mark || "X";
+        const winningCells = payload.winningLine?.map((cell) => [cell.row, cell.col]) || [];
+        const winner = roomData?.participants?.find(p => p.userId === payload.winnerUserId);
+        const mark = winner?.mark || "X";
         setWinnerData({ player: mark, cells: winningCells });
         setIsDraw(false);
+
       } else if (payload.result === "ABORTED") {
         if (didInitiateAbortRef.current) {
           navigate('/lobby');

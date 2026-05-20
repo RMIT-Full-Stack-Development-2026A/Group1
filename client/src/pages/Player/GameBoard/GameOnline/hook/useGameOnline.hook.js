@@ -98,6 +98,7 @@ export const useGameOnline = () => {
                 setHasCompletedMatch(true);
                 setCompletedMatch({
                     result: payload.result,
+                    winnerUserId: payload.winnerUserId,
                     winnerParticipantIndex: payload.winnerParticipantIndex ?? null,
                     winningLine: Array.isArray(payload.winningLine) ? payload.winningLine : [],
                 });

@@ -139,7 +139,6 @@ export const transformToBackendFormat = (selection) => {
         if (selection.markerVariantX) currentMarkerId = Number(selection.markerVariantX);
         else if (selection.markerVariantO) currentMarkerId = Number(selection.markerVariantO);
     }
-    const currentMarkerId = Number(selection.markerVariant); 
     const markerVariantObj = MARKER_VARIANTS.find(m => m.displayId === currentMarkerId);
     const markerStyle = markerVariantObj?.id || 'CLASSIC';
 

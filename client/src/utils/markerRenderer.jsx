@@ -83,7 +83,8 @@ export const resolveMarkerStyleClasses = (markerStyle) => {
 
     const styleMap = {
         NEON: { wrapperClass: "animate-pulse shadow-glow-primary", filterStyle: null },
-        STONE: { wrapperClass: "grayscale brightness-75", filterStyle: null },
+        // Keep STONE colored but add a subtle warm glow instead of forcing grayscale/low brightness
+        STONE: { wrapperClass: "brightness-105 drop-shadow-[0_0_10px_rgba(132,204,22,0.12)]", filterStyle: null },
         SKETCH: { wrapperClass: "opacity-80 contrast-125", filterStyle: null },
         MINIMAL: { wrapperClass: "animate-pulse", filterStyle: null },
         GLOW: { wrapperClass: "brightness-110", filterStyle: null },

@@ -241,7 +241,8 @@ export const validateRoomUpdateSettings = (payload) => {
 
     const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'JUNGLE';
     const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
-    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : null;
+    // Use undefined when marker is not provided so we can distinguish absent vs invalid
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : undefined;
 
     const allowedBoardStyles = ['JUNGLE', 'DARK', 'LAVA'];
     if (!allowedBoardStyles.includes(boardStyle)) {
@@ -257,7 +258,7 @@ export const validateRoomUpdateSettings = (payload) => {
         };
     }
 
-    if (marker !== undefined && !['X', 'O'].includes(marker)) {
+    if (marker !== undefined && marker !== null && !['X', 'O'].includes(marker)) {
         throw { 
             statusCode: 400, 
             error: "INVALID_MARKER", 

@@ -58,6 +58,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     usernameSnapshot: "WAITING...",
     mark: "X",
   };
+  
   const player2 = roomData?.participants?.[1] || {
     usernameSnapshot: "WAITING FOR OPPONENT...",
     mark: "O",

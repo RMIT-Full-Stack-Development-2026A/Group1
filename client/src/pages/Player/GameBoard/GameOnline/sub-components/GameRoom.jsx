@@ -121,7 +121,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             {/* FIRST MOVE - Toggle for host only */}
             <button
               onClick={handleToggleFirstTurn}
-              disabled={!isHost}
+              disabled={!isHost || roomData?.status === "WAITING"}
               className={`flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] transition-all ${
                 isHost
                   ? 'cursor-pointer hover:bg-[#252535] hover:border-primary-cyan active:translate-y-0.5'

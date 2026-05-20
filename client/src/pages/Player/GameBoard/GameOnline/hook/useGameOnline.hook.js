@@ -263,15 +263,16 @@ export const useGameOnline = () => {
         setCompletedMatch(null);
     }, []);
 
+    const currentRoomIdNow = roomData?.id;
     const handleSetFirstTurn = useCallback((firstTurnParticipantIndex) => {
-        if (!socket || !roomData?.id) return;
-        socket.emit('room:set_first_turn', { roomId: roomData.id, firstTurnParticipantIndex });
-    }, [socket, roomData?.id]);
+        if (!socket || !currentRoomIdNow) return;
+        socket.emit('room:set_first_turn', { roomId: currentRoomIdNow, firstTurnParticipantIndex: firstTurnParticipantIndex });
+    }, [socket, currentRoomIdNow]);
 
     const handleSetMarkerStyle = useCallback((markerStyle) => {
-        if (!socket || !roomData?.id) return;
-        socket.emit('room:update_settings', { roomId: roomData.id, markerStyle });
-    }, [socket, roomData?.id]);
+        if (!socket || !currentRoomIdNow) return;
+        socket.emit('room:update_settings', { roomId: currentRoomIdNow, markerStyle: markerStyle, boardStyle: roomData?.boardStyle });
+    }, [socket, currentRoomIdNow, roomData?.boardStyle]);
 
     return {
         roomData,

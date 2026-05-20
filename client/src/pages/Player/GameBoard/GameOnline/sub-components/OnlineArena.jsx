@@ -29,15 +29,28 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const { socket, isConnected, connectSocket } = useSocketStore();
   const { setMarkerVariant } = useCustomizationStore();
 
-  const rawMap = {
-    CLASSIC: "classic",
-    DARK: "neon",
-    NEON: "neon",
-    BLOCK: "block",
+  const GRID_STYLES_MAP = {
+    JUNGLE: "jungle",
+    DARK: "dark",
+    LAVA: "lava", 
   };
+  
   const boardStyleKey = roomData?.boardStyle || "NEON";
-  const mappedStyle = rawMap[boardStyleKey] || boardStyleKey.toLowerCase();
+  const mappedStyle = GRID_STYLES_MAP[boardStyleKey] || "neon";
   const theme = getTheme(mappedStyle);
+
+  const MARKER_VARIANTS_MAP = {
+    CLASSIC: 1,
+    GLOW: 2,
+    SKETCH: 3,
+    STONE: 4,
+    PIXEL: 5,
+    MINIMAL: 6,
+  };
+  
+  const markerStyleKey = roomData?.markerStyle || "PIXEL";
+
+  const mappedMarkerVariant = MARKER_VARIANTS_MAP[markerStyleKey] || 1; 
 
   const boardSize = roomData?.boardSize || 10;
 
@@ -159,6 +172,10 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const player2MarkerVariantData = useMemo(
     () => getMarkerVariant(player2MarkerStyle),
     [player2MarkerStyle],
+  );
+  const markerVariantData = useMemo(
+    () => getMarkerVariant(mappedMarkerVariant),
+    [mappedMarkerVariant],
   );
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
 
@@ -403,7 +420,8 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
           <div className="fixed top-20 right-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
-              className="border-2 border-[#ffb4ab] text-[#ffb4ab] font-headline text-[8px] px-4 py-2 uppercase hover:bg-[#ffb4ab]/10 transition-all cursor-pointer"
+              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[8px] px-4 py-2 uppercase bg-[#b82b1a]
+                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-all cursor-pointer"
             >
               ABORT
             </button>
@@ -428,11 +446,12 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
             markerVariantData={player1MarkerVariantData}
           />
           <BoardArea
-            markerVariant={activeMarkerStyle}
             xMarkerVariant={player1MarkerStyle}
             oMarkerVariant={player2MarkerStyle}
+            markerVariant={mappedMarkerVariant}
             gridStyle={mappedStyle}
             board={board}
+            theme={theme}
             boardSize={boardSize}
             matchTitle={`ROOM: ${roomData?.roomNumber || "CONNECTING..."}`}
             winnerData={winnerData}

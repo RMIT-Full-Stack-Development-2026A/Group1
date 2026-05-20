@@ -121,7 +121,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             <div className="flex gap-2">
               <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342]">
                 <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">STYLE</span>
-                <span className="font-headline text-sm text-primary-cyan">{roomData?.boardStyle || 'CLASSIC'}</span>
+                <span className="font-headline text-sm text-[#4cc9f0]">{roomData?.boardStyle || 'JUNGLE'}</span>
               </div>
               <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342]">
                   <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">ROOM DEFAULT</span>

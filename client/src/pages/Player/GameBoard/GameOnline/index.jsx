@@ -70,18 +70,16 @@ export default function GameOnline() {
       <div className="fixed inset-0 bg-[url('/assets/images/pixel-grid.png')] opacity-[0.03] pointer-events-none z-0" aria-hidden="true" />
       <div className="fixed inset-0 pointer-events-none z-1 shadow-[inset_0_0_120px_rgba(0,0,0,0.6)]" aria-hidden="true" />
 
-      {roomData?.status !== 'PLAYING' && (
+      {!(roomData?.status === 'PLAYING' || hasCompletedMatch) && (
         <header className="relative z-50 flex-none">
           <Navigation />
         </header>
       )}
 
-      {/* 4. Nội dung chính: flex-1 sẽ tự động chiếm toàn bộ phần còn lại của màn hình */}
       <main className="relative z-10 flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </main>
 
-      {/* 5. HUD Components: Dùng absolute/fixed để không làm xô lệch layout */}
       {(roomData?.status === 'READY' || roomData?.status === 'PLAYING') && (
         <ChatBox roomId={roomData?.id} currentUserId={user?.id} currentUsername={user?.username} />
       )}

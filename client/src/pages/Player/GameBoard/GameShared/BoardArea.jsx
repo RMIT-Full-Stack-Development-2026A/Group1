@@ -13,7 +13,7 @@ const BoardArea = ({
     markerVariant,
     xMarkerVariant,
     oMarkerVariant,
-    theme = getTheme('classic'),
+    theme = getTheme('jungle'),
     winnerData,
     isDraw,
     isLocked,

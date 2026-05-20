@@ -40,7 +40,7 @@ export default function ReplayControls({
     };
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 w-full bg-[#0d0d1a] border-t-2 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-6 py-4 my-12 border-surface-container">
+        <div className="fixed bottom-0 left-auto right-auto z-50 w-200 bg-[#0d0d1a] border-4 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-8 py-4 my-12 border-surface-container">
             <div className="mb-5">
                 <div className="flex justify-between mb-1">
                     <span className="font-mono text-[10px] text-[#4cc9f0]">STEP {currentStep || '--'}</span>

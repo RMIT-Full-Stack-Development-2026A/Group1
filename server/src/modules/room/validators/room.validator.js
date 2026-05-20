@@ -89,8 +89,7 @@ export const validateRoomCreate = (payload) => {
     const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : '';
     
     // Check type before trim() & toUpperCase()
-    // markerStyle is applied to the host participant.
-    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'CLASSIC';
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'JUNGLE';
     const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
 
     if (![10, 15].includes(boardSize)) {
@@ -100,7 +99,7 @@ export const validateRoomCreate = (payload) => {
         throw { statusCode: 400, error: "INVALID_MARKER", message: "Marker must be 'X' or 'O'." };
     }
 
-    const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
+    const allowedBoardStyles = ['JUNGLE', 'DARK', 'LAVA'];
     if (!allowedBoardStyles.includes(boardStyle)) {
         throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
     }
@@ -240,17 +239,13 @@ export const validateRoomUpdateSettings = (payload) => {
         };
     }
 
-    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : undefined;
-    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : undefined;
-    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : undefined;
+    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'JUNGLE';
+    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
+    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : null;
 
-    const allowedBoardStyles = ['CLASSIC', 'DARK', 'NEON'];
-    if (boardStyle !== undefined && !allowedBoardStyles.includes(boardStyle)) {
-        throw { 
-            statusCode: 400, 
-            error: "INVALID_BOARD_STYLE", 
-            message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` 
-        };
+    const allowedBoardStyles = ['JUNGLE', 'DARK', 'LAVA'];
+    if (!allowedBoardStyles.includes(boardStyle)) {
+        throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
     }
 
     const allowedMarkerStyles = ['CLASSIC', 'GLOW', 'SKETCH', 'STONE', 'PIXEL', 'MINIMAL'];

@@ -35,8 +35,8 @@ const gameSessionSchema = new mongoose.Schema({
 
     boardStyle: {
         type: String, // Visual board theme used when the match was played
-        enum: ['CLASSIC', 'DARK', 'NEON'], 
-        default: 'CLASSIC'
+        enum: ['JUNGLE', 'DARK', 'LAVA'], 
+        default: 'JUNGLE'
     },
 
     participants: {

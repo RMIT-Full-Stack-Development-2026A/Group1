@@ -21,8 +21,7 @@ export const useGameOnline = () => {
     const [disconnectCountdown, setDisconnectCountdown] = useState(null);
     const [hasCompletedMatch, setHasCompletedMatch] = useState(false);
     const [completedMatch, setCompletedMatch] = useState(null);
-
-    const disconnectIntervalRef = useRef(null);
+    
     const disconnectCountdownRef = useRef(null);
     const roomDataRef = useRef(null);
     const prevParticipantCountRef = useRef(0);
@@ -34,14 +33,7 @@ export const useGameOnline = () => {
     }, [roomData]);
 
     useEffect(() => {
-        setIsHydrated(false);
-        setRoomData(null);
-        setIsConnecting(true);
-        setError(null);
-        setDisconnectCountdown(null);
-        setHasCompletedMatch(false);
-        setCompletedMatch(null);
-        joinedRoomIdRef.current = null; // commented out idk why but does this will work
+        joinedRoomIdRef.current = null; 
     }, [roomId]);
 
     useEffect(() => {
@@ -194,7 +186,6 @@ export const useGameOnline = () => {
         if (joinedRoomIdRef.current !== roomId && socket.connected) {
             joinedRoomIdRef.current = roomId;
 
-            // Ghost Room Timeout: nếu 10s không nhận room:updated → redirect
             joinTimeoutId = setTimeout(() => {
                 setError('Phòng không tồn tại hoặc đã đóng.');
                 setTimeout(() => navigate('/lobby'), 2000);
@@ -205,7 +196,6 @@ export const useGameOnline = () => {
             console.log('[useGameOnline] Emitting room:join...');
         }
 
-        // Clean up function chỉ remove listeners của game này, không ảnh hưởng đến listeners khác (nếu có)
         return () => {
             if (joinTimeoutId) clearTimeout(joinTimeoutId);
 
@@ -217,8 +207,8 @@ export const useGameOnline = () => {
             socket.off('error', handleServerError);
             socket.off('game:state', handleGameState);
         };
-    }, [socket, isConnected, roomId, navigate]);
-
+    }, [socket, isConnected, roomId, navigate, currentUserId]);
+    
     // Hydration — also triggers on rejoin when roomData arrives with status PLAYING.
     // We use roomData?.id as an additional dependency so the effect re-runs when a
     // completely new roomData object arrives (e.g. after a rejoin resets roomData to null
@@ -231,7 +221,7 @@ export const useGameOnline = () => {
             setCustomization(sizeStr, styleMap[roomData.boardStyle] || 'classic', 3);
             setIsHydrated(true);
         }
-    }, [roomData?.status, roomData?.id, isHydrated, setCustomization]);
+    }, [roomData?.status, roomData?.id, roomData?.boardSize, roomData?.boardStyle, isHydrated, setCustomization]);
 
     // Cleanup when user leaves page or gets disconnected
     useEffect(() => {
@@ -250,10 +240,11 @@ export const useGameOnline = () => {
         };
     }, [socket, roomId]);
 
+    const currentRoomId = roomData?.id;
     const handleReady = useCallback(() => {
-        if (!socket || !roomData?.id) return;
-        socket.emit('room:ready', { roomId: roomData.id });
-    }, [socket, roomData?.id]);
+        if (!socket || !currentRoomId) return;
+        socket.emit('room:ready', { roomId: currentRoomId });
+    }, [socket, currentRoomId]);
 
     const handleLeaveRoom = useCallback(() => {
         if (socket) {

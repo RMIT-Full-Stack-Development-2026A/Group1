@@ -41,7 +41,7 @@ body {
 
 /* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
 .board-wrapper {
-  width: clamp(240px, 75vmin, 480px);
+  width: clamp(300px, 90vmin, 900px);
   margin: 0 auto;
 }
 .board-grid {
@@ -101,7 +101,7 @@ body {
 
   /* Stronger centering for the board wrapper on mobile */
   .board-wrapper {
-    width: clamp(240px, 90vw, 480px) !important;
+    width: clamp(240px, 90vw, 700px) !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }

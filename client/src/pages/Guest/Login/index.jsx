@@ -1,9 +1,10 @@
 // Route: /login
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useLogin } from "@/pages/Guest/Login/hook/useLogin.hook.js";
 import { LockoutWarning, AuthMessage } from "./sub-components";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -15,13 +16,19 @@ export default function LoginPage() {
         toggleShowPassword,
         loading,
         message,
-        failedAttempts,
         isLocked,
-        lockoutCountdown,
         handleSubmit,
-        handleGuestLogin,
         handleRegisterNav,
     } = useLogin();
+
+    const [searchParams] = useSearchParams();
+    const reason = searchParams.get('reason');
+
+    useEffect(() => {
+        if (reason === 'duplicate') {
+            toast.error("Your account was logged in from another location.", { duration: 5000 });
+        }
+    }, [reason]);
 
     // Redirect based on user role after successful login
     useEffect(() => {

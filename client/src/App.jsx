@@ -9,7 +9,6 @@ import BackgroundMusicController from "@/components/reusable/sound/BackgroundMus
 function App() {
     const checkAuth = useAuthStore((state) => state.checkAuth);
     const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-
     // checkAuth once time when running the web
     useEffect(() => {
         checkAuth();
@@ -36,7 +35,6 @@ function App() {
         const handleForceLogout = (event) => {
             const payload = event.detail || {};
             const message = payload.message || 'Your account was logged in from another location.';
-            
             // Show toast notification with slightly longer duration for readability
             toast.error(message, { duration: 5000 });
         };

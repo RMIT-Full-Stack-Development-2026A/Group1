@@ -1,10 +1,13 @@
 import React from 'react';
 import { renderOMarker, renderXMarker } from '@/utils/markerRenderer';
+import { useModeStore } from '@/stores/ai/ModeStore'
 
 const GridCell = ({ value, markerVariant, p1MarkerVariant, p2MarkerVariant, cellBorderClass, isWinCell, onClick, disabled, player1Mark, player2Mark }) => {
     const borderClass = cellBorderClass ?? 'border-r border-b border-[#2a2a4e]';
     const resolvedP1MarkerVariant = p1MarkerVariant ?? markerVariant;
     const resolvedP2MarkerVariant = p2MarkerVariant ?? markerVariant;
+
+    const { gameMode } = useModeStore();
 
     return (
         <>
@@ -67,20 +70,30 @@ const GridCell = ({ value, markerVariant, p1MarkerVariant, p2MarkerVariant, cell
                     relative z-10 flex items-center justify-center w-full h-full
                     ${isWinCell ? 'win-marker-master' : 'scale-100 transition-transform duration-300'}
                 `}>
-                    {value === player1Mark && (
-                        player1Mark === 'X' 
-                            // Render X marker if player1Mark is exactly 'X'
-                            ? renderXMarker(resolvedP1MarkerVariant, "w-28 h-20 flex items-center justify-center") 
-                            // Render O marker otherwise
-                            : renderOMarker(resolvedP1MarkerVariant, "w-28 h-20 flex items-center justify-center")
-                        )}
-                    {value === player2Mark && (
-                        player2Mark === 'X' 
-                            // Render X marker if player2Mark is exactly 'X'
-                            ? renderXMarker(resolvedP2MarkerVariant, "w-28 h-20 flex items-center justify-center") 
-                            // Render O marker otherwise
-                            : renderOMarker(resolvedP2MarkerVariant, "w-28 h-20 flex items-center justify-center")
-                        )}
+                    {gameMode === "ONLINE_MATCH" ? (
+                        <>
+                        {value === player1Mark && (
+                            player1Mark === 'X' 
+                                // Render X marker if player1Mark is exactly 'X'
+                                ? renderXMarker(resolvedP1MarkerVariant, "w-28 h-20 flex items-center justify-center") 
+                                // Render O marker otherwise
+                                : renderOMarker(resolvedP1MarkerVariant, "w-28 h-20 flex items-center justify-center")
+                            )}
+                        {value === player2Mark && (
+                            player2Mark === 'X' 
+                                // Render X marker if player2Mark is exactly 'X'
+                                ? renderXMarker(resolvedP2MarkerVariant, "w-28 h-20 flex items-center justify-center") 
+                                // Render O marker otherwise
+                                : renderOMarker(resolvedP2MarkerVariant, "w-28 h-20 flex items-center justify-center")
+                            )}
+                        </>
+                    ) : (
+                        <>
+                        {value === 'X' && renderXMarker(resolvedP1MarkerVariant, "w-28 h-20 flex items-center justify-center")}
+                        {value === 'O' && renderOMarker(resolvedP2MarkerVariant, "w-28 h-20 flex items-center justify-center")}
+                        </>
+                    )} 
+                    
                 </div>
             </div>
         </>

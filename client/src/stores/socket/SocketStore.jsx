@@ -76,6 +76,7 @@ export const useSocketStore = create((set, get) => ({
             
             // Clear auth state and cookies
             void useAuthStore.getState().logout();
+            window.location.href = '/login?reason=duplicate';
         });
 
         // Catch Authentication Errors triggered by socketAuthMiddleware

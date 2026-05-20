@@ -2,8 +2,10 @@ import React from "react";
 import RoomCard from "./RoomCard";
 
 export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserId, pagination, onPageChange }) {
-    // Ensure rooms is always an array
+    // Đảm bảo rooms luôn là một mảng
     const roomList = Array.isArray(rooms) ? rooms : [];
+    const hasRooms = roomList.length > 0;
+
     const itemsPerPage = pagination?.limit || 5;
     const totalPages = Math.max(1, Math.ceil((pagination?.total || roomList.length || 0) / itemsPerPage));
     const currentPage = Math.min(pagination?.page || 1, totalPages);
@@ -33,50 +35,66 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
 
     return (
         <div className="flex flex-col w-full flex-1 min-h-0">
-            {/* Room Grid: horizontally scrollable on small screens */}
-            <div className="flex-1 overflow-x-auto md:overflow-visible -mx-4 px-4 py-2">
-                <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 auto-rows-max">
-                    {roomList.map((room) => (
-                        <div key={room.id} className="min-w-[260px] md:min-w-0">
-                            <RoomCard room={room} onJoin={onJoinRoom} currentUserId={currentUserId} />
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Empty State - Centered */}
-            {roomList.length === 0 && (
-                <div className="flex-1 min-h-[28rem] flex items-center justify-center py-16">
-                    <div className="text-center">
-                        <p className="font-mono text-[#879398] text-sm">
-                            NO AVAILABLE ROOMS RIGHT NOW
-                        </p>                  
+            
+            {/* 1. Khu vực hiển thị Grid Phòng - Chỉ hiện khi CÓ phòng */}
+            {hasRooms && (
+                <div className="flex-1 overflow-x-auto md:overflow-visible -mx-4 px-4 py-2">
+                    <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 auto-rows-max">
+                        {roomList.map((room) => (
+                            <div key={room.id} className="min-w-[260px] md:min-w-0">
+                                <RoomCard room={room} onJoin={onJoinRoom} currentUserId={currentUserId} />
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
 
-            {pagination && pagination.total > 0 && (
-                <div className="p-6 flex flex-col md:flex-row justify-between items-center">
-                    <p className="text-[10px] font-bold text-outline">
-                        SHOWING {showFrom}-
-                        {showTo} OF {pagination.total} ROOMS
+            {!hasRooms && (
+                <div className="flex-1 flex items-center justify-center px-6 py-12">
+                    <div className="text-center bg-surface-container-low border border-dashed border-outline/40 px-12 py-16 shadow-inner max-w-lg w-full">
+                        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-surface-container-highest border border-outline-variant mb-6">
+                             <svg className="w-8 h-8 text-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 012 2H5a2 2 0 012-2v6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+
+                        <p className="font-headline text-[#fad100] text-on-surface text-base tracking-wider font-bold mb-3">
+                            NO AVAILABLE ROOMS
+                        </p>
+                        <p className="text-outline text-sm mb-10 max-w-xs mx-auto">
+                            LOOKS LIKE ALL ROOM ARE FULL
+                        </p>
+
+                        <button
+                            onClick={onCreateRoom}
+                            className="px-8 h-12 border border-outline-variant cursor-pointer bg-[#4dc9ed] text-black font-bold text-sm hover:bg-primary/90 transition-all active:scale-95 shadow-md flex items-center gap-2 mx-auto"
+                        >
+                            <span className="text-lg">+</span> CREATE NEW ONE NOW
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 3. Phân trang - Giữ nguyên thiết kế đẹp từ trước */}
+            {pagination && pagination.total > 0 && hasRooms && (
+                <div className="mt-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-outline-variant/30">
+                    <p className="text-[11px] font-semibold text-outline tracking-wider">
+                        SHOWING <span className="text-on-surface font-bold">{showFrom}</span> - <span className="text-on-surface font-bold">{showTo}</span> OF <span className="text-on-surface font-bold">{pagination.total}</span> ROOMS
                     </p>
-                    <div className="flex gap-2 flex-wrap justify-center">
+                    
+                    <div className="flex gap-1.5 items-center flex-wrap justify-center">
                         <button
                             onClick={() => onPageChange?.(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center px-3 h-8 rounded-md bg-surface-container-highest border border-outline-variant text-xs font-medium hover:border-outline hover:text-on-secondary transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                         >
-                            PREV
+                            <span className="mr-1">&laquo;</span> PREV
                         </button>
 
                         {(() => {
-                            // Generate smart pagination: [1] ... [current-1] [current] [current+1] ... [last]
                             const pages = [];
                             const range = 1;
-
                             pages.push(1);
-
                             const rangeStart = Math.max(2, currentPage - range);
                             const rangeEnd = Math.min(totalPages - 1, currentPage + range);
 
@@ -112,17 +130,17 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
                                                     setShowJumpInput(false);
                                                     setJumpToPage("");
                                                 }}
-                                                className="w-9 px-2 py-1 text-xs bg-primary-container border border-primary-container text-on-primary outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                className="w-10 h-8 px-1 rounded-md text-xs bg-surface border-2 border-primary-container text-on-surface outline-none text-center shadow-sm focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             />
                                         </div>
                                     ) : (
                                         <button
                                             key={`ellipsis-${idx}`}
                                             onClick={() => setShowJumpInput(true)}
-                                            className="px-3 py-1 text-xs text-outline/50 hover:text-primary transition-colors cursor-pointer hover:bg-surface-container-highest border border-outline-variant rounded"
+                                            className="flex items-center justify-center min-w-[32px] h-8 rounded-md text-xs text-outline hover:text-on-secondary hover:bg-surface-container-highest transition-colors cursor-pointer"
                                             title="Click to jump to a page"
                                         >
-                                            ...
+                                            &hellip;
                                         </button>
                                     );
                                 }
@@ -131,10 +149,10 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
                                     <button
                                         key={pageNum}
                                         onClick={() => onPageChange?.(pageNum)}
-                                        className={`px-3 py-1 text-xs active:translate-y-0.5 font-bold transition-all ${
+                                        className={`flex items-center justify-center min-w-[32px] px-1 h-8 rounded-md text-xs font-semibold transition-all duration-200 active:scale-95 ${
                                             currentPage === pageNum
-                                                ? "bg-primary-container text-on-primary border-2 border-primary-container shadow-[0_0_12px_rgba(76,201,240,0.6)] scale-105"
-                                                : "bg-surface-container-highest border border-outline hover:bg-outline hover:text-on-secondary"
+                                                ? "bg-primary-container text-on-primary border-2 border-primary-container shadow-sm scale-110 pointer-events-none"
+                                                : "bg-surface-container-highest border border-outline-variant hover:border-outline hover:text-on-secondary"
                                         }`}
                                     >
                                         {String(pageNum).padStart(2, "0")}
@@ -146,9 +164,9 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
                         <button
                             onClick={() => onPageChange?.(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center px-3 h-8 rounded-md bg-surface-container-highest border border-outline-variant text-xs font-medium hover:border-outline hover:text-on-secondary transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                         >
-                            NEXT
+                            NEXT <span className="ml-1">&raquo;</span>
                         </button>
                     </div>
                 </div>

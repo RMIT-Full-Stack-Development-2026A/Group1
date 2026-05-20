@@ -69,8 +69,8 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
     : 'border-outline-variant text-outline';
 
   return (
-    <div
-      className={`w-[260px] py-4 shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-all duration-700
+      <div
+      className={`w-full md:w-[260px] py-4 md:shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-all duration-700
         ${side === 'left'
           ? 'border-r border-[#3d484d]'
           : 'border-l border-[#3d484d]'}

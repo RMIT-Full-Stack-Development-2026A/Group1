@@ -7,17 +7,6 @@ import ReadyButton from './ReadyButton';
 import MarkerStyleSelector from './MarkerStyleSelector';
 import Footer from '@/components/reusable/Footer';
 
-// function MatchConfigChip({ label, value }) {
-//   return (
-//     <div
-//       className="flex flex-col items-center gap-1 px-4 py-2 bg-surface-container-high border-t-2 border-t-primary border border-outline-variant/60 min-w-[80px]"
-//     >
-//       <span className="font-mono text-[7px] text-outline uppercase tracking-widest whitespace-nowrap">{label}</span>
-//       <span className="font-headline text-[8px] text-on-surface-variant whitespace-nowrap">{value}</span>
-//     </div>
-//   );
-// }
-
 export default function GameRoom({ roomData, currentUserId, onReady, onLeave, onSetFirstTurn, onSetMarkerStyle, disconnectCountdown }) {
   const host = roomData?.participants?.[0] || null;
   const guest = roomData?.participants?.[1] || null;
@@ -32,9 +21,12 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
   const { play: playClick } = useButtonSound(AUDIO_FILES.BUTTON_CLICK);
   
   const firstTurnIndex = roomData?.firstTurnParticipantIndex ?? 0;
-  const firstPlayerMark = firstTurnIndex === 0 ? 'X' : 'O';
+  const firstPlayerMark = roomData?.participants?.[firstTurnIndex]?.mark ?? 'X';
   const canChangeMarkerStyle = roomData?.status === 'WAITING' || roomData?.status === 'READY';
-  const currentMarkerStyle = myParticipant?.markerStyle ?? 'CLASSIC';
+  const hostMarkerStyle = host?.markerStyle ?? 'CLASSIC';
+  const guestMarkerStyle = guest?.markerStyle ?? 'CLASSIC';
+  const canHostEditMarker = canChangeMarkerStyle && host?.userId === currentUserId;
+  const canGuestEditMarker = canChangeMarkerStyle && guest?.userId === currentUserId;
 
   const resolveAvatarUrl = (participant) => {
     if (!participant) return null;
@@ -73,20 +65,22 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
         <div className="h-1 w-24 bg-primary-cyan" />
       </div>
 
-      <div className="flex-1 flex items-center overflow-hidden min-h-0 px-6 gap-4">
-        <div className="flex flex-col items-center gap-3">
-          <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={host?.markerStyle ?? 'CLASSIC'} markerVariantKey={host?.markerStyle ?? 'CLASSIC'} />
+      <div className="flex-1 flex flex-col md:flex-row items-start md:items-center overflow-auto md:overflow-hidden min-h-0 px-4 md:px-6 gap-4">
+        <div className="flex flex-col items-center gap-3 w-full md:w-[260px] shrink-0">
+          <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={hostMarkerStyle} markerVariantKey={hostMarkerStyle} />
 
-          {host?.userId === currentUserId && canChangeMarkerStyle && (
+          {host && (
             <MarkerStyleSelector
-              selectedMarkerStyle={currentMarkerStyle}
+              selectedMarkerStyle={hostMarkerStyle}
               onSelect={onSetMarkerStyle}
+              title={host?.userId === currentUserId ? 'YOUR MARKER STYLE' : `${host.usernameSnapshot} STYLE`}
+              disabled={!canHostEditMarker}
             />
           )}
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container overflow-hidden gap-3">
-          <div className="flex flex-col items-center gap-2 flex-none">
+        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container overflow-visible md:overflow-hidden gap-3 w-full min-w-0">
+          <div className="flex flex-col items-center gap-2 flex-none w-full">
             <span className="font-headline text-[36px] text-[#fad100]">VS</span>
            
             {/* Ready counter badge */}
@@ -97,7 +91,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-full max-w-75 flex-none">
+          <div className="flex flex-col gap-2 w-full md:max-w-75 flex-none">
             {/* Gold section label — matches GameCustomization section header style */}
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1 h-5 bg-[#fad100]" />
@@ -118,12 +112,12 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </div>
 
             {/* STYLE + MARKER side by side */}
-            <div className="flex gap-2">
-              <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342]">
+            <div className="flex flex-col md:flex-row gap-2 w-full">
+              <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] w-full">
                 <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">STYLE</span>
                 <span className="font-headline text-sm text-[#4cc9f0]">{roomData?.boardStyle || 'JUNGLE'}</span>
               </div>
-              <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342]">
+              <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] w-full">
                   <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">ROOM DEFAULT</span>
                   <span className="font-headline text-sm text-primary-cyan">{roomData?.markerStyle || 'CLASSIC'}</span>
               </div>
@@ -132,7 +126,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             {/* FIRST MOVE - Toggle for host only */}
             <button
               onClick={handleToggleFirstTurn}
-              disabled={!isHost}
+              disabled={!isHost || roomData?.status === "WAITING"}
               className={`flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] transition-all ${
                 isHost
                   ? 'cursor-pointer hover:bg-[#252535] hover:border-primary-cyan active:translate-y-0.5'
@@ -150,7 +144,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-3 w-full max-w-65 flex-none min-h-35">
+          <div className="flex flex-col items-center gap-3 w-full md:max-w-65 flex-none min-h-35">
             <div className="flex items-center justify-center gap-4 w-full">
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -174,13 +168,15 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-3">
-          <PlayerCard participant={guest} isCurrentUser={guest?.userId === currentUserId} side="right" avatarUrl={guestAvatarUrl} markerStyle={guest?.markerStyle ?? 'CLASSIC'} markerVariantKey={guest?.markerStyle ?? 'CLASSIC'} />
+        <div className="flex flex-col items-center gap-3 w-full md:w-[260px] shrink-0">
+          <PlayerCard participant={guest} isCurrentUser={guest?.userId === currentUserId} side="right" avatarUrl={guestAvatarUrl} markerStyle={guestMarkerStyle} markerVariantKey={guestMarkerStyle} />
 
-          {guest?.userId === currentUserId && canChangeMarkerStyle && (
+          {guest && (
             <MarkerStyleSelector
-              selectedMarkerStyle={currentMarkerStyle}
+              selectedMarkerStyle={guestMarkerStyle}
               onSelect={onSetMarkerStyle}
+              title={guest?.userId === currentUserId ? 'YOUR MARKER STYLE' : `${guest.usernameSnapshot} STYLE`}
+              disabled={!canGuestEditMarker}
             />
           )}
         </div>

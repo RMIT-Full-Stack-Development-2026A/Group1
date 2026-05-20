@@ -4,6 +4,8 @@ import { AuthDTO } from "../dtos/auth.dto.js";
 import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput,  validateRegisterConflicts } from "../validators/auth.validator.js";
 import { RoomInterface } from "../../room/interfaces/room.interface.js";
+import { eventBus } from "../../../utils/eventBus.util.js";
+import { SYSTEM_EVENTS } from "../../../utils/constants/event.containts.js";
 
 // Service contains auth business rules and throws standardized errors for errorMiddleware.
 export const AuthService = {
@@ -116,6 +118,7 @@ export const AuthService = {
             AuthRepository.updateLastLogin(user._id)
         ]);
 
+        eventBus.publish(SYSTEM_EVENTS.DUPLICATE_LOGIN, { userId: user._id.toString() });
         generateTokenAndSetCookie(res, user._id, user.role, user.isPremium);
 
         const safeUser = await AuthRepository.findById(user._id);

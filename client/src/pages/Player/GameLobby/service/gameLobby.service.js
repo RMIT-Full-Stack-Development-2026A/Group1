@@ -95,11 +95,21 @@ export const gameLobbyService = {
             
             console.log('[Game Lobby Service] Fetched rooms:', response);
             
-            return response.data?.items || [];
+            return response?.data || response || {
+                items: [],
+                total: 0,
+                page: 1,
+                limit: 20,
+            };
         } catch (error) {
             console.error('[Game Lobby Service] Failed to fetch rooms:', error);
-            // Return empty array as fallback for now (rooms endpoint not yet implemented)
-            return [];
+            // Return empty paginated payload as fallback for now (rooms endpoint not yet implemented)
+            return {
+                items: [],
+                total: 0,
+                page: 1,
+                limit: 20,
+            };
         }
     },
 

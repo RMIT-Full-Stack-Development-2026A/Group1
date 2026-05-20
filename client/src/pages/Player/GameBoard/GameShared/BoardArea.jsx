@@ -11,8 +11,10 @@ const BoardArea = ({
     board,
     boardSize,
     markerVariant,
-    xMarkerVariant,
-    oMarkerVariant,
+    p1MarkerVariant,
+    p2MarkerVariant,
+    player1Mark,
+    player2Mark,
     theme = getTheme('jungle'),
     winnerData,
     isDraw,
@@ -32,7 +34,7 @@ const BoardArea = ({
         <section className="flex-1 flex items-center justify-center">
             <ScanLines />
             <div
-                className={`${theme.boardWrapper} p-3 grid aspect-square w-full max-w-150`}
+                className={`${theme.boardWrapper} board-wrapper p-3 grid aspect-square`}
                 style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
             >
                 {/* Top labels */}
@@ -51,7 +53,7 @@ const BoardArea = ({
 
                 {/* Main cell grid */}
                 <div
-                    className={`col-start-2 row-start-2 grid ${theme.boardBorder}`}
+                    className={`col-start-2 row-start-2 grid board-grid ${theme.boardBorder}`}
                     style={{
                         gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))`,
                         boxShadow: theme.boardGlow,
@@ -63,8 +65,10 @@ const BoardArea = ({
                                 key={`${rowIndex}-${colIndex}`}
                                 value={cellValue}
                                 markerVariant={markerVariant}
-                                xMarkerVariant={xMarkerVariant}
-                                oMarkerVariant={oMarkerVariant}
+                                p1MarkerVariant={p1MarkerVariant}
+                                p2MarkerVariant={p2MarkerVariant}
+                                player1Mark={player1Mark}
+                                player2Mark={player2Mark}
                                 cellBorderClass={theme.cellBorder}
                                 isWinCell={winnerData?.cells?.some(([r, c]) => r === rowIndex && c === colIndex) ?? false}
                                 onClick={() => {

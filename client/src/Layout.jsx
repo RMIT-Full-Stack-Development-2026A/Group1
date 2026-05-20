@@ -47,10 +47,11 @@ export default function Layout({ children }) {
 
     if (isImmersive) {
         // Game board: no nav, no footer, no padding — pure full-screen shell
+        // On small screens allow scrolling inside the main area so tall side panels are reachable
         return (
-            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-hidden">
+            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto md:overflow-hidden">
                 <div className="scanlines"></div>
-                <main className="flex-1 overflow-hidden">
+                <main className="flex-1 overflow-auto md:overflow-hidden">
                     {children}
                 </main>
             </div>
@@ -60,7 +61,7 @@ export default function Layout({ children }) {
     if (isConstrained) {
         // Viewport-fit pages: nav visible, no footer, content fills below nav
         return (
-            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-hidden">
+            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto md:overflow-hidden">
                 <Navigation />
                 <div className="scanlines"></div>
                 <main className="flex-1 pt-16 overflow-auto">

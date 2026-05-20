@@ -251,7 +251,7 @@ const GameBoard = () => {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden relative">
+  <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-auto md:overflow-hidden relative">
       {theme.bgImage && (
         <div
           aria-hidden="true"
@@ -278,7 +278,7 @@ const GameBoard = () => {
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex overflow-hidden px-6 gap-6 items-center justify-center font-mono max-w-[1400px] w-full mx-auto">
+      <main className="relative z-10 flex-1 flex flex-col md:flex-row overflow-auto px-6 gap-6 items-start md:items-center justify-start md:justify-center md:pt-0 font-mono max-w-[1400px] w-full mx-auto responsive-game-layout">
         {!gameOver && (
           <div className="fixed top-20 right-6 z-50">
             <button
@@ -290,17 +290,20 @@ const GameBoard = () => {
             </button>
           </div>
         )}
-        <PlayerPanel
-          role="X"
-          playerName={playersInfo[0].usernameSnapshot}
-          isBot={false}
-          isActive={currentPlayer === "X" && !gameOver}
-          avatarUrl={userAvatarUrl}
-          markerVariantData={markerVariantDataX}
-          gameOver={gameOver}
-        />
+        <div className="w-full md:w-[260px] flex-none player-column">
+          <PlayerPanel
+            role="X"
+            playerName={playersInfo[0].usernameSnapshot}
+            isBot={false}
+            isActive={currentPlayer === "X" && !gameOver}
+            avatarUrl={userAvatarUrl}
+            markerVariantData={markerVariantDataX}
+            gameOver={gameOver}
+          />
+        </div>
 
-        <BoardArea
+        <div className="flex-1 flex items-center justify-center board-column">
+          <BoardArea
           xMarkerVariant={markerVariantX ?? markerVariant}
           oMarkerVariant={markerVariantO ?? markerVariant}
           gridStyle={gridStyle}
@@ -315,7 +318,8 @@ const GameBoard = () => {
           onReset={resetGame}
           onSizeChange={setBoardSize}
           onMarkerChange={handleMarkerChange}
-        />
+          />
+        </div>
 
         {isChatEnabled && (
           <ChatOverlay
@@ -334,15 +338,17 @@ const GameBoard = () => {
           />
         )}
 
-        <PlayerPanel
-          role="O"
-          playerName={playersInfo[1].usernameSnapshot}
-          isBot={isBotMatch}
-          isActive={currentPlayer === "O" && !gameOver}
-          difficulty={isBotMatch ? aiDifficulty : undefined}
-          markerVariantData={markerVariantDataO}
-          gameOver={gameOver}
-        />
+        <div className="w-full md:w-[260px] flex-none player-column">
+          <PlayerPanel
+            role="O"
+            playerName={playersInfo[1].usernameSnapshot}
+            isBot={isBotMatch}
+            isActive={currentPlayer === "O" && !gameOver}
+            difficulty={isBotMatch ? aiDifficulty : undefined}
+            markerVariantData={markerVariantDataO}
+            gameOver={gameOver}
+          />
+        </div>
       </main>
 
       {showWinOverlay && (

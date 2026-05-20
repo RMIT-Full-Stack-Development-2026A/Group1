@@ -1,5 +1,5 @@
 // Route: /lobby
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth/AuthStore";
 import { useModeStore } from "@/stores/ai/ModeStore";
@@ -11,7 +11,13 @@ export default function GameLobby() {
     const { user } = useAuthStore();
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setGameMode } = useModeStore();
-    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby } = useLobby();
+    const [page, setPage] = useState(1);
+    const [showWaitingOnly, setShowWaitingOnly] = useState(true);
+    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby, pagination } = useLobby({
+        page,
+        limit: 5,
+        waitingOnly: showWaitingOnly,
+    });
 
     // Redirect to landing page if not logged in (but wait for auth check to complete)
     useEffect(() => {
@@ -60,6 +66,12 @@ export default function GameLobby() {
     const activePlayingRoom = rooms.find(
         (r) => r.status === 'playing' && Array.isArray(r.participantIds) && r.participantIds.includes(String(user?.id))
     );
+
+    const visibleRooms = useMemo(() => {
+        if (!showWaitingOnly) return rooms;
+
+        return rooms.filter((room) => String(room.status || '').toLowerCase() === 'waiting');
+    }, [rooms, showWaitingOnly]);
 
     if (isCheckingAuth || lobbyLoading) {
         return (
@@ -144,16 +156,23 @@ export default function GameLobby() {
                     onCreateRoom={handleCreateRoom}
                     onQuickJoin={handleQuickJoin}
                     onRefreshLobby={refreshLobby}
+                    showWaitingOnly={showWaitingOnly}
+                    onToggleShowWaitingOnly={() => {
+                        setShowWaitingOnly((value) => !value);
+                        setPage(1);
+                    }}
                 />
 
                 {/* Room Grid */}
                 <RoomGrid
-                    rooms={rooms}
+                    rooms={visibleRooms}
                     onJoinRoom={handleJoinRoom}
                     onCreateRoom={handleCreateRoom}
                     currentUserId={user?.id}
+                    pagination={pagination}
+                    onPageChange={setPage}
                 />
-                <div className="fixed bottom-3 right-5 z-0 pointer-events-none select-none opacity-40">
+                <div className="fixed bottom-15 right-5 z-0 pointer-events-none select-none opacity-40">
                     <span className="font-headline text-[12px] tracking-widest text-[#fad100] uppercase">
                         refresh for newest room
                     </span>

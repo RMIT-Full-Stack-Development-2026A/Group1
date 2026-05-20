@@ -8,15 +8,41 @@ import { useState, useEffect } from "react";
 import { useSocketStore } from "@/stores/socket/SocketStore";
 import { LobbyService } from "../service/lobby.service";
 
-export const useLobby = () => {
+export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
     const [rooms, setRooms] = useState([]);
     const [recentActivity, setRecentActivity] = useState([]);
     const [onlineCount, setOnlineCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [usingMockData, setUsingMockData] = useState(false);
+    const [pagination, setPagination] = useState({ page, limit, total: 0 });
     const socket = useSocketStore((state) => state.socket);
     const isConnected = useSocketStore((state) => state.isConnected);
+
+    const loadLobbyData = async () => {
+        const roomsData = await LobbyService.getRooms({
+            page,
+            limit,
+            status: waitingOnly ? 'WAITING' : undefined,
+        });
+
+        const activityData = await LobbyService.getRecentActivity();
+
+        const normalizedRooms = roomsData?.items || [];
+
+        const isMockData = roomsData?.total === LobbyService._getMockRooms().length ||
+                           (Array.isArray(normalizedRooms) && normalizedRooms[0]?.roomNumber === 42);
+
+        setUsingMockData(isMockData);
+        setRooms(normalizedRooms);
+        setRecentActivity(activityData || []);
+        setOnlineCount(roomsData?.total ?? normalizedRooms.length ?? 0);
+        setPagination({
+            page: roomsData?.page ?? page,
+            limit: roomsData?.limit ?? limit,
+            total: roomsData?.total ?? normalizedRooms.length ?? 0,
+        });
+    };
 
     // Initialize lobby data from backend
     useEffect(() => {
@@ -27,31 +53,13 @@ export const useLobby = () => {
                 setUsingMockData(false);
                 
                 console.log('[useLobby] Initializing lobby data...');
-                
-                // Fetch all data in parallel
-                const [roomsData, activityData] = await Promise.all([
-                    LobbyService.getRooms(),
-                    LobbyService.getRecentActivity(),
-                ]);
 
-                console.log('[useLobby] Data fetched:', {
-                    roomsData,
-                    activityData,
-                });
-
-                // Check if we're using mock data
-                const isMockData = roomsData === LobbyService._getMockRooms() || 
-                                   (Array.isArray(roomsData) && roomsData[0]?.roomNumber === 42);
-                setUsingMockData(isMockData);
-
-                setRooms(roomsData || []);
-                setRecentActivity(activityData || []);
-                setOnlineCount(LobbyService.getOnlineCount(roomsData || []));
+                await loadLobbyData();
                 
                 console.log('[useLobby] Lobby initialized:', {
-                    roomsCount: (roomsData || []).length,
-                    activityCount: (activityData || []).length,
-                    usingMock: isMockData,
+                    page,
+                    limit,
+                    waitingOnly,
                 });
             } catch (err) {
                 console.error("[useLobby] Failed to load lobby data:", err);
@@ -65,7 +73,7 @@ export const useLobby = () => {
         };
 
         initializeLobby();
-    }, []);
+    }, [page, limit, waitingOnly]);
 
     useEffect(() => {
         if (!socket || !isConnected) return;
@@ -81,7 +89,7 @@ export const useLobby = () => {
                 if (!ACTIVE_LOBBY_STATUSES.includes(normalizedRoom.status)) {
                     // Terminal status (aborted, closed) — remove from list
                     const filteredRooms = currentRooms.filter((r) => r.id !== normalizedRoom.id);
-                    setOnlineCount(LobbyService.getOnlineCount(filteredRooms));
+                    setOnlineCount((prev) => Math.max(0, prev - 1));
                     return filteredRooms;
                 }
 
@@ -92,7 +100,10 @@ export const useLobby = () => {
                         existingRoom.id === normalizedRoom.id ? { ...existingRoom, ...normalizedRoom } : existingRoom
                     ));
 
-                setOnlineCount(LobbyService.getOnlineCount(nextRooms));
+                if (existingIndex === -1) {
+                    setOnlineCount((prev) => prev + 1);
+                }
+
                 return nextRooms;
             });
         };
@@ -102,7 +113,7 @@ export const useLobby = () => {
 
             setRooms((prevRooms) => {
                 const nextRooms = (Array.isArray(prevRooms) ? prevRooms : []).filter((room) => room.id !== roomId);
-                setOnlineCount(LobbyService.getOnlineCount(nextRooms));
+                setOnlineCount((prev) => Math.max(0, prev - 1));
                 return nextRooms;
             });
         };
@@ -123,14 +134,7 @@ export const useLobby = () => {
     const refreshLobby = async () => {
         try {
             setLoading(true);
-            const [roomsData, activityData] = await Promise.all([
-                LobbyService.getRooms(),
-                LobbyService.getRecentActivity(),
-            ]);
-
-            setRooms(roomsData);
-            setRecentActivity(activityData);
-            setOnlineCount(LobbyService.getOnlineCount(roomsData));
+            await loadLobbyData();
             setError(null);
         } catch (err) {
             console.error("[useLobby] Failed to refresh lobby:", err);
@@ -148,6 +152,7 @@ export const useLobby = () => {
         loading,
         error,
         usingMockData,
+        pagination,
         refreshLobby,
     };
 };

@@ -9,12 +9,12 @@ import BackgroundMusicController from "@/components/reusable/sound/BackgroundMus
 function App() {
     const checkAuth = useAuthStore((state) => state.checkAuth);
     const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-
     // checkAuth once time when running the web
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
 
+    // Handle account deactivation
     useEffect(() => {
         const handleAccountDeactivated = (event) => {
             const payload = event.detail || {};

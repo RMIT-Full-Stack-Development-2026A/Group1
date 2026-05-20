@@ -56,4 +56,4 @@ export const GAME_THEMES = {
     },
 };
 
-export const getTheme = (gridStyle) => GAME_THEMES[gridStyle.toLowerCase()] ?? GAME_THEMES.jungle;
+export const getTheme = (gridStyle) => GAME_THEMES[gridStyle.toUpperCase()] ?? GAME_THEMES.jungle;

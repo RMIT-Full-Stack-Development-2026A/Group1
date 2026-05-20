@@ -47,12 +47,18 @@ export default function GameSessionCard({ session }) {
   const finalResultLabel = statusKey === "ABORTED" ? "ABORTED" : "FINISHED";
   const boardSizeLabel = session.boardSize ? `${session.boardSize} BOARD` : "BOARD";
 
+  const getInitials = (value) => {
+    const letters = String(value || "").match(/[A-Za-z]/g) || [];
+    if (letters.length === 0) return "?";
+    return letters.slice(0, 2).join("").toUpperCase();
+  };
+
   const renderAvatar = (src, alt) => {
     if (src) {
       return <img src={src} alt={alt || "Player"} className="h-full w-full object-cover" />;
     }
 
-    return <span className="material-symbols-outlined text-primary-cyan">person</span>;
+    return <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-primary-cyan">{getInitials(alt)}</span>;
   };
 
   const hasParticipants = Array.isArray(session.participants) && session.participants.length >= 2;

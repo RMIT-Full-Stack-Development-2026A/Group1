@@ -45,7 +45,7 @@ const getParticipantName = (participant, fallback) => {
   return participant?.usernameSnapshot || participant?.username || participant?.name || fallback;
 };
 
-const normalizeRoom = (room, snapshotNow = Date.now()) => {
+const normalizeRoom = (room) => {
   const status = String(room.status || "").toUpperCase();
   const participants = Array.isArray(room.participants) ? room.participants : [];
   const playerOne = getParticipantName(participants[0], "PLAYER 1");
@@ -65,7 +65,6 @@ const normalizeRoom = (room, snapshotNow = Date.now()) => {
 
   const startTimeValue = room.startedAt || room.startTime || room.createdAt;
   const endTimeValue = room.endedAt || room.endTime;
-  const activeDurationValue = formatDuration(startTimeValue || room.createdAt, snapshotNow);
 
   return {
     ...room,
@@ -77,13 +76,15 @@ const normalizeRoom = (room, snapshotNow = Date.now()) => {
     canClose: !isClosed,
     startTimeDisplay: formatDateTime(startTimeValue),
     endTimeLabel: isClosed ? "End time" : "Active duration (HH:MM:SS)",
-    endTimeDisplay: isClosed ? formatDateTime(endTimeValue) : activeDurationValue,
+    startTimeValue,
+    endTimeValue,
     playerTwoName: isWaiting ? "WAITING" : playerTwo,
   };
 };
 
 export const useGameRoomMonitor = () => {
   const [rooms, setRooms] = useState([]);
+  const [now, setNow] = useState(() => Date.now());
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -94,12 +95,11 @@ export const useGameRoomMonitor = () => {
   const fetchRooms = useCallback(async () => {
     try {
       setLoading(true);
-      const snapshotNow = Date.now();
       const response = await gameRoomMonitorService.getRooms({ page: 1, limit: 100 });
       const payload = response?.data || response || {};
       const items = Array.isArray(payload.items) ? payload.items : [];
 
-      setRooms(items.map((room) => normalizeRoom(room, snapshotNow)));
+      setRooms(items.map(normalizeRoom));
       setError(null);
     } catch (err) {
       setRooms([]);
@@ -113,14 +113,39 @@ export const useGameRoomMonitor = () => {
     fetchRooms();
   }, [fetchRooms]);
 
+  useEffect(() => {
+    const timerId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, []);
+
+  const displayRooms = useMemo(
+    () => rooms.map((room) => {
+      if (room.status === "closed") {
+        return {
+          ...room,
+          endTimeDisplay: formatDateTime(room.endTimeValue),
+        };
+      }
+
+      return {
+        ...room,
+        endTimeDisplay: formatDuration(room.startTimeValue || room.createdAt, now),
+      };
+    }),
+    [rooms, now]
+  );
+
   const filteredRooms = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     if (!normalizedSearch) {
-      return rooms;
+      return displayRooms;
     }
 
-    return rooms.filter((room) => {
+    return displayRooms.filter((room) => {
       const roomNumber = String(room.roomNumber).toLowerCase();
       const playerOne = (room.playerOneName || "").toLowerCase();
       const playerTwo = (room.playerTwoName || "").toLowerCase();
@@ -131,7 +156,7 @@ export const useGameRoomMonitor = () => {
         playerTwo.includes(normalizedSearch)
       );
     });
-  }, [rooms, searchTerm]);
+  }, [displayRooms, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRooms.length / pageSize));
 
@@ -147,11 +172,11 @@ export const useGameRoomMonitor = () => {
     return filteredRooms.slice(startIndex, startIndex + pageSize);
   }, [filteredRooms, page]);
 
-  const totalRooms = rooms.length;
-  const activeRooms = rooms.filter((room) => room.status !== "closed").length;
-  const waitingRooms = rooms.filter((room) => room.status === "waiting").length;
-  const inProgressRooms = rooms.filter((room) => room.status === "in-progress").length;
-  const closedRooms = rooms.filter((room) => room.status === "closed").length;
+  const totalRooms = displayRooms.length;
+  const activeRooms = displayRooms.filter((room) => room.status !== "closed").length;
+  const waitingRooms = displayRooms.filter((room) => room.status === "waiting").length;
+  const inProgressRooms = displayRooms.filter((room) => room.status === "in-progress").length;
+  const closedRooms = displayRooms.filter((room) => room.status === "closed").length;
 
   const resetSearch = () => {
     setSearchTerm("");

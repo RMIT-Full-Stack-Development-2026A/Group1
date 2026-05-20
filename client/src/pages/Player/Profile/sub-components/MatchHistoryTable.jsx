@@ -109,6 +109,12 @@ export default function MatchHistoryTable({
     }
   };
 
+  const getInitials = (value) => {
+    const letters = String(value || "").match(/[A-Za-z]/g) || [];
+    if (letters.length === 0) return "?";
+    return letters.slice(0, 2).join("").toUpperCase();
+  };
+
   const renderOpponentAvatar = (src, alt) => {
     if (src) {
       return (
@@ -122,7 +128,7 @@ export default function MatchHistoryTable({
 
     return (
       <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-outline-variant bg-surface-container-highest text-[10px] font-bold text-outline">
-        ?
+        {getInitials(alt)}
       </div>
     );
   };

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authService } from "../../services/auth/auth.service";
+import { useSocketStore } from '../socket/SocketStore';
 
 // Global flag to ensure checkAuth is only called once per app lifecycle
 let hasInitializedAuth = false;
@@ -71,6 +72,7 @@ export const useAuthStore = create((set) => ({
         } finally {
             // Always clear state on the frontend regardless of API success/failure
             set({ isAuthenticated: false, user: null, isLoading: false });
+            useSocketStore.getState().disconnectSocket();
         }
     },
 
@@ -123,6 +125,7 @@ export const useAuthStore = create((set) => ({
             // (no valid cookie or session expired)
             console.log('[Auth] No valid session, user not authenticated');
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
+            useSocketStore.getState().disconnectSocket();
         }
     },
 
@@ -165,5 +168,4 @@ window.addEventListener('auth:unauthorized', () => {
     if (state.isAuthenticated) {
         state.logout();
     }
-    // Don't use window.location - let React Router handle redirects via ProtectedRoute
 });

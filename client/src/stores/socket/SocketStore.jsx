@@ -60,7 +60,7 @@ export const useSocketStore = create((set, get) => ({
         });
 
         // Handle force logout triggered by a login from another device
-        socketInstance.on('auth:force_logout', (payload = {}) => {
+        socketInstance.on('auth:force_logout', async (payload = {}) => {
             const forceLogoutPayload = {
                 message: payload.reason || 'Your account was logged in from another location.',
                 reason: 'FORCE_LOGOUT',
@@ -71,11 +71,17 @@ export const useSocketStore = create((set, get) => ({
                 detail: forceLogoutPayload,
             }));
 
+            // Tell the backend we are leaving so it can trigger the 60s grace period for the opponent
+            socketInstance.emit('room:leave', { intent: 'navigate_away' });
+            
+            // Wait 200ms to ensure the packet safely reaches the server before TCP disconnect
+            await new Promise(resolve => setTimeout(resolve, 200));
+
             // Disconnect the socket for the old session
             get().disconnectSocket();
             
             // Clear auth state and cookies
-            void useAuthStore.getState().logout();
+            void useAuthStore.getState  ().logout();
             window.location.href = '/login?reason=duplicate';
         });
 

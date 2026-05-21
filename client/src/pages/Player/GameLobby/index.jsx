@@ -12,10 +12,10 @@ export default function GameLobby() {
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { setGameMode } = useModeStore();
     const [page, setPage] = useState(1);
-    const [showWaitingOnly, setShowWaitingOnly] = useState(true);
+    const [showWaitingOnly, setShowWaitingOnly] = useState(false);
     const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby, pagination } = useLobby({
         page,
-        limit: 5,
+        limit: 9,
         waitingOnly: showWaitingOnly,
     });
 

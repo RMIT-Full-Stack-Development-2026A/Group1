@@ -6,7 +6,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
     const roomList = Array.isArray(rooms) ? rooms : [];
     const hasRooms = roomList.length > 0;
 
-    const itemsPerPage = pagination?.limit || 5;
+    const itemsPerPage = pagination?.limit || 9;
     const totalPages = Math.max(1, Math.ceil((pagination?.total || roomList.length || 0) / itemsPerPage));
     const currentPage = Math.min(pagination?.page || 1, totalPages);
     const [jumpToPage, setJumpToPage] = React.useState("");

@@ -10,10 +10,11 @@ export default function Landing() {
     const { isAuthenticated, isCheckingAuth } = useAuthStore();
     const { handlePlayNow, handleLogin } = useLanding();
 
-    // Redirect authenticated users to lobby
+    // Redirect authenticated users to the correct dashboard
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
-            navigate("/lobby", { replace: true });
+            const redirectPath = useAuthStore.getState().user?.role === "ADMIN" ? "/admin" : "/lobby";
+            navigate(redirectPath, { replace: true });
         }
     }, [isCheckingAuth, isAuthenticated, navigate]);
 

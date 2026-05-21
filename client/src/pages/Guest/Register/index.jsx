@@ -84,7 +84,7 @@ export default function RegisterPage() {
                             label="Verify Password"
                             showPassword={form.showConfirmPassword}
                             onToggleShow={() => form.setShowConfirmPassword(!form.showConfirmPassword)}
-                            passwordMismatch={form.showPasswordMismatch}
+                            passwordMismatch={form.passwordMismatch}
                             CriteriaCheckbox={CriteriaCheckbox}
                             disabled={form.loading}
                             isConfirmField={true}

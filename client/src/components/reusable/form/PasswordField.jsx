@@ -84,6 +84,12 @@ const PasswordField = ({
                 </button>
             </div>
 
+            {isConfirmField && passwordMismatch && (
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#ffb4ab] font-bold">
+                    Passwords do not match
+                </p>
+            )}
+
             {/* Show validation criteria only for main password field */}
             {!isConfirmField && passwordValidation && value.length > 0 && (
                 <div className="mt-3 space-y-3">

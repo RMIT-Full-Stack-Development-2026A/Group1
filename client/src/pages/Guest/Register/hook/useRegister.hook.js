@@ -23,12 +23,8 @@ export const useRegister = () => {
             form.setLoading(true);
             form.setMessage({ type: "", text: "" });
 
-            // Show password mismatch error on submit if applicable
-            if (form.passwordMismatch) {
-                form.setShowPasswordMismatch(true);
-                form.setLoading(false);
-                return;
-            }
+                // Show password mismatch error on submit if applicable
+                form.setShowPasswordMismatch(form.passwordMismatch);
 
             try {
                 // Validate form first

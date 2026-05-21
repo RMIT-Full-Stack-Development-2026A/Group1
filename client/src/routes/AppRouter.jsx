@@ -26,7 +26,8 @@ const GameRoomMonitor = lazy(() => import("@/pages/Admin/GameRoomMonitor/index")
 const RedirectAuthenticatedUser = ({ children }) => {
     const { isAuthenticated, user } = useAuthStore();
     if (isAuthenticated && user != null) {
-        return <Navigate to="/lobby" replace />;
+        const redirectPath = user.role === "ADMIN" ? "/admin" : "/lobby";
+        return <Navigate to={redirectPath} replace />;
     }
 
     return children;

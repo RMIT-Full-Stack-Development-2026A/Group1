@@ -193,7 +193,7 @@ function _emitRoomCreate(socket, options, resolve, reject) {
         marker: 'X',
     };
 
-    console.log('[createGameRoom] Emitting room:create via socket:', socketPayload);
+    
 
     const timeout = setTimeout(() => {
         socket.off('room:created', onCreated);
@@ -206,7 +206,7 @@ function _emitRoomCreate(socket, options, resolve, reject) {
         socket.off('room:created', onCreated);
         socket.off('error', onError);
 
-        console.log('[createGameRoom] room:created received:', payload);
+        
         const room = payload?.room;
 
         if (!room?.id) {
@@ -233,7 +233,7 @@ function _emitRoomCreate(socket, options, resolve, reject) {
     socket.on('error', onError);
 
     socket.emit('room:create', socketPayload);
-    console.log('[createGameRoom] room:create emitted.');
+    
 }
 
 /**

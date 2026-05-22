@@ -40,7 +40,7 @@ export const useAdminDashboard = () => {
         // Extract data from response
         const dashboardData = response.data || response;
 
-        console.log("[useAdminDashboard] Fetched metrics:", dashboardData);
+        
 
         // Helper: sum array values
         const sumArray = (arr) => (Array.isArray(arr) ? arr.reduce((a, b) => a + b, 0) : 0);

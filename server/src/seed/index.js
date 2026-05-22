@@ -16,7 +16,7 @@ dotenv.config();
  */
 const runSeeder = async () => {
     try {
-        console.log('Starting TicTacToang Database Seeder...');
+        
         
         // Connect database
         await connectDB();
@@ -34,14 +34,14 @@ const runSeeder = async () => {
         await seedRevenue(); // Run revenue seeder
         await seedMatches(normalPlayer, premiumPlayer);
 
-        console.log('Seeding completed successfully. Go for Demo');
+        
         
     } catch (error) {
         console.error('Error during seeding:', error);
     } finally {
         // Disconnect database
         await mongoose.connection.close();
-        console.log('Database connection closed.');
+        
     }
 };
 

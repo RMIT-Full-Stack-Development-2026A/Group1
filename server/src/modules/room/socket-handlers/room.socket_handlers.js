@@ -36,7 +36,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 if (disconnectTimers.has(user.id)) {
                     clearTimeout(disconnectTimers.get(user.id));
                     disconnectTimers.delete(user.id);
-                    console.log(`[Socket] Grace timer cleared — user ${user.id} rejoined room ${roomId}.`);
+                    
                 }
 
                 // 2. Tell the opponent the disconnected player has come back

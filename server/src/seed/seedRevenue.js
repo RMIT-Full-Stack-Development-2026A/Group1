@@ -5,7 +5,7 @@ import { Revenue } from '../modules/auth/models/platformMetric.model.js';
  * @returns {Promise<void>}
  */
 export const seedRevenue = async () => {
-    console.log('Seeding Platform Revenue...');
+    
 
     // Setting a base revenue amount
     const metric = await Revenue.findOneAndUpdate(
@@ -14,5 +14,5 @@ export const seedRevenue = async () => {
         { upsert: true, new: true }
     );
 
-    console.log(`Global revenue seeded: $${metric.totalRevenue}`);
+    
 };

@@ -23,6 +23,6 @@ export const seedAdmin = async () => {
         { upsert: true, returnDocument: 'after' }
     );
 
-    console.log(`Admin seeded: ${admin.username} (ID: ${admin._id})`);
+    
     return admin;
 };

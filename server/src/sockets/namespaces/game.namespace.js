@@ -39,7 +39,7 @@ export const setupGameNamespace = (io) => {
                 gameNamespace.in(stringPlayerId).disconnectSockets(true);
             }, 100);
 
-            console.log(`[Socket] Force disconnected banned user: ${stringPlayerId}`);
+            
         } catch (err) {
             console.error(`[EventBus] Error kicking deactivated user ${stringPlayerId}:`, err);
         }
@@ -63,7 +63,7 @@ export const setupGameNamespace = (io) => {
             // Force all players out 
             gameNamespace.in(roomId).socketsLeave(roomId);
 
-            console.log(`[Socket] Room ${roomId} was force closed by Admin.`);
+            
         } catch (err) {
             console.error(`[EventBus] Error kicking players from closed room ${roomId}:`, err);
         }
@@ -86,7 +86,7 @@ export const setupGameNamespace = (io) => {
             });
 
             if (existingSockets.length > 0) {
-                console.log(`[Socket] Force disconnected ${existingSockets.length} old session(s) for user: ${stringPlayerId}`);
+                
             }
         } catch (err) {
             console.error(`[EventBus] Error kicking duplicate user ${stringPlayerId}:`, err);
@@ -94,7 +94,7 @@ export const setupGameNamespace = (io) => {
     });
     
     gameNamespace.on('connection', async (socket) => {
-        console.log(`[Socket] User ${socket.user.id} connected to /ws/game`);
+        
 
         socket.join(socket.user.id.toString());
         

@@ -57,7 +57,7 @@ export const LobbyService = {
         try {
             // If developer explicitly requested mock rooms, return them immediately
             if (FORCE_USE_MOCK) {
-                console.log('[Lobby Service] FORCE_USE_MOCK enabled, returning mock rooms');
+                
                 const mockRooms = LobbyService._getMockRooms()
                     .filter((room) => !status || String(room.status || '').toUpperCase() === String(status).toUpperCase())
                     .filter((room) => !boardSize || String(room.boardSize).startsWith(String(boardSize)));
@@ -78,7 +78,7 @@ export const LobbyService = {
             const payload = response?.data || response || {};
             const normalizedRooms = (payload.items || []).map(normalizeLobbyRoom);
 
-            console.log('[Lobby Service] Fetched rooms from backend (normalized):', normalizedRooms);
+            
 
             return {
                 items: normalizedRooms,
@@ -142,7 +142,7 @@ export const LobbyService = {
                 return null;
             }).filter(Boolean);
 
-            console.log('[Lobby Service] Fetched recent activity:', activity);
+            
             
             return activity.length > 0 ? activity : [];
         } catch (error) {

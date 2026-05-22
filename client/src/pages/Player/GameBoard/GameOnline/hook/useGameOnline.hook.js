@@ -39,7 +39,7 @@ export const useGameOnline = () => {
     useEffect(() => {
         const initialData = location.state?.initialRoomData;
         if (initialData && (initialData.id === roomId || initialData.roomId === roomId)) {
-            console.log('[useGameOnline] Using initialRoomData from router state');
+            
             setRoomData(initialData);
             setIsConnecting(false);
             joinedRoomIdRef.current = roomId;
@@ -53,13 +53,13 @@ export const useGameOnline = () => {
 
     useEffect(() => {
         if (!socket || !isConnected || !roomId) return;
-        console.log('[useGameOnline] Socket ready, attempting to join:', roomId);
+        
         // join logic 
 
         let joinTimeoutId = null;
 
         function handleRoomUpdated(payload) {
-            console.log('[useGameOnline] RECEIVED room:updated:', payload);
+            
             // Delete this log after confirming payload structure is correct and consistent with backend
             if (joinTimeoutId) {
                 clearTimeout(joinTimeoutId);
@@ -134,7 +134,7 @@ export const useGameOnline = () => {
 
             // If is "already in this room" error, it means we successfully rejoined after a disconnect, so we can clear the timeout and just set connecting to false without showing an error
             if (msg.includes('already in this room')) {
-                console.log('[useGameOnline] Already in room, forcing connection state to ready');
+                
                 setIsConnecting(false);
                 return;
             }
@@ -192,9 +192,9 @@ export const useGameOnline = () => {
                 setTimeout(() => navigate('/lobby'), 2000);
             }, 10000);
 
-            console.log('[useGameOnline] Emitting room:join with Socket ID:', socket.id);
+            
             socket.emit('room:join', { roomId });
-            console.log('[useGameOnline] Emitting room:join...');
+            
         }
 
         return () => {

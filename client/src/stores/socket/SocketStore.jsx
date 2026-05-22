@@ -23,12 +23,12 @@ export const useSocketStore = create((set, get) => ({
         });
 
         socketInstance.on('connect', () => {
-            console.log('[Socket] Connected to /ws/game with ID:', socketInstance.id);
+            
             set({ socket: socketInstance, isConnected: true, isPending: false });
         });
 
         socketInstance.on('disconnect', (reason) => {
-            console.log('[Socket] Disconnected. Reason:', reason);
+            
             set({ socket: null, isConnected: false, isPending: false });
 
             // If the server explicitly severed the connection (e.g., duplicate login or ban)

@@ -42,7 +42,7 @@ export default function LoginPage() {
         if (!isCheckingAuth && isAuthenticated) {
             const { user } = useAuthStore.getState();
             const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/play';
-            console.log(`[Login] User authenticated with role: ${user?.role}, redirecting to ${redirectPath}`);
+            
             navigate(redirectPath, { replace: true });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);

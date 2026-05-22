@@ -63,8 +63,8 @@ export const useProfile = () => {
         // The httpHelper already unwraps axios response, so response is { data: {...}, message: "..." }
         const apiData = response.data || response;
         
-        console.log('[useProfile] API Response structure:', response);
-        console.log('[useProfile] Extracted data:', apiData);
+        
+        
         
         // Map API response to player data structure
         const premiumExpiresAt =
@@ -91,7 +91,7 @@ export const useProfile = () => {
           },
         };
         
-        console.log('[useProfile] Mapped player data:', mappedData);
+        
         setPlayerData(mappedData);
 
         // Fetch country flag asynchronously
@@ -99,7 +99,7 @@ export const useProfile = () => {
           const flagData = await countryService.getCountryFlag(mappedData.country);
           if (flagData) {
             setCountryFlag(flagData);
-            console.log('[useProfile] Fetched country flag:', flagData);
+            
           }
         }
       } catch (err) {
@@ -212,43 +212,43 @@ export const useProfile = () => {
           limit: itemsPerPage,
         };
 
-        console.log("[useProfile] Fetching matches with filters:", filters);
+        
 
         const response = await profileService.getMatchHistory(filters);
 
-        console.log("[useProfile] Full API Response:", response);
+        
 
         const items = response.data?.items || response?.items || [];
         let total = response.data?.total || response?.total || 0;
         
-        console.log(`[useProfile] API returned ${items.length} items, total: ${total}`);
-        console.log(`[useProfile] Page: ${appliedPage}, ItemsPerPage: ${itemsPerPage}`);
+        
+        
         
         // Transform backend data to frontend format
         let transformedMatches = items.map(transformMatchData);
         
-        console.log(`[useProfile] After transformation: ${transformedMatches.length} matches`);
+        
         
         // Apply in-memory filtering for WIN/LOSS/DRAW/ABORT since backend returns all games
         if (appliedFilterResult === "WIN") {
           transformedMatches = transformedMatches.filter(match => match.result === "WIN");
-          console.log(`[useProfile] After WIN filter: ${transformedMatches.length} matches`);
+          
         } else if (appliedFilterResult === "LOSS") {
           transformedMatches = transformedMatches.filter(match => match.result === "LOSS");
-          console.log(`[useProfile] After LOSS filter: ${transformedMatches.length} matches`);
+          
         } else if (appliedFilterResult === "DRAW") {
           transformedMatches = transformedMatches.filter(match => match.result === "DRAW");
-          console.log(`[useProfile] After DRAW filter: ${transformedMatches.length} matches`);
+          
         } else if (appliedFilterResult === "ABORT") {
           transformedMatches = transformedMatches.filter(match => match.result === "ABORT");
-          console.log(`[useProfile] After ABORT filter: ${transformedMatches.length} matches`);
+          
         }
         
         setMatchHistory(transformedMatches);
         // Use the API's total count for pagination (NOT the filtered count)
         // This ensures pagination works correctly even with WIN/LOSS filters
         setTotalMatches(total);
-        console.log(`[useProfile] State updated. Total matches: ${total} (for pagination)`);
+        
       } catch (err) {
         console.error("Error fetching match history:", err);
         setMatchHistory([]);
@@ -353,7 +353,7 @@ export const useProfile = () => {
 
   // Handle replay button click - navigate to match replay page
   const handleReplay = (matchId) => {
-    console.log("Navigating to replay for match:", matchId);
+    
     navigate(`/replay/${matchId}`);
   };
 

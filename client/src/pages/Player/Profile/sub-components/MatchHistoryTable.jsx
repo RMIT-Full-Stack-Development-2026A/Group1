@@ -50,12 +50,12 @@ export default function MatchHistoryTable({
   };
 
   React.useEffect(() => {
-    console.log("[MatchHistoryTable] Props received:");
-    console.log("  - matches.length:", matches.length);
-    console.log("  - totalMatches:", totalMatches);
-    console.log("  - currentPage:", currentPage);
-    console.log("  - totalPages:", totalPages);
-    console.log("  - itemsPerPage:", itemsPerPage);
+    
+    
+    
+    
+    
+    
   }, [matches, totalMatches, currentPage, totalPages]);
   const SortIndicator = ({ column }) => {
     if (sortBy !== column) return <span className="ml-1 text-outline/40">⇅</span>;

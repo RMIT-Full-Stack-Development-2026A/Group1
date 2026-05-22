@@ -41,13 +41,13 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
     // ==========================================
     // DEBUG STATION 1: Check inputs on every render
     // ==========================================
-    console.log("--- [DEBUG: Hook Render] ---");
-    console.log("1. Game Mode:", gameMode);
-    console.log("2. AI Difficulty:", aiDifficulty);
-    console.log("3. Player 1 Info:", playersInfo[0]);
-    console.log("4. Player 2 Info:", playersInfo[1]);
-    console.log("5. Current Player Turn:", currentPlayer);
-    console.log("----------------------------");
+    
+    
+    
+    
+    
+    
+    
 
     // Only allow changing board size when no active game
     const setBoardSize = useCallback((size) => {
@@ -139,21 +139,21 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
             if (gameMode === 'SINGLE_PLAYER' && currentPlayer === 'O') {
                 if (aiMoveTimeoutRef.current) return;
 
-                console.log("[DEBUG] Bot is waking up! Triggering AI calculation...");
+                
 
                 setIsLocked(true); // Lock UI while Bot is playing
 
                 // 1. Extract data from global stores and info of AI
                 const botPlayer = playersInfo.find(p => p.role === 'AI');
-                console.log("[DEBUG] Found Bot Player Info:", botPlayer);
+                
 
                 // 2. Create a small delay to simulate AI thinking like human
                 aiMoveTimeoutRef.current = setTimeout(() => {
-                    console.log("[DEBUG] Calculating best move for board with difficulty:", aiDifficulty);
+                    
 
                     // 3. Call getBestAIMove to take the coordinate that AI will go
                     const [bestRow, bestCol] = getBestAIMove(board, aiDifficulty, 'O');
-                    console.log(`[DEBUG] Bot calculated move: [${bestRow}, ${bestCol}]`);
+                    
 
                     // 4. Let bot play
                     aiMoveTimeoutRef.current = null;

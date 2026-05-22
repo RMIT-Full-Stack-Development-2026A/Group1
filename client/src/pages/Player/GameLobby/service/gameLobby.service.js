@@ -27,7 +27,7 @@ export const gameLobbyService = {
 
             const response = await http.get(API_ENDPOINTS.GAME.LIST, params);
             
-            console.log('[Game Lobby Service] Fetched games:', response);
+            
             
             return response.data || {
                 items: [],
@@ -50,7 +50,7 @@ export const gameLobbyService = {
         try {
             const response = await http.get(API_ENDPOINTS.GAME.DETAILS(gameId));
             
-            console.log('[Game Lobby Service] Fetched game detail:', response);
+            
             
             return response.data;
         } catch (error) {
@@ -68,7 +68,7 @@ export const gameLobbyService = {
         try {
             const response = await http.post(API_ENDPOINTS.GAME.LIST, gameData);
             
-            console.log('[Game Lobby Service] Created local game:', response);
+            
             
             return response.data;
         } catch (error) {
@@ -93,7 +93,7 @@ export const gameLobbyService = {
 
             const response = await http.get(API_ENDPOINTS.ROOM.LIST, params);
             
-            console.log('[Game Lobby Service] Fetched rooms:', response);
+            
             
             return response?.data || response || {
                 items: [],
@@ -122,7 +122,7 @@ export const gameLobbyService = {
         try {
             const response = await http.get(API_ENDPOINTS.ROOM.DETAILS(roomId));
             
-            console.log('[Game Lobby Service] Fetched room detail:', response);
+            
             
             return response.data;
         } catch (error) {
@@ -140,7 +140,7 @@ export const gameLobbyService = {
         try {
             const response = await http.post(API_ENDPOINTS.ROOM.JOIN(roomId));
             
-            console.log('[Game Lobby Service] Joined room:', response);
+            
             
             return response.data;
         } catch (error) {
@@ -158,7 +158,7 @@ export const gameLobbyService = {
         try {
             const response = await http.post(API_ENDPOINTS.ROOM.CREATE, roomData);
             
-            console.log('[Game Lobby Service] Created room:', response);
+            
             
             return response.data;
         } catch (error) {

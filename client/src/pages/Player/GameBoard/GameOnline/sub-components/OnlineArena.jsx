@@ -204,7 +204,7 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     window.addEventListener("account:deactivated", handleAccountDeactivated);
 
     const handleGameState = (payload) => {
-      console.log("[game:state] Payload from BE:", payload);
+      
 
       if (payload.board && Array.isArray(payload.board)) {
         // Create a new empty board

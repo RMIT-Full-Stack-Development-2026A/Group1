@@ -19,7 +19,7 @@ export const initSocketServer = (httpServer) => {
 
     setupGameNamespace(io);
 
-    console.log("[Socket] Socket.io server initialized and namespaces wired.");
+    
     return io;
 };
 

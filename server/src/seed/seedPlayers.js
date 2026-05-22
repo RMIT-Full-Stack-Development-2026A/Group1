@@ -6,7 +6,7 @@ import { User } from '../modules/auth/models/user.model.js';
  * @returns {Promise<Array<Object>>} Array of seeded user documents.
  */
 export const seedPlayers = async () => {
-    console.log('Seeding Player accounts...');
+    
     const passwordHash = await bcrypt.hash('Player@123!', 10);
 
     const nextYear = new Date();
@@ -51,6 +51,6 @@ export const seedPlayers = async () => {
         seededPlayers.push(user);
     }
 
-    console.log(`${seededPlayers.length} Players seeded.`);
+    
     return seededPlayers;
 };

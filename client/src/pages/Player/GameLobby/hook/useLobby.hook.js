@@ -52,7 +52,7 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
                 setError(null);
                 setUsingMockData(false);
                 
-                console.log('[useLobby] Initializing lobby data...');
+                
 
                 await loadLobbyData();
                 

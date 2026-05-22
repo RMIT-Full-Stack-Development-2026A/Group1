@@ -6,10 +6,10 @@ import { Transaction } from '../modules/subscription/models/transaction.model.js
  * @returns {Promise<void>}
  */
 export const seedSubscriptions = async (premiumUser) => {
-    console.log('Seeding Subscriptions...');
+    
 
     if (!premiumUser) {
-        console.log('No premium user found to seed subscriptions.');
+        
         return;
     }
 
@@ -34,5 +34,5 @@ export const seedSubscriptions = async (premiumUser) => {
         { upsert: true, new: true }
     );
 
-    console.log(`Subscription seeded for user: ${premiumUser.username}`);
+    
 };

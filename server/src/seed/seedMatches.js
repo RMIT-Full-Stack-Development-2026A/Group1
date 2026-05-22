@@ -15,7 +15,7 @@ const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpir
  * @returns {Promise<void>}
  */
 export const seedMatches = async (player1, player2) => {
-    console.log('Seeding Game Matches & History...');
+    
 
     /**
      * Generates a predefined sequence of moves for the match.
@@ -91,5 +91,5 @@ export const seedMatches = async (player1, player2) => {
     const match = new GameSession(matchData);
     await match.save();
 
-    console.log(`1 Online Match seeded (Winner: ${player1.username})`);
+    
 };

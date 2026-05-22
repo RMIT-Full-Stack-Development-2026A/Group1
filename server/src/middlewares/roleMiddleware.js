@@ -28,7 +28,7 @@ export const authorizeMiddleware = (allowedRoles = []) => {
 
             next();
         } catch (error) {
-            console.log("Error in authorizeMiddleware", error);
+            
             return res.status(500).json({
                 error: "SERVER_ERROR",
                 message: "Internal server error during role validation.",

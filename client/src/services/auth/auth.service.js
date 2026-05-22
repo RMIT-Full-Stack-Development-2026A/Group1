@@ -6,7 +6,7 @@ export const authService = {
     login: async (credentials) => {
         const response = await http.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
         
-        console.log('[Auth Service] Login response:', response);
+        
         
         // Backend response: { data: userInfo, message: "..." }
         // Token is stored in httpOnly cookie by server (sent automatically with requests)
@@ -21,7 +21,7 @@ export const authService = {
             country: response.data.country,
         } : null;
         
-        console.log('[Auth Service] User identity extracted from response:', userIdentity);
+        
         
         // Return response with user identity
         return { 
@@ -34,7 +34,7 @@ export const authService = {
     register: async (userData) => {
         const response = await http.post(API_ENDPOINTS.AUTH.REGISTER, userData);
         
-        console.log('[Auth Service] Register response:', response);
+        
         
         // Backend response: { data: userInfo, message: "..." }
         // Token is stored in httpOnly cookie by server
@@ -49,7 +49,7 @@ export const authService = {
             country: response.data.country,
         } : null;
         
-        console.log('[Auth Service] User identity extracted from response:', userIdentity);
+        
         
         return { 
             ...response, 
@@ -62,7 +62,7 @@ export const authService = {
         const response = await http.post(API_ENDPOINTS.AUTH.LOGOUT);
         
         // Token is cleared by server (httpOnly cookie is removed)
-        console.log('[Auth Service] Logout completed');
+        
         
         return response;
     },

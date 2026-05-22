@@ -375,7 +375,7 @@ export const SubscriptionService = {
                             console.warn(`[Webhook] Missing or invalid subscriptionPeriodEnd for refunded transaction ${orderId}. Revoking premium as a safe fallback.`);
                             await AuthInterface.setPremiumExpiry(transaction.userId, null);
                             if (user.email) void SubscriptionService.sendRevokeEmail(user.email, user.username);
-                            console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund (Fallback).`);
+                            
                         }
                         // If date data is valid, compare expiration timestamps as normal
                         else if (userExpiry <= transactionExpiry) {
@@ -385,11 +385,11 @@ export const SubscriptionService = {
                             if (user.email) {
                                 void SubscriptionService.sendRevokeEmail(user.email, user.username);
                             }
-                            console.log(`[Webhook] Revoked premium for user ${transaction.userId} due to refund.`);
+                            
                         }
                         // If premium came from a newer transaction, keep premium active
                         else {
-                            console.log(`[Webhook] Refund processed, but user ${transaction.userId} has a newer active subscription. Premium not revoked.`);
+                            
                         }
                     }
 
@@ -473,7 +473,7 @@ export const SubscriptionService = {
             };
 
             await transporter.sendMail(mailOptions);
-            console.log('[Email] Confirmation email sent successfully');
+            
         } catch (error) {
             console.error('[Email Error] Failed to send email:', error);
         }
@@ -551,7 +551,7 @@ export const SubscriptionService = {
             };
 
             await transporter.sendMail(mailOptions);
-            console.log('[Email] Revoke email sent successfully');
+            
         } catch (error) {
             console.error('[Email Error] Failed to send revoke email:', error);
         }

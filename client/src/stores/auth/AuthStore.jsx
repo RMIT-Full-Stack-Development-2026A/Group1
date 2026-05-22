@@ -20,7 +20,7 @@ export const useAuthStore = create((set) => ({
             // authService.login() already extracts user identity from JWT
             const response = await authService.login(credentials);
             const userIdentity = response.user; // Extracted in authService
-            console.log('[Auth] Login successful:', userIdentity);
+            
 
             set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
@@ -43,7 +43,7 @@ export const useAuthStore = create((set) => ({
             // authService.register() already extracts user identity from JWT
             const response = await authService.register(userData);
             const userIdentity = response.user; // Extracted in authService
-            console.log('[Auth] Register successful:', userIdentity);
+            
             
             set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
@@ -63,7 +63,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             await authService.logout();
-            console.log('[Auth] Logout completed');
+            
             hasInitializedAuth = false; // Reset for next app session
         } catch (error) {
             console.debug('[Auth] Logout API failed (expected if no token):', error);
@@ -80,7 +80,7 @@ export const useAuthStore = create((set) => ({
     checkAuth: async () => {
         // Prevent duplicate calls - use global flag not component-scoped
         if (hasInitializedAuth) {
-            console.log('[Auth] checkAuth already called, skipping duplicate');
+            
             return;
         }
         
@@ -90,7 +90,7 @@ export const useAuthStore = create((set) => ({
         try {
             // Always try to verify session with backend
             // Browser automatically sends httpOnly cookie with the request
-            console.log('[Auth] checkAuth: attempting to verify session with backend');
+            
             
             // Add timeout to prevent indefinite hanging
             const checkAuthPromise = authService.checkAuth();
@@ -115,7 +115,7 @@ export const useAuthStore = create((set) => ({
                 country: userData.country,
             } : null;
             
-            console.log('[Auth] checkAuth succeeded. User from backend:', userIdentity);
+            
             set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
             
         } catch (error) {
@@ -123,7 +123,7 @@ export const useAuthStore = create((set) => ({
             
             // If checkAuth fails, user is not authenticated
             // (no valid cookie or session expired)
-            console.log('[Auth] No valid session, user not authenticated');
+            
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
             useSocketStore.getState().disconnectSocket();
         }

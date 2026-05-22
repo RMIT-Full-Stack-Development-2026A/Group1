@@ -40,10 +40,10 @@ server/
 │   ├── sockets/                 # Socket.io bootstrap, namespaces, and emitters
 │   ├── tests/                   # Test suites and setup files
 │   ├── utils/                   # Helpers, constants, and the internal EventBus
-│   ├── app.js                   # Express application setup
-│   └── index.js                 # Entry point: HTTP + WebSocket server bootstrap
+│   └── app.js                   # Express application setup
 ├── docs/                        # API documentation and markdown guides
 ├── .env                         # Environment variables (BE)
+├── index.js                 # Entry point: HTTP + WebSocket server bootstrap
 ├── jest.config.js               # Jest testing framework configuration
 ├── package-lock.json            # Dependency lockfile
 └── package.json                 # Project metadata and dependencies

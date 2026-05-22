@@ -83,7 +83,7 @@ Clone the repository:
 4. Start the backend development server:
 
     ```bash
-    npm run dev # or node ./src/index.js
+    npm run dev # or node ./index.js
     ``` 
 
 `Note`: The server will run on `http://localhost:5000` by default and uses `nodemon` to automatically restart on file changes.

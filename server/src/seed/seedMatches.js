@@ -49,14 +49,14 @@ export const seedMatches = async (player1, player2) => {
         sessionNumber: `GS-DEMO-${ulid()}`,
         gameType: 'ONLINE_MATCH',
         boardSize: 15,
-        boardStyle: 'CLASSIC',
-        markerStyle: 'GLOW',
+        boardStyle: 'LAVA',
         participants: [
             { 
                 userId: player1._id, 
                 usernameSnapshot: player1.username, 
                 avatarSnapshot: player1.avatar ?? null, 
                 isPremiumSnapshot: computeIsPremium(player1), 
+                markerStyle: 'GLOW',
                 role: 'HUMAN', 
                 mark: 'X' 
             },
@@ -65,6 +65,7 @@ export const seedMatches = async (player1, player2) => {
                 usernameSnapshot: player2.username, 
                 avatarSnapshot: player2.avatar ?? null, 
                 isPremiumSnapshot: computeIsPremium(player2), 
+                markerStyle: 'PIXEL',
                 role: 'HUMAN', 
                 mark: 'O' 
             }

@@ -6,7 +6,7 @@ import { ProfileService } from '../../modules/profile/services/profile.service.j
 import { SubscriptionService } from '../../modules/subscription/services/subscription.service.js';
 
 let app;
-describe('Backend Integration Tests - 27 API Endpoints', () => {
+describe('Backend Integration Tests - 28 API Endpoints', () => {
 
     let playerTokenCookie, adminTokenCookie, testPlayerId;
 
@@ -370,8 +370,35 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
             expect(Array.isArray(res.body.data.items)).toBe(true);
         });
 
+        // [GET] /admin/players/games -> PASSED
+        it('26a. [GET] /api/v1/admin/players/games - Should fail for PLAYER role', async () => {
+            const res = await request(app)
+                .get('/api/v1/admin/players/games')
+                .set('Cookie', playerTokenCookie);
+                
+            expect(res.statusCode).toEqual(403); 
+        });
+
+        // [GET] /admin/players/games -> PASSED
+        it('26b. [GET] /api/v1/admin/players/games - Should fetch online match history with strict pagination limits', async () => {
+            const res = await request(app)
+                // Sending limit=500 to verify the validator caps it at 300
+                .get('/api/v1/admin/players/games?limit=500') 
+                .set('Cookie', adminTokenCookie);
+            
+            expect(res.statusCode).toEqual(200);
+            
+            // Assert pagination metadata and structure
+            expect(res.body.data).toHaveProperty('items');
+            expect(Array.isArray(res.body.data.items)).toBe(true);
+            
+            expect(res.body.data).toHaveProperty('total');
+            expect(res.body.data).toHaveProperty('page', 1);
+            expect(res.body.data).toHaveProperty('limit', 300); 
+        });
+
         // [GET] /admin/rooms/:id -> PASSED
-        it('26. [GET] /api/v1/admin/rooms/:id - Should fetch room detail bypassing participant check', async () => {
+        it('27. [GET] /api/v1/admin/rooms/:id - Should fetch room detail bypassing participant check', async () => {
             const room = await GameRoom.create({ boardSize: 10, status: 'WAITING' });
             const res = await request(app).get(`/api/v1/admin/rooms/${room._id}`).set('Cookie', adminTokenCookie);
             
@@ -381,7 +408,7 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
         });
 
         // [DELETE] /admin/rooms/:id -> PASSED
-        it('27. [DELETE] /api/v1/admin/rooms/:id - Should force close a room', async () => {
+        it('28. [DELETE] /api/v1/admin/rooms/:id - Should force close a room', async () => {
             const room = await GameRoom.create({ 
                 roomNumber: `TEST-RM-${Date.now()}`,
                 boardSize: 10, 
@@ -400,9 +427,9 @@ describe('Backend Integration Tests - 27 API Endpoints', () => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.message).toBe("Room force closed successfully.");
             
-            // Assert room was physically updated in DB to 'CLOSED' by AdminService
+            // Assert room was physically updated in DB by AdminService
             const checkRoom = await GameRoom.findById(room._id);
-            expect(checkRoom.status).toBe('CLOSED');
+            expect(checkRoom).toBeNull();
         });
     });
 });

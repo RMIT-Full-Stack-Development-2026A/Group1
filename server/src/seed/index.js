@@ -6,6 +6,7 @@ import { seedAdmin } from './seedAdmin.js';
 import { seedPlayers } from './seedPlayers.js';
 import { seedSubscriptions } from './seedSubscriptions.js';
 import { seedMatches } from './seedMatches.js';
+import { seedRevenue } from './seedRevenue.js';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ const runSeeder = async () => {
 
         // Run dependent seeders
         await seedSubscriptions(premiumPlayer);
+        await seedRevenue(); // Run revenue seeder
         await seedMatches(normalPlayer, premiumPlayer);
 
         console.log('Seeding completed successfully. Go for Demo');

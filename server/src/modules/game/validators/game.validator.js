@@ -89,7 +89,8 @@ export const validateGameCreation = (payload) => {
  */
 export const validateGameQuery = (query = {}, userId = null) => {
     const page = Math.max(1, parseInt(query.page) || 1);
-    const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 20));
+    const maxLimit = userId === null ? 300 : 100; 
+    const limit = Math.max(1, Math.min(maxLimit, parseInt(query.limit) || 20));
     const skip = (page - 1) * limit;
 
     const filter = {}; 

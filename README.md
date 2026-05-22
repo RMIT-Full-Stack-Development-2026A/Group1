@@ -127,7 +127,7 @@ SMTP_EMAIL=your_smtp_email
 SMTP_PASSWORD=your_smtp_password
 ```
 
-Seed the database with initial accounts and sample match data:
+Seed the database with initial accounts and sample match data if your db is empty:
 
 ```bash
 node ./src/seed/index.js
@@ -175,7 +175,7 @@ npm run test
 |-----------|------------|-----------------|----------------------|:-----:|
 | Nguyen Q. Khanh | [ID] | [username] | Auth module, JWT middleware, brute-force protection, WebSocket architecture | 20% |
 | Tran H. Minh | [ID] | [username] | Game board UI, WinOverlay animation, responsive design, Zustand stores | 20% |
-| Hoang M. Thang | [ID] | [username] | Room module, Socket.IO lifecycle, disconnect grace period, EventBus | 20% |
+| Hoang M. Thang | [s3999925] | [ThangHoang54] | Room module, Socket.IO lifecycle, disconnect grace period, EventBus | 20% |
 | Nguyen D. G. Phat | [ID] | [username] | Profile page, Match Replay, Admin Portal UI, mobile layout | 20% |
 | Truong K. Minh | [ID] | [username] | AI engine (Minimax), Subscription/PayPal, Cloudinary avatar, deployment | 20% |
 

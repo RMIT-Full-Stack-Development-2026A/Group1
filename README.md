@@ -1,122 +1,197 @@
-# TicTacToang - Online TicTacToe Gaming Platform
+<div align="center">
 
-TicTacToang is a high-performance, modern web platform designed to bring the classic game of Tic-Tac-Toe into the digital era. Built with a strict Modular Monolith architecture, it supports Single Player (AI), Local Multiplayer, and real-time Online Multiplayer game modes.
+# TicTacToang
+
+### Online Tic-Tac-Toe Gaming Platform
+
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-FF6B35?style=for-the-badge&logo=react&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
+![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)
+
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+![MongoDB Atlas](https://img.shields.io/badge/MongoDB_Atlas-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)
+
+---
+
+**COSC2769/COSC2808 Full Stack Development — Group 1 — Semester 1, 2026**  
+Lecturer: Dr. Tri Huynh | Royal Melbourne Institute of Technology Vietnam
+
+[Play Now](https://tictactoang.vercel.app) · [API Docs](https://tictactoang-backend-dt4u.onrender.com/api-docs) · [Repository](https://github.com/RMIT-Full-Stack-Development-2026A/Group1)
+
+</div>
+
+## Overview
+
+TicTacToang is a high-performance, modern web platform designed to bring the classic game of Tic-Tac-Toe into the digital era. Built with a strict **Modular Monolith** architecture, it supports:
+
+- **Single Player** — Play against a Minimax AI engine
+- **Local Multiplayer** — Two players on the same device
+- **Online Multiplayer** — Real-time matches via Socket.IO
+
+## Repository & Links
+
+| Item | Link |
+|------|------|
+| GitHub Repository | [RMIT-Full-Stack-Development-2026A/Group1](https://github.com/RMIT-Full-Stack-Development-2026A/Group1) |
+| Frontend (Live) | [tictactoang.vercel.app](https://tictactoang.vercel.app) |
+| Backend (Live) | [tictactoang-backend-dt4u.onrender.com](https://tictactoang-backend-dt4u.onrender.com) |
+| API Documentation | [/api-docs](https://tictactoang-backend-dt4u.onrender.com/api-docs) |
+
 
 ## Tech Stack
-* **Frontend:** React-based framework (Vite), Zustand, Tailwind CSS.
-* **Backend:** MEN Stack (MongoDB, ExpressJS, NodeJS).
-* **Architecture:** N-Tier Layer-based Hierarchy (Route, Controller, Service, Repository, Model).
 
-## Setup & Installation
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19, Vite, Zustand, Tailwind CSS 4, Socket.IO Client |
+| **Backend** | Node.js, Express.js, MongoDB, Mongoose, Socket.IO |
+| **Architecture** | Modular Monolith, N-Tier (Route -> Controller -> Service -> Repository -> Model) |
+| **Deployment** | Vercel (Frontend), Render (Backend), MongoDB Atlas |
 
-This project is separated into two main directories: `client` (frontend) and `server` (backend). You will need to run both concurrently.
+## Test Accounts
 
-## 🛠 Prerequisites
-Before you begin, ensure you have the following installed and set up:
-* **Node.js** (v18 or higher recommended)
-* **MongoDB** (Local instance or MongoDB Atlas URI)
-* **Git**
+> These accounts are pre-seeded into the database via `node ./src/seed/index.js`.
 
-### Installation 
-Clone the repository:
+| Role | Username | Email | Password |
+|------|----------|-------|----------|
+| Admin | `admin_tictactoang` | admin@tictactoang.com | `Admin@123!` |
+| Player (Premium) | `premium_player` | premium@tictactoang.com | `Player@123!` |
+| Player (Standard) | `normal_player` | player@tictactoang.com | `Player@123!` |
+| Player (Banned) | `banned_player` | banned@tictactoang.com | `Player@123!` |
 
-    ```bash
-    git clone https://github.com/RMIT-Full-Stack-Development-2026A/Group1
-    cd Group1
-    ```
-### Backend Setup (Server)
-1. Navigate to the backend directory and install the necessary dependencies:
-    ```bash
-    cd server
-    npm install
-    ``` 
-2. Create a `.env` file in the root of the `server/` folder and populate it with the required keys. Here is a template to get you started:
+## Prerequisites
 
-    ```bash
-    # Server Configuration
-    PORT=5000
-    NODE_ENV=development
-    CLIENT_URL=http://localhost:8000
+Before you begin, ensure the following are installed:
 
-    # Database
-    MONGO_URI=mongodb://....
+- Node.js v18 or higher
+- MongoDB (local instance or MongoDB Atlas URI)
+- Git
 
-    # Security, Authentication
-    JWT_SECRET=your_super_secret_jwt_key
+## Setup and Installation
 
-    # Avatar
-    CLOUDINARY_NAME=your_cloudinary_name
-    CLOUDINARY_API_KEY=your_cloudinary_api_key
-    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+The project is separated into two directories: `client` (frontend) and `server` (backend). Both must run concurrently.
 
-    # PayPal Integration
-    PAYPAL_MODE=sandbox
-    PAYPAL_CLIENT_ID=your_paypal_client_id
-    PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+### 1. Clone the Repository
 
-    # Webhook refunds locally
-    PAYPAL_WEBHOOK_ID=your_paypal_webhook_id
-    ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true
+```bash
+git clone https://github.com/RMIT-Full-Stack-Development-2026A/Group1
+cd Group1
+```
 
-    # SMTP
-    SMTP_EMAIL=your_smtp_email
-    SMTP_PASSWORD=your_smtp_password
-    ```
+### 2. Backend Setup
 
-3. Database Seeding
+Navigate to the backend directory and install dependencies:
 
-- Before starting the server for the first time, populate your local database with initial admin accounts, players, and sample match data:
+```bash
+cd server
+npm install
+```
 
-    ```bash
-    node ./src/seed/index.js
-    ```
+Create a `.env` file inside `server/` and populate it with the following:
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+CLIENT_URL=http://localhost:8000
 
-    > Sample Admin / User account
+# Database
+MONGO_URI=mongodb://....
 
-    | Username | Email | Password | Note |
-    |----------|------|----------|-------|
-    | admin_tictactoang | admin@tictactoang.com | Admin@123! | Admin |
-    | normal_player | player@tictactoang.com | Player@123! | Normal user |
-    | premium_player | premium@tictactoang.com | Player@123! | Premium user |
-    | banned_player | banned@tictactoang.com | Player@123! | Banned user |    
+# Security and Authentication
+JWT_SECRET=your_super_secret_jwt_key
 
-4. Start the backend development server:
+# Avatar Storage (Cloudinary)
+CLOUDINARY_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
-    ```bash
-    npm run dev # or node ./index.js
-    ``` 
+# PayPal Integration
+PAYPAL_MODE=sandbox
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_WEBHOOK_ID=your_paypal_webhook_id
+ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true
 
-`Note`: The server will run on `http://localhost:5000` by default and uses `nodemon` to automatically restart on file changes.
+# SMTP (Email)
+SMTP_EMAIL=your_smtp_email
+SMTP_PASSWORD=your_smtp_password
+```
 
-**`📚 API Documentation`**: Once the server is running, you can view the Swagger/OpenAPI docs at http://localhost:5000/api-docs.
+Seed the database with initial accounts and sample match data:
 
-### Integration Test Execution (Server)
-This project uses **Jest** and **Supertest** for comprehensive integration testing across all API modules (Auth, Profile, Game, Room, Subscription, and Admin). The test suite interacts with an in-memory or test database and runs sequentially to prevent data conflicts.
+```bash
+node ./src/seed/index.js
+```
 
-To execute the test suite:
+Start the backend development server:
 
-1. Ensure you are in the `server` directory.
-2. Run the test script:
-    ```bash
-    npm run test
-    ```
+```bash
+npm run dev # node ./index.js
+```
 
-**Under the hood:**
-The test script automatically sets `NODE_ENV=test` and uses `--runInBand` to execute tests one by one. It also enables Node's experimental VM modules to support ES6 imports during testing. 
+> The server runs on `http://localhost:5000` by default.  
+> API documentation is available at `http://localhost:5000/api-docs` once the server is running.
 
-*Note: Ensure your `.env` file is properly configured before running tests, though the test suite will automatically mock critical third-party services like PayPal.*
+### 3. Frontend Setup
 
-### Frontend Setup (Client)
-1. Open a new terminal window and navigate to the client directory:
-    ```Bash
-    cd client
-    ```
-2. Install frontend dependencies:
-    ```Bash
-    npm install
-    ```
-3. Start the frontend development server:
-    ```Bash
-    npm run dev
-    ```
-`Note`: The React frontend typically runs on `http://localhost:8000`. Make sure this matches the `CLIENT_URL` in your backend `.env` file to prevent CORS issues.
+Open a new terminal and navigate to the client directory:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+> The frontend runs on `http://localhost:8000`.  
+> Ensure this matches the `CLIENT_URL` value in the backend `.env` file to prevent CORS issues.
+
+
+## Integration Test Execution
+
+This project uses **Jest** and **Supertest** for integration testing across all API modules (Auth, Profile, Game, Room, Subscription, and Admin).
+
+```bash
+cd server
+npm run test
+```
+
+> The test script sets `NODE_ENV=test` and runs tests sequentially via `--runInBand` to prevent data conflicts. Ensure `.env` is configured before running. Critical third-party services such as PayPal are automatically mocked during test execution.
+
+## Contribution Table
+
+> Contribution scores were agreed upon unanimously by all team members.
+
+| Full Name | Student ID | GitHub Username | Key Responsibilities | Score |
+|-----------|------------|-----------------|----------------------|:-----:|
+| Nguyen Q. Khanh | [ID] | [username] | Auth module, JWT middleware, brute-force protection, WebSocket architecture | 20% |
+| Tran H. Minh | [ID] | [username] | Game board UI, WinOverlay animation, responsive design, Zustand stores | 20% |
+| Hoang M. Thang | [ID] | [username] | Room module, Socket.IO lifecycle, disconnect grace period, EventBus | 20% |
+| Nguyen D. G. Phat | [ID] | [username] | Profile page, Match Replay, Admin Portal UI, mobile layout | 20% |
+| Truong K. Minh | [ID] | [username] | AI engine (Minimax), Subscription/PayPal, Cloudinary avatar, deployment | 20% |
+
+## GitHub Contribution Proof
+
+The repository commit history and contribution graph serve as evidence of active, iterative development across all **seven sprints** (Week 5 to Week 12). All commits were made under each member's registered GitHub account.
+
+To verify contributions, navigate to:  
+[github.com/RMIT-Full-Stack-Development-2026A/Group1/graphs/contributors](https://github.com/RMIT-Full-Stack-Development-2026A/Group1/graphs/contributors)
+
+> **Note:** If GitHub usernames do not contain a member's first and last name, refer to the Contribution Table above for the mapping between full name and GitHub username.
+
+---
+
+<div align="center">
+
+Made with love by **Group 1** — RMIT Vietnam, Semester 1, 2026
+
+</div>

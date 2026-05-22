@@ -177,7 +177,7 @@ npm run test
 | Tran H. Minh | [ID] | [username] | Game board UI, WinOverlay animation, responsive design, Zustand stores | 20% |
 | Hoang M. Thang | [s3999925] | [ThangHoang54] | Room module, Socket.IO lifecycle, disconnect grace period, EventBus | 20% |
 | Nguyen D. G. Phat | [ID] | [username] | Profile page, Match Replay, Admin Portal UI, mobile layout | 20% |
-| Truong K. Minh | [s4067934] | [kiemminh000/minhbot73] | AI engine (Minimax), Subscription/PayPal, Cloudinary avatar, deployment | 20% |
+| Truong K. Minh | [s4067934] | [kiemminh000/Minh-bot73] | AI engine (Minimax), Subscription/PayPal, Cloudinary avatar, deployment | 20% |
 
 ## GitHub Contribution Proof
 

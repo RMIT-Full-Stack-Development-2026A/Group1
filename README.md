@@ -173,11 +173,11 @@ npm run test
 
 | Full Name | Student ID | GitHub Username | Key Responsibilities | Score |
 |-----------|------------|-----------------|----------------------|:-----:|
-| Nguyen Q. Khanh | [ID] | [username] | Auth module, JWT middleware, brute-force protection, WebSocket architecture | 20% |
-| Tran H. Minh | [ID] | [username] | Game board UI, WinOverlay animation, responsive design, Zustand stores | 20% |
-| Hoang M. Thang | [s3999925] | [ThangHoang54] | Room module, Socket.IO lifecycle, disconnect grace period, EventBus | 20% |
-| Nguyen D. G. Phat | [ID] | [username] | Profile page, Match Replay, Admin Portal UI, mobile layout | 20% |
-| Truong K. Minh | [s4067934] | [kiemminh000/Minh-bot73] | AI engine (Minimax), Subscription/PayPal, Cloudinary avatar, deployment | 20% |
+| Nguyen Q. Khanh | [s4147730] | [KhanhQNguyn] | Sheet for report tracking, report writing and refinement, UI/UX design configuration (sound, notification toast, theme, music, font, color), game board implementation, marker renderer, online room connection, disconnect grace period, match replay, premium subscription, component replenish | 20% |
+| Tran H. Minh | [S4104179] | [Minz516] | Sprint planning and task management, GitHub project board maintenance, system-wide quality assurance, performance improvement, test case design and execution, meeting facilitation and retrospectives | 20% |
+| Hoang M. Thang | [s3999925] | [ThangHoang54] | Led the backend architecture design and implemented the N-Tier module structure. Developed the Authentication module with JWT middleware, Profile module, Admin module and managed the Room and WebSocket (Socket.IO) lifecycle. Designed the database schema and MongoDB modeling, implemented integration testing, created seed data scripts, reformat code and co-developed  22 RESTful API endpoints.  | 20% |
+| Nguyen D. G. Phat | [s4106116] | [giaphat060206] | Frontend UI Implementation for the following pages: Guest & Admin’s Pages; Player’s Select Game Mode, Lobby, Customize, Profile. Easy AI Logic for Singleplayer. Dynamic Mobile UI implementation | 20% |
+| Truong K. Minh | [s4067934] | [kiemminh000/Minh-bot73] | Co-designed the backend architecture and engineered technical documentation, including backend component diagrams and database schema optimization. Spearheaded the Subscription module (featuring PayPal payment gateway and automated email API integration) and the core Game module logic. Co-developed the Authentication, Room management systems, real-time WebSocket (Socket.IO) event handling, and co-developed others 22 RESTful API endpoints. | 20% |
 
 ## GitHub Contribution Proof
 

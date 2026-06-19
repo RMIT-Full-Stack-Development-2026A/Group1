@@ -1,0 +1,53 @@
+name: Backend CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "backend-stable", "main" ]
+    paths:
+      - 'server/**'
+  pull_request:
+    branches: [ "backend-stable", "main" ]
+    paths:
+      - 'server/**'
+defaults:
+  run:
+    working-directory: ./server
+jobs:
+  test:
+    name: Test on Node.js 22.x
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js 
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: './server/package-lock.json' 
+
+    - name: Install Dependencies (Clean Install)
+      run: npm ci
+
+    - name: Run Integration Tests
+      run: npm test
+      env:
+        CI: true
+        
+  # deploy:
+  #   name: Deploy to Production
+  #   needs: test
+  #   if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/backend-stable')
+  #   runs-on: ubuntu-latest
+    
+  #   steps:
+  #     - name: Trigger Render Deploy Hook
+  #       run: |
+  #         if [ -z "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
+  #           echo "Deployment bypassed: RENDER_DEPLOY_HOOK secret is not set."
+  #         else
+  #           echo "Triggering deployment..."
+  #           curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+  #         fi

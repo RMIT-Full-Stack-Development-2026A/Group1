@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { countryService } from "../services/countryService";
 
 /**
  * useCountries Hook
- * Fetches country data from REST Countries API
+ * Fetches country data from the backend countries endpoint
  * Returns array of countries with name and flag
  * Shared hook used across Register and Profile pages
  */
@@ -12,39 +13,36 @@ export const useCountries = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchCountries = async () => {
+        let isMounted = true; // Prevent state updates if unmounted
+
+        const load = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(
-                    "https://restcountries.com/v3.1/all?fields=name,flags"
-                );
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch countries: ${response.statusText}`);
+                const data = await countryService.getCountries();
+                if (isMounted) {
+                    setCountries(data || []);
+                    setError(null);
                 }
-
-                const data = await response.json();
-                
-                // Sort countries by name (common name or official name)
-                const sortedCountries = data.sort((a, b) => {
-                    const nameA = a.name.common || a.name.official;
-                    const nameB = b.name.common || b.name.official;
-                    return nameA.localeCompare(nameB);
-                });
-
-                setCountries(sortedCountries);
-                setError(null);
             } catch (err) {
-                console.error("Error fetching countries:", err);
-                setError(err.message);
-                // Fallback to empty array or default countries
-                setCountries([]);
+                if (isMounted) {
+                    console.error("Error loading countries:", err);
+                    // Extract exact error message from backend if available
+                    const errorMessage = err?.response?.data?.message || err.message || "Failed to load countries";
+                    setError(errorMessage);
+                    setCountries([]);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
-        fetchCountries();
+        load();
+
+        return () => {
+            isMounted = false; // Cleanup flag on unmount
+        }
     }, []);
 
     return { countries, loading, error };

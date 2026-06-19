@@ -29,6 +29,7 @@ const options = {
             { name: 'Rooms',        description: 'HTTP room snapshots (mutations go through WebSocket).' },
             { name: 'Subscription', description: 'Premium membership purchase.' },
             { name: 'Admin',        description: 'Admin-only dashboard, player management, and room monitoring.' },
+            { name: 'Countries',    description: 'Proxy for external country data and flags.' },
         ],
 
         components: {

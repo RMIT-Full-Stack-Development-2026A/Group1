@@ -161,7 +161,7 @@ Base Path: `/api/v1/subscription`
 | GET | `/subscription/status` | PLAYER | Get premium status and expiry date | Yes |
 | POST | `/subscription/create-order` | PLAYER | Generate PayPal payment link/order ID | Yes |
 | POST | `/subscription/capture-order` | PLAYER | Validate PayPal successful payment and activate premium | Yes |
-| GET | `/subscription/history` | PLAYER | Returns current active transaction | Yes |
+| GET | `/subscription/history` | PLAYER | Returns all successful subscription transactions for the authenticated player | Yes |
 | POST | `/subscription/paypal-events` | PUBLIC | Listen for PayPal async events to revoke premium | Yes |
 
 ## 6. Admin APIs

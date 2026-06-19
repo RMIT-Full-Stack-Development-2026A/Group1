@@ -202,7 +202,7 @@ Base Path: `/api/v1/admin`
 | DELETE | `/admin/rooms/:id` | ADMIN | Force close a room | Yes |
 | `GET` | `/admin/players/game` | ADMIN | Fetch completed online match history across all players | Yes
 
-### 9. Countries Module
+### 7. Countries Module
 | Method | Endpoint | Access | Description | Implemeted |
 |---|---|---|---|---|
 | `GET` | `/countries` | PUBLIC | Fetch full list of countries (cached) | Yes |

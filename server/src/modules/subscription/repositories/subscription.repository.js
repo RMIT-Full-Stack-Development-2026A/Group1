@@ -83,4 +83,18 @@ export const SubscriptionRepository = {
 
         return { items, total };
     },
+
+    /**
+     * Retrieves total successful revenue across all subscriptions.
+     * @returns {Promise<number>} Total revenue rounded to 2 decimals.
+     */
+    getTotalRevenue: async () => {
+        const revenueAgg = await Transaction.aggregate([
+            { $match: { status: 'SUCCESS' } },
+            { $group: { _id: null, totalRevenue: { $sum: '$amount' } } },
+            { $project: { _id: 0, totalRevenue: { $round: ['$totalRevenue', 2] } } }
+        ]);
+
+        return revenueAgg.length > 0 ? revenueAgg[0].totalRevenue : 0;
+    },
 };

@@ -5,24 +5,25 @@ Modular Monolith structure with strict N-Tier dependency flow and socket-first o
 ## 1. Architectural Principles
 
 ### 1.1 Modular Monolith
-Single deployable Node.js application divided into bounded contexts. Each module **Owns** its business rules, DTOs, repositories, and models.
+Single deployable Node.js application divided into bounded contexts. Each module **owns** its business rules, DTOs, repositories, and models.
 
-### 1.2 N-Tier Flow
-Dependencies flow in one direction:
+### 1.2 Internal N-Tier Flow
+While the macro-architecture is a Modular Monolith, the **micro-architecture inside each module follows a strict N-Tier pattern**. 
+
+Dependencies flow in one direction internally:
 `Route/Socket` → `Controller` → `Service` → `Repository/Interface` → `Model`
 
 **Rules:**
-- Routes/sockets never access models directly.
-- Services never bypass repositories.
-- Cross-module access requires interfaces. No direct service imports.
-- DTOs format responses and hide sensitive fields.
-- EventBus (Pub/Sub) handles cross-domain execution decoupling.
+- **Layer Isolation:** Routes/sockets never access models directly; services never bypass repositories.
+- **Cross-Module Boundaries:** Modules cannot directly import another module's internal services or repositories. Cross-module communication must happen strictly via public **Interfaces** or decoupled **EventBus (Pub/Sub)** events.
+- **Data Structuring:** DTOs (Data Transfer Objects) are used at the boundary layer to format responses and hide sensitive fields.
 
 ### 1.3 API Strategy
 - **HTTP:** Authentication, profiles, history, subscriptions, admin actions, room snapshots, rehydration.
 - **WebSocket:** Room lifecycle, moves, game state sync, premium chat.
 
 ## 2. High-Level Folder Structure
+Each major module directory under `src/modules/` internally implements the N-Tier structure (containing its own controllers, services, repositories, and models where applicable).
 
 ```text
 server/

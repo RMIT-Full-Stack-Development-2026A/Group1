@@ -38,7 +38,7 @@ const transactionSchema = new mongoose.Schema({
     orderId: {
         type: String,
         default: null,
-        unique: true,
+        unique: true, // 'unique' automatically creates an index
         index: true,
         sparse: true
     },
@@ -65,8 +65,7 @@ const transactionSchema = new mongoose.Schema({
 // Indexes
 transactionSchema.index({ userId: 1, createdAt: -1 }); 
 transactionSchema.index({ userId: 1, type: 1, createdAt: -1 }); 
-transactionSchema.index({ orderId: 1 }, { sparse: true });
-transactionSchema.index({ externalTransactionId: 1 }, { sparse: true });
+
 // TTL index for expiration
 transactionSchema.index({ subscriptionPeriodEnd: 1 }, { expireAfterSeconds: 0 });
 

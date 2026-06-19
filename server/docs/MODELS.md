@@ -240,6 +240,10 @@ const transactionSchema = new mongoose.Schema({
     metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
 }, baseSchemaOptions);
 
-// Auto-delete when subscriptionPeriodEnd passes
+// Indexes
+transactionSchema.index({ userId: 1, createdAt: -1 }); 
+transactionSchema.index({ userId: 1, type: 1, createdAt: -1 }); 
+
+// TTL index for expiration
 transactionSchema.index({ subscriptionPeriodEnd: 1 }, { expireAfterSeconds: 0 });
 ```

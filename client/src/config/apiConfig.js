@@ -12,6 +12,9 @@ export const API_ENDPOINTS = {
         PASSWORD: "/profile/password",
         AVATAR: "/profile/avatar",
     },
+    COUNTRIES: {
+        LIST: "/countries",
+    },
     GAME: {
         LIST: "/games",
         DETAILS: (id) => `/games/${id}`,

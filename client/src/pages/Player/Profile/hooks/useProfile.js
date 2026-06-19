@@ -124,11 +124,11 @@ export const useProfile = () => {
         console.warn("Error loading countries:", err.message);
         // Fallback to some default countries
         setCountries([
-          { name: "USA", code: "US" },
-          { name: "United Kingdom", code: "GB" },
-          { name: "Canada", code: "CA" },
-          { name: "Australia", code: "AU" },
-          { name: "Vietnam", code: "VN" },
+          { name: { common: "United States" }, flags: { emoji: "🇺🇸" } },
+          { name: { common: "United Kingdom" }, flags: { emoji: "🇬🇧" } },
+          { name: { common: "Canada" }, flags: { emoji: "🇨🇦" } },
+          { name: { common: "Australia" }, flags: { emoji: "🇦🇺" } },
+          { name: { common: "Vietnam" }, flags: { emoji: "🇻🇳" } },
         ]);
       } finally {
         setCountriesLoading(false);

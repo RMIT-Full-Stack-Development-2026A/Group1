@@ -65,8 +65,8 @@ router.post('/capture-order',  verifyToken, requirePlayer, SubscriptionValidator
  * /api/v1/subscription/history:
  *  get:
  *      tags: [Subscription]
- *      summary: Current Subscription Details
- *      description: Returns the current subscription detail. Will only ever return an array with 1 item (the active transaction) or 0 items (if expired/none).
+ *      summary: Subscription transaction history
+ *      description: Returns successful subscription transactions for the authenticated player, sorted by newest first.
  *      responses:
  *          200:
  *              $ref: '#/components/responses/TransactionListResponse'

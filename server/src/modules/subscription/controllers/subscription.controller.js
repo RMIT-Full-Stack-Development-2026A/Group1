@@ -43,7 +43,7 @@ export const SubscriptionController = {
     // [GET] /subscription/history endpoint
     getSubscriptionHistory: async (req, res, next) => {
         try {
-            const history = await SubscriptionService.getHistory(req.user.id);
+            const history = await SubscriptionService.getHistory(req.user.id, req.query.page, req.query.limit);
             res.status(200).json({
                 data: history,
                 message: "Subscription history fetched successfully."

@@ -1,4 +1,5 @@
 import { Revenue } from "../models/platformMetric.model.js";
+import { Transaction } from "../../subscription/models/transaction.model.js";
 import { User } from "../models/user.model.js";
 
 export const AuthRepository = {
@@ -172,7 +173,7 @@ export const AuthRepository = {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-        const [totalPlayers, activePlayers, premiumPlayers, todayAgg, weekAgg, monthAgg, metricsDoc] = await Promise.all([
+        const [totalPlayers, activePlayers, premiumPlayers, todayAgg, weekAgg, monthAgg, revenueAgg] = await Promise.all([
             User.countDocuments({ role: 'PLAYER' }),
             User.countDocuments({ role: 'PLAYER', isActive: true }),
             User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: new Date() } }),
@@ -192,7 +193,11 @@ export const AuthRepository = {
                 { $group: { _id: { $dayOfMonth: "$createdAt" }, count: { $sum: 1 } } }
             ]),
             
-            Revenue.findOne({ singletonId: 'GLOBAL_METRICS' }) 
+            Transaction.aggregate([
+                { $match: { status: 'SUCCESS' } },
+                { $group: { _id: null, totalRevenue: { $sum: '$amount' } } }
+                ,{ $project: { _id: 0, totalRevenue: { $round: ['$totalRevenue', 2] } } }
+            ])
         ]);
 
         const registeredToday = Array(24).fill(0);
@@ -207,7 +212,7 @@ export const AuthRepository = {
         const registeredThisMonth = Array(daysInMonth).fill(0);
         monthAgg.forEach(item => { registeredThisMonth[item._id - 1] = item.count; });
 
-        const totalRevenue = metricsDoc ? metricsDoc.totalRevenue : 0;
+        const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].totalRevenue : 0;
 
         return { 
             totalPlayers, activePlayers, premiumPlayers, 

@@ -1,6 +1,7 @@
 import { CountriesService } from '../services/countries.service.js';
 
 export const CountriesController = {
+    // [GET] /countries endpoint
     getCountries: async (req, res, next) => {
         try {
             const countries = await CountriesService.getCountries();
@@ -14,10 +15,11 @@ export const CountriesController = {
         }
     },
 
+    // [GET] /countries/:name/flag endpoint
     getCountryFlag: async (req, res, next) => {
         try {
-            const { countryName } = req.params;
-            const flag = await CountriesService.getCountryFlag(countryName);
+            const { name } = req.params;
+            const flag = await CountriesService.getCountryFlag(name);
 
             return res.status(200).json({
                 data: flag,

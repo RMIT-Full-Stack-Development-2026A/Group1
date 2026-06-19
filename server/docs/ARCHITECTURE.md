@@ -35,6 +35,7 @@ server/
 │   │   ├── game/                   # Owns GameSession model (History, Replays, Stats)
 │   │   ├── room/                   # Owns GameRoom model (Live WebSocket state)
 │   │   ├── subscription/           # Owns Transaction model (PayPal orders, Webhooks)
+│   │   └── countries/              # Support call REST Country API (externnal puplic API)
 │   │   └── admin/                  # Orchestration layer (No model, dashboards & moderation)
 │   ├── seed/                    # Database seeders for initial data and testing
 │   ├── sockets/                 # Socket.io bootstrap, namespaces, and emitters
@@ -85,3 +86,9 @@ server/
 **Owns**: No model.
 
 **Responsibilities**: Aggregates dashboard metrics, manages player statuses, monitors live rooms, executes force-closures.
+
+### 3.7 `countries` Module
+
+**Owns**: No model.
+
+**Responsibilities**: Acts as a backend proxy and caching layer for external country APIs. Solves frontend CORS issues, prevents external rate limiting, and returns formatted country lists and flag assets.

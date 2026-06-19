@@ -13,22 +13,36 @@ export const useCountries = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        let isMounted = true; // Prevent state updates if unmounted
+
         const load = async () => {
             try {
                 setLoading(true);
                 const data = await countryService.getCountries();
-                setCountries(data || []);
-                setError(null);
+                if (isMounted) {
+                    setCountries(data || []);
+                    setError(null);
+                }
             } catch (err) {
-                console.error("Error loading countries via countryService:", err);
-                setError(err.message || "Failed to load countries");
-                setCountries([]);
+                if (isMounted) {
+                    console.error("Error loading countries:", err);
+                    // Extract exact error message from backend if available
+                    const errorMessage = err?.response?.data?.message || err.message || "Failed to load countries";
+                    setError(errorMessage);
+                    setCountries([]);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         load();
+
+        return () => {
+            isMounted = false; // Cleanup flag on unmount
+        }
     }, []);
 
     return { countries, loading, error };

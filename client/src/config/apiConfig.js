@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
     },
     COUNTRIES: {
         LIST: "/countries",
+        FLAGS: (countryName) => `/countries/${countryName}/flags`,
     },
     GAME: {
         LIST: "/games",

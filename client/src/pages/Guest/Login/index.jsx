@@ -94,7 +94,7 @@ export default function LoginPage() {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     placeholder="USER_ID_70"
-                                    disabled={loading || isLocked}
+                                    disabled={loading}
                                     className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>

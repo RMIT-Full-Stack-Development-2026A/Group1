@@ -18,74 +18,71 @@ export const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
 
-    // Lockout state
-    const [failedAttempts, setFailedAttempts] = useState(() => {
-        const saved = localStorage.getItem("login_failed_attempts");
-        return saved ? parseInt(saved, 10) : 0;
-    });
-    const [isLocked, setIsLocked] = useState(() => {
-        const lockUntil = localStorage.getItem("login_lock_until");
-        if (lockUntil) {
-            const isStillLocked = new Date(lockUntil) > new Date();
+    // ── Per-identifier lockout helpers (scoped localStorage keys) ──
+    const getLockStorageKey = (identifier) => {
+        const normalized = (identifier || "").trim().toLowerCase();
+        return normalized ? `login_lock_${normalized}` : null;
+    };
+
+    const getLockoutState = (identifier) => {
+        const key = getLockStorageKey(identifier);
+        if (!key) return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+        try {
+            const data = JSON.parse(localStorage.getItem(key));
+            if (!data) return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+            const isStillLocked = data.lockUntil && new Date(data.lockUntil) > new Date();
             if (!isStillLocked) {
-                localStorage.removeItem("login_lock_until");
-                localStorage.removeItem("login_failed_attempts");
+                localStorage.removeItem(key);
+                return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
             }
-            return isStillLocked;
+            const remaining = Math.ceil((new Date(data.lockUntil) - new Date()) / 1000);
+            return { failedAttempts: data.failedAttempts || 0, isLocked: true, lockoutCountdown: remaining > 0 ? remaining : 0 };
+        } catch {
+            return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
         }
-        return false;
-    });
-    const [lockoutCountdown, setLockoutCountdown] = useState(() => {
-        const lockUntil = localStorage.getItem("login_lock_until");
+    };
+
+    const persistLockoutState = (identifier, failedAttempts, lockUntil) => {
+        const key = getLockStorageKey(identifier);
+        if (!key) return;
         if (lockUntil) {
-            const remaining = Math.ceil((new Date(lockUntil) - new Date()) / 1000);
-            return remaining > 0 ? remaining : 0;
+            localStorage.setItem(key, JSON.stringify({ failedAttempts, lockUntil: lockUntil.toISOString() }));
+        } else {
+            localStorage.removeItem(key);
         }
-        return 0;
-    });
+    };
 
-    // Save failedAttempts to localStorage
-    useEffect(() => {
-        localStorage.setItem("login_failed_attempts", failedAttempts.toString());
-    }, [failedAttempts]);
+    // Lockout state — derived from the current identifier in the form
+    const [lockState, setLockState] = useState(() => getLockoutState(formData.email));
+    const { failedAttempts, isLocked, lockoutCountdown } = lockState;
 
-    // Auto-lock when failedAttempts reaches 5
+    // Recalculate lockout state whenever the identifier changes
     useEffect(() => {
-        if (failedAttempts >= 5 && !isLocked) {
-            const lockUntil = new Date(Date.now() + 60 * 1000);
-            setIsLocked(true);
-            setLockoutCountdown(60);
-            localStorage.setItem("login_lock_until", lockUntil.toISOString());
-        }
-    }, [failedAttempts, isLocked]);
+        setLockState(getLockoutState(formData.email));
+    }, [formData.email]);
 
-    // Countdown timer for lockout
+    // Countdown timer for lockout (ticks every second)
     useEffect(() => {
-        let interval;
-        if (lockoutCountdown > 0) {
-            interval = setInterval(() => {
-                setLockoutCountdown((prev) => {
-                    if (prev <= 1) {
-                        localStorage.removeItem("login_lock_until");
-                        localStorage.removeItem("login_failed_attempts");
-                        setFailedAttempts(0);
-                        setIsLocked(false);
-                        setMessage({ type: "", text: "" });
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-        }
+        if (lockoutCountdown <= 0) return;
+        const interval = setInterval(() => {
+            setLockState((prev) => {
+                if (prev.lockoutCountdown <= 1) {
+                    persistLockoutState(formData.email, 0, null);
+                    setMessage({ type: "", text: "" });
+                    return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+                }
+                return { ...prev, lockoutCountdown: prev.lockoutCountdown - 1 };
+            });
+        }, 1000);
         return () => clearInterval(interval);
-    }, [lockoutCountdown]);
+    }, [lockoutCountdown, formData.email]);
 
     // Update error message with countdown
     useEffect(() => {
         if (isLocked && lockoutCountdown > 0) {
             setMessage({
                 type: "error",
-                text: `Login locked due to too many failed attempts. Try again in ${lockoutCountdown} seconds.`,
+                text: `Too many failed attempts for this account. Try again in ${lockoutCountdown} seconds.`,
             });
         }
     }, [lockoutCountdown, isLocked]);
@@ -95,7 +92,7 @@ export const useLogin = () => {
         if (!message.text) return;
 
         const isLockoutCountdownMessage =
-            isLocked && lockoutCountdown > 0 && message.text.includes("Login locked due to too many failed attempts");
+            isLocked && lockoutCountdown > 0 && message.text.includes("Too many failed attempts for this account");
 
         if (isLockoutCountdownMessage) return;
 
@@ -128,7 +125,9 @@ export const useLogin = () => {
         async (e) => {
             e.preventDefault();
 
-            // Don't allow submission if locked
+            const currentIdentifier = formData.email;
+
+            // Don't allow submission if this account is locked
             if (isLocked) {
                 return;
             }
@@ -148,11 +147,6 @@ export const useLogin = () => {
                 // Call AuthStore.login() which updates auth state and saves JWT
                 const response = await useAuthStore.getState().login(formData);
 
-                // TODO: Backend needs to implement /auth/clear-failed-attempts endpoint
-                // Uncomment the following code once backend endpoint is ready:
-                // const { authService } = await import("@/services/auth/auth.service");
-                // await authService.clearFailedAttempts();
-
                 // Show success message before redirect
                 notifySuccess("Welcome back! Redirecting...");
                 setMessage({
@@ -160,11 +154,9 @@ export const useLogin = () => {
                     text: "Login successful! Redirecting to lobby...",
                 });
 
-                // Clear failed attempts and lockout
-                setFailedAttempts(0);
-                setIsLocked(false);
-                localStorage.removeItem("login_failed_attempts");
-                localStorage.removeItem("login_lock_until");
+                // Clear failed attempts and lockout for this identifier
+                persistLockoutState(currentIdentifier, 0, null);
+                setLockState({ failedAttempts: 0, isLocked: false, lockoutCountdown: 0 });
                 // Redirect is handled by login page's useEffect when auth state updates
 
             } catch (error) {
@@ -177,33 +169,29 @@ export const useLogin = () => {
                         text: errorMessage,
                     });
                 } else if (error.response?.status === 403) {
-                    // Account locked by backend
-                    setIsLocked(true);
-                    setLockoutCountdown(60);
-					
+                    // Account locked by backend — sync client lock for this identifier
                     const lockUntil = new Date(Date.now() + 60 * 1000);
-                    localStorage.setItem("login_lock_until", lockUntil.toISOString());
+                    persistLockoutState(currentIdentifier, 5, lockUntil);
+                    setLockState({ failedAttempts: 5, isLocked: true, lockoutCountdown: 60 });
 
                     setMessage({
                         type: "error",
                         text: errorMessage || "Account locked due to too many failed attempts.",
                     });
                 } else if (error.response?.status === 401) {
-                    // Invalid credentials
-                    // Purely client-side tracking
+                    // Invalid credentials — per-identifier tracking
                     const newAttempts = failedAttempts + 1;
-                    setFailedAttempts(newAttempts);
-					
                     if (newAttempts >= 5) {
-                        setIsLocked(true);
-                        setLockoutCountdown(60);
                         const lockUntil = new Date(Date.now() + 60 * 1000);
-                        localStorage.setItem("login_lock_until", lockUntil.toISOString());
+                        persistLockoutState(currentIdentifier, newAttempts, lockUntil);
+                        setLockState({ failedAttempts: newAttempts, isLocked: true, lockoutCountdown: 60 });
                         setMessage({
                             type: "error",
                             text: "LOGIN LOCKED: 5 failed attempts. Try again in 60 seconds.",
                         });
                     } else {
+                        persistLockoutState(currentIdentifier, newAttempts, null);
+                        setLockState((prev) => ({ ...prev, failedAttempts: newAttempts }));
                         const attemptsRemaining = 5 - newAttempts;
                         setMessage({
                             type: "error",
@@ -220,7 +208,7 @@ export const useLogin = () => {
                 setLoading(false);
             }
         },
-        [isLocked, failedAttempts, formData, navigate]
+        [isLocked, failedAttempts, formData]
     );
 
     // Handle guest login

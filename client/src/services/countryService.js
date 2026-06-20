@@ -1,88 +1,68 @@
-import http from "../utils/httpHelper";
-import { API_ENDPOINTS } from "../config/apiConfig";
+import countriesData from "../data/countries.json";
 
-const countryCache = {
-    all: null,
-    flags: {},
+/**
+ * Country Service - Provides country data including flags from local JSON
+ * No external API calls needed
+ */
+
+let countriesCache = null;
+
+const getFlag = (countryName) => {
+    if (!countryName || !countriesCache) return null;
+
+    const country = countriesCache.find(
+        (c) => c.name.common.toLowerCase() === countryName.toLowerCase()
+    );
+
+    if (!country) return null;
+
+    return {
+        flag: country.flags.svg || country.flags.png,
+        flagAlt: country.name.common,
+    };
 };
 
 export const countryService = {
     /**
-     * Get all available countries from the backend proxy.
-     * @returns {Promise<Array>} Array of formatted country objects
+     * Get country flag by country name
+     * @param {string} countryName - Country name (e.g., "Algeria", "United States")
+     * @returns {{flag: string, flagAlt: string} | null} Flag URL and alt text, or null if not found
      */
-    async getCountries() {
-        if (countryCache.all) return countryCache.all;
-
-        try {
-        const response = await http.get(API_ENDPOINTS.COUNTRIES.LIST);
-        
-        // Handle standard backend response format: { data: [...], message: "..." }
-        const countryList = response?.data || response || [];
-        
-        countryCache.all = countryList;
-        return countryList;
-        } catch (error) {
-        console.error('[countryService] Failed to fetch countries:', error);
-        throw error;
+    getCountryFlag(countryName) {
+        // Ensure data is loaded
+        if (!countriesCache) {
+        this.getCountries();
         }
+        return getFlag(countryName);
+    },
+
+        /**
+     * Alias for getCountryFlag — kept for backward compatibility
+     */
+    getCountryFlagAsync(countryName) {
+        return this.getCountryFlag(countryName);
     },
 
     /**
-     * Fetch country flag and details by country name.
-     * @param {string} countryName 
-     * @returns {Promise<{flag: string, flagAlt: string} | null>}
+     * Get all available countries from local data
+     * Returns data in format for CountrySelect component: {name: {common: string}, flags: {svg, png}}
+     * @returns {Array} Array of country objects with name and flags
      */
-    async getCountryFlag(countryName) {
-        if (!countryName) return null;
-        
-        const cacheKey = countryName.trim().toLowerCase();
-        
-        // Return from memory cache if available
-        if (countryCache.flags[cacheKey]) {
-        return countryCache.flags[cacheKey];
-        }
+    getCountries() {
+        if (countriesCache) return countriesCache;
 
-        try {
-        // Try to resolve from the 'all countries' cache if previously fetched
-        if (countryCache.all) {
-            const country = countryCache.all.find((entry) => entry.name.common.toLowerCase() === cacheKey);
-            if (country) {
-            const flagData = {
-                flag: country.flags.svg || country.flags.png || country.flags.emoji,
-                flagAlt: country.name.common,
-            };
-            countryCache.flags[cacheKey] = flagData;
-            return flagData;
-            }
-        }
+        countriesCache = countriesData.map((c) => ({
+        name: { common: c.name },
+        flags: c.flags,
+        }));
 
-        // Fallback: Call the specific backend endpoint directly
-        const response = await http.get(API_ENDPOINTS.COUNTRIES.FLAG(countryName));
-        const flags = response?.data || response;
-
-        if (!flags) return null;
-
-        const flagData = {
-            flag: flags.svg || flags.png || flags.emoji,
-            flagAlt: countryName,
-        };
-
-        countryCache.flags[cacheKey] = flagData;
-        return flagData;
-
-        } catch (error) {
-        console.warn(`[countryService] Failed to fetch flag for ${countryName}:`, error);
-        return null;
-        }
+        return countriesCache;
     },
 
     /**
-     * Get country flag synchronously from cache.
-     * Useful for immediate renders in mapped lists.
+     * Clear cache (useful for testing)
      */
-    getCountryFlagSync(countryName) {
-        if (!countryName) return null;
-        return countryCache.flags[countryName.trim().toLowerCase()] || null;
-    }
+    clearCache() {
+        countriesCache = null;
+    },
 };

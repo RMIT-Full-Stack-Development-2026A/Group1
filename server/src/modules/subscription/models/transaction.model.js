@@ -66,7 +66,4 @@ const transactionSchema = new mongoose.Schema({
 transactionSchema.index({ userId: 1, createdAt: -1 }); 
 transactionSchema.index({ userId: 1, type: 1, createdAt: -1 }); 
 
-// TTL index for expiration
-transactionSchema.index({ subscriptionPeriodEnd: 1 }, { expireAfterSeconds: 0 });
-
 export const Transaction = mongoose.model('Transaction', transactionSchema);

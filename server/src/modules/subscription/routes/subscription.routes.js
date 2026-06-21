@@ -42,17 +42,10 @@ router.post('/create-order', verifyToken, requirePlayer, SubscriptionController.
  *     tags: [Subscription]
  *     summary: Validate PayPal successful payment and activate premium
  *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               orderId:
- *                 type: string
+ *       $ref: '#/components/requestBodies/CaptureOrderBody'
  *     responses:
  *       200:
- *         description: Payment captured successfully
+ *         $ref: '#/components/responses/CaptureOrderResponse'
  *       400:
  *         $ref: '#/components/responses/BadRequestResponse'
  *       401:

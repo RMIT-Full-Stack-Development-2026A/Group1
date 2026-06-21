@@ -158,9 +158,9 @@ export const requestBodies = {
             'application/json': {
                 schema: {
                     type: 'object',
-                    required: ['orderID'],
+                    required: ['orderId'],
                     properties: {
-                        orderID: { type: 'string', description: 'The PayPal Order ID to capture.' }
+                        orderId: { type: 'string', description: 'The PayPal Order ID to capture.' }
                     }
                 }
             }

@@ -131,7 +131,7 @@ export const responses = {
     },
 
     TransactionListResponse: {
-        description: 'Current Subscription Details. Returns a paginated wrapper containing max 1 active transaction.',
+        description: 'Paginated subscription transaction history.',
         content: {
             'application/json': {
                 schema: {
@@ -143,12 +143,35 @@ export const responses = {
                                 data: {
                                     type: 'object',
                                     properties: {
-                                        items: { 
-                                            type: 'array', 
-                                            description: 'Array containing max 1 active transaction.',
-                                            maxItems: 1,
-                                            items: { $ref: '#/components/schemas/Transaction' } 
+                                        items: {
+                                            type: 'array',
+                                            items: { $ref: '#/components/schemas/Transaction' },
                                         },
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        },
+    },
+
+    CaptureOrderResponse: {
+        description: 'Payment captured successfully and premium access activated.',
+        content: {
+            'application/json': {
+                schema: {
+                    allOf: [
+                        { $ref: '#/components/schemas/SuccessResponse' },
+                        {
+                            type: 'object',
+                            properties: {
+                                data: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { $ref: '#/components/schemas/SubscriptionStatus' },
+                                        transaction: { $ref: '#/components/schemas/Transaction' },
                                     },
                                 },
                             },

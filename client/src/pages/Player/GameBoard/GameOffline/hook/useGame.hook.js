@@ -152,7 +152,8 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                     
 
                     // 3. Call getBestAIMove to take the coordinate that AI will go
-                    const [bestRow, bestCol] = getBestAIMove(board, aiDifficulty, 'O');
+                    const lastPlayerMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
+                    const [bestRow, bestCol] = getBestAIMove(board, aiDifficulty, 'O', lastPlayerMove);
                     
 
                     // 4. Let bot play

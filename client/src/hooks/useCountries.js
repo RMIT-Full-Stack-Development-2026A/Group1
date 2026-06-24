@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { countryService } from "../services/countryService";
 
 /**
  * useCountries Hook
- * Fetches country data from REST Countries API
+ * Returns country data from local JSON via countryService
  * Returns array of countries with name and flag
  * Shared hook used across Register and Profile pages
  */
@@ -12,39 +13,22 @@ export const useCountries = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch(
-                    "https://restcountries.com/v3.1/all?fields=name,flags"
-                );
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch countries: ${response.statusText}`);
-                }
+        try {
+            const data = countryService.getCountries();
 
-                const data = await response.json();
-                
-                // Sort countries by name (common name or official name)
-                const sortedCountries = data.sort((a, b) => {
-                    const nameA = a.name.common || a.name.official;
-                    const nameB = b.name.common || b.name.official;
-                    return nameA.localeCompare(nameB);
-                });
-
-                setCountries(sortedCountries);
-                setError(null);
-            } catch (err) {
-                console.error("Error fetching countries:", err);
-                setError(err.message);
-                // Fallback to empty array or default countries
-                setCountries([]);
-            } finally {
-                setLoading(false);
+            if (!data || data.length === 0) {
+                throw new Error("Failed to load countries: no data available");
             }
-        };
 
-        fetchCountries();
+            setCountries(data);
+            setError(null);
+        } catch (err) {
+            console.error("Error loading countries:", err);
+            setError(err.message);
+            setCountries([]);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     return { countries, loading, error };

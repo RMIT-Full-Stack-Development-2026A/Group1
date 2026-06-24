@@ -19,6 +19,22 @@ export const CountrySelect = ({
     const dropdownRef = useRef(null);
 
     const selectedCountry = countries.find((c) => c.name.common === value);
+    const getFlagDisplay = (country) => {
+        if (!country?.flags) return null;
+
+        const flagUrl = country.flags.svg || country.flags.png || country.flags.url;
+        if (flagUrl) {
+            return { type: 'image', value: flagUrl };
+        }
+
+        if (country.flags.emoji) {
+            return { type: 'emoji', value: country.flags.emoji };
+        }
+
+        return null;
+    };
+
+    const selectedFlag = getFlagDisplay(selectedCountry);
 
     const handleSelect = (countryName) => {
         onChange({ target: { name: "country", value: countryName } });
@@ -88,20 +104,24 @@ export const CountrySelect = ({
                 type="button"
                 onClick={() => !disabled && !loading && setIsOpen(!isOpen)}
                 disabled={disabled || loading}
-                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center justify-between"
+                className="w-full bg-deep-bg border-b-2 border-outline-variant focus:border-primary-cyan text-primary-cyan p-3 font-body text-sm focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center justify-between"
             >
                 <span className="flex items-center gap-2">
                     {loading ? (
                         <span>Loading countries...</span>
                     ) : selectedCountry ? (
                         <>
-                            {selectedCountry.flags?.svg && (
+                            {selectedFlag?.type === 'image' ? (
                                 <img
-                                    src={selectedCountry.flags.svg}
+                                    src={selectedFlag.value}
                                     alt={selectedCountry.name.common}
                                     className="w-5 h-4 object-cover rounded-sm"
                                 />
-                            )}
+                            ) : selectedFlag?.type === 'emoji' ? (
+                                <span className="text-lg leading-none" aria-hidden="true">
+                                    {selectedFlag.value}
+                                </span>
+                            ) : null}
                             <span>{selectedCountry.name.common}</span>
                         </>
                     ) : (
@@ -127,10 +147,10 @@ export const CountrySelect = ({
             {isOpen && !disabled && !loading && (
                 <div 
                     ref={dropdownRef}
-                    className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[#3d484d] shadow-lg z-50 max-h-64 overflow-y-auto rounded-sm"
+                    className="mt-1 w-full bg-surface-card border border-outline-variant shadow-lg max-h-64 overflow-y-auto rounded-sm"
                 >
                     {error ? (
-                        <div className="p-3 text-[#ffb4ab] text-[10px]">
+                            <div className="p-3 text-[#ffb4ab] text-[10px]">
                             Failed to load countries
                         </div>
                     ) : (
@@ -141,17 +161,21 @@ export const CountrySelect = ({
                                 onClick={() => handleSelect(country.name.common)}
                                 className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 text-sm border-b border-[#2a2a4e] last:border-0 ${
                                     index === highlightedIndex
-                                        ? "bg-[#4cc9f0]/20"
+                                        ? "bg-primary-cyan/20"
                                         : "hover:bg-[#2a2a4e]"
                                 } text-[#e3e0f4]`}
                             >
-                                {country.flags?.svg && (
+                                {getFlagDisplay(country)?.type === 'image' ? (
                                     <img
-                                        src={country.flags.svg}
+                                        src={getFlagDisplay(country).value}
                                         alt={country.name.common}
-                                        className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
+                                        className="w-6 h-4 object-cover rounded-sm shrink-0"
                                     />
-                                )}
+                                ) : getFlagDisplay(country)?.type === 'emoji' ? (
+                                    <span className="w-6 h-4 flex items-center justify-center text-sm shrink-0" aria-hidden="true">
+                                        {getFlagDisplay(country).value}
+                                    </span>
+                                ) : null}
                                 <span>{country.name.common}</span>
                             </button>
                         ))

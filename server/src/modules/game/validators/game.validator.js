@@ -128,9 +128,9 @@ export const validateGameQuery = (query = {}, userId = null) => {
         // Also allow searching by MongoDB _id (displayed in the match history table)
         // Supports both full and partial hex IDs (e.g., "6a34d67")
         const q = String(query.q);
-        if (validateObjectId(q)) {
-            orConditions.push({ _id: new mongoose.Types.ObjectId(q) });
-        } else if (/^[0-9a-fA-F]+$/.test(q)) {
+         if (validateObjectId(q)) {
+             orConditions.push({ _id: new mongoose.Types.ObjectId(q) });
+         } else if (/^[0-9a-fA-F]+$/.test(q)) {
             orConditions.push({
                 $expr: {
                     $regexMatch: {

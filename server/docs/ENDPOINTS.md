@@ -72,7 +72,7 @@ These APIs handle account creation, login, logout, and session bootstrap.
 
 | Method | Endpoint | Access | Description | Implemented |
 |---|---|---:|---|---|
-| POST | `/auth/register` | PULIC | Register a new player | Yes |
+| POST | `/auth/register` | PUBLIC | Register a new player | Yes |
 | POST | `/auth/login` | PUBLIC | Login with username/email and password | Yes |
 | POST | `/auth/logout` | AUTHENTICATED | Clear auth cookie and logout current user | Yes |
 | GET | `/auth/check-auth` | AUTHENTICATED | Validate session and return current session payload | Yes |
@@ -161,7 +161,7 @@ Base Path: `/api/v1/subscription`
 | GET | `/subscription/status` | PLAYER | Get premium status and expiry date | Yes |
 | POST | `/subscription/create-order` | PLAYER | Generate PayPal payment link/order ID | Yes |
 | POST | `/subscription/capture-order` | PLAYER | Validate PayPal successful payment and activate premium | Yes |
-| GET | `/subscription/history` | PLAYER | Returns current active transaction | Yes |
+| GET | `/subscription/history` | PLAYER | Returns all successful subscription transactions for the authenticated player | Yes |
 | POST | `/subscription/paypal-events` | PUBLIC | Listen for PayPal async events to revoke premium | Yes |
 
 ## 6. Admin APIs
@@ -200,14 +200,20 @@ Base Path: `/api/v1/admin`
 | GET | `/admin/rooms` | ADMIN | List active/waiting rooms | Yes |
 | GET | `/admin/rooms/:id` | ADMIN | Get room detail and live snapshot | Yes |
 | DELETE | `/admin/rooms/:id` | ADMIN | Force close a room | Yes |
-| `GET` | `/api/v1/admin/players/game` | ADMIN | Fetch completed online match history across all players | Yes
+| `GET` | `/admin/players/game` | ADMIN | Fetch completed online match history across all players | Yes
 
-## 7. WebSocket Contract
+### 7. Countries Module
+| Method | Endpoint | Access | Description | Implemeted |
+|---|---|---|---|---|
+| `GET` | `/countries` | PUBLIC | Fetch full list of countries (cached) | Yes |
+| `GET` | `/countries/:countryName/flag` | PUBLIC | Fetch specific flag details by country name | Yes |
+
+## 8. WebSocket Contract
 Namespace/Endpoint: `/ws/game`
 
 The team policy already defines the event naming format as `namespace:action` and requires object payloads.
 
-### 7.1 Client → Server
+### 8.1 Client → Server
 | Event | Payload | Description |
 |---|---|---|
 | `room:create` | `{ boardSize, marker, boardStyle, markerStyle }` | Create a room. `markerStyle` applies to the Host participant. Room status becomes `WAITING`. |
@@ -219,7 +225,7 @@ The team policy already defines the event naming format as `namespace:action` an
 | `chat:send` | `{ roomId, message }` | Send in-game chat message. |
 | `room:update_settings` | `{ roomId, boardStyle, markerStyle, marker }` | Host configures lobby settings. |
 
-### 7.2 Server → Client
+### 8.2 Server → Client
 | Event | Payload | Description |
 |---|---|---|
 | `room:updated` | `{ room: { ..., participants: [{ ..., markerStyle, ... }, { ..., markerStyle, ... }], ... } }` | Room parameters or participant list changed |

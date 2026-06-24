@@ -172,7 +172,7 @@ export const AuthRepository = {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-        const [totalPlayers, activePlayers, premiumPlayers, todayAgg, weekAgg, monthAgg, metricsDoc] = await Promise.all([
+        const [totalPlayers, activePlayers, premiumPlayers, todayAgg, weekAgg, monthAgg] = await Promise.all([
             User.countDocuments({ role: 'PLAYER' }),
             User.countDocuments({ role: 'PLAYER', isActive: true }),
             User.countDocuments({ role: 'PLAYER', premiumExpiresAt: { $gt: new Date() } }),
@@ -190,9 +190,7 @@ export const AuthRepository = {
             User.aggregate([
                 { $match: { role: 'PLAYER', createdAt: { $gte: startOfMonth } } },
                 { $group: { _id: { $dayOfMonth: "$createdAt" }, count: { $sum: 1 } } }
-            ]),
-            
-            Revenue.findOne({ singletonId: 'GLOBAL_METRICS' }) 
+            ])
         ]);
 
         const registeredToday = Array(24).fill(0);
@@ -207,12 +205,9 @@ export const AuthRepository = {
         const registeredThisMonth = Array(daysInMonth).fill(0);
         monthAgg.forEach(item => { registeredThisMonth[item._id - 1] = item.count; });
 
-        const totalRevenue = metricsDoc ? metricsDoc.totalRevenue : 0;
-
         return { 
             totalPlayers, activePlayers, premiumPlayers, 
             registeredToday, registeredThisWeek, registeredThisMonth, 
-            totalRevenue
         };
     },
     

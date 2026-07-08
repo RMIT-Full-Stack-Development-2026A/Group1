@@ -174,17 +174,6 @@ export const SubscriptionService = {
     createOrder: async (userId) => {
         const user = await AuthInterface.getUserById(userId);
 
-        // Prevent overwrite
-        if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {
-            throw {
-                statusCode: 409, // Conflict
-                error: "ALREADY_PREMIUM",
-                message: "Cannot create a new premium order.",
-                cause: "You already have an active premium subscription.",
-                valid_example: "Wait until your current subscription expires before purchasing again."
-            };
-        }
-
         const accessToken = await generateAccessToken();
         const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
             method: 'POST',
@@ -225,6 +214,7 @@ export const SubscriptionService = {
             amount: parseFloat(PREMIUM_PRICE),
             currency: 'USD',
             status: 'PENDING',
+            orderId: orderData.id,
             externalTransactionId: orderData.id
         });
 
@@ -257,7 +247,11 @@ export const SubscriptionService = {
             };
         }
         if (transaction.status === 'SUCCESS') {
-            throw { statusCode: 400, error: "ALREADY_CAPTURED", message: "This order has already been captured." };
+            return SubscriptionDTO.toPurchaseResponse({
+                isPremium: true,
+                premiumExpiresAt: transaction.subscriptionPeriodEnd ?? null,
+                transaction
+            });
         }
 
         const accessToken = await generateAccessToken();
@@ -272,21 +266,44 @@ export const SubscriptionService = {
         const captureData = await response.json();
 
         if (captureData.status === 'COMPLETED') {
-            // Calculate premium dates
+            const currentUser = await AuthInterface.getUserById(userId);
             const startDate = new Date();
-            const endDate = new Date();
-            endDate.setDate(endDate.getDate() + PREMIUM_DURATION_DAYS);
+            const premiumEndDate = new Date();
+            const currentExpiry = currentUser?.premiumExpiresAt ? new Date(currentUser.premiumExpiresAt) : null;
+            const hasActivePremium = currentExpiry && currentExpiry.getTime() > startDate.getTime();
+            const baseDate = hasActivePremium ? currentExpiry : startDate;
 
-            // Update transaction to SUCCESS
-            const updatedTransaction = await SubscriptionRepository.updateTransactionStatus(orderId, {
+            premiumEndDate.setTime(baseDate.getTime());
+            premiumEndDate.setDate(premiumEndDate.getDate() + PREMIUM_DURATION_DAYS);
+
+            // Atomic status transition prevents double-processing in concurrent capture requests.
+            const updatedTransaction = await SubscriptionRepository.markSuccessIfPending(orderId, {
                 status: 'SUCCESS',
                 subscriptionPeriodStart: startDate,
-                subscriptionPeriodEnd: endDate,
+                subscriptionPeriodEnd: premiumEndDate,
                 metadata: captureData // Store raw PayPal response for audit
             });
 
+            if (!updatedTransaction) {
+                const latestTransaction = await SubscriptionRepository.findByExternalId(orderId);
+
+                if (latestTransaction?.status === 'SUCCESS') {
+                    return SubscriptionDTO.toPurchaseResponse({
+                        isPremium: true,
+                        premiumExpiresAt: latestTransaction.subscriptionPeriodEnd ?? null,
+                        transaction: latestTransaction
+                    });
+                }
+
+                throw {
+                    statusCode: 409,
+                    error: 'ORDER_ALREADY_PROCESSED',
+                    message: 'This order was already processed by another request.'
+                };
+            }
+
             // Update user's premium expiry date
-            await AuthInterface.setPremiumExpiry(transaction.userId, endDate);
+            await AuthInterface.setPremiumExpiry(transaction.userId, premiumEndDate);
             const user = await AuthInterface.getUserById(userId);
 
             // Update total revenue
@@ -305,7 +322,7 @@ export const SubscriptionService = {
                 };
             }
 
-            void SubscriptionService.sendConfirmationEmail(user.email, user.username, endDate);
+            void SubscriptionService.sendConfirmationEmail(user.email, user.username, premiumEndDate);
             return SubscriptionDTO.toPurchaseResponse({
                 isPremium: user.isPremium,
                 premiumExpiresAt: user.premiumExpiresAt,
@@ -320,8 +337,16 @@ export const SubscriptionService = {
 
     // [GET] /subscription/history endpoint
     getHistory: async (userId, page, limit) => {
-        const transaction = await SubscriptionRepository.getActiveTransactionByUserId(userId);
-        return SubscriptionDTO.toHistory(transaction);
+        const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+        const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 20;
+        const skip = (safePage - 1) * safeLimit;
+
+        const { items, total } = await SubscriptionRepository.getSuccessfulTransactionsByUserId(userId, skip, safeLimit);
+        return SubscriptionDTO.toHistoryList(items, {
+            total,
+            page: safePage,
+            limit: safeLimit
+        });
     },
 
     // [GET] /subscription/paypal-events endpoint

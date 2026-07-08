@@ -1,91 +1,68 @@
-// Country Service - Fetch country data including flags from REST Countries API
-// Caches results to reduce API calls
+import countriesData from "../data/countries.json";
 
-const countryCache = {};
+/**
+ * Country Service - Provides country data including flags from local JSON
+ * No external API calls needed
+ */
+
+let countriesCache = null;
+
+const getFlag = (countryName) => {
+    if (!countryName || !countriesCache) return null;
+
+    const country = countriesCache.find(
+        (c) => c.name.common.toLowerCase() === countryName.toLowerCase()
+    );
+
+    if (!country) return null;
+
+    return {
+        flag: country.flags.svg || country.flags.png,
+        flagAlt: country.name.common,
+    };
+};
 
 export const countryService = {
-  /**
-   * Fetch country flag and details by country name
-   * @param {string} countryName - Country name (e.g., "Algeria", "United States")
-   * @returns {Promise<{flag: string, flagAlt: string} | null>} Flag emoji/URL or null if not found
-   */
-  async getCountryFlag(countryName) {
-    if (!countryName) return null;
+    /**
+     * Get country flag by country name
+     * @param {string} countryName - Country name (e.g., "Algeria", "United States")
+     * @returns {{flag: string, flagAlt: string} | null} Flag URL and alt text, or null if not found
+     */
+    getCountryFlag(countryName) {
+        // Ensure data is loaded
+        if (!countriesCache) {
+        this.getCountries();
+        }
+        return getFlag(countryName);
+    },
 
-    // Return from cache if available
-    if (countryCache[countryName]) {
-      return countryCache[countryName];
-    }
+        /**
+     * Alias for getCountryFlag — kept for backward compatibility
+     */
+    getCountryFlagAsync(countryName) {
+        return this.getCountryFlag(countryName);
+    },
 
-    try {
-      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flags');
-      const countries = await response.json();
+    /**
+     * Get all available countries from local data
+     * Returns data in format for CountrySelect component: {name: {common: string}, flags: {svg, png}}
+     * @returns {Array} Array of country objects with name and flags
+     */
+    getCountries() {
+        if (countriesCache) return countriesCache;
 
-      // Find matching country by common name
-      const country = countries.find(
-        (c) => c.name.common.toLowerCase() === countryName.toLowerCase()
-      );
+        countriesCache = countriesData.map((c) => ({
+        name: { common: c.name },
+        flags: c.flags,
+        }));
 
-      if (country) {
-        const flagData = {
-          flag: country.flags.svg || country.flags.png,
-          flagAlt: country.name.common,
-        };
-        // Cache the result
-        countryCache[countryName] = flagData;
-        return flagData;
-      }
+        return countriesCache;
+    },
 
-      return null;
-    } catch (error) {
-      console.warn(`[countryService] Failed to fetch flag for ${countryName}:`, error);
-      return null;
-    }
-  },
-
-  /**
-   * Get country flag synchronously from cache (if available)
-   * Useful for rendering after initial load
-   */
-  getCountryFlagSync(countryName) {
-    return countryCache[countryName] || null;
-  },
-
-  /**
-   * Get all available countries from REST Countries API with flags and caching
-   * Returns data in format for CountrySelect component: {name: {common: string}, flags: {svg, png}}
-   * @returns {Promise<Array>} Array of country objects with name.common and flags
-   */
-  async getCountries() {
-    // Return from cache if available
-    if (countryCache['__ALL__']) {
-      return countryCache['__ALL__'];
-    }
-
-    try {
-      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flags');
-      const countries = await response.json();
-
-      const countryList = countries
-        .map((c) => ({
-          name: { common: c.name.common },
-          flags: c.flags,
-        }))
-        .sort((a, b) => a.name.common.localeCompare(b.name.common));
-
-      // Cache the result
-      countryCache['__ALL__'] = countryList;
-      return countryList;
-    } catch (error) {
-      console.warn('[countryService] Failed to fetch countries list:', error);
-      return [];
-    }
-  },
-
-  /**
-   * Clear country cache (useful for testing)
-   */
-  clearCache() {
-    Object.keys(countryCache).forEach((key) => delete countryCache[key]);
-  },
+    /**
+     * Clear cache (useful for testing)
+     */
+    clearCache() {
+        countriesCache = null;
+    },
 };

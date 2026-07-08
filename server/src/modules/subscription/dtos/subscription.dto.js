@@ -10,6 +10,7 @@ const toHistoryItem = (transaction) => ({
     amount: transaction.amount,
     currency: transaction.currency,
     status: transaction.status,
+    orderId: transaction.orderId ?? transaction.externalTransactionId ?? null,
     externalTransactionId: transaction.externalTransactionId ?? null,
     subscriptionPeriodStart: transaction.subscriptionPeriodStart ?? null,
     subscriptionPeriodEnd: transaction.subscriptionPeriodEnd ?? null,
@@ -52,5 +53,18 @@ export const SubscriptionDTO = {
         total: transaction ? 1 : 0,
         page: 1,  
         limit: 1 
+    }),
+
+    /**
+     * Maps successful transaction list to history list DTO.
+     * @param {Array<Object>} items - Transaction list.
+     * @param {Object} meta - Pagination metadata.
+     * @returns {Object} History list payload.
+     */
+    toHistoryList: (items, meta = {}) => ({
+        items: Array.isArray(items) ? items.map(toHistoryItem) : [],
+        total: meta.total ?? 0,
+        page: meta.page ?? 1,
+        limit: meta.limit ?? 20
     })
 };

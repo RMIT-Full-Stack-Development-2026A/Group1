@@ -42,17 +42,10 @@ router.post('/create-order', verifyToken, requirePlayer, SubscriptionController.
  *     tags: [Subscription]
  *     summary: Validate PayPal successful payment and activate premium
  *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               orderId:
- *                 type: string
+ *       $ref: '#/components/requestBodies/CaptureOrderBody'
  *     responses:
  *       200:
- *         description: Payment captured successfully
+ *         $ref: '#/components/responses/CaptureOrderResponse'
  *       400:
  *         $ref: '#/components/responses/BadRequestResponse'
  *       401:
@@ -65,8 +58,8 @@ router.post('/capture-order',  verifyToken, requirePlayer, SubscriptionValidator
  * /api/v1/subscription/history:
  *  get:
  *      tags: [Subscription]
- *      summary: Current Subscription Details
- *      description: Returns the current subscription detail. Will only ever return an array with 1 item (the active transaction) or 0 items (if expired/none).
+ *      summary: Subscription transaction history
+ *      description: Returns successful subscription transactions for the authenticated player, sorted by newest first.
  *      responses:
  *          200:
  *              $ref: '#/components/responses/TransactionListResponse'

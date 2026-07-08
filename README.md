@@ -97,6 +97,14 @@ cd server
 npm install
 ```
 
+- *Note*: Update all project dependencies and solve security issues
+
+```bash
+npm audit # Scans dependencies and lists all known security vulnerabilities
+npm audit fix #Automatically installs compatible, non-vulnerable updates (removes minor/patch issues)
+npm audit fix --force # Overrides version locks to install major updates. Warning: Major updates can introduce breaking change
+```
+
 Create a `.env` file inside `server/` and populate it with the following:
 ```env
 # Server Configuration

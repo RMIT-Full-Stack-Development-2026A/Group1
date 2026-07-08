@@ -25,17 +25,40 @@ const isAdjacentToOpponent = (board, row, col, opponentMark) => {
 };
 
 /**
- * Easy AI Move - Randomly selects an empty cell adjacent to player's moves
- * Optimized using Zone of Interest and 8-direction scanning
+ * Easy AI Move - Randomly selects an empty cell adjacent to the player's LAST move
+ * (with fallback to zone-based scanning if no adjacent cell is available or no last move provided)
  */
-export const getEasyMove = (board, botMark = 'O') => {
+export const getEasyMove = (board, botMark = 'O', lastMove = null) => {
     const size = board.length;
     const opponentMark = botMark === 'X' ? 'O' : 'X';
-    
-    // We only need padding 1 because we only care about immediately adjacent cells
+
+    // ── If we know the player's last move, only pick adjacent to it ──
+    if (lastMove && lastMove.row != null && lastMove.col != null) {
+        const directions = [
+            [-1, 0], [1, 0], [0, -1], [0, 1],
+            [-1, -1], [-1, 1], [1, -1], [1, 1]
+        ];
+
+        const adjacentMoves = [];
+        for (const [dr, dc] of directions) {
+            const r = lastMove.row + dr;
+            const c = lastMove.col + dc;
+            if (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === null) {
+                adjacentMoves.push([r, c]);
+            }
+        }
+
+        if (adjacentMoves.length > 0) {
+            const randomIndex = Math.floor(Math.random() * adjacentMoves.length);
+            return adjacentMoves[randomIndex];
+        }
+
+        // Fallthrough: all adjacent cells occupied → fall back to zone scanning
+    }
+
+    // ── Fallback: zone-based adjacent-to-any-player-move scanning ──
     const zone = getActiveZone(board, 1);
 
-    // Fallback: If board is empty (first move), play exactly in the center
     if (!zone) {
         const center = Math.floor(size / 2);
         return [center, center];
@@ -43,17 +66,14 @@ export const getEasyMove = (board, botMark = 'O') => {
 
     const candidateMoves = [];
 
-    // Only scan within the active bounding box
     for (let r = zone.minR; r <= zone.maxR; r++) {
         for (let c = zone.minC; c <= zone.maxC; c++) {
-            // Find empty cells that touch at least one opponent's mark
             if (board[r][c] === null && isAdjacentToOpponent(board, r, c, opponentMark)) {
                 candidateMoves.push([r, c]);
             }
         }
     }
 
-    // Pick a random adjacent cell
     if (candidateMoves.length > 0) {
         const randomIndex = Math.floor(Math.random() * candidateMoves.length);
         return candidateMoves[randomIndex];

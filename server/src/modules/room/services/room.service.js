@@ -505,36 +505,41 @@ export const RoomService = {
         if (playerIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "User is not a participant of this room." };
         
         const isHost = room.participants[playerIndex].isHost;
-        let hasChanged = false;
+        let globalChanged = false;
+        let personalChanged = false;
         
-        // Only host can change board-level settings
+        // GLOBAL SETTINGS: Only host can change board-level settings
         if (boardStyle !== undefined && isHost && room.boardStyle !== boardStyle) {
             room.boardStyle = boardStyle;
-            hasChanged = true;
+            globalChanged = true;
         }
         
-        // Only host can change marker assignments
+        // GLOBAL SETTINGS: Only host can change marker assignments (affects both)
         if (marker !== undefined && isHost && room.participants[playerIndex].mark !== marker) {
             room.participants[playerIndex].mark = marker;
             
-            // If there is another player, swap their marker
+            // Swap the other player's marker
             const otherPlayerIndex = playerIndex === 0 ? 1 : 0;
             if (room.participants[otherPlayerIndex]) {
                 room.participants[otherPlayerIndex].mark = marker === 'X' ? 'O' : 'X';
             }
-            hasChanged = true;
+            globalChanged = true;
         }
 
-        // Any player can change their own markerStyle
+       // PERSONAL SETTINGS: Any player can change their own markerStyle
         if (markerStyle !== undefined && room.participants[playerIndex] && room.participants[playerIndex].markerStyle !== markerStyle) {
             room.participants[playerIndex].markerStyle = markerStyle;
-            hasChanged = true;
+            personalChanged = true;
         }
 
-        if (hasChanged) {
-            // Reset ready state for both players whenever settings change
+        // Apply granular Ready state resets
+        if (globalChanged) {
+            // Anti-cheat: Game rules changed. Unready BOTH players.
             room.participants.forEach(p => p.isReady = false);
-
+            await room.save();
+        } else if (personalChanged) {
+            // Cosmetic change: Unready only the player making the change. 
+            room.participants[playerIndex].isReady = false;
             await room.save();
         }
 
@@ -547,11 +552,21 @@ export const RoomService = {
         const room = await GameRoom.findById(roomId);
         
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
+
+        const playerIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
+        if (playerIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "User is not a participant of this room." };
+        
         const isHost = room.participants.some(p => p.userId.toString() === userId.toString() && p.isHost);
         if (!isHost) throw { statusCode: 403, error: "FORBIDDEN", message: "Only the host can set first turn." };
 
-        room.firstTurnParticipantIndex = firstTurnParticipantIndex;
-        room.participants.forEach(p => p.isReady = false); // Reset ready
+        // Only reset if the value changed
+        if (room.firstTurnParticipantIndex !== firstTurnParticipantIndex) {
+            room.firstTurnParticipantIndex = firstTurnParticipantIndex;
+            
+            // Cosmetic change: Unready only the player making the change.
+            room.participants[playerIndex].isReady = false;
+            await room.save();
+        }
         
         await room.save();
         return { roomId, room: RoomDTO.toRoomSummary(room) };

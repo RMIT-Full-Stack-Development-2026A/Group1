@@ -1,6 +1,7 @@
 import { AuthInterface } from '../../auth/interfaces/auth.interface.js';
 import { GameInterface } from '../../game/interfaces/game.interface.js';
 import { RoomInterface } from '../../room/interfaces/room.interface.js';
+import { SubscriptionInterface } from '../../subscription/interfaces/subscription.interface.js';
 import { AdminDTO } from '../dtos/admin.dto.js';
 import { validatePlayerQuery, validateObjectId, validateAdminRoomQuery, validateAdminPlayerGameQuery } from '../validators/admin.validator.js';
 
@@ -11,16 +12,18 @@ export const AdminService = {
     // [GET] /admin/dashboard endpoint
     getDashboard: async () => {
         // Fetch all metrics concurrently for performance
-        const [authMetrics, totalMatches, activeRooms] = await Promise.all([
+        const [authMetrics, totalMatches, activeRooms, totalRevenue] = await Promise.all([
             AuthInterface.getPlatformMetrics(),
             GameInterface.getTotalPlatformMatches(),
-            RoomInterface.getActiveRoomsCount()
+            RoomInterface.getActiveRoomsCount(),
+            SubscriptionInterface.getTotalRevenue()
         ]);
 
         return AdminDTO.toDashboard({
             ...authMetrics, 
             totalMatches,
-            activeRooms
+            activeRooms,
+            totalRevenue
         });
     },
     

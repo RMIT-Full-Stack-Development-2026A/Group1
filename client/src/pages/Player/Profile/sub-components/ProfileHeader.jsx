@@ -7,6 +7,9 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
+  const flagUrl = countryFlag?.flag && /^https?:\/\//i.test(countryFlag.flag) ? countryFlag.flag : null;
+  const flagEmoji = countryFlag?.flag && !flagUrl ? countryFlag.flag : null;
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -160,12 +163,16 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
               {/* Stats Row */}
               <div className="flex items-center gap-4 text-outline font-bold text-xs uppercase tracking-widest flex-wrap">
                 <span className="flex items-center gap-1">
-                  {countryFlag ? (
+                  {flagUrl ? (
                     <img
-                      src={countryFlag.flag}
+                      src={flagUrl}
                       alt={countryFlag.flagAlt}
                       className="w-6 h-4 object-cover"
                     />
+                  ) : flagEmoji ? (
+                    <span className="text-base leading-none" aria-hidden="true">
+                      {flagEmoji}
+                    </span>
                   ) : (
                     <span className="material-symbols-outlined text-sm">flag</span>
                   )}

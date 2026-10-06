@@ -16,17 +16,19 @@ const MatchHeader = ({ session }) => {
                 <div className="flex items-center gap-4">
                     <h1 className="font-headline text-2xl text-[#fad100] uppercase tracking-tight">MATCH REPLAY</h1>
                     <span className="bg-secondary-container text-[#fad100] px-3 py-1 flex items-center gap-2 text-[10px] font-bold border-2 border-on-secondary-container chunky-shadow">
-                        <span className="font-headline material-symbols-outlined text-[#fad100]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                        <span aria-hidden="true" className="font-headline material-symbols-outlined text-[#fad100]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
                         PREMIUM
                     </span>
                 </div>
                 <p className="text-[#5bd5fc] tracking-widest text-sm font-bold font-body">
                     {nameX} <span className="text-[#ffb4ab] mx-2">VS</span> {nameO}
                     <span className="text-[#ffb4ab] mx-4">|</span>
-                    {new Date(session.createdAt).toLocaleDateString()}
+                    {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(session.createdAt))}
                     <span className="text-[#ffb4ab] mx-4">|</span>
                     RESULT: <span className={`px-2 uppercase font-bold ${session.endedReason === 'WIN' ? 'text-secondary-container bg-secondary-container/20' : 'text-[#879398] bg-surface-container'}`}>
-                        {session.status}
+                        {session.winner
+                            ? `${session.winner.role === 'AI' ? `AI (${session.winner.aiDifficulty})` : session.winner.usernameSnapshot} WINS`
+                            : session.status}
                     </span>
                 </p>
             </div>

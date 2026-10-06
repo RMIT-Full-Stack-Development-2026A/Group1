@@ -69,7 +69,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
         }}
       ></div>
       
-      <div className="flex items-center gap-6 flex-1">
+      <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0 w-full">
         {/* Avatar with Edit Overlay */}
         <div 
           className="relative w-20 h-20 shrink-0 group cursor-pointer"
@@ -79,11 +79,11 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
             {playerData?.avatarUrl ? (
               <img
                 alt="Player Avatar"
-                className="w-full h-full group-hover:opacity-75 transition-all duration-200 cursor-pointer"
+                className="w-full h-full group-hover:opacity-75 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200 cursor-pointer"
                 src={playerData.avatarUrl}
               />
             ) : (
-              <span className="material-symbols-outlined text-6xl text-primary-container group-hover:text-opacity-40 transition-all duration-200">
+              <span className="material-symbols-outlined text-6xl text-primary-container group-hover:text-opacity-40 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200">
                 account_circle
               </span>
             )}
@@ -98,7 +98,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                   handleAvatarClick();
                 }}
                 disabled={uploading || !playerData}
-                className="p-2 text-primary-cyan hover:text-opacity-70 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="p-2 text-primary-cyan hover:text-opacity-70 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 title="Change avatar"
               >
                 <span className="material-symbols-outlined text-xl">edit</span>
@@ -135,11 +135,11 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
         </div>
 
         {/* Player Info */}
-        <div className="flex flex-col gap-1 flex-1">
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           {playerData ? (
             <>
               <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="font-arcade text-2xl text-on-surface">
+                <h2 className="font-arcade text-xl sm:text-2xl text-on-surface break-all">
                   {playerData.username}
                 </h2>
                 {playerData.isPremium && (
@@ -190,10 +190,10 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
       </div>
 
       {/* Edit and Action Buttons */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={onEditProfile}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
         >
           <span className="material-symbols-outlined text-sm">edit</span>
           EDIT PROFILE
@@ -201,7 +201,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
         <button
           onClick={onChangePassword}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
           title="Change your password"
         >
           <span className="material-symbols-outlined text-sm">lock</span>

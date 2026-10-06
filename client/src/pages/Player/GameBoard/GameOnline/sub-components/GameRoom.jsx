@@ -65,8 +65,8 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
         <div className="h-1 w-24 bg-primary-cyan" />
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row items-start md:items-center overflow-auto md:overflow-hidden min-h-0 px-4 md:px-6 gap-4">
-        <div className="flex flex-col items-center gap-3 w-full md:w-[260px] shrink-0">
+      <div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center overflow-auto lg:overflow-hidden min-h-0 px-4 lg:px-6 pt-14 lg:pt-0 gap-4">
+        <div className="flex flex-col items-center gap-3 w-full lg:w-[260px] shrink-0">
           <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={hostMarkerStyle} markerVariantKey={hostMarkerStyle} />
 
           {host && (
@@ -79,7 +79,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
           )}
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container overflow-visible md:overflow-hidden gap-3 w-full min-w-0">
+        <div className="flex-1 flex flex-col items-center justify-between py-3 px-4 bg-surface-container overflow-visible lg:overflow-hidden gap-3 w-full min-w-0">
           <div className="flex flex-col items-center gap-2 flex-none w-full">
             <span className="font-headline text-[36px] text-[#fad100]">VS</span>
            
@@ -91,7 +91,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-full md:max-w-75 flex-none">
+          <div className="flex flex-col gap-2 w-full lg:max-w-75 flex-none">
             {/* Gold section label — matches GameCustomization section header style */}
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1 h-5 bg-[#fad100]" />
@@ -112,7 +112,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </div>
 
             {/* STYLE + MARKER side by side */}
-            <div className="flex flex-col md:flex-row gap-2 w-full">
+            <div className="flex flex-col lg:flex-row gap-2 w-full">
               <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] w-full">
                 <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">STYLE</span>
                 <span className="font-headline text-sm text-[#4cc9f0]">{roomData?.boardStyle || 'JUNGLE'}</span>
@@ -127,7 +127,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             <button
               onClick={handleToggleFirstTurn}
               disabled={!isHost || roomData?.status === "WAITING"}
-              className={`flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] transition-all ${
+              className={`flex items-center justify-between px-4 py-2 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${
                 isHost
                   ? 'cursor-pointer hover:bg-[#252535] hover:border-primary-cyan active:translate-y-0.5'
                   : 'cursor-not-allowed opacity-60'
@@ -144,11 +144,11 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-3 w-full md:max-w-65 flex-none min-h-35">
+          <div className="flex flex-col items-center gap-3 w-full lg:max-w-65 flex-none min-h-35">
             <div className="flex items-center justify-center gap-4 w-full">
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <div className={`w-2 h-2 transition-all duration-500 ${p?.isReady ? 'bg-[#24d642]' : 'bg-[#6d706d]'}`} />
+                  <div className={`w-2 h-2 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-500 ${p?.isReady ? 'bg-[#24d642]' : 'bg-[#6d706d]'}`} />
                   <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-[#24d642]' : 'text-[#6d706d]'}`}>
                     {p?.usernameSnapshot || '???'}
                   </span>
@@ -161,14 +161,14 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
 
             <button
               onClick={handleLeaveWithSound}
-              className="bg-transparent border border-[#ffb4ab] text-[#ffb4ab] cursor-pointer font-headline py-3 px-8 tracking-tight hover:bg-[#ffb4ab]/10 active:translate-y-0.5 transition-all text-xs w-full"
+              className="bg-transparent border border-[#ffb4ab] text-[#ffb4ab] cursor-pointer font-headline py-3 px-8 tracking-tight hover:bg-[#ffb4ab]/10 active:translate-y-0.5 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] text-xs w-full"
             >
               LEAVE ROOM
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-3 w-full md:w-[260px] shrink-0">
+        <div className="flex flex-col items-center gap-3 w-full lg:w-[260px] shrink-0">
           <PlayerCard participant={guest} isCurrentUser={guest?.userId === currentUserId} side="right" avatarUrl={guestAvatarUrl} markerStyle={guestMarkerStyle} markerVariantKey={guestMarkerStyle} />
 
           {guest && (

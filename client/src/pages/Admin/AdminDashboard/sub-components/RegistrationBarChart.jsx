@@ -21,8 +21,8 @@ export default function RegistrationBarChart({ data, title, labels, xAxisTitle =
         </h3>
       </div>
 
-      <div className="w-full h-48">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full min-w-0 h-48">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 192 }}>
           <BarChart data={chartData} margin={{ top: 10, right: 20, left: 24, bottom: 38 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 255, 255, 0.1)" />
             <YAxis
@@ -45,6 +45,7 @@ export default function RegistrationBarChart({ data, title, labels, xAxisTitle =
             </YAxis>
             <XAxis
               dataKey="name"
+              minTickGap={14}
               stroke="rgba(0, 255, 255, 0.6)"
               height={42}
               tickMargin={8}

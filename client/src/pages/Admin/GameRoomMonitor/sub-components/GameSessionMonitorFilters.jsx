@@ -28,7 +28,7 @@ export default function GameSessionMonitorFilters({ initialFilters = {}, onApply
             value={local.sessionNumber || ""}
             onChange={(e) => updateLocal("sessionNumber", e.target.value)}
             placeholder="Session number"
-            className="w-full bg-transparent font-body text-xs uppercase tracking-[0.14em] text-on-surface outline-none placeholder:text-outline-variant border-b-2 border-outline px-3 py-2"
+            className="w-full bg-transparent font-body text-xs uppercase tracking-[0.14em] text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] placeholder:text-outline-variant border-b-2 border-outline px-3 py-2"
           />
         </label>
 
@@ -39,7 +39,7 @@ export default function GameSessionMonitorFilters({ initialFilters = {}, onApply
             value={local.q || ""}
             onChange={(e) => updateLocal("q", e.target.value)}
             placeholder="Player username"
-            className="w-full bg-transparent font-body text-xs uppercase tracking-[0.14em] text-on-surface outline-none placeholder:text-outline-variant border-b-2 border-outline px-3 py-2"
+            className="w-full bg-transparent font-body text-xs uppercase tracking-[0.14em] text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] placeholder:text-outline-variant border-b-2 border-outline px-3 py-2"
           />
         </label>
 

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { X, Eye } from 'lucide-react';
 
@@ -72,8 +73,9 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
     const subtitle = typeof resultConfig.subtitle === 'function' ? resultConfig.subtitle(winnerData) : resultConfig.subtitle;
     const badgeText = resultConfig.badge;
 
-    return (
-        <div className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center animate-fade-in">
+    // Portal to <body> so the overlay sits above fixed UI (chat button) that lives outside the game stacking context.
+    return createPortal(
+        <div role="dialog" aria-modal="true" aria-label="Game over" className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center overscroll-contain animate-fade-in">
 
             {/* Background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none animated-particles">
@@ -142,13 +144,15 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
                     </button>
                     <button
                         onClick={onBackToLobby}
-                        className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-all"
+                        className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                     >
                         BACK TO LOBBY
                     </button>
                 </div>
             </div>
         </div>
+        ,
+        document.body
     );
 };
 

@@ -36,7 +36,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
     const avatarUrl = participant?.avatarSnapshot || participant?.avatar || participant?.avatarUrl || null;
 
     if (avatarUrl) {
-      return <img src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
+      return <img width="96" height="96" src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
     }
 
     return <span className="material-symbols-outlined text-primary-cyan">person</span>;
@@ -44,7 +44,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
 
   return (
     <article
-      className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all ${style.wrapper}`}
+      className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${style.wrapper}`}
     >
       <div className="flex items-center justify-between border-b-2 border-outline-variant bg-deep-bg px-4 py-3">
         <div>
@@ -138,9 +138,9 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
             type="button"
             onClick={() => onClose(room)}
             disabled={isClosing}
-            className="w-full border-2 border-primary-cyan py-2 font-mono text-sm font-bold uppercase tracking-tighter text-primary-cyan transition-all hover:bg-primary-cyan hover:text-deep-bg hover:shadow-[0_0_12px_#4cc9f0] disabled:cursor-wait disabled:opacity-60"
+            className="w-full border-2 border-primary-cyan py-2 font-mono text-sm font-bold uppercase tracking-tighter text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:bg-primary-cyan hover:text-deep-bg hover:shadow-[0_0_12px_#4cc9f0] disabled:cursor-wait disabled:opacity-60"
           >
-            {isClosing ? "Closing..." : "Close Room"}
+            {isClosing ? "Closing…" : "Close Room"}
           </button>
         )}
       </div>

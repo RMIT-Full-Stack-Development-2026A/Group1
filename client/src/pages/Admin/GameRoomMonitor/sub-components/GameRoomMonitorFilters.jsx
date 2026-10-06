@@ -15,7 +15,7 @@ export default function GameRoomMonitorFilters({ searchTerm, setSearchTerm, onRe
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Room number or player name"
-              className="w-full bg-transparent font-body text-xs uppercase tracking-[0.14em] text-on-surface outline-none placeholder:text-outline-variant"
+              className="w-full bg-transparent font-body text-xs uppercase tracking-[0.14em] text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] placeholder:text-outline-variant"
             />
           </div>
         </label>

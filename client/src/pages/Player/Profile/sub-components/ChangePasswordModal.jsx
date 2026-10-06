@@ -163,7 +163,7 @@ export default function ChangePasswordModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div role="dialog" aria-modal="true" aria-label="Change password" className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overscroll-contain">
       <div className="bg-[#1a1a2e] border border-[#2a2a4e] w-full max-w-[500px] max-h-[90vh] shadow-[4px_4px_0px_0px_#343342] relative flex flex-col">
         {/* Terminal Header Decoration */}
         <div className="absolute top-0 left-0 w-full h-1 bg-[#4cc9f0]"></div>
@@ -179,7 +179,7 @@ export default function ChangePasswordModal({
         {saveSuccess && (
           <div className="mx-8 mb-4 p-3 bg-[#5cb85c]/20 border border-[#5cb85c] text-[#5cb85c] text-xs rounded flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">check_circle</span>
-            Password changed successfully! Closing...
+            Password changed successfully! Closing…
           </div>
         )}
 
@@ -214,7 +214,7 @@ export default function ChangePasswordModal({
                   placeholder="Enter your current password"
                   disabled={isSaving}
                   autoComplete="off"
-                  className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed pr-10"
+                  className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed pr-10"
                 />
                 <button
                   type="button"
@@ -271,7 +271,7 @@ export default function ChangePasswordModal({
             type="button"
             onClick={onClose}
             disabled={isSaving || saveSuccess}
-            className="px-4 py-2 border border-outline text-xs uppercase font-bold tracking-widest hover:bg-surface-container-highest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-outline text-xs uppercase font-bold tracking-widest hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             CANCEL
           </button>
@@ -279,9 +279,9 @@ export default function ChangePasswordModal({
             type="button"
             disabled={isSaving || saveSuccess}
             onClick={handleSave}
-            className="px-6 py-2 bg-[#4cc9f0] text-[#0d0d1a] text-xs uppercase font-bold tracking-widest hover:bg-[#5dd9ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-[#4cc9f0] text-[#0d0d1a] text-xs uppercase font-bold tracking-widest hover:bg-[#5dd9ff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saveSuccess ? "✓ SUCCESS" : isSaving ? "CHANGING..." : "CHANGE PASSWORD"}
+            {saveSuccess ? "✓ SUCCESS" : isSaving ? "CHANGING…" : "CHANGE PASSWORD"}
           </button>
         </div>
 
@@ -289,7 +289,7 @@ export default function ChangePasswordModal({
         <button
           onClick={onClose}
           disabled={isSaving}
-          className="absolute top-0 right-0 text-[#4cc9f0] hover:text-opacity-75 p-4 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="absolute top-0 right-0 text-[#4cc9f0] hover:text-opacity-75 p-4 disabled:opacity-50 disabled:cursor-not-allowed transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
         >
           <span className="material-symbols-outlined">close</span>
         </button>

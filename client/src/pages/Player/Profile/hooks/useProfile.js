@@ -143,7 +143,7 @@ export const useProfile = () => {
   const transformMatchData = (backendMatch) => {
     const extractTimeFromISO = (isoDate) => {
       if (!isoDate) return "00:00:00";
-      return new Date(isoDate).toLocaleTimeString("en-US", {
+      return new Date(isoDate).toLocaleTimeString(undefined, {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -154,7 +154,7 @@ export const useProfile = () => {
     const extractDateFromISO = (isoDate) => {
       if (!isoDate) return "";
       const date = new Date(isoDate);
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString(undefined, {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",

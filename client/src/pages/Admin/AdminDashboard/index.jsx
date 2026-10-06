@@ -78,7 +78,7 @@ export default function AdminDashboard() {
           isPremium={true}
           footer={
             loading
-              ? "Calculating..."
+              ? "Calculating…"
               : metrics?.totalPlayers > 0
               ? (
                   ((metrics?.premiumPlayers || 0) / metrics?.totalPlayers) *
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
           value={`$${formatNumber(metrics?.totalRevenue || 0)}`}
           icon="monetization_on"
           colorScheme="yellow"
-          footer={loading ? "Calculating..." : `Monthly: $${formatNumber(metrics?.revenueThisMonth || 0)}`}
+          footer={loading ? "Calculating…" : `Monthly: $${formatNumber(metrics?.revenueThisMonth || 0)}`}
           loading={loading}
         />
       </section>
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
           Registration Analytics
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Today - Line Chart */}
           <RegistrationLineChart
             data={metrics?.registrationsByHour || []}

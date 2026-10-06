@@ -26,7 +26,7 @@ export default function GameOnline() {
 
   const { user } = useAuthStore();
 
-  if (isConnecting) return <LoadingScreen message="CONNECTING TO ROOM..." />;
+  if (isConnecting) return <LoadingScreen message="CONNECTING TO ROOM…" />;
   if (error && !roomData) return <ErrorScreen message={error} />;
 
   const renderContent = () => {
@@ -34,7 +34,7 @@ export default function GameOnline() {
 
     // Keep the arena mounted while showing the result overlay after a finished match.
     if (hasCompletedMatch || status === 'PLAYING' || status === 'ABORTED') {
-      if (!isHydrated) return <LoadingScreen message="PREPARING BOARD..." />;
+      if (!isHydrated) return <LoadingScreen message="PREPARING BOARD…" />;
       return (
         <OnlineArena
           roomData={roomData}

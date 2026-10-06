@@ -59,7 +59,7 @@ const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" })
                 <div className="w-full flex flex-col gap-3">
                     <button 
                         onClick={handleUpgradeClick}
-                        className="w-full bg-[#fad100] text-[#6d5a00] font-arcade text-[10px] py-4 uppercase flex items-center justify-center gap-2 hover:bg-[#ffe171] active:translate-x-[2px] active:translate-y-[2px] transition-all"
+                        className="w-full bg-[#fad100] text-[#6d5a00] font-arcade text-[10px] py-4 uppercase flex items-center justify-center gap-2 hover:bg-[#ffe171] active:translate-x-[2px] active:translate-y-[2px] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                         style={{ boxShadow: '2px 2px 0px #6d5a00' }}
                     >
                         <Zap size={14} /> UPGRADE NOW

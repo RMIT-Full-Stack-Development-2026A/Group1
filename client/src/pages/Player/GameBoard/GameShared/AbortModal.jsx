@@ -1,4 +1,5 @@
 // AbortModal.jsx
+import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -66,8 +67,9 @@ const AbortModal = ({
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-200 bg-deep-bg/90 flex items-center justify-center animate-fade-in">
+    // Portal to <body> so the overlay sits above fixed UI (chat button) that lives outside the game stacking context.
+    return createPortal(
+        <div role="dialog" aria-modal="true" aria-label="Abort match" className="fixed inset-0 z-200 bg-deep-bg/90 flex items-center justify-center overscroll-contain animate-fade-in">
             <div
                 className="relative bg-[#12121f] border-4 border-[#ffb4ab] p-10 max-w-sm w-[90%] text-center"
                 style={{ boxShadow: '0 0 30px rgba(255,180,171,0.4)' }}
@@ -113,13 +115,13 @@ const AbortModal = ({
                                            hover:translate-y-0.5 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                                 style={{ boxShadow: '2px 2px 0px #7a0000' }}
                             >
-                                {isSaving ? 'SAVING...' : 'SAVE & QUIT'}
+                                {isSaving ? 'SAVING…' : 'SAVE & QUIT'}
                             </button>
                             <button
                                 onClick={onCancel}
                                 disabled={isSaving}
                                 className="w-56 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase
-                                           hover:border-primary-cyan hover:text-primary-cyan transition-all"
+                                           hover:border-primary-cyan hover:text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                             >
                                 KEEP PLAYING
                             </button>
@@ -128,6 +130,8 @@ const AbortModal = ({
                 </div>
             </div>
         </div>
+        ,
+        document.body
     );
 };
 

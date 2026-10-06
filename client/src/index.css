@@ -17,6 +17,10 @@
   --font-body: "Space Grotesk", sans-serif;
 }
 
+html {
+  color-scheme: dark;
+}
+
 html, body, #root {
   background-color: var(--color-deep-bg);
   color: #e3e0f4;
@@ -41,8 +45,15 @@ body {
 
 /* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
 .board-wrapper {
-  width: clamp(300px, 90vmin, 900px);
+  /* Never wider than the viewport minus page gutters when the panels are stacked */
+  width: clamp(300px, min(90vmin, calc(100vw - 2rem)), 900px);
   margin: 0 auto;
+}
+/* Side-by-side layout: two 260px player panels + gaps + gutters take ~620px */
+@media (min-width: 1024px) {
+  .board-wrapper {
+    width: clamp(300px, min(90vmin, calc(100vw - 620px)), 900px);
+  }
 }
 .board-grid {
   width: 100%;
@@ -195,5 +206,16 @@ body {
   /* Cyan glow effect for interactive elements */
   .cyan-glow {
     box-shadow: 0px 0px 8px rgba(147, 226, 255, 0.6);
+  }
+}
+
+
+/* Honor reduced-motion: settle transitions and animations (the CRT overlay is static and stays). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -13,25 +13,28 @@ export default function PlayerManagementFilters({
 	return (
 		<section className="relative overflow-hidden border border-outline-variant bg-surface-card p-6 shadow-[4px_4px_0px_0px_#1e1e2c]">
 			<div className="absolute left-0 top-0 h-0.5 w-16 bg-primary" />
-			<div className="flex flex-col gap-4 md:flex-row md:items-end">
+			<div className="flex flex-col gap-4 xl:flex-row xl:items-end">
 				<label className="relative flex-1">
 					<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-outline">
 						search
 					</span>
 					<input
 						type="text"
+						aria-label="Search players by username or email"
+						autoComplete="off"
 						value={searchTerm}
 						onChange={(event) => setSearchTerm(event.target.value)}
-						placeholder="SEARCH BY USERNAME OR EMAIL..."
-						className="w-full border-b-2 border-outline-variant bg-surface-container-highest py-3 pl-10 pr-4 font-['IBM_Plex_Mono'] text-xs text-on-surface outline-none transition-colors placeholder:text-outline/50 focus:border-primary"
+						placeholder="SEARCH BY USERNAME OR EMAIL…"
+						className="w-full border-b-2 border-outline-variant bg-surface-container-highest py-3 pl-10 pr-4 font-['IBM_Plex_Mono'] text-xs text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] transition-colors placeholder:text-[#879398] focus:border-primary"
 					/>
 				</label>
 
-				<label className="relative md:w-64">
+				<label className="relative xl:w-64">
 					<select
+						aria-label="Filter players by status"
 						value={statusFilter}
 						onChange={(event) => setStatusFilter(event.target.value)}
-						className="w-full cursor-pointer appearance-none border-b-2 border-outline-variant bg-surface-container-highest px-4 py-3 font-['IBM_Plex_Mono'] text-xs text-on-surface outline-none transition-colors focus:border-primary"
+						className="w-full cursor-pointer appearance-none border-b-2 border-outline-variant bg-surface-container-highest px-4 py-3 font-['IBM_Plex_Mono'] text-xs text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] transition-colors focus:border-primary"
 						style={{ fontFamily: "'IBM Plex Mono', monospace" }}
 					>
 						{statusFilterOptions.map((option) => (
@@ -45,12 +48,12 @@ export default function PlayerManagementFilters({
 					</span>
 				</label>
 
-				<div className="flex gap-3 md:ml-auto">
+				<div className="flex flex-wrap gap-3 xl:ml-auto">
 					<button
 						type="button"
 						onClick={onResetFilters}
 						disabled={isLoading}
-						className="border-b-2 border-r-2 border-outline-variant bg-surface-container-highest px-8 py-3 text-xs font-bold uppercase tracking-widest text-on-surface transition-all hover:brightness-110 active:translate-x-px active:translate-y-px active:shadow-none"
+						className="border-b-2 border-r-2 border-outline-variant bg-surface-container-highest px-8 py-3 text-xs font-bold uppercase tracking-widest text-on-surface transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:brightness-110 active:translate-x-px active:translate-y-px active:shadow-none"
 					>
 						RESET FILTER
 					</button>
@@ -59,9 +62,9 @@ export default function PlayerManagementFilters({
 						type="button"
 						onClick={onExecuteSearch}
 						disabled={isLoading}
-						className="border-b-2 border-r-2 border-on-primary-container bg-primary-container px-8 py-3 text-xs font-bold uppercase tracking-widest text-on-primary transition-all hover:brightness-110 active:translate-x-px active:translate-y-px active:shadow-none"
+						className="border-b-2 border-r-2 border-on-primary-container bg-primary-container px-8 py-3 text-xs font-bold uppercase tracking-widest text-on-primary transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:brightness-110 active:translate-x-px active:translate-y-px active:shadow-none"
 					>
-						{isLoading ? "LOADING..." : "Execute Search"}
+						{isLoading ? "LOADING…" : "Execute Search"}
 					</button>
 				</div>
 			</div>

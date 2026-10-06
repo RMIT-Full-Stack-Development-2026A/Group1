@@ -115,7 +115,7 @@ export default function RegisterPage() {
                             <button
                                 type="submit"
                                 disabled={form.loading}
-                                className={`w-full font-headline py-4 px-6 border-2 transition-all uppercase text-sm flex items-center justify-center gap-3 ${
+                                className={`w-full font-headline py-4 px-6 border-2 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase text-sm flex items-center justify-center gap-3 ${
                                     form.loading
                                         ? "bg-[#3d484d] text-[#879398] border-[#3d484d] cursor-not-allowed shadow-none"
                                         : "bg-[#4cc9f0] text-[#003543] border-[#003543] shadow-[2px_2px_0px_0px_#005266] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:shadow-[0px_0px_8px_#4cc9f0]"
@@ -126,7 +126,7 @@ export default function RegisterPage() {
                                     ) : (
                                         <span className="material-symbols-outlined">add</span>
                                     )}
-                                {form.loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
+                                {form.loading ? "CREATING ACCOUNT…" : "CREATE ACCOUNT"}
                             </button>
                         </div>
                     </form>

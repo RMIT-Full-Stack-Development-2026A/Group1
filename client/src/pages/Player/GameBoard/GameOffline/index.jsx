@@ -244,7 +244,7 @@ const GameBoard = () => {
   if (isCheckingAuth) {
     return (
       <div className="h-screen bg-deep-bg flex items-center justify-center font-headline text-primary-cyan">
-        AUTHENTICATING...
+        AUTHENTICATING…
       </div>
     );
   }
@@ -277,19 +277,19 @@ const GameBoard = () => {
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden px-4 md:px-6 gap-4 md:gap-6 items-center justify-start md:justify-center font-mono max-w-350 w-full mx-auto">
+      <main className="relative z-10 flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden px-4 lg:px-6 pt-14 lg:pt-0 gap-4 lg:gap-6 items-center justify-start lg:justify-center font-mono max-w-350 w-full mx-auto">
         {!gameOver && (
-          <div className="fixed top-20 right-6 z-50">
+          <div className="fixed top-20 right-6 lg:top-auto lg:bottom-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
               className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[8px] px-4 py-2 uppercase bg-[#b82b1a]
-                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-all cursor-pointer"
+                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] cursor-pointer"
             >
               ABORT
             </button>
           </div>
         )}
-        <div className="flex w-full flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+        <div className="flex w-full flex-col lg:flex-row items-center justify-center gap-4 lg:gap-6">
           <PlayerPanel
             role="X"
             playerName={playersInfo[0].usernameSnapshot}

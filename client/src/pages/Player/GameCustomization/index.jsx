@@ -112,7 +112,7 @@ export default function GameCustomization() {
     if (isCheckingAuth) {
         return (
             <div className="bg-deep-bg text-[#e3e0f4] min-h-screen flex items-center justify-center">
-                <div className="font-mono text-primary-cyan">Checking authentication...</div>
+                <div className="font-mono text-primary-cyan">Checking authentication…</div>
             </div>
         );
     }

@@ -66,7 +66,7 @@ export default function ChatOverlay({
                     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0" style={{ maxHeight: '280px' }}>
                         {messages.length === 0 && (
                             <p className="text-[10px] text-[#3d484d] text-center pt-8 uppercase tracking-widest font-mono">
-                                No messages yet...
+                                No messages yet…
                             </p>
                         )}
                         {messages.map(msg => (
@@ -119,9 +119,9 @@ export default function ChatOverlay({
                                 value={input}
                                 onChange={handleChange}
                                 onKeyDown={handleKeyDown}
-                                placeholder="TYPE MSG..."
+                                placeholder="TYPE MSG…"
                                 maxLength={MAX_CHARS}
-                                className="flex-1 bg-transparent text-[11px] text-[#e3e0f4] placeholder-[#3d484d] outline-none uppercase tracking-wider font-mono"
+                                className="flex-1 bg-transparent text-[11px] text-[#e3e0f4] placeholder-[#3d484d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase tracking-wider font-mono"
                             />
                             <button
                                 onClick={handleSend}
@@ -137,7 +137,7 @@ export default function ChatOverlay({
 
             <button
                 onClick={onToggle}
-                className="flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest font-mono transition-all hover:scale-105 relative"
+                className="flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest font-mono transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:scale-105 relative"
                 style={{
                     background: unreadCount > 0 ? 'rgba(255,61,0,0.18)' : 'rgba(76,201,240,0.08)',
                     border:     `1px solid ${unreadCount > 0 ? 'rgba(255,61,0,0.6)' : 'rgba(76,201,240,0.3)'}`,

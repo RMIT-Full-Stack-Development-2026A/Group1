@@ -23,7 +23,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                         <SoundButton
                             key={style.id}
                             onClick={() => onSelect(style.displayId)}
-                            className={`bg-[#12121f] border p-1 cursor-pointer transition-all ${
+                            className={`bg-[#12121f] border p-1 cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${
                                 selectedStyle === style.displayId
                                     ? "border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#343342]"
                                     : "border border-[#3d484d] hover:border-[#4cc9f0]"

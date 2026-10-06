@@ -28,7 +28,7 @@ export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscri
                                         ACCESS VALID UNTIL
                                     </p>
                                     <p className="font-mono text-xs text-[#a8ff78] uppercase tracking-widest">
-                                        {new Date(expires).toLocaleDateString('en-US', {
+                                        {new Date(expires).toLocaleDateString(undefined, {
                                             year: 'numeric',
                                             month: 'short',
                                             day: 'numeric'
@@ -63,7 +63,7 @@ export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscri
                             disabled={isRedirecting}
                             className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 active:translate-x-[2px] active:translate-y-[2px] transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {isRedirecting ? 'REDIRECTING TO PAYMENT...' : 'SUBSCRIBE NOW — $10/MONTH'}
+                            {isRedirecting ? 'REDIRECTING TO PAYMENT…' : 'SUBSCRIBE NOW — $10/MONTH'}
                         </SoundButton>
                     </>
                 )}

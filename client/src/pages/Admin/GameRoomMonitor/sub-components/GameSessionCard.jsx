@@ -32,7 +32,7 @@ const formatDateTime = (value) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "-";
 
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(undefined, {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -55,7 +55,7 @@ export default function GameSessionCard({ session }) {
 
   const renderAvatar = (src, alt) => {
     if (src) {
-      return <img src={src} alt={alt || "Player"} className="h-full w-full object-cover" />;
+      return <img width="96" height="96" src={src} alt={alt || "Player"} className="h-full w-full object-cover" />;
     }
 
     return <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-primary-cyan">{getInitials(alt)}</span>;
@@ -65,7 +65,7 @@ export default function GameSessionCard({ session }) {
   const winnerIndex = typeof session.winnerParticipantIndex === "number" ? session.winnerParticipantIndex : null;
 
   return (
-    <article className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all ${style.wrapper}`}>
+    <article className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${style.wrapper}`}>
       <div className="flex items-center justify-between border-b-2 border-outline-variant bg-deep-bg px-4 py-3">
         <div>
           <span className="font-mono text-xs font-bold text-primary-cyan uppercase tracking-[0.18em]">

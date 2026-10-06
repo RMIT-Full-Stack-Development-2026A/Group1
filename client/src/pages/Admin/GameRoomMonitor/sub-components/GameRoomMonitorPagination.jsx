@@ -17,7 +17,7 @@ export default function GameRoomMonitorPagination({ page, totalPages, totalItems
           type="button"
           onClick={() => onPageChange(safePage - 1)}
           disabled={safePage <= 1}
-          className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-all hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Previous page"
         >
           <span className="material-symbols-outlined text-sm">chevron_left</span>
@@ -35,7 +35,7 @@ export default function GameRoomMonitorPagination({ page, totalPages, totalItems
           type="button"
           onClick={() => onPageChange(safePage + 1)}
           disabled={safePage >= safeTotalPages}
-          className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-all hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Next page"
         >
           <span className="material-symbols-outlined text-sm">chevron_right</span>

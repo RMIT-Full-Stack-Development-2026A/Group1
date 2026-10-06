@@ -93,7 +93,7 @@ export default function StatsCard({ label, value, icon, barWidth, color }) {
       </div>
 
       <p 
-        className="font-arcade text-3xl"
+        className="font-arcade text-2xl lg:text-3xl break-words"
         style={{ color: colorScheme.textColor }}
       >
         {value}

@@ -49,9 +49,9 @@ export default function Layout({ children }) {
         // Game board: no nav, no footer, no padding — pure full-screen shell
         // On small screens allow scrolling inside the main area so tall side panels are reachable
         return (
-            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto md:overflow-hidden">
+            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
                 <div className="scanlines"></div>
-                <main className="flex-1 overflow-auto md:overflow-hidden">
+                <main className="flex-1 overflow-auto lg:overflow-hidden">
                     {children}
                 </main>
             </div>
@@ -61,10 +61,16 @@ export default function Layout({ children }) {
     if (isConstrained) {
         // Viewport-fit pages: nav visible, no footer, content fills below nav
         return (
-            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto md:overflow-hidden">
+            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
+                <a
+                    href="#main-content"
+                    className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary-cyan focus:text-deep-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase"
+                >
+                    Skip to main content
+                </a>
                 <Navigation />
                 <div className="scanlines"></div>
-                <main className="flex-1 pt-16 overflow-auto">
+                <main id="main-content" className="flex-1 pt-16 overflow-auto">
                     {children}
                 </main>
             </div>
@@ -73,11 +79,17 @@ export default function Layout({ children }) {
 
     return (
         <div className="relative min-h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg">
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary-cyan focus:text-deep-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase"
+            >
+                Skip to main content
+            </a>
             <Navigation />
 
             <div className="scanlines"></div>
 
-            <main className="flex-1 pt-16">
+            <main id="main-content" className="flex-1 pt-16">
                 {children}
             </main>
 

@@ -44,7 +44,7 @@ const MatchReplay = () => {
     }
 
     if (isLoading) {
-        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
+        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY…</div>;
     }
 
     if (errorMessage) {
@@ -59,11 +59,11 @@ const MatchReplay = () => {
     }
 
     if (!sessionData) {
-        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
+        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY…</div>;
     }
 
     return (
-        <main className="flex-1 mt-16 mb-10 pb-32 px-6 py-6 flex flex-col items-center bg-surface">
+        <main className="flex-1 mt-16 mb-10 pb-56 lg:pb-44 px-6 py-6 flex flex-col items-center bg-surface">
             <MatchHeader session={sessionData} />
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">

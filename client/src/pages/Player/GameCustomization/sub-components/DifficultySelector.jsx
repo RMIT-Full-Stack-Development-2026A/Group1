@@ -18,7 +18,7 @@ export default function DifficultySelector({ selectedDifficulty, onSelect }) {
                     <SoundButton
                         key={difficulty.id}
                         onClick={() => onSelect(difficulty.id)}
-                        className={`bg-[#1e1e2c] border-2 p-6 flex flex-col items-center cursor-pointer transition-all ${
+                        className={`bg-[#1e1e2c] border-2 p-6 flex flex-col items-center cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${
                             selectedDifficulty === difficulty.id
                                 ? "border-[#4cc9f0] shadow-[2px_2px_0px_#343342] hover:shadow-[0px_0px_12px_#4cc9f0]"
                                 : "border-[#3d484d] shadow-[2px_2px_0px_#343342] hover:border-[#4cc9f0]"

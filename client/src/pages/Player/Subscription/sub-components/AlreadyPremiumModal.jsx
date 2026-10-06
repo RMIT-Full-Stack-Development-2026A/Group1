@@ -18,7 +18,7 @@ const AlreadyPremiumModal = ({ isOpen, onClose, premiumExpiresAt }) => {
     if (!isOpen) return null;
 
     const formattedExpiry = premiumExpiresAt
-        ? new Date(premiumExpiresAt).toLocaleDateString('en-US', {
+        ? new Date(premiumExpiresAt).toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -78,7 +78,7 @@ const AlreadyPremiumModal = ({ isOpen, onClose, premiumExpiresAt }) => {
                 <div className="w-full flex flex-col gap-3">
                     <button
                         onClick={handleViewSubscription}
-                        className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-[10px] py-4 uppercase flex items-center justify-center gap-2 hover:bg-[#ffe171] active:translate-x-[2px] active:translate-y-[2px] transition-all"
+                        className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-[10px] py-4 uppercase flex items-center justify-center gap-2 hover:bg-[#ffe171] active:translate-x-[2px] active:translate-y-[2px] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                         style={{ boxShadow: '2px 2px 0px #6d5a00' }}
                     >
                         <ShieldCheck size={14} /> VIEW SUBSCRIPTION

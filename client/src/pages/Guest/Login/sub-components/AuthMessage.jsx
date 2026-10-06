@@ -5,6 +5,7 @@ export default function AuthMessage({ message }) {
 
     return (
         <div
+            role={message.type === "success" ? "status" : "alert"}
             className={`p-4 text-sm text-center rounded-none border-2 font-bold uppercase mb-6 ${
                 message.type === "success"
                     ? "bg-[#2a3f2a] border-[#5cb85c] text-[#5cb85c]"

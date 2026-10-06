@@ -55,12 +55,12 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
   const boardSize = roomData?.boardSize || 10;
 
   const player1 = roomData?.participants?.[0] || {
-    usernameSnapshot: "WAITING...",
+    usernameSnapshot: "WAITING…",
     mark: "X",
   };
   
   const player2 = roomData?.participants?.[1] || {
-    usernameSnapshot: "WAITING FOR OPPONENT...",
+    usernameSnapshot: "WAITING FOR OPPONENT…",
     mark: "O",
   };
 
@@ -316,7 +316,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
   if (isCheckingAuth || !isConnected) {
     return (
       <div className="h-screen bg-deep-bg flex items-center justify-center font-headline text-primary-cyan">
-        CONNECTING TO SERVER...
+        CONNECTING TO SERVER…
       </div>
     );
   }
@@ -349,29 +349,29 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden px-4 md:px-6 gap-4 md:gap-6 items-center justify-start md:justify-center font-mono max-w-350 w-full mx-auto">
+      <main className="relative z-10 flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden px-4 lg:px-6 pt-14 lg:pt-0 gap-4 lg:gap-6 items-center justify-start lg:justify-center font-mono max-w-350 w-full mx-auto">
         {/* Grace-Period Overlay — shown when opponent disconnected */}
         {disconnectCountdown !== null && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                <div className={`border-2 ${disconnectCountdown === 0 ? 'border-[#555]' : 'border-[#ff3d00]'} bg-[#1a0a0a] px-8 py-6 max-w-sm w-full text-center shadow-[0_0_40px_rgba(255,61,0,0.4)]`}>
+                <div role="status" aria-live="polite" className={`border-2 ${disconnectCountdown === 0 ? 'border-[#555]' : 'border-[#ff3d00]'} bg-[#1a0a0a] px-8 py-6 max-w-sm w-full text-center shadow-[0_0_40px_rgba(255,61,0,0.4)]`}>
                     <p className="font-headline text-[10px] text-[#ff3d00] uppercase tracking-widest mb-2">
                         {disconnectCountdown === 0 ? 'MATCH ABORTED' : 'CONNECTION LOST'}
                     </p>
                     <p className="font-mono text-[#e3e0f4] text-sm mb-4">
                         {disconnectCountdown === 0
                             ? 'Opponent did not return in time.'
-                            : 'Opponent disconnected. Waiting for them to return...'}
+                            : 'Opponent disconnected. Waiting for them to return…'}
                     </p>
                     {disconnectCountdown > 0 && (
-                        <div className="font-headline text-5xl text-[#ff3d00] tabular-nums mb-4">
-                            {disconnectCountdown}
+                        <div aria-hidden="true" className="font-headline text-5xl text-[#ff3d00] tabular-nums mb-4">
+                            {disconnectCountdown}<span className="ml-2 text-xs">SEC</span>
                         </div>
                     )}
                     <p className="font-mono text-[10px] text-outline uppercase tracking-widest">
                         {disconnectCountdown === 0
-                            ? 'RETURNING TO LOBBY...'
+                            ? 'RETURNING TO LOBBY…'
                             : disconnectCountdown <= 10
-                                ? 'ABORTING SOON...'
+                                ? 'ABORTING SOON…'
                                 : 'MATCH WILL ABORT IF THEY DO NOT RETURN'}
                     </p>
                 </div>
@@ -381,7 +381,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         {/* Reconnect flash — shown briefly after opponent returns */}
         {reconnectFlash && (
           <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-            <div className="border-2 border-[#00e5ff] bg-[#001a1f] px-8 py-4 text-center shadow-[0_0_40px_rgba(0,229,255,0.4)]">
+            <div role="status" aria-live="polite" className="border-2 border-[#00e5ff] bg-[#001a1f] px-8 py-4 text-center shadow-[0_0_40px_rgba(0,229,255,0.4)]">
               <p className="font-headline text-[10px] text-[#00e5ff] uppercase tracking-widest">
                 OPPONENT RECONNECTED
               </p>
@@ -390,18 +390,18 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         )}
 
         {!gameOver && (
-          <div className="fixed top-20 right-6 z-50">
+          <div className="fixed top-20 right-6 lg:top-auto lg:bottom-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
               className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[8px] px-4 py-2 uppercase bg-[#b82b1a]
-                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-all cursor-pointer"
+                       hover:text-[#b82b1a] hover:bg-[#ffff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] cursor-pointer"
             >
               ABORT
             </button>
           </div>
         )}
 
-        <div className="flex w-full flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+        <div className="flex w-full flex-col lg:flex-row items-center justify-center gap-4 lg:gap-6">
           <PlayerPanel
             role={player1.mark}
             playerName={player1.usernameSnapshot}
@@ -428,7 +428,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
             board={board}
             theme={theme}
             boardSize={boardSize}
-            matchTitle={`ROOM: ${roomData?.roomNumber || "CONNECTING..."}`}
+            matchTitle={`ROOM: ${roomData?.roomNumber || "CONNECTING…"}`}
             winnerData={winnerData}
             isDraw={isDraw}
             isLocked={

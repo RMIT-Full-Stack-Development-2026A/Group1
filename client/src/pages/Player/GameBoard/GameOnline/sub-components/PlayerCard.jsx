@@ -70,7 +70,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
 
   return (
       <div
-      className={`w-full md:w-[260px] py-4 md:shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-all duration-700
+      className={`w-full lg:w-[260px] py-4 lg:shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700
         ${side === 'left'
           ? 'border-r border-[#3d484d]'
           : 'border-l border-[#3d484d]'}
@@ -80,7 +80,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
       `}
     >
 
-      <div className={`absolute top-0 left-0 w-full h-[2px] transition-all duration-700 ${topAccentClass}`} />
+      <div className={`absolute top-0 left-0 w-full h-[2px] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700 ${topAccentClass}`} />
 
       <div className="flex flex-col items-center gap-3 pt-6 pb-4 px-6 flex-none">
         <div className="flex items-center gap-2 h-6">
@@ -97,9 +97,9 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
         </div>
 
         {/* Avatar */}
-        <div className={`w-24 h-24 border-2 bg-[#12121f] flex items-center justify-center relative overflow-hidden transition-all duration-700 ${avatarGlowClass}`}>
+        <div className={`w-24 h-24 border-2 bg-[#12121f] flex items-center justify-center relative overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700 ${avatarGlowClass}`}>
           {avatarUrl ? (
-            <img src={avatarUrl} alt={participant.usernameSnapshot} className="w-full h-full object-cover" />
+            <img width="96" height="96" src={avatarUrl} alt={participant.usernameSnapshot} className="w-full h-full object-cover" />
           ) : (
             <User size={40} className="text-[#879398]" />
           )}
@@ -124,7 +124,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
       <div className="flex-1 flex items-center justify-center py-4">
         <div
           data-ready={isReady}
-          className={`w-24 h-24 flex items-center justify-center transition-all duration-700 ${markerStyleClasses.wrapperClass} ${markerReadyClass}`}
+          className={`w-24 h-24 flex items-center justify-center transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700 ${markerStyleClasses.wrapperClass} ${markerReadyClass}`}
         >
           <Marker variantData={markerVariantData} className="w-24 h-24 text-6xl flex items-center justify-center" />
         </div>
@@ -165,7 +165,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
 
       {/* ── SECTION D: Ready state indicator (bottom) ── */}
       <div 
-        className={`mx-6 mb-4 py-2 text-center font-headline text-[11px] uppercase tracking-widest border transition-all duration-700 shadow-[2px_2px_0px_#343342] ${
+        className={`mx-6 mb-4 py-2 text-center font-headline text-[11px] uppercase tracking-widest border transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700 shadow-[2px_2px_0px_#343342] ${
           isReady 
             ? 'text-[#69ff47] border-[#69ff47] bg-[#69ff47]/10 shadow-glow-green' 
             : 'text-[#ff6b6b] border-[#ff6b6b] bg-[#ff6b6b]/10'

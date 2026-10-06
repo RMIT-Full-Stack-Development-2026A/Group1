@@ -104,11 +104,11 @@ export const CountrySelect = ({
                 type="button"
                 onClick={() => !disabled && !loading && setIsOpen(!isOpen)}
                 disabled={disabled || loading}
-                className="w-full bg-deep-bg border-b-2 border-outline-variant focus:border-primary-cyan text-primary-cyan p-3 font-body text-sm focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center justify-between"
+                className="w-full bg-deep-bg border-b-2 border-outline-variant focus:border-primary-cyan text-primary-cyan p-3 font-body text-sm focus:ring-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center justify-between"
             >
                 <span className="flex items-center gap-2">
                     {loading ? (
-                        <span>Loading countries...</span>
+                        <span>Loading countries…</span>
                     ) : selectedCountry ? (
                         <>
                             {selectedFlag?.type === 'image' ? (

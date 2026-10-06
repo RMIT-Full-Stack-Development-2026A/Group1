@@ -15,12 +15,12 @@ export default function PlayerManagementPagination({ page, totalPlayers, pageSiz
 			</span>
 
 			<div className="flex gap-1">
-				<button type="button" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page <= 1} className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-all hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Previous page">
+				<button type="button" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page <= 1} className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Previous page">
 					<span className="material-symbols-outlined text-sm">chevron_left</span>
 				</button>
 
 				{page > 1 && (
-					<button type="button" onClick={() => onPageChange(page - 1)} className={`h-8 w-8 border text-xs font-bold border-outline-variant text-outline transition-all hover:border-primary hover:text-primary`}>
+					<button type="button" onClick={() => onPageChange(page - 1)} className={`h-8 w-8 border text-xs font-bold border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary`}>
 						{String(page - 1).padStart(2, "0")}
 					</button>
 				)}
@@ -30,12 +30,12 @@ export default function PlayerManagementPagination({ page, totalPlayers, pageSiz
 				</button>
 
 				{page < totalPages && (
-					<button type="button" onClick={() => onPageChange(page + 1)} className={`h-8 w-8 border text-xs font-bold border-outline-variant text-outline transition-all hover:border-primary hover:text-primary`}>
+					<button type="button" onClick={() => onPageChange(page + 1)} className={`h-8 w-8 border text-xs font-bold border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary`}>
 						{String(page + 1).padStart(2, "0")}
 					</button>
 				)}
 
-				<button type="button" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page >= totalPages} className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-all hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Next page">
+				<button type="button" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page >= totalPages} className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Next page">
 					<span className="material-symbols-outlined text-sm">chevron_right</span>
 				</button>
 			</div>

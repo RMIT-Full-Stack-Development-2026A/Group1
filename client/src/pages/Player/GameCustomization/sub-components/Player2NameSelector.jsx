@@ -28,7 +28,7 @@ export default function Player2NameInput({ value, onChange }) {
                     onChange={handleChange}
                     placeholder="PLAYER_02"
                     maxLength={MAX_NAME_LENGTH}
-                    className="w-full bg-[#12121f] border border-[#3d484d] text-[#e3e0f4] font-mono text-sm px-4 py-3 uppercase tracking-wide outline-none transition-all focus:border-[#4cc9f0] focus:shadow-[0_0_0_1px_#4cc9f0]"
+                    className="w-full bg-[#12121f] border border-[#3d484d] text-[#e3e0f4] font-mono text-sm px-4 py-3 uppercase tracking-wide focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] focus:border-[#4cc9f0] focus:shadow-[0_0_0_1px_#4cc9f0]"
                 />
 
                 <div className="flex justify-between items-center text-[11px] font-mono text-[#879398]">

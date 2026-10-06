@@ -32,7 +32,7 @@ export default function MarkerStyleSelector({
                                     onSelect(variant.id);
                                 }
                             }}
-                            className={`flex flex-col items-center justify-center gap-1 px-2 py-2 border transition-all duration-200 ${
+                            className={`flex flex-col items-center justify-center gap-1 px-2 py-2 border transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200 ${
                                 isSelected
                                     ? 'border-primary-cyan bg-[#1a2530] shadow-[0_0_12px_rgba(76,201,240,0.2)]'
                                     : isDisabled

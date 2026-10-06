@@ -5,6 +5,8 @@ import { useSocketStore } from '../socket/SocketStore';
 // Global flag to ensure checkAuth is only called once per app lifecycle
 let hasInitializedAuth = false;
 
+let isLoggingOut = false;
+
 export const useAuthStore = create((set) => ({
     user: null,
     isAuthenticated: false,
@@ -60,6 +62,9 @@ export const useAuthStore = create((set) => ({
 
     // Logout function
     logout: async () => {
+        // Re-entrancy guard: an in-flight request that 401s mid-logout must not trigger a second logout call.
+        if (isLoggingOut) return;
+        isLoggingOut = true;
         set({ isLoading: true, error: null });
         try {
             await authService.logout();
@@ -73,6 +78,7 @@ export const useAuthStore = create((set) => ({
             // Always clear state on the frontend regardless of API success/failure
             set({ isAuthenticated: false, user: null, isLoading: false });
             useSocketStore.getState().disconnectSocket();
+            isLoggingOut = false;
         }
     },
 

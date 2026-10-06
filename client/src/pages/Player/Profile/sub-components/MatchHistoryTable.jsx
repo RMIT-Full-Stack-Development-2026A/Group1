@@ -172,7 +172,7 @@ export default function MatchHistoryTable({
       style={{ backgroundColor: "#1b1c2c" }}
     >
       {/* Table Header/Controls */}
-      <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-outline-variant">
+      <div className="p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 border-b border-outline-variant">
         <h3 className="font-arcade text-lg text-on-surface flex items-center gap-3">
           <span className="material-symbols-outlined text-primary-container">
             history
@@ -181,13 +181,15 @@ export default function MatchHistoryTable({
         </h3>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap items-end gap-3 w-full xl:w-auto">
           {/* Search Input */}
           <div className="relative grow md:w-64 flex flex-col gap-1">
-            <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">SEARCH</label>
+            <label htmlFor="history-search" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">SEARCH</label>
             <input
-              className="w-full bg-surface-container-highest border-b-2 border-outline focus:border-primary-container outline-none px-4 py-2 text-xs font-body text-on-surface placeholder:text-outline-variant uppercase"
-              placeholder="Opponent or room..."
+              id="history-search"
+              autoComplete="off"
+              className="w-full bg-surface-container-highest border-b-2 border-outline focus:border-primary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] px-4 py-2 text-xs font-body text-on-surface placeholder:text-[#879398] uppercase"
+              placeholder="Opponent or room…"
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -196,10 +198,10 @@ export default function MatchHistoryTable({
 
           {/* Date From Filter */}
           <div className="flex flex-col gap-1">
-            <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">From</label>
+            <label htmlFor="history-from" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">From</label>
             <input
-              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
-              placeholder="MM / DD / YYYY"
+              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+              id="history-from"
               type="date"
               value={dateFrom}
               onChange={(e) => onDateFromChange(e.target.value)}
@@ -208,10 +210,10 @@ export default function MatchHistoryTable({
 
           {/* Date To Filter */}
           <div className="flex flex-col gap-1">
-            <label className="text-[8px] text-outline-variant uppercase font-bold tracking-wider">To</label>
+            <label htmlFor="history-to" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">To</label>
             <input
-              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
-              placeholder="MM / DD / YYYY"
+              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+              id="history-to"
               type="date"
               value={dateTo}
               onChange={(e) => onDateToChange(e.target.value)}
@@ -220,7 +222,8 @@ export default function MatchHistoryTable({
 
           {/* Result Filter */}
           <select
-            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
+            aria-label="Filter by result"
+            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
             style={{ backgroundColor: '#343342', color: '#e3e0f4' }}
             value={filterResult}
             onChange={(e) => onFilterResultChange(e.target.value)}
@@ -234,7 +237,8 @@ export default function MatchHistoryTable({
 
           {/* Game Type Filter */}
           <select
-            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 outline-none uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
+            aria-label="Filter by game type"
+            className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-outline focus:border-primary-container appearance-none cursor-pointer"
             style={{ backgroundColor: '#343342', color: '#e3e0f4' }}
             value={filterGameType}
             onChange={(e) => onFilterGameTypeChange(e.target.value)}
@@ -247,16 +251,18 @@ export default function MatchHistoryTable({
 
           {/* Reset Filter Button */}
           <button
+            type="button"
             onClick={onResetFilters}
-            className="bg-surface-container-highest text-outline px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-all active:translate-y-0.5"
+            className="bg-surface-container-highest text-outline px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5"
           >
             RESET
           </button>
 
           {/* Filter Button */}
           <button
+            type="button"
             onClick={onApplyFilters}
-            className="bg-primary-container text-on-primary px-4 py-2 text-xs uppercase font-bold border border-primary-container hover:bg-primary hover:border-primary transition-all active:translate-y-0.5"
+            className="bg-primary-container text-on-primary px-4 py-2 text-xs uppercase font-bold border border-primary-container hover:bg-primary hover:border-primary transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5"
           >
             FILTER
           </button>
@@ -293,7 +299,7 @@ export default function MatchHistoryTable({
             {loading ? (
               <tr>
                 <td colSpan="9" className="px-6 py-8 text-center text-outline/50">
-                  Loading matches...
+                  Loading matches…
                 </td>
               </tr>
             ) : matches.length === 0 ? (
@@ -336,14 +342,21 @@ export default function MatchHistoryTable({
                   <td className="px-6 py-4">{calculateDuration(match.startTime, match.endTime)}</td>
                   <td className="px-6 py-4 text-right">
                     {isPremium ? (
-                      <span
-                        className="material-symbols-outlined text-secondary-container cursor-pointer hover:scale-110 transition-transform"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      <button
+                        type="button"
                         onClick={() => onReplay(match.id)}
+                        aria-label="View match replay"
                         title="View match replay"
+                        className="inline-flex text-secondary-container cursor-pointer hover:scale-110 transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0]"
                       >
-                        play_arrow
-                      </span>
+                        <span
+                          aria-hidden="true"
+                          className="material-symbols-outlined"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          play_arrow
+                        </span>
+                      </button>
                     ) : (
                       <span
                         className="material-symbols-outlined text-warning cursor-pointer hover:scale-110 transition-transform"
@@ -373,7 +386,7 @@ export default function MatchHistoryTable({
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             PREV
           </button>
@@ -426,7 +439,7 @@ export default function MatchHistoryTable({
                         setShowJumpInput(false);
                         setJumpToPage("");
                       }}
-                      className="w-9 px-2 py-1 text-xs bg-primary-container border border-primary-container text-on-primary outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-9 px-2 py-1 text-xs bg-primary-container border border-primary-container text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 ) : (
@@ -445,7 +458,7 @@ export default function MatchHistoryTable({
                 <button
                   key={pageNum}
                   onClick={() => onPageChange(pageNum)}
-                  className={`px-3 py-1 text-xs active:translate-y-0.5 font-bold transition-all ${
+                  className={`px-3 py-1 text-xs active:translate-y-0.5 font-bold transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${
                     currentPage === pageNum
                       ? "bg-primary-container text-on-primary border-2 border-primary-container shadow-[0_0_12px_rgba(76,201,240,0.6)] scale-105"
                       : "bg-surface-container-highest border border-outline hover:bg-outline hover:text-on-secondary"
@@ -460,7 +473,7 @@ export default function MatchHistoryTable({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-all active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-surface-container-highest border border-outline px-3 py-1 text-xs hover:bg-outline hover:text-on-secondary transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             NEXT
           </button>

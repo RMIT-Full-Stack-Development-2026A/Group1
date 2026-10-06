@@ -111,7 +111,7 @@ export const LobbyService = {
             const activity = games.items?.slice(0, 4).map((game, index) => {
                 const formatTime = (date) => {
                     const d = new Date(date);
-                    return d.toLocaleTimeString('en-US', { 
+                    return d.toLocaleTimeString(undefined, { 
                         hour: '2-digit', 
                         minute: '2-digit'
                     }).toLowerCase();

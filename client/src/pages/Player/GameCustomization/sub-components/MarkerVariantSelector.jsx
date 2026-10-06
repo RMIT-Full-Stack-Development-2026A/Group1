@@ -18,7 +18,7 @@ export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
                     <SoundButton
                         key={variant.displayId}
                         onClick={() => onSelect(variant.displayId)}
-                        className="flex flex-col items-center gap-2 group cursor-pointer transition-all"
+                        className="flex flex-col items-center gap-2 group cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                     >
                         <div
                             className={`flex gap-1 ${

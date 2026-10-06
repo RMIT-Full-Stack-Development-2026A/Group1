@@ -225,13 +225,15 @@ export const RoomService = {
         const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
         
-        // if the room is "PLAYING" and the user is already a participant, allow them to rejoin (e.g. after accidental disconnect)
+        // Rejoining is idempotent in every active state, including the pre-game room.
         const isExistingParticipant = room.participants.some(
             (p) => p.userId.toString() === userId.toString()
         );
 
-        if (room.status === ROOM_STATUS.PLAYING && isExistingParticipant) {
-            const gameState = RoomDTO.toGameStatePayload({ room, board: room.moves });
+        if ([ROOM_STATUS.WAITING, ROOM_STATUS.READY, ROOM_STATUS.PLAYING].includes(room.status) && isExistingParticipant) {
+            const gameState = room.status === ROOM_STATUS.PLAYING
+                ? RoomDTO.toGameStatePayload({ room, board: room.moves })
+                : null;
             return {
                 action: 'rejoined',
                 room: RoomDTO.toRoomSummary(room),
@@ -239,16 +241,10 @@ export const RoomService = {
             };
         }
         
-        // end rejoin brnach
-
         if (room.status !== ROOM_STATUS.WAITING) {
             throw { statusCode: 400, error: "ROOM_NOT_WAITING", message: "Room is already full or playing." };
         }
         
-        if (room.participants[0].userId.toString() === userId.toString()) {
-            throw { statusCode: 400, error: "ALREADY_IN_ROOM", message: "You are already in this room." };
-        }
-
         const user = await AuthInterface.getUserById(userId);
         const hostMark = room.participants[0].mark;
         const joinerMark = hostMark === 'X' ? 'O' : 'X';

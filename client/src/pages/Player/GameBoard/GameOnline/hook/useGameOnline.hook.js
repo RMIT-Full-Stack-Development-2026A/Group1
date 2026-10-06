@@ -15,6 +15,7 @@ export const useGameOnline = () => {
     const currentUserId = user?.id;
 
     const [roomData, setRoomData] = useState(null);
+    const [gameState, setGameState] = useState(null);
     const [isConnecting, setIsConnecting] = useState(true);
     const [error, setError] = useState(null);
     const [isHydrated, setIsHydrated] = useState(false);
@@ -37,12 +38,15 @@ export const useGameOnline = () => {
     }, [roomId]);
 
     useEffect(() => {
+        if (!isConnected) joinedRoomIdRef.current = null;
+    }, [isConnected]);
+
+    useEffect(() => {
         const initialData = location.state?.initialRoomData;
         if (initialData && (initialData.id === roomId || initialData.roomId === roomId)) {
             
             setRoomData(initialData);
             setIsConnecting(false);
-            joinedRoomIdRef.current = roomId;
         }
     }, [location.state, roomId]);
 
@@ -59,6 +63,7 @@ export const useGameOnline = () => {
         let joinTimeoutId = null;
 
         function handleRoomUpdated(payload) {
+            if (String(payload.room?.id) !== roomId) return;
             
             // Delete this log after confirming payload structure is correct and consistent with backend
             if (joinTimeoutId) {
@@ -78,6 +83,9 @@ export const useGameOnline = () => {
             }
 
             prevParticipantCountRef.current = newCount;
+            if (newRoom?.status === 'PLAYING' && roomDataRef.current?.status === 'READY') {
+                setGameState(null); // A new match starts with an empty board.
+            }
             setRoomData(newRoom);
             if (newRoom?.status === 'PLAYING') {
                 setHasCompletedMatch(false);
@@ -105,7 +113,8 @@ export const useGameOnline = () => {
             }
         }
 
-        function handleRoomRemoved() {
+        function handleRoomRemoved(payload) {
+            if (String(payload?.roomId) !== roomId) return;
             // Guard using the ref, not roomDataRef, because roomData can be stale
             // at the time this event fires (e.g. during component unmount timing).
             if (roomDataRef.current?.status === 'PLAYING') {
@@ -158,7 +167,11 @@ export const useGameOnline = () => {
             }
         }
 
-        function handleGameState() {
+        function handleGameState(payload) {
+            if (String(payload?.roomId) !== roomId) return;
+            // A reconnect snapshot may arrive before OnlineArena mounts. Keep
+            // it here so rendering the board never depends on listener timing.
+            setGameState(payload);
             // On the rejoin path the backend sends room:updated then game:state.
             // Clear the ghost-room timeout and connecting spinner here as a safety net
             // in case room:updated already cleared them (idempotent — safe to call twice).
@@ -229,7 +242,7 @@ export const useGameOnline = () => {
         return () => {
             const currentRoom = roomDataRef.current;
             const activeStatuses = ['WAITING', 'READY', 'PLAYING'];
-            if (socket && activeStatuses.includes(currentRoom?.status)) {
+            if (socket?.connected && activeStatuses.includes(currentRoom?.status)) {
                 // SPA navigation: socket stays alive so the 'disconnect' handler
                 // never fires. Send intent so backend starts the grace period
                 // instead of aborting instantly.
@@ -272,11 +285,12 @@ export const useGameOnline = () => {
 
     const handleSetMarkerStyle = useCallback((markerStyle) => {
         if (!socket || !currentRoomIdNow) return;
-        socket.emit('room:update_settings', { roomId: currentRoomIdNow, markerStyle: markerStyle, boardStyle: roomData?.boardStyle });
-    }, [socket, currentRoomIdNow, roomData?.boardStyle]);
+        socket.emit('room:update_settings', { roomId: currentRoomIdNow, markerStyle });
+    }, [socket, currentRoomIdNow]);
 
     return {
         roomData,
+        gameState,
         isConnecting,
         isHydrated,
         error,

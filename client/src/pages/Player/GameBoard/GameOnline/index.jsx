@@ -10,6 +10,7 @@ import OnlineArena from './sub-components/OnlineArena';
 export default function GameOnline() {
   const {
     roomData,
+    gameState,
     isConnecting,
     isHydrated,
     error,
@@ -37,6 +38,7 @@ export default function GameOnline() {
       return (
         <OnlineArena
           roomData={roomData}
+          gameState={gameState}
           currentUserId={user?.id}
           completedMatch={completedMatch}
           onPlayAgain={handlePlayAgain}
@@ -85,4 +87,4 @@ export default function GameOnline() {
       )}
     </div>
   );
-} 
+}

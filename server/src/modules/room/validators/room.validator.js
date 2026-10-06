@@ -239,13 +239,14 @@ export const validateRoomUpdateSettings = (payload) => {
         };
     }
 
-    const boardStyle = typeof payload?.boardStyle === 'string' ? payload.boardStyle.trim().toUpperCase() : 'JUNGLE';
-    const markerStyle = typeof payload?.markerStyle === 'string' ? payload.markerStyle.trim().toUpperCase() : 'CLASSIC';
-    // Use undefined when marker is not provided so we can distinguish absent vs invalid
-    const marker = typeof payload?.marker === 'string' ? payload.marker.trim().toUpperCase() : undefined;
+    // Updates are partial: an omitted setting must never reset another setting.
+    const normalize = (value) => typeof value === 'string' ? value.trim().toUpperCase() : value;
+    const boardStyle = normalize(payload.boardStyle);
+    const markerStyle = normalize(payload.markerStyle);
+    const marker = normalize(payload.marker);
 
     const allowedBoardStyles = ['JUNGLE', 'DARK', 'LAVA'];
-    if (!allowedBoardStyles.includes(boardStyle)) {
+    if (boardStyle !== undefined && !allowedBoardStyles.includes(boardStyle)) {
         throw { statusCode: 400, error: "INVALID_BOARD_STYLE", message: `Board style must be one of: ${allowedBoardStyles.join(', ')}` };
     }
 
@@ -258,7 +259,7 @@ export const validateRoomUpdateSettings = (payload) => {
         };
     }
 
-    if (marker !== undefined && marker !== null && !['X', 'O'].includes(marker)) {
+    if (marker !== undefined && !['X', 'O'].includes(marker)) {
         throw { 
             statusCode: 400, 
             error: "INVALID_MARKER", 

@@ -7,11 +7,15 @@ export const GameEmitter = {
     /** Emits room update event. */
     emitRoomUpdated: (io, roomId, payload) => {
         io.to(String(roomId)).emit('room:updated', payload);
+        // Lobby viewers are not members of individual game rooms. Invalidate
+        // their list without sending private room state to unrelated matches.
+        io.emit('lobby:rooms_changed');
     },
 
     /** Emits room removal event. */
     emitRoomRemoved: (io, roomId) => {
         io.to(String(roomId)).emit('room:removed', { roomId: String(roomId) });
+        io.emit('lobby:rooms_changed');
     },
 
     /** Emits game start event. */

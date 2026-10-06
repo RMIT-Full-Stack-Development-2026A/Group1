@@ -58,7 +58,7 @@ export const setupGameNamespace = (io) => {
             });
 
             // Remove this room 
-            gameNamespace.emit('room:removed', { roomId });
+            GameEmitter.emitRoomRemoved(gameNamespace, roomId);
 
             // Force all players out 
             gameNamespace.in(roomId).socketsLeave(roomId);
@@ -97,6 +97,8 @@ export const setupGameNamespace = (io) => {
         
 
         socket.join(socket.user.id.toString());
+        // Register immediately: clients can emit room:join as soon as connected.
+        registerRoomSocketHandlers(gameNamespace, socket);
         
         // Handle user reconnect after refresh 
         try {
@@ -109,6 +111,5 @@ export const setupGameNamespace = (io) => {
             console.error('[Rehydration Error]', error);
         }
 
-        registerRoomSocketHandlers(gameNamespace, socket);
     });
 };

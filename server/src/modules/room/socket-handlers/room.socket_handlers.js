@@ -16,7 +16,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
             const result = await RoomService.handleRoomCreate(user.id, payload);
             socket.join(result.room.id);
             GameEmitter.emitRoomCreated(socket, result);
-            // Do not broadcast to the entire server. Arena uses manual refresh.
+            io.emit('lobby:rooms_changed');
         } catch (err) {
             GameEmitter.emitError(socket, 'room:create', err);
         }
@@ -219,6 +219,9 @@ export const registerRoomSocketHandlers = (io, socket) => {
             if (!activeRoom) return;
 
             if (activeRoom.status === 'PLAYING') {
+                // Navigation may already have started this player's grace period.
+                // Keep one timer so a later rejoin can cancel it completely.
+                if (disconnectTimers.has(user.id)) return;
                 // In-game -> apply a 60s grace period
                 GameEmitter.emitPlayerDisconnected(io, activeRoom.id, { roomId: activeRoom.id, timeLeft: 60 });
 

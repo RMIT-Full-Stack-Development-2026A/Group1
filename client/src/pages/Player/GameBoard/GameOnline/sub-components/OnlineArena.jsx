@@ -21,7 +21,7 @@ import WinOverlay from "../../GameShared/WinOverlay";
 import ParticleLayer from "../../GameShared/ParticleLayer";
 import { getTheme } from "@/config/gameThemes.config.js";
 
-const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain }) => {
+const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, onPlayAgain }) => {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
@@ -67,14 +67,20 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
   const player1MarkerStyle = player1?.markerStyle || roomData?.markerStyle || "CLASSIC";
   const player2MarkerStyle = player2?.markerStyle || roomData?.markerStyle || "CLASSIC";
 
-  const [board, setBoard] = useState(() => {
-    return Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
-  });
+  const currentState = gameState?.roomId === roomData?.id ? gameState : null;
+  const board = useMemo(() => {
+    const cells = Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
+    for (const move of currentState?.board || []) {
+      const mark = roomData?.participants?.[move.byParticipantIndex]?.mark;
+      if (mark && cells[move.row] && move.col >= 0 && move.col < boardSize) {
+        cells[move.row][move.col] = mark;
+      }
+    }
+    return cells;
+  }, [boardSize, currentState, roomData?.participants]);
 
-  const [currentPlayerMark, setCurrentPlayerMark] = useState(() => {
-    const turnIndex = roomData?.currentTurnParticipantIndex || 0;
-    return roomData?.participants?.[turnIndex]?.mark || "X";
-  });
+  const turnIndex = currentState?.currentTurnParticipantIndex ?? roomData?.currentTurnParticipantIndex ?? 0;
+  const currentPlayerMark = roomData?.participants?.[turnIndex]?.mark || "X";
 
   const [winnerData, setWinnerData] = useState(null);
   const [isDraw, setIsDraw] = useState(false);
@@ -203,38 +209,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     };
     window.addEventListener("account:deactivated", handleAccountDeactivated);
 
-    const handleGameState = (payload) => {
-      
-
-      if (payload.board && Array.isArray(payload.board)) {
-        // Create a new empty board
-        const reconstructedBoard = Array.from({ length: boardSize }, () =>
-          Array(boardSize).fill(null),
-        );
-
-        // Get move history from BE, translate to X/O, and apply to the empty board
-        payload.board.forEach((move) => {
-          // Extract the marker (X or O) based on the participant index
-          const mark = roomData?.participants?.[move.byParticipantIndex]?.mark;
-
-          // If coordinates are valid, fill the 2D array
-          if (mark && move.row !== undefined && move.col !== undefined) {
-            reconstructedBoard[move.row][move.col] = mark;
-          }
-        });
-
-        // Update UI
-        setBoard(reconstructedBoard);
-      }
-
-      // Update the next turn
-      const turnIndex =
-        payload.currentTurnParticipantIndex !== undefined
-          ? payload.currentTurnParticipantIndex
-          : 0;
-      setCurrentPlayerMark(roomData?.participants?.[turnIndex]?.mark || "X");
-    };
-
     const handleGameEnded = (payload) => {
       if (payload.result === "DRAW") {
         matchEndedRef.current = true;
@@ -259,7 +233,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
       }
     };
 
-    socket.on("game:state", handleGameState);
     socket.on("game:ended", handleGameEnded);
 
     // 3. Handle network disconnection (Newly added from Contract)
@@ -291,7 +264,6 @@ const OnlineGameBoard = ({ roomData, currentUserId, completedMatch, onPlayAgain 
     socket.on("room:removed", handleRoomRemoved);
 
     return () => {
-      socket.off("game:state", handleGameState);
       socket.off("game:ended", handleGameEnded);
       socket.off("player:disconnected", handlePlayerDisconnected);
       socket.off("player:reconnected", handlePlayerReconnected);

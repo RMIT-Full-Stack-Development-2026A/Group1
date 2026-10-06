@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
 import { useAuthStore } from '@/stores/auth/AuthStore';
-
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { BACKEND_URL } from '@/config/apiConfig';
 
 export const useSocketStore = create((set, get) => ({
     socket: null,
@@ -12,15 +11,22 @@ export const useSocketStore = create((set, get) => ({
     connectSocket: () => {
         const { socket: currentSocket, isPending } = get();
 
-        if (currentSocket?.connected) return;
+        if (currentSocket) {
+            // Socket.IO already retries transport failures. Keep its instance so
+            // reconnects do not create duplicate connections and event listeners.
+            if (!currentSocket.connected && !currentSocket.active) currentSocket.connect();
+            return;
+        }
         if (isPending) return;
 
         set({ isPending: true });
 
-        const socketInstance = io(`${SOCKET_URL}/ws/game`, {
+        const socketInstance = io(`${BACKEND_URL}/ws/game`, {
             withCredentials: true,
-            transports: ['websocket', 'polling'],
+            transports: ['polling', 'websocket'],
+            autoConnect: false,
         });
+        set({ socket: socketInstance });
 
         socketInstance.on('connect', () => {
             
@@ -29,7 +35,7 @@ export const useSocketStore = create((set, get) => ({
 
         socketInstance.on('disconnect', (reason) => {
             
-            set({ socket: null, isConnected: false, isPending: false });
+            set({ isConnected: false, isPending: socketInstance.active });
 
             // If the server explicitly severed the connection (e.g., duplicate login or ban)
             if (reason === 'io server disconnect') {
@@ -91,15 +97,18 @@ export const useSocketStore = create((set, get) => ({
             if (err.message === 'AUTHENTICATION_FAILED') {
                 // Token expired or invalid - could trigger logout from AuthStore if needed
             }
-            set({ socket: null, isConnected: false, isPending: false });
+            set({ isConnected: false, isPending: socketInstance.active });
         });
+
+        socketInstance.connect();
     },
 
     disconnectSocket: () => {
         const currentSocket = get().socket;
         if (currentSocket) {
+            currentSocket.removeAllListeners();
             currentSocket.disconnect();
-            set({ socket: null, isConnected: false, isPending: false });
         }
+        set({ socket: null, isConnected: false, isPending: false });
     }
 }));

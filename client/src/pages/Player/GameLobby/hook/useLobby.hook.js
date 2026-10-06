@@ -4,7 +4,7 @@
  * Fetches data from real backend endpoints
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSocketStore } from "@/stores/socket/SocketStore";
 import { LobbyService } from "../service/lobby.service";
 
@@ -19,7 +19,7 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
     const socket = useSocketStore((state) => state.socket);
     const isConnected = useSocketStore((state) => state.isConnected);
 
-    const loadLobbyData = async () => {
+    const loadLobbyData = useCallback(async () => {
         const roomsData = await LobbyService.getRooms({
             page,
             limit,
@@ -42,7 +42,7 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
             limit: roomsData?.limit ?? limit,
             total: roomsData?.total ?? normalizedRooms.length ?? 0,
         });
-    };
+    }, [page, limit, waitingOnly]);
 
     // Initialize lobby data from backend
     useEffect(() => {
@@ -73,59 +73,29 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
         };
 
         initializeLobby();
-    }, [page, limit, waitingOnly]);
+    }, [page, limit, waitingOnly, loadLobbyData]);
 
     useEffect(() => {
         if (!socket || !isConnected) return;
 
-        const handleRoomUpdated = ({ room } = {}) => {
-            if (!room) return;
-
-            const normalizedRoom = LobbyService.normalizeRoom(room);
-            setRooms((prevRooms) => {
-                const currentRooms = Array.isArray(prevRooms) ? prevRooms : [];
-
-                const ACTIVE_LOBBY_STATUSES = ['waiting', 'ready', 'playing'];
-                if (!ACTIVE_LOBBY_STATUSES.includes(normalizedRoom.status)) {
-                    // Terminal status (aborted, closed) — remove from list
-                    const filteredRooms = currentRooms.filter((r) => r.id !== normalizedRoom.id);
-                    setOnlineCount((prev) => Math.max(0, prev - 1));
-                    return filteredRooms;
-                }
-
-                const existingIndex = currentRooms.findIndex((existingRoom) => existingRoom.id === normalizedRoom.id);
-                const nextRooms = existingIndex === -1
-                    ? [normalizedRoom, ...currentRooms]
-                    : currentRooms.map((existingRoom) => (
-                        existingRoom.id === normalizedRoom.id ? { ...existingRoom, ...normalizedRoom } : existingRoom
-                    ));
-
-                if (existingIndex === -1) {
-                    setOnlineCount((prev) => prev + 1);
-                }
-
-                return nextRooms;
-            });
+        let refreshTimer;
+        const handleRoomsChanged = () => {
+            clearTimeout(refreshTimer);
+            // Re-fetch the current page so filters, totals and pagination remain
+            // correct when another player creates, fills or removes a room.
+            refreshTimer = setTimeout(() => {
+                loadLobbyData().catch((err) => setError(err.message));
+            }, 100);
         };
 
-        const handleRoomRemoved = ({ roomId } = {}) => {
-            if (!roomId) return;
-
-            setRooms((prevRooms) => {
-                const nextRooms = (Array.isArray(prevRooms) ? prevRooms : []).filter((room) => room.id !== roomId);
-                setOnlineCount((prev) => Math.max(0, prev - 1));
-                return nextRooms;
-            });
-        };
-
-        socket.on('room:updated', handleRoomUpdated);
-        socket.on('room:removed', handleRoomRemoved);
+        socket.on('lobby:rooms_changed', handleRoomsChanged);
+        handleRoomsChanged(); // Recover list changes missed during disconnection.
 
         return () => {
-            socket.off('room:updated', handleRoomUpdated);
-            socket.off('room:removed', handleRoomRemoved);
+            clearTimeout(refreshTimer);
+            socket.off('lobby:rooms_changed', handleRoomsChanged);
         };
-    }, [socket, isConnected]);
+    }, [socket, isConnected, loadLobbyData]);
 
     // Get available rooms (filter by status)
     const availableRooms = LobbyService.getAvailableRooms(rooms);

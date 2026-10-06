@@ -157,11 +157,88 @@ Open a new terminal and navigate to the client directory:
 ```bash
 cd client
 npm install
+cp .env.example .env
 npm run dev
 ```
 
 > The frontend runs on `http://localhost:8000`.  
 > Ensure this matches the `CLIENT_URL` value in the backend `.env` file to prevent CORS issues.
+
+## Experience Day deployment handoff
+
+The frontend is hosted on **Vercel**; the Express and Socket.IO backend is hosted
+on **Render**. On 6 October 2026, the live registration page reproduced
+"Failed to load countries". Its deployed `Register-CflgfouP.js` still called
+`https://restcountries.com/v3.1/all?fields=name,flags` directly. The current source
+already uses `client/src/data/countries.json`, so the live frontend needs a new
+build from the current source. The Render countries endpoint and Socket.IO
+handshake responded successfully during that check; this was not a complete
+backend outage.
+
+The backend countries API now also serves a bundled snapshot, removing the
+duplicate external requests and dependency on provider availability. Keep
+`client/src/data/countries.json` and
+`server/src/modules/countries/data/countries.json` in sync when updating the list.
+The server copy is intentional so a deployment rooted at `server` is self-contained.
+Country names remain usable without the external country APIs; flag images still
+use the URLs in the snapshot.
+
+### Settings for the teammate managing deployments
+
+| Setting | Vercel frontend | Render backend |
+| --- | --- | --- |
+| Root directory | `client` | `server` |
+| Install/build | Install: `npm ci`; build: `npm run build` | Build: `npm ci` |
+| Output/start | Output directory: `dist` | Start command: `npm start` |
+| API origin | `VITE_API_URL=https://tictactoang-backend-dt4u.onrender.com` | - |
+| Frontend origin | - | `CLIENT_URL=https://tictactoang.vercel.app` |
+| Runtime mode | Production build | `NODE_ENV=production` |
+
+1. Commit and push the reviewed changes, including the server country snapshot
+   and updated lockfile. Deploy both projects from the commit containing these
+   fixes. Verify each dashboard's production branch and deployed commit; the
+   live assets differ from this checkout, and dashboard settings were not available
+   during diagnosis.
+2. Preserve the existing database, JWT, Cloudinary, payment and SMTP secrets.
+   `VITE_API_URL` is the backend origin only, without `/api/v1` or `/ws/game`.
+   Set it for Vercel's **Production** environment and rebuild after changing it.
+3. Deploy the Render backend and then deploy the Vercel frontend. Do not redeploy
+   the old frontend artifact. Keep the backend as the existing persistent Render
+   service for the application's Socket.IO rooms.
+4. Open the live registration page in a fresh tab. The country list should load
+   immediately, including Vietnam, without requests to REST Countries or API Countries.
+5. Check `GET /api/v1/countries` and `GET /api/v1/countries/Vietnam/flag` on Render.
+   Both should return HTTP 200. Then run the two-player checks below on the live site.
+
+### Verification before the showcase
+
+- Two different accounts can create and join a room, choose their own marker
+  styles, ready up, and exchange moves. Changing one player's marker keeps the
+  other player's marker and ready state; changing the board resets both ready states.
+- Refresh/rejoin an active match and briefly interrupt a player's network. The
+  board and turn should recover, and the opponent's disconnect countdown should clear.
+- Keep another account in the lobby. Create a room, then leave as its final
+  player; the room should disappear without a manual refresh. Check the waiting-only
+  filter and pagination as well.
+- Confirm registration and profile country selection on the deployed build.
+
+The new `server/src/tests/integration/showcase.test.js` covers country availability
+without an external provider, partial marker updates, idempotent room joins,
+real Socket.IO reconnects, and notifications to lobby observers. Tests use an
+isolated temporary MongoDB instance, never the production database.
+
+Local verification on 6 October 2026: all 41 backend tests passed and the Vite
+production build succeeded. Browser checks confirmed country options, an independent
+host marker change while the guest stays ready, and restoration of two played moves
+after refreshing the page. The room hook now retains the latest game snapshot so
+the board can render moves received before its component mounts. The full frontend
+lint check still has existing failures (80 errors and 7 warnings); comparison with
+the original code found no new lint findings in the changed files. The build also
+reports an existing missing `/assets/images/pixel-grid.png` decoration.
+
+This change addresses country/deployment reliability and the related socket,
+marker and stale-lobby issues. Other marking feedback, including token revocation,
+chat/replay premium rules and date-range filtering, still needs a separate review.
 
 
 ## Integration Test Execution

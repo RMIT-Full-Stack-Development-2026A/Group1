@@ -1,4 +1,5 @@
-export const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/v1`;
+export const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').trim().replace(/\/+$/, '');
+export const API_BASE_URL = `${BACKEND_URL}/api/v1`;
 
 export const API_ENDPOINTS = {
     AUTH: {
@@ -14,7 +15,7 @@ export const API_ENDPOINTS = {
     },
     COUNTRIES: {
         LIST: "/countries",
-        FLAGS: (countryName) => `/countries/${countryName}/flags`,
+        FLAGS: (countryName) => `/countries/${encodeURIComponent(countryName)}/flag`,
     },
     GAME: {
         LIST: "/games",

@@ -11,6 +11,7 @@ export const GameRepository = {
     /** Retrieves a paginated list of sessions. */
     findPaginated: async (filter, sort, skip, limit) => {
         const items = await GameSession.find(filter)
+            .select('-moves')
             .sort(sort)
             .skip(skip)
             .limit(limit);

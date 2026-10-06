@@ -1,5 +1,5 @@
 import { socketAuthMiddleware } from '../middleware/socketAuthMiddleware.js';
-import { registerRoomSocketHandlers, disconnectTimers } from '../../modules/room/socket-handlers/room.socket_handlers.js';
+import { registerRoomSocketHandlers } from '../../modules/room/socket-handlers/room.socket_handlers.js';
 import { RoomService } from '../../modules/room/services/room.service.js';
 import { eventBus } from '../../utils/eventBus.util.js';
 import { RoomInterface } from '../../modules/room/interfaces/room.interface.js'; 
@@ -69,7 +69,7 @@ export const setupGameNamespace = (io) => {
         }
     });
 
-    eventBus.subscribe(SYSTEM_EVENTS.DUPLICATE_LOGIN, async ({ userId }) => {
+    const disconnectOldSessions = async ({ userId, tokenVersion, reason }) => {
         const stringPlayerId = userId.toString();
 
         try {
@@ -78,23 +78,37 @@ export const setupGameNamespace = (io) => {
 
             // If there are old sockets, kick them out
             existingSockets.forEach(socket => {
+                if ((socket.data.tokenVersion ?? 0) >= tokenVersion) return;
                 socket.emit('auth:force_logout', {
-                    reason: "Your account was logged in from another location."
+                    reason: reason || "Your account was logged in from another location."
                 });
                 
                 socket.disconnect(true);
             });
 
-            if (existingSockets.length > 0) {
-                
-            }
         } catch (err) {
             console.error(`[EventBus] Error kicking duplicate user ${stringPlayerId}:`, err);
         }
-    });
+    };
+    eventBus.subscribe(SYSTEM_EVENTS.DUPLICATE_LOGIN, disconnectOldSessions);
+    eventBus.subscribe(SYSTEM_EVENTS.SESSION_REVOKED, disconnectOldSessions);
     
     gameNamespace.on('connection', async (socket) => {
-        
+        // Expiration also ends idle connections that send no further packets.
+        let expiryTimer;
+        const expireWhenDue = () => {
+            const remaining = socket.user.expiresAt - Date.now();
+            if (remaining > 0) {
+                expiryTimer = setTimeout(expireWhenDue, Math.min(remaining, 2 ** 31 - 1));
+                return;
+            }
+            socket.emit('auth:force_logout', { reason: 'Your session has expired. Please log in again.' });
+            socket.disconnect(true);
+        };
+        const clearExpiry = () => { clearTimeout(expiryTimer); };
+        socket.conn.once('close', clearExpiry);
+        socket.once('disconnect', clearExpiry);
+        expireWhenDue();
 
         socket.join(socket.user.id.toString());
         // Register immediately: clients can emit room:join as soon as connected.

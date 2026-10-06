@@ -186,10 +186,10 @@ export const validateGameMove = (payload) => {
         };
     }
 
-    const parsedRow = parseInt(row, 10);
-    const parsedCol = parseInt(col, 10);
+    const parsedRow = typeof row === 'string' && /^\d+$/.test(row) ? Number(row) : row;
+    const parsedCol = typeof col === 'string' && /^\d+$/.test(col) ? Number(col) : col;
 
-    if (Number.isNaN(parsedRow) || Number.isNaN(parsedCol) || parsedRow < 0 || parsedCol < 0) {
+    if (!Number.isSafeInteger(parsedRow) || !Number.isSafeInteger(parsedCol) || parsedRow < 0 || parsedCol < 0) {
         throw { 
             statusCode: 400, 
             error: "INVALID_COORDINATES", 

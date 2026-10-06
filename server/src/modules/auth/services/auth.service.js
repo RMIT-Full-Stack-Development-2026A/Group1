@@ -60,6 +60,9 @@ export const AuthService = {
         const password = String(loginData.password);
 
         const user = await AuthRepository.findByEmailOrUsername(identifier);
+        if (user?.auth?.lockUntil > new Date()) {
+            throw { statusCode: 403, error: 'ACCOUNT_LOCKED', message: 'Account is temporarily locked. Try again after one minute.' };
+        }
         const isPasswordCorrect = user ? await bcryptjs.compare(password, user.passwordHash) : false;
 
         // Check if account exists and active
@@ -96,37 +99,25 @@ export const AuthService = {
             };
         }
 
-        if (user.auth?.lockUntil && user.auth.lockUntil > new Date()) {
-            const secondsRemaining = Math.ceil((new Date(user.auth.lockUntil).getTime() - Date.now()) / 1000);
-            throw {
-                statusCode: 403,
-                error: "ACCOUNT_LOCKED",
-                message: "Login failed. Account is temporarily locked.",
-                cause: `Too many failed attempts. Try again in ${secondsRemaining} seconds.`,
-                valid_example: `Wait ${secondsRemaining} seconds before trying again.`
-            };
+        const sessionUser = await AuthRepository.startSession(user._id);
+        if (!sessionUser) {
+            throw { statusCode: 403, error: 'LOGIN_UNAVAILABLE', message: 'The account was locked or deactivated. Please try again later.' };
         }
-
-        if (user.auth?.lockUntil && user.auth.lockUntil <= new Date()) {
-            await AuthRepository.clearExpiredLock(user._id);
-            user.auth.loginAttempts = 0;
-            user.auth.lockUntil = null;
-        }
-
-        await Promise.all([
-            AuthRepository.resetLoginAttempts(user._id),
-            AuthRepository.updateLastLogin(user._id)
-        ]);
-
-        eventBus.publish(SYSTEM_EVENTS.DUPLICATE_LOGIN, { userId: user._id.toString() });
-        generateTokenAndSetCookie(res, user._id, user.role, user.isPremium);
-
-        const safeUser = await AuthRepository.findById(user._id);
-        return AuthDTO.toUserResponse(safeUser);
+        eventBus.publish(SYSTEM_EVENTS.DUPLICATE_LOGIN, {
+            userId: user.id, tokenVersion: sessionUser.auth.tokenVersion
+        });
+        generateTokenAndSetCookie(res, user._id, sessionUser.role, sessionUser.isPremium, sessionUser.auth.tokenVersion);
+        return AuthDTO.toUserResponse(sessionUser);
     },
 
      // [POST] /auth/logout endponit
-    logoutUser: async (res) => {
+    logoutUser: async (res, session) => {
+        const user = await AuthRepository.revokeSession(session.id, session.tokenVersion);
+        if (user) {
+            eventBus.publish(SYSTEM_EVENTS.SESSION_REVOKED, {
+                userId: user.id, tokenVersion: user.auth.tokenVersion, reason: 'You have logged out.'
+            });
+        }
         res.clearCookie("access_token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -165,23 +156,6 @@ export const AuthService = {
     },
 
     // Interface/Cross-Module Methods 
-    getUserStatus: async (userId) => {
-        const user = await AuthRepository.findById(userId);
-        if (!user) return null;
-        return AuthDTO.toUserResponse(user);
-    },
-
-    getUserSessionContext: async (userId) => {
-        const user = await AuthRepository.findById(userId);
-        if (!user) return null;
-        return {
-            id: user.id || user._id,
-            role: user.role,
-            isPremium: user.isPremium,
-            isActive: user.isActive
-        };
-    },
-
     setPremiumExpiry: async (userId, premiumExpiresAt) => {
         const user = await AuthRepository.updatePremiumExpiry(userId, premiumExpiresAt);
         if (!user) return null;
@@ -230,7 +204,11 @@ export const AuthService = {
         }
 
         const newPasswordHash = await bcryptjs.hash(String(newPassword), 10);
-        await AuthRepository.updatePassword(userId, newPasswordHash);
+        const updatedUser = await AuthRepository.updatePassword(userId, newPasswordHash);
+        eventBus.publish(SYSTEM_EVENTS.SESSION_REVOKED, {
+            userId: String(userId), tokenVersion: updatedUser.auth.tokenVersion,
+            reason: 'Your password has changed. Please log in again.'
+        });
 
         return null;
     },

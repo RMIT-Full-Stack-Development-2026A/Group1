@@ -10,7 +10,7 @@ export const AuthRepository = {
                 { email: normalizedIdentifier.toLowerCase() },
                 { username: normalizedIdentifier }
             ]
-        }).select("+passwordHash");
+        }).select("+passwordHash +auth.loginAttempts +auth.lockUntil +auth.loginWindowStartedAt");
     },
 
     /** Checks email existence. */
@@ -36,6 +36,29 @@ export const AuthRepository = {
         return await User.findById(id);
     },
 
+    findSessionUser: async (id) => User.findById(id).select('+auth.tokenVersion'),
+
+    // Increment atomically so a new login invalidates every earlier session.
+    startSession: async (userId) => User.findOneAndUpdate(
+        { _id: userId, isActive: true, $or: [
+            { 'auth.lockUntil': null }, { 'auth.lockUntil': { $lte: new Date() } }
+        ] },
+        { $inc: { 'auth.tokenVersion': 1 }, $set: {
+            'auth.lastLoginAt': new Date(), 'auth.loginAttempts': 0,
+            'auth.lockUntil': null, 'auth.loginWindowStartedAt': null
+        } },
+        { returnDocument: 'after' }
+    ).select('+auth.tokenVersion'),
+
+    // A delayed logout must not revoke a session issued by a newer login.
+    revokeSession: async (userId, tokenVersion) => User.findOneAndUpdate(
+        { _id: userId, ...(tokenVersion === 0
+            ? { $or: [{ 'auth.tokenVersion': 0 }, { 'auth.tokenVersion': { $exists: false } }] }
+            : { 'auth.tokenVersion': tokenVersion }) },
+        { $inc: { 'auth.tokenVersion': 1 } },
+        { returnDocument: 'after' }
+    ).select('+auth.tokenVersion'),
+
     /** Finds user by ID including password. */
     findByIdWithPassword: async (id) => {
         return await User.findById(id).select("+passwordHash");
@@ -43,41 +66,23 @@ export const AuthRepository = {
 
     /** Increments login attempt count. */
     incrementLoginAttempts: async (user) => {
-        const currentAttempts = user?.auth?.loginAttempts || 0;
-        const updates = { $inc: { "auth.loginAttempts": 1 } };
-
-        if (currentAttempts + 1 >= 5) {
-            updates.$set = { "auth.lockUntil": new Date(Date.now() + 60 * 1000) };
-        }
-
-        return await User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' });
-    },
-
-    /** Resets login attempts. */
-    resetLoginAttempts: async (userId) => {
-        return await User.findByIdAndUpdate(
-            userId,
-            { $set: { "auth.loginAttempts": 0, "auth.lockUntil": null } },
-            { returnDocument: 'after' }
-        );
-    },
-
-    /** Clears expired account locks. */
-    clearExpiredLock: async (userId) => {
-        return await User.findByIdAndUpdate(
-            userId,
-            { $set: { "auth.loginAttempts": 0, "auth.lockUntil": null } },
-            { returnDocument: 'after' }
-        );
-    },
-
-    /** Updates last login timestamp. */
-    updateLastLogin: async (userId) => {
-        return await User.findByIdAndUpdate(
-            userId,
-            { $set: { "auth.lastLoginAt": new Date() } },
-            { returnDocument: 'after' }
-        );
+        const now = new Date();
+        const freshWindow = { $gt: [
+            { $ifNull: ['$auth.loginWindowStartedAt', new Date(0)] },
+            new Date(now.getTime() - 60_000)
+        ] };
+        // Count in MongoDB, not from a possibly stale copy of the user document.
+        return User.findByIdAndUpdate(user._id, [
+            { $set: {
+                'auth.loginAttempts': { $cond: [freshWindow, { $add: [{ $ifNull: ['$auth.loginAttempts', 0] }, 1] }, 1] },
+                'auth.loginWindowStartedAt': { $cond: [freshWindow, '$auth.loginWindowStartedAt', now] }
+            } },
+            { $set: { 'auth.lockUntil': { $cond: [
+                { $gt: ['$auth.lockUntil', now] }, '$auth.lockUntil',
+                { $cond: [{ $gte: ['$auth.loginAttempts', 5] }, new Date(now.getTime() + 60_000), null] }
+            ] } } }
+        ], { returnDocument: 'after', updatePipeline: true })
+            .select('+auth.loginAttempts +auth.lockUntil');
     },
 
     /** Updates premium expiration. */
@@ -93,7 +98,7 @@ export const AuthRepository = {
     updateAccountStatus: async (userId, isActive) => {
         return await User.findByIdAndUpdate(
             userId,
-            { $set: { isActive } },
+            { $set: { isActive }, ...(!isActive && { $inc: { 'auth.tokenVersion': 1 } }) },
             { returnDocument: 'after' }
         );
     },
@@ -111,9 +116,9 @@ export const AuthRepository = {
     updatePassword: async (userId, passwordHash) => {
         return await User.findByIdAndUpdate(
             userId,
-            { $set: { passwordHash } },
+            { $set: { passwordHash }, $inc: { 'auth.tokenVersion': 1 } },
             { returnDocument: 'after' }
-        );
+        ).select('+auth.tokenVersion');
     },
 
     /** Validates profile uniqueness. */

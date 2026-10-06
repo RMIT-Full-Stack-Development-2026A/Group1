@@ -1,10 +1,8 @@
 import { AuthService } from "../services/auth.service.js";
+import { SessionService } from '../services/session.service.js';
 
 export const AuthInterface = {
-    getUserStatus: async (userId) => AuthService.getUserStatus(userId),
-    
-    getUserSessionContext: async (userId) => AuthService.getUserSessionContext(userId),
-    
+    authenticateAccessToken: (token) => SessionService.authenticateAccessToken(token),
     setPremiumExpiry: async (userId, premiumExpiresAt) => AuthService.setPremiumExpiry(userId, premiumExpiresAt),
     
     setAccountStatus: async (userId, isActive) => AuthService.setAccountStatus(userId, isActive),

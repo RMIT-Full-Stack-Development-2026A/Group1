@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 
 /**
  * Generates a JWT and sets it as an HttpOnly cookie on the response.
@@ -8,9 +9,10 @@ import jwt from 'jsonwebtoken';
  * @param {boolean} isPremium - Subscription status.
  * @returns {string} The generated JWT token.
  */
-export const generateTokenAndSetCookie = (res, userId, role, isPremium) => {
-    const token = jwt.sign({ userId, role, isPremium }, process.env.JWT_SECRET, {
+export const generateTokenAndSetCookie = (res, userId, role, isPremium, tokenVersion) => {
+    const token = jwt.sign({ userId, role, isPremium, tokenVersion }, process.env.JWT_SECRET, {
         expiresIn: "7d",
+        jwtid: randomUUID(),
     });
 
     res.cookie('access_token', token, {

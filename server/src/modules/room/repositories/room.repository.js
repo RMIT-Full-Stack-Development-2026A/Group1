@@ -75,8 +75,12 @@ export const RoomRepository = {
 
     /** Pushes move to room. */
     pushMove: async (roomId, move, nextTurnIndex) => {
-        return await GameRoom.findByIdAndUpdate(
-            roomId,
+        return await GameRoom.findOneAndUpdate(
+            { _id: roomId, status: ROOM_STATUS.PLAYING,
+                currentTurnParticipantIndex: move.byParticipantIndex,
+                moveCount: move.moveNumber - 1,
+                moves: { $not: { $elemMatch: { row: move.row, col: move.col } } }
+            },
             {
                 $push: { moves: move },
                 $inc: { moveCount: 1 },
@@ -88,6 +92,20 @@ export const RoomRepository = {
             { returnDocument: 'after' }
         ).lean();
     },
+
+    markParticipantReady: (roomId, userId) => GameRoom.findOneAndUpdate(
+        { _id: roomId, status: ROOM_STATUS.READY, 'participants.userId': userId },
+        { $set: { 'participants.$.isReady': true } },
+        { returnDocument: 'after' }
+    ).lean(),
+
+    startIfReady: (roomId) => GameRoom.findOneAndUpdate(
+        { _id: roomId, status: ROOM_STATUS.READY, participants: { $size: 2 },
+            'participants.0.isReady': true, 'participants.1.isReady': true },
+        [{ $set: { status: ROOM_STATUS.PLAYING, startedAt: '$$NOW',
+            currentTurnParticipantIndex: '$firstTurnParticipantIndex' } }],
+        { returnDocument: 'after', updatePipeline: true }
+    ).lean(),
 
     /** Updates room status. */
     updateRoomStatus: async (roomId, updateFields) => {

@@ -38,7 +38,7 @@ export const AuthController = {
      // [POST] /auth/logout endponit
     logout: async (req, res, next) => {
         try {
-            await AuthService.logoutUser(res);
+            await AuthService.logoutUser(res, req.user);
 
             return res.status(200).json({
                 data: null,

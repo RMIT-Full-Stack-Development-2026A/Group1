@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { escapeSearch, parseDateRange } from '../../../utils/query.util.js';
 
 /**
  * Validates a MongoDB ObjectId.
@@ -111,18 +112,29 @@ export const validateGameQuery = (query = {}, userId = null) => {
         // Map result types to status filters
         if (query.result === 'DRAW') {
             filter.status = 'DRAW';
-        } else if (query.result === 'ABORT') {
+        } else if (query.result === 'ABORT' || query.result === 'ABORTED') {
             filter.status = 'ABORTED';
-        } else if (query.result === 'WIN' || query.result === 'LOSS') {
-            // For WIN/LOSS, we need status === FINISHED
+        } else if (['WIN', 'LOSE', 'LOSS'].includes(query.result)) {
             filter.status = 'FINISHED';
+            if (userId) {
+                filter.$expr = {
+                    [query.result === 'WIN' ? '$eq' : '$ne']: [
+                        '$winnerParticipantIndex',
+                        { $indexOfArray: ['$participants.userId', new mongoose.Types.ObjectId(userId)] }
+                    ]
+                };
+            }
         }
     }
 
     if (query.q) {
+        const search = escapeSearch(query.q);
         const orConditions = [
-            { sessionNumber: { $regex: query.q, $options: 'i' } },
-            { 'participants.usernameSnapshot': { $regex: query.q, $options: 'i' } }
+            { sessionNumber: { $regex: search, $options: 'i' } },
+            userId ? { participants: { $elemMatch: {
+                userId: { $ne: new mongoose.Types.ObjectId(userId) },
+                usernameSnapshot: { $regex: search, $options: 'i' }
+            } } } : { 'participants.usernameSnapshot': { $regex: search, $options: 'i' } }
         ];
 
         // Also allow searching by MongoDB _id (displayed in the match history table)
@@ -146,10 +158,10 @@ export const validateGameQuery = (query = {}, userId = null) => {
     }
 
     if (query.from || query.to) {
-        filter.endedAt = {};
-        if (query.from) filter.endedAt.$gte = new Date(query.from);
-        if (query.to) filter.endedAt.$lte = new Date(query.to);
+        filter.endedAt = parseDateRange(query.from, query.to);
     }
 
-    return { filter, sort: { endedAt: -1 }, pagination: { page, limit, skip } };
+    const sortBy = ['endedAt', 'startedAt', 'sessionNumber', 'gameType'].includes(query.sortBy) ? query.sortBy : 'endedAt';
+    const direction = query.sortOrder === 'asc' ? 1 : -1;
+    return { filter, sort: { [sortBy]: direction, _id: direction }, pagination: { page, limit, skip } };
 };

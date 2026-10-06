@@ -1,12 +1,8 @@
 import { GameService } from "../services/game.service.js";
 
-// Interface exposes game-history and replay operations to other modules.
+// Only operations consumed by other modules belong in this interface.
 export const GameInterface = {
-    createLocalGameSession: async (userId, payload) => GameService.createLocalGameSession(userId, payload),
-
     listUserGameSessions: async (userId, query) => GameService.listUserGameSessions(userId, query),
-
-    getGameSessionDetail: async (userId, gameId) => GameService.getGameSessionDetail(userId, gameId),
 
     // Expose to Profile/Admin module
     getUserGameStats: async (userId) => GameService.getUserGameStats(userId),

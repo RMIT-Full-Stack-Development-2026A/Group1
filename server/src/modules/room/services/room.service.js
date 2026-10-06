@@ -244,6 +244,11 @@ export const RoomService = {
         if (room.status !== ROOM_STATUS.WAITING) {
             throw { statusCode: 400, error: "ROOM_NOT_WAITING", message: "Room is already full or playing." };
         }
+
+        const existingRoom = await RoomRepository.findActiveRoomByUserId(userId);
+        if (existingRoom) {
+            throw { statusCode: 400, error: 'ALREADY_IN_ROOM', message: 'Leave your current room before joining another.' };
+        }
         
         const user = await AuthInterface.getUserById(userId);
         const hostMark = room.participants[0].mark;
@@ -291,6 +296,10 @@ export const RoomService = {
             throw { statusCode: 400, error: "INVALID_MOVE", message: "Cell is already occupied." };
         }
 
+        if (row >= room.boardSize || col >= room.boardSize) {
+            throw { statusCode: 400, error: 'INVALID_COORDINATES', message: 'Move must be inside the board.' };
+        }
+
         const coordinate = `${String.fromCharCode(65 + col)}${row + 1}`;
         const newMove = { 
             moveNumber: room.moveCount + 1, 
@@ -301,6 +310,9 @@ export const RoomService = {
 
         const nextTurn = pIndex === 0 ? 1 : 0;
         let updatedRoom = await RoomRepository.pushMove(roomId, newMove, nextTurn);
+        if (!updatedRoom) {
+            throw { statusCode: 409, error: 'MOVE_CONFLICT', message: 'The board changed. Wait for the latest game state before moving.' };
+        }
 
         // Check for a Gomoku win after the latest move.
         const winningLine = checkGomokuWin(updatedRoom.moves, room.boardSize, row, col, pIndex);
@@ -471,10 +483,17 @@ export const RoomService = {
     handleChatSend: async (userId, payload) => {
         const { roomId, message } = validateChatSend(payload);
         
-        // Strict real-time DB check for premium
         const user = await AuthInterface.getUserById(userId);
-        if (!user || !user.isPremium) {
-            throw { statusCode: 403, error: "PREMIUM_REQUIRED", message: "In-game chat requires an active Premium subscription." };
+        if (!user?.isActive) {
+            throw { statusCode: 403, error: 'FORBIDDEN', message: 'An active account is required.' };
+        }
+        const room = await RoomRepository.findById(roomId);
+        if (!room) throw { statusCode: 404, error: 'ROOM_NOT_FOUND', message: 'Room not found.' };
+        if (!room.participants.some(p => String(p.userId) === String(userId))) {
+            throw { statusCode: 403, error: 'FORBIDDEN', message: 'Only participants can chat in this room.' };
+        }
+        if (![ROOM_STATUS.WAITING, ROOM_STATUS.READY, ROOM_STATUS.PLAYING].includes(room.status)) {
+            throw { statusCode: 400, error: 'INVALID_STATE', message: 'This room is no longer active.' };
         }
 
         return RoomDTO.toChatMessagePayload({
@@ -494,7 +513,7 @@ export const RoomService = {
         const room = await GameRoom.findById(roomId);
         
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
-        if (room.status === ROOM_STATUS.PLAYING) throw { statusCode: 400, error: "INVALID_STATE", message: "Cannot change settings while playing." };
+        if (![ROOM_STATUS.WAITING, ROOM_STATUS.READY].includes(room.status)) throw { statusCode: 400, error: "INVALID_STATE", message: "Settings can only change before a match." };
         
         // Find the requesting player's index
         const playerIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
@@ -548,6 +567,9 @@ export const RoomService = {
         const room = await GameRoom.findById(roomId);
         
         if (!room) throw { statusCode: 404, error: "ROOM_NOT_FOUND", message: "Room not found." };
+        if (![ROOM_STATUS.WAITING, ROOM_STATUS.READY].includes(room.status)) {
+            throw { statusCode: 400, error: 'INVALID_STATE', message: 'First turn can only change before a match.' };
+        }
 
         const playerIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
         if (playerIndex === -1) throw { statusCode: 403, error: "FORBIDDEN", message: "User is not a participant of this room." };
@@ -559,41 +581,28 @@ export const RoomService = {
         if (room.firstTurnParticipantIndex !== firstTurnParticipantIndex) {
             room.firstTurnParticipantIndex = firstTurnParticipantIndex;
             
-            // Cosmetic change: Unready only the player making the change.
-            room.participants[playerIndex].isReady = false;
+            // First turn changes the game rules for both players.
+            room.participants.forEach(p => { p.isReady = false; });
             await room.save();
         }
         
-        await room.save();
         return { roomId, room: RoomDTO.toRoomSummary(room) };
     },
 
     /** Handles room ready status. */
     handleRoomReady: async (userId, payload) => {
         const { roomId } = validateRoomReady(payload);
-        const room = await GameRoom.findById(roomId);
+        let room = await GameRoom.findById(roomId);
         
         if (!room || room.status !== ROOM_STATUS.READY) throw { statusCode: 400, error: "INVALID_STATE", message: "Room must be full (READY) to click ready." };
 
-        let allReady = true;
-        room.participants.forEach(p => {
-            if (p.userId.toString() === userId.toString()) p.isReady = true;
-            if (!p.isReady) allReady = false;
-        });
-
-        // Ensure actually 2 players before starting
-        if (room.participants.length < 2) allReady = false;
-
-        let gameStart = false;
-        if (allReady) {
-            room.status = ROOM_STATUS.PLAYING;
-            room.startedAt = new Date();
-            room.currentTurnParticipantIndex = room.firstTurnParticipantIndex || 0;
-            gameStart = true;
+        if (!room.participants.some(p => String(p.userId) === String(userId))) {
+            throw { statusCode: 403, error: 'FORBIDDEN', message: 'Only participants can ready up.' };
         }
-
-        await room.save();
-        return { roomId, room: RoomDTO.toRoomSummary(room), gameStart };
+        room = await RoomRepository.markParticipantReady(roomId, userId);
+        if (!room) throw { statusCode: 409, error: 'ROOM_CHANGED', message: 'Room state changed. Please rejoin.' };
+        const started = await RoomRepository.startIfReady(roomId);
+        return { roomId, room: RoomDTO.toRoomSummary(started || room), gameStart: !!started };
     },
 
     /** Retrieves game state. */

@@ -159,6 +159,7 @@ export const AdminService = {
         
         // Construct the query specifically for the Game Module to handle
         const historyQuery = {
+            ...query,
             page: pagination.page,
             limit: pagination.limit,
             gameType: 'ONLINE_MATCH'

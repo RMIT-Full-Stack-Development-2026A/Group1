@@ -142,17 +142,17 @@ export const GameService = {
             };
         }
 
-        // Premium users can open shared replay links
+        // Replay is a premium feature for a player's own past matches.
         const isParticipant = session.participants.some(p => String(p.userId) === String(userId));
-        const canViewReplay = isParticipant || viewerContext.isPremium === true || viewerContext.role === 'ADMIN';
+        const canViewReplay = (isParticipant && viewerContext.isPremium === true) || viewerContext.role === 'ADMIN';
 
         if (!canViewReplay) {
              throw {
                 statusCode: 403,
-                error: "FORBIDDEN",
+                error: isParticipant ? "PREMIUM_REQUIRED" : "FORBIDDEN",
                 message: "Access denied to this game session.",
-                cause: "You are not a participant of this match.",
-                valid_example: "You can only view your own match history."
+                cause: "Replays require an active premium subscription and participation in the match.",
+                valid_example: "Use an active premium account to replay your own match."
             };
         }
         

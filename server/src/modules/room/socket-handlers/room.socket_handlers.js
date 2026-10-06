@@ -99,7 +99,7 @@ export const registerRoomSocketHandlers = (io, socket) => {
                 const activeRoom = await RoomService.getActiveRoomSummaryByUserId(user.id);
 
                 // Only intercept when a match is actually in progress.
-                if (activeRoom && activeRoom.status === 'PLAYING') {
+                if (activeRoom && String(activeRoom.id) === String(roomId) && activeRoom.status === 'PLAYING') {
                     // Clear any pre-existing timer for this user (defensive).
                     if (disconnectTimers.has(user.id)) {
                         clearTimeout(disconnectTimers.get(user.id));
@@ -152,6 +152,11 @@ export const registerRoomSocketHandlers = (io, socket) => {
             const result = await RoomService.handleRoomLeave(user.id, { roomId });
 
             if (result.action === 'ignored') return;
+
+            if (disconnectTimers.has(user.id)) {
+                clearTimeout(disconnectTimers.get(user.id));
+                disconnectTimers.delete(user.id);
+            }
 
             if (result.action === 'removed' || result.action === 'aborted') {
                 if (result.gameEnded) GameEmitter.emitGameEnded(io, result.roomId, result.gameEnded);

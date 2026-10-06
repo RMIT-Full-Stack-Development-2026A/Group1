@@ -1,53 +1,15 @@
-import jwt from "jsonwebtoken";
+import { AuthInterface } from '../modules/auth/interfaces/auth.interface.js';
 
-/**
- * Validates the JWT access token from cookies and attaches user data to the request.
- * * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @param {Function} next - Express next middleware function.
- * @returns {Object|void} JSON error response or calls next().
- */
-export const verifyToken = (req, res, next) => {
-    // Extract token from HTTP-only cookie
-    const token = req.cookies.access_token;
-    
+/** Authenticate the session and load current permissions for every request. */
+export const verifyToken = async (req, res, next) => {
+    const token = req.cookies?.access_token;
     if (!token) {
-        return res.status(401).json({ 
-            error: "UNAUTHORIZED", 
-            message: "Authentication failed. No token provided.",
-            cause: "The request lacks an access token in the cookies.",
-            valid_example: "A valid JWT token stored in the 'access_token' cookie."
-        });
+        return next({ statusCode: 401, error: 'UNAUTHORIZED', message: 'No access token provided.' });
     }
-
     try {
-        // Cryptographically verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        if (!decoded) { 
-            return res.status(401).json({ 
-                error: "INVALID_TOKEN", 
-                message: "Authentication failed. Invalid or expired token.",
-                cause: "The provided token could not be cryptographically verified or has reached its expiration time.",
-                valid_example: "A recently issued, unexpired JWT token."
-            }); 
-        }
-
-        // Attach decoded payload to the request for downstream use
-        req.user = { 
-            id: decoded.userId, 
-            role: decoded.role,
-            isPremium: decoded.isPremium 
-        };
-        
-        next();
+        req.user = await AuthInterface.authenticateAccessToken(token);
+        return next();
     } catch (error) {
-        console.error("Error in verifyToken", error);
-        return res.status(401).json({ 
-            error: "TOKEN_VERIFICATION_FAILED", 
-            message: "Authentication failed during token verification.",
-            cause: error.message,
-            valid_example: "Ensure you have logged in recently to obtain a valid token."
-        });
+        return next(error);
     }
 };

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { escapeSearch } from '../../../utils/query.util.js';
 
 // Define constants 
 export const ACTIVE_ROOM_STATUSES = ['WAITING', 'READY', 'PLAYING'];
@@ -32,14 +33,14 @@ export const validatePlayerQuery = (query) => {
 
     // Premium Filter
     if (query.premium === 'true') filter.premiumExpiresAt = { $gt: new Date() };
-    if (query.premium === 'false') filter.premiumExpiresAt = { $lte: new Date() };
+    if (query.premium === 'false') filter.$nor = [{ premiumExpiresAt: { $gt: new Date() } }];
 
     // Search Query
     if (query.q) {
         // Simple regex search for email/username
         filter.$or = [
-            { username: { $regex: query.q, $options: 'i' } },
-            { email: { $regex: query.q, $options: 'i' } }
+            { username: { $regex: escapeSearch(query.q), $options: 'i' } },
+            { email: { $regex: escapeSearch(query.q), $options: 'i' } }
         ];
     }
 
@@ -47,7 +48,7 @@ export const validatePlayerQuery = (query) => {
     const allowedSortFields = ['createdAt', 'username', 'lastLoginAt'];
     const sortBy = allowedSortFields.includes(query.sortBy) ? query.sortBy : 'createdAt';
     const sortOrder = query.sortOrder === 'asc' ? 1 : -1;
-    const sort = { [sortBy]: sortOrder };
+    const sort = { [sortBy === 'lastLoginAt' ? 'auth.lastLoginAt' : sortBy]: sortOrder, _id: sortOrder };
 
     return { filter, sort, pagination: { page, limit, skip } };
 };
@@ -99,6 +100,13 @@ export const validateAdminRoomQuery = (query) => {
     }
 
     // Sort newest first
+    if (query.q) {
+        const search = escapeSearch(query.q);
+        filter.$or = [
+            { roomNumber: { $regex: search, $options: 'i' } },
+            { 'participants.usernameSnapshot': { $regex: search, $options: 'i' } }
+        ];
+    }
     const sort = { createdAt: -1 };
 
     return { filter, sort, pagination: { page, limit, skip } };

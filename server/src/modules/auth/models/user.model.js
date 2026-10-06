@@ -51,6 +51,16 @@ const userSchema = new mongoose.Schema({
         index: true
     },
     auth: {
+        tokenVersion: {
+            type: Number,
+            default: 0,
+            select: false
+        },
+        loginWindowStartedAt: {
+            type: Date,
+            default: null,
+            select: false
+        },
         lastLoginAt: {
             type: Date, 
             default: null 

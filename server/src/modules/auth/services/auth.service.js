@@ -1,7 +1,7 @@
 import bcryptjs from "bcryptjs";
 import { AuthRepository } from "../repositories/auth.repository.js";
 import { AuthDTO } from "../dtos/auth.dto.js";
-import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
+import { generateTokenAndSetCookie, clearAccessTokenCookies } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput,  validateRegisterConflicts } from "../validators/auth.validator.js";
 import { RoomInterface } from "../../room/interfaces/room.interface.js";
 import { eventBus } from "../../../utils/eventBus.util.js";
@@ -120,12 +120,7 @@ export const AuthService = {
                 userId: user.id, tokenVersion: user.auth.tokenVersion, reason: 'You have logged out.', code: 'LOGGED_OUT'
             });
         }
-        res.clearCookie("access_token", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            path: "/"
-        });
+        clearAccessTokenCookies(res);
     },
 
      // [GET] /auth/check-auth endponit

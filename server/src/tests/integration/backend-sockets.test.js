@@ -143,7 +143,9 @@ describe('Socket session lifecycle and chat delivery', () => {
         const loggedOut = event(client, 'auth:force_logout');
         const disconnected = event(client, 'disconnect');
         expect((await request(app).post('/api/v1/auth/logout').set('Cookie', auth.cookie)).status).toBe(200);
-        expect((await loggedOut).reason).toContain('logged out');
+        const forced = await loggedOut;
+        expect(forced.reason).toContain('logged out');
+        expect(forced.code).toBe('LOGGED_OUT');
         await disconnected;
         expect(client.connected).toBe(false);
     });

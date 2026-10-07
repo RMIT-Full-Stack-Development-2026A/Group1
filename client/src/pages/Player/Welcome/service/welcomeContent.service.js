@@ -85,7 +85,6 @@ export const HISTORY_PLACEHOLDER = {
     { date: "2026-03", label: "Project kicked off" },
     { date: "2026-06", label: "Offline gameplay prototype" },
     { date: "2026-09", label: "Online multiplayer launched" },
-    { date: "2026-10", label: "Welcome page shipped" },
   ],
 };
 

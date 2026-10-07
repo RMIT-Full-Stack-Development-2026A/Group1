@@ -32,7 +32,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d1a]/80 via-[#0d0d1a]/60 to-[#0d0d1a]/10 z-10 pointer-events-none" />
       <PixelCanvas className="absolute inset-0 z-[15] mix-blend-screen" variant="glow" />
 
-      <div className="relative z-20 flex flex-col items-center text-center max-w-5xl mx-auto gap-4">
+      <div className="relative z-20 flex flex-col items-center text-center max-w-5xl mx-auto gap-4 -translate-y-1">
         <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
           TicTacToang
         </h1>

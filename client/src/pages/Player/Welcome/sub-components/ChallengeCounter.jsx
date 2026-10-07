@@ -1,14 +1,16 @@
 /**
- * ChallengeCounter — Section 6
- * 07/10 update (Khanh): no more mock number. Fetches the real total match
- * count from the backend (GET /games/stats/total) and displays it through
- * the ported SplitFlapDisplay (componentry.dev) airport-scoreboard effect.
+ * ChallengeCounter — Section
+ * 07/10 update (Khanh): dropped the "Can you beat the AI on Hard?" heading
+ * and the SplitFlapDisplay (airport-board flip didn't fit the page's
+ * vibe here). Now just a simple real match count, fetched from the
+ * backend (GET /games/stats/total) — still no mock number.
  */
 
 import { useEffect, useState } from "react";
-import SplitFlapDisplay from "./SplitFlapDisplay";
+import { motion } from "framer-motion";
 import { getTotalMatchesPlayed } from "../service/gameStats.service";
-import { CHALLENGE_STAT } from "../service/welcomeContent.service";
+
+const MotionP = motion.p;
 
 export default function ChallengeCounter() {
   const [totalMatches, setTotalMatches] = useState(null); // null while loading
@@ -27,19 +29,20 @@ export default function ChallengeCounter() {
     };
   }, []);
 
-  const displayValue = totalMatches === null ? "" : String(totalMatches);
-
   return (
-    <section className="w-full max-w-4xl mx-auto px-6 py-20 text-center flex flex-col items-center gap-8">
-      <h2 className="font-headline text-lg md:text-xl text-[#e3e0f4] uppercase">
-        {CHALLENGE_STAT.label}
-      </h2>
-      <SplitFlapDisplay
-        rows={[{ label: "MATCHES PLAYED", value: displayValue }]}
-        columns={20}
-        size="sm"
-        accentColor="#fad100"
-      />
+    <section className="w-full max-w-3xl mx-auto px-6 py-16 text-center flex flex-col items-center gap-3">
+      <MotionP
+        className="font-headline text-4xl md:text-6xl text-[#4cc9f0] [text-shadow:0_0_20px_rgba(76,201,240,0.4)]"
+        initial={{ opacity: 0, scale: 0.9 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, amount: 0.6 }}
+        transition={{ duration: 0.4 }}
+      >
+        {totalMatches === null ? "—" : totalMatches.toLocaleString()}
+      </MotionP>
+      <p className="font-headline text-xs md:text-sm text-[#bcc8ce] uppercase tracking-widest">
+        Matches Played
+      </p>
     </section>
   );
 }

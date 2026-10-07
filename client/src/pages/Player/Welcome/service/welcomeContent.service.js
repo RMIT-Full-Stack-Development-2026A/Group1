@@ -46,17 +46,17 @@ export const HOW_TO_PLAY_STEPS = [
   {
     step: 1,
     title: "Choose a mode",
-    description: "Pick AI, Local, or Online on the /play screen.",
+    description: "Pick AI, Local, or Online.",
   },
   {
     step: 2,
     title: "Place X or O",
-    description: "Take turns marking empty cells on the board.",
+    description: "Make your moves on the board.",
   },
   {
     step: 3,
-    title: "Connect 3 in a row",
-    description: "First to line up 3 marks wins the match.",
+    title: "Connect 5 in a row",
+    description: "First to line up 5 marks wins the game.",
   },
 ];
 
@@ -98,12 +98,6 @@ export const TEAM_MEMBERS = [
   { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/", photo: null },
 ];
 
-// 07/10: value now comes from the real backend (GET /games/stats/total),
-// see ChallengeCounter.jsx + gameStats.service.js. Only the label is static.
-export const CHALLENGE_STAT = {
-  label: "Can you beat the AI on Hard?",
-};
-
 export const FAQ_ITEMS = [
   {
     question: "Is it free to play?",
@@ -127,6 +121,7 @@ export const DOCK_SECTIONS = [
   { id: "welcome-top", label: "Home", icon: "home" },
   { id: "modes", label: "Modes", icon: "sports_esports" },
   { id: "how-to-play", label: "How to Play", icon: "menu_book" },
+  { id: "history", label: "History", icon: "history_edu" },
   { id: "team", label: "Team", icon: "groups" },
   { id: "feedback", label: "Feedback", icon: "feedback" },
   { id: "faq", label: "FAQ", icon: "help" },

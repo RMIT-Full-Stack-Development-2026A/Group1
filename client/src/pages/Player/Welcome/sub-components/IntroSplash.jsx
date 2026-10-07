@@ -1,14 +1,17 @@
 /**
  * IntroSplash — new (07/10, Khanh)
- * Full-screen gradient overlay shown briefly before the /welcome content
- * is revealed. 07/10 update: two-stage reveal — "Welcome to" fades in
- * first, holds briefly, then "TICTACTOANG" appears below it, before the
- * whole overlay fades out. Skipped entirely when the user prefers reduced
- * motion (no forced animation, page content is visible immediately).
+ * Full-screen background shown briefly before the /welcome content is
+ * revealed. 07/10 update: background is now the ported AnimatedGradient
+ * (componentry.dev, WebGL) instead of a plain CSS gradient. Two-stage
+ * reveal — "Welcome to" fades in first, holds briefly, then "TICTACTOANG"
+ * appears below it, before the whole overlay fades out. Skipped entirely
+ * when the user prefers reduced motion (no forced animation, page content
+ * is visible immediately).
  */
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import AnimatedGradient from "./AnimatedGradient";
 
 const MotionDiv = motion.div;
 
@@ -40,21 +43,21 @@ export default function IntroSplash() {
     <AnimatePresence>
       {isVisible && (
         <MotionDiv
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-2"
-          style={{
-            background: "linear-gradient(135deg, #0d0d1a 0%, #1e1e2c 50%, #003543 100%)",
-          }}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-2 overflow-hidden"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
         >
+          <AnimatedGradient className="absolute inset-0 z-0" />
+          <div className="absolute inset-0 z-[1] bg-[#0d0d1a]/35" />
+
           <AnimatePresence>
             {showWelcome && (
               <MotionDiv
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="font-headline text-base md:text-lg text-[#93e2ff] uppercase tracking-widest"
+                className="relative z-10 font-headline text-base md:text-lg text-[#93e2ff] uppercase tracking-widest"
               >
                 Welcome to
               </MotionDiv>
@@ -67,7 +70,7 @@ export default function IntroSplash() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="font-headline text-2xl md:text-4xl text-[#4cc9f0] uppercase tracking-tighter [text-shadow:4px_4px_0px_#1e1e2c]"
+                className="relative z-10 font-headline text-2xl md:text-4xl text-[#4cc9f0] uppercase tracking-tighter [text-shadow:4px_4px_0px_#1e1e2c]"
               >
                 TicTacToang
               </MotionDiv>

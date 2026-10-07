@@ -172,7 +172,7 @@ Pressed-READY lobby, verified live: the button turns into a green, disabled, pul
 
 Client lint: `npm run lint` went from 74 problems (68 errors, 6 warnings) to 0. The duplicate `playerTwoName` key was removed (the second copy was the one that always took effect). Unused variables were removed, JSX-only component props are recognized by the lint config, form resets and the abort countdown now adjust state while rendering, render-time `Math.random` and `Date.now` calls moved to mount time, the login lockout helpers were hoisted, and `vite.config.js` defines its own `__dirname`. Two targeted suppressions carry written reasons (the board's hydration flag and the once-on-mount PayPal capture). One refactor (applying the lobby's room data during render) broke room creation under StrictMode, was caught, and was reverted to an effect with an explanatory comment before anything was pushed; creating a room, leaving it, and creating again were then verified live.
 
-Not tested: the PayPal checkout flow.
+PayPal checkout, verified live in sandbox mode with a free account: see item 1 under open items.
 
 `vite build` passes and `npm run lint` is at 0 problems. The client has no test suite; the server has 92 integration tests, all passing.
 
@@ -180,7 +180,7 @@ Not tested: the PayPal checkout flow.
 
 ## 4. What is still open
 
-1. **PayPal checkout:** not tested yet (left for last on purpose). `PaymentSuccess` captures the payment once on mount, guarded by a ref so a payment is never captured twice; that effect was deliberately left untouched during the lint cleanup.
+1. **PayPal checkout: verified (sandbox, success path).** Create-order, PayPal approval, redirect to `/success`, capture, premium status, expiry (+30 days) and a single SUCCESS history row all worked; reloading `/success` re-sends the capture but creates no second transaction and does not extend the expiry. The cancel path was not tested (decided unnecessary). Before deploying, make sure `ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS` is not `true` in production.
 2. **Online board, chat overlap (optional):** the open 380 px chat window covers about 89 px of the board's left edge on desktop (row labels and the lower column A cells). Making the window 280 px wide on desktop would remove the overlap; held because the placement was approved as is.
 3. **Possible hardening:** the online page's cleanup sends `room:leave` for any active room on unmount, which cannot tell a real navigation from React StrictMode's simulated unmount in development. It is fine today (room data from the lobby is applied in an effect, with a comment explaining why), but making the leave deferred and cancellable on remount would remove the fragility.
 4. **Optional product choices:** list "Match chat" among the Neuro-Elite benefits on the subscription page (chat is now premium-only on the server too), and an "unready" option (READY cannot be cancelled once pressed).

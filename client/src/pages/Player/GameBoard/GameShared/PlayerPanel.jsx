@@ -21,7 +21,6 @@ const difficultyConfig = {
  */
 const PlayerPanel = ({
     role, playerName, isBot, isActive, difficulty, avatarUrl, markerVariantData,
-    gameOver          = false,
 }) => {
     const isX = role === 'X';
     const markerColor = isX ? '#ffb4ab' : '#93e2ff';

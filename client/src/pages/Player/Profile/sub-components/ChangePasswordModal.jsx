@@ -37,8 +37,11 @@ export default function ChangePasswordModal({
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Initialize form when modal opens
-  useEffect(() => {
+  // Reset the form each time the modal opens. This is done while rendering (tracking the previous
+  // value of isOpen) instead of in an effect, so there is no extra render with stale values.
+  const [wasOpen, setWasOpen] = useState(false);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
     if (isOpen) {
       setFormData({
         oldPassword: "",
@@ -61,7 +64,7 @@ export default function ChangePasswordModal({
       setShowConfirmPassword(false);
       setPasswordMismatch(false);
     }
-  }, [isOpen]);
+  }
 
   // Auto-close modal after successful password change
   useEffect(() => {

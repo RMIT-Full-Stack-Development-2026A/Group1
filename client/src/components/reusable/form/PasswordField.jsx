@@ -15,7 +15,6 @@ const PasswordField = ({
     onToggleShow,
     passwordValidation = null,
     passwordMismatch = false,
-    passwordStrength = 0,
     CriteriaCheckbox,
     disabled = false,
     isConfirmField = false,

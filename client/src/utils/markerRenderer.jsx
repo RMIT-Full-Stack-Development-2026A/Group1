@@ -18,7 +18,7 @@ export const getMarkerVariant = (variantIdentifier) => {
         const variants = getMarkerVariants();
         const found = variants.find((v) => v.displayId === variantIdentifier || v.id === variantIdentifier);
         if (found) return found;
-    } catch (error) {
+    } catch {
         console.warn("Could not fetch marker variants from service, using fallback.");
     }
 

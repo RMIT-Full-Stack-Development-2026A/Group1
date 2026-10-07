@@ -19,12 +19,12 @@ export const emitAbortConsent = (socket, roomId, agreed) => {
     console.warn('[ABORT SOCKET] Placeholder — emit abort_consent:', agreed);
 };
 
-export const onAbortRequest = (socket, callback) => {
+export const onAbortRequest = (_socket, _callback) => {
     // TODO: socket.on('game:abort_request', callback);
     console.warn('[ABORT SOCKET] Placeholder — listening for abort_request');
 };
 
-export const onAbortResolved = (socket, callback) => {
+export const onAbortResolved = (_socket, _callback) => {
     // TODO: socket.on('game:abort_resolved', callback);
     console.warn('[ABORT SOCKET] Placeholder — listening for abort_resolved');
 };

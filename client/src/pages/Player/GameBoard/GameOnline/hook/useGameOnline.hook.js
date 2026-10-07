@@ -41,10 +41,15 @@ export const useGameOnline = () => {
         if (!isConnected) joinedRoomIdRef.current = null;
     }, [isConnected]);
 
+    // Room data handed over by the lobby through navigation state.
+    // This MUST be applied in an effect (one render after mount), not while rendering. The cleanup effect further
+    // down sends room:leave for any active room when the page unmounts, and React StrictMode simulates an
+    // unmount right after mount in development. If the room data were already set on the first render, that
+    // simulated unmount would leave the room that was just created, and the lobby would redirect back.
     useEffect(() => {
         const initialData = location.state?.initialRoomData;
         if (initialData && (initialData.id === roomId || initialData.roomId === roomId)) {
-            
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRoomData(initialData);
             setIsConnecting(false);
         }
@@ -233,6 +238,9 @@ export const useGameOnline = () => {
             const sizeStr = `${roomData.boardSize}x${roomData.boardSize}`;
             const styleMap = { CLASSIC: 'classic', NEON: 'neon', DARK: 'block' };
             setCustomization(sizeStr, styleMap[roomData.boardStyle] || 'classic', 3);
+            // The flag must flip only after the customization store above is updated (the board renders from it),
+            // so this has to happen in the effect, right after the store write.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsHydrated(true);
         }
     }, [roomData?.status, roomData?.id, roomData?.boardSize, roomData?.boardStyle, isHydrated, setCustomization]);

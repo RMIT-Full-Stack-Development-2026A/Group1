@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedRooms, onRefresh, selectedView, onChangeView }) {
+export default function GameRoomMonitorHeader({ totalRooms, activeRooms, closedRooms, selectedView, onChangeView }) {
   return (
     <header className="space-y-2">
       <p className="font-mono text-xs uppercase tracking-[0.35em] text-primary">

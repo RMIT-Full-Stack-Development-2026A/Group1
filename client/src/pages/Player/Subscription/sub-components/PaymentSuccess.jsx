@@ -11,7 +11,6 @@ export default function PaymentSuccess() {
     const [status, setStatus] = useState('loading'); // 'loading' | 'success' | 'error' | 'already_captured'
     const [error, setError] = useState(null);
     const [premiumExpiresAt, setPremiumExpiresAt] = useState(null);
-    const [navigated, setNavigated] = useState(false);
 
     const token = searchParams.get('token');
 
@@ -49,7 +48,10 @@ export default function PaymentSuccess() {
         if (hasCaptured.current) return;
         hasCaptured.current = true;
         runCapture();
-    }, []); // run only once on mount
+        // Runs once on mount by design: hasCaptured makes sure the PayPal capture request is never sent twice,
+        // so token, navigate and runCapture must not be dependencies.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (status === 'loading') {
         return (

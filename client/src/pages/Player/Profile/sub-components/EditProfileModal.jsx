@@ -1,6 +1,6 @@
 // Edit Profile Modal - Allows players to update email, username, and country
 import { useDialogA11y } from '@/hooks/useDialogA11y';
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   EmailField,
   UsernameField,
@@ -40,9 +40,14 @@ export default function EditProfileModal({
 
   const [saveError, setSaveError] = useState("");
 
-  // Initialize form with player data and validate existing values
-  useEffect(() => {
-    if (playerData && isOpen) {
+  // Initialize the form with player data and validate existing values. Runs when the modal opens or the
+  // player data changes while open. Done while rendering (tracking the previous source) instead of in an
+  // effect, so there is no extra render with stale values.
+  const formSource = isOpen && playerData ? playerData : null;
+  const [seenSource, setSeenSource] = useState(null);
+  if (formSource !== seenSource) {
+    setSeenSource(formSource);
+    if (formSource) {
       const initialUsername = playerData.username || "";
       const initialEmail = playerData.email || "";
 
@@ -61,7 +66,7 @@ export default function EditProfileModal({
 
       setSaveError("");
     }
-  }, [isOpen, playerData]);
+  }
 
   // Reusable criteria checkbox component
   const CriteriaCheckbox = ({ met, label }) => (

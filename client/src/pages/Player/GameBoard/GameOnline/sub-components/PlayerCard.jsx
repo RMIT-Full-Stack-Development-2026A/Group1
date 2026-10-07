@@ -64,10 +64,6 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
       : 'drop-shadow-[0_0_14px_rgba(255,180,171,0.5)]'
     : '';
 
-  const readyBadgeClass = isReady
-    ? 'border-neon-green text-neon-green bg-neon-green-dim shadow-glow-green'
-    : 'border-outline-variant text-outline';
-
   return (
       <div
       className={`w-full lg:w-[260px] py-4 lg:shrink-0 flex flex-col bg-[#1e1e2c] relative overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700

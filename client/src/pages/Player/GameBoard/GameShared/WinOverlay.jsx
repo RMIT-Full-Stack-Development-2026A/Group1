@@ -5,7 +5,7 @@ import Icon from '@/components/common/Icon';
 
 const RESULT_UI_CONFIG = {
     winner: {
-        title: (winnerData) => `YOU WIN!`,
+        title: () => `YOU WIN!`,
         badge: 'CONGRATULATIONS',
         subtitle: (winnerData) => `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`,
         color: '#fad100',
@@ -13,7 +13,7 @@ const RESULT_UI_CONFIG = {
         badgeTextColor: '#3b2f00',
     },
     loser: {
-        title: (winnerData) => `YOU LOSE!`,
+        title: () => `YOU LOSE!`,
         badge: 'GAME OVER',
         subtitle: 'BETTER LUCK NEXT TIME',
         color: '#ef6353',

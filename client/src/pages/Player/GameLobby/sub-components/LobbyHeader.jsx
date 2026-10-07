@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin, onRefreshLobby, showWaitingOnly, onToggleShowWaitingOnly }) {
+export default function LobbyHeader({ onlineCount, onCreateRoom, onRefreshLobby, showWaitingOnly, onToggleShowWaitingOnly }) {
     return (
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex flex-col gap-3">

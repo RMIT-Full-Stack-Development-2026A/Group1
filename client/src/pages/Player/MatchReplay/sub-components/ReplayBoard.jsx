@@ -6,7 +6,7 @@ import { getTheme } from '@/config/gameThemes.config';
 
 const COL_LETTERS = Array.from({ length: 15 }, (_, i) => String.fromCharCode(65 + i));
 
-export default function ReplayBoard({ boardState, boardSize, playerX = {}, playerO = {}, markerStyle, boardStyle = 'CLASSIC' }) {
+export default function ReplayBoard({ boardState, boardSize, playerX = {}, playerO = {}, boardStyle = 'CLASSIC' }) {
     const theme = getTheme(boardStyle) || getTheme('CLASSIC');
 
     const columns = useMemo(() => COL_LETTERS.slice(0, boardSize), [boardSize]);

@@ -7,7 +7,7 @@ const StatCard = ({ label, value, tone = "text-primary" }) => (
   </div>
 );
 
-export default function GameRoomMonitorStats({ activeRooms, waitingRooms, inProgressRooms, closedRooms }) {
+export default function GameRoomMonitorStats({ waitingRooms, inProgressRooms }) {
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <StatCard label="Waiting rooms" value={waitingRooms} tone="text-[#ffd60a]" />

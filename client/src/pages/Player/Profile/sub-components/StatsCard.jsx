@@ -1,7 +1,7 @@
 // Stats Card Sub-component - Reusable card for displaying individual statistics
 import React from "react";
 
-export default function StatsCard({ label, value, icon, barWidth, color }) {
+export default function StatsCard({ label, value, icon, barWidth }) {
   // Determine color based on label for consistent theming
   const getColorScheme = () => {
     switch (label) {

@@ -40,7 +40,6 @@ export default function TransactionHistory({ transactions }) {
                                 const amountFormatted = typeof tx.amount === 'number'
                                     ? new Intl.NumberFormat(undefined, { style: 'currency', currency: tx.currency || 'USD' }).format(tx.amount)
                                     : tx.amount;
-                                const plan = tx.planName || tx.plan || tx.description || '—';
                                 const statusKey = (tx.status || '').toUpperCase();
                                 return (
                                     <tr key={key} className="hover:bg-[#1e1e2c] transition-colors">

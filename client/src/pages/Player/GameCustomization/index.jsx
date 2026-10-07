@@ -30,7 +30,6 @@ export default function GameCustomization() {
         selectedStyle,
         setSelectedStyle,
         selectedMarker,
-        setSelectedMarker,
         selectedDifficulty,
         setSelectedDifficulty,
         loading,

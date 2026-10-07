@@ -122,7 +122,7 @@ const GameBoard = () => {
     }
 
     return [player1, player2];
-  }, [user, isBotMatch, p2Name, aiDifficulty]);
+  }, [user, isBotMatch, p2Name, aiDifficulty, markerVariant, markerVariantO, markerVariantX]);
 
   // Call hook useGame
   const {

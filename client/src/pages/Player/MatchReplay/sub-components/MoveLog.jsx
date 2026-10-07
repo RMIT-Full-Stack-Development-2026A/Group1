@@ -10,7 +10,7 @@ const getPlayerLabel = (player) => {
     return player.usernameSnapshot || 'Unknown';
 };
 
-export default function MoveLog({ moveLog, currentStep, boardSize, onJumpToStep, playerX, playerO }) {
+export default function MoveLog({ moveLog, currentStep, onJumpToStep, playerX, playerO }) {
     const listRef = useRef(null);
     const activeRound = Math.ceil(currentStep / 2);
 

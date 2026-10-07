@@ -70,7 +70,6 @@ const normalizeRoom = (room) => {
     ...room,
     status: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
     playerOneName: playerOne,
-    playerTwoName: playerTwo,
     statusLabel,
     statusTone: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
     canClose: !isClosed,

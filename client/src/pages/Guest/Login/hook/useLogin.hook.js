@@ -1,8 +1,41 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth/AuthStore";
-import { loginService } from "../service/login.service";
 import { notifySuccess } from "@/utils/toast.util";
+
+// ── Per-identifier lockout helpers (scoped localStorage keys) ──
+const getLockStorageKey = (identifier) => {
+    const normalized = (identifier || "").trim().toLowerCase();
+    return normalized ? `login_lock_${normalized}` : null;
+};
+
+const getLockoutState = (identifier) => {
+    const key = getLockStorageKey(identifier);
+    if (!key) return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+    try {
+        const data = JSON.parse(localStorage.getItem(key));
+        if (!data) return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+        const isStillLocked = data.lockUntil && new Date(data.lockUntil) > new Date();
+        if (!isStillLocked) {
+            localStorage.removeItem(key);
+            return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+        }
+        const remaining = Math.ceil((new Date(data.lockUntil) - new Date()) / 1000);
+        return { failedAttempts: data.failedAttempts || 0, isLocked: true, lockoutCountdown: remaining > 0 ? remaining : 0 };
+    } catch {
+        return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
+    }
+};
+
+const persistLockoutState = (identifier, failedAttempts, lockUntil) => {
+    const key = getLockStorageKey(identifier);
+    if (!key) return;
+    if (lockUntil) {
+        localStorage.setItem(key, JSON.stringify({ failedAttempts, lockUntil: lockUntil.toISOString() }));
+    } else {
+        localStorage.removeItem(key);
+    }
+};
 
 export const useLogin = () => {
     const navigate = useNavigate();
@@ -17,40 +50,6 @@ export const useLogin = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
-
-    // ── Per-identifier lockout helpers (scoped localStorage keys) ──
-    const getLockStorageKey = (identifier) => {
-        const normalized = (identifier || "").trim().toLowerCase();
-        return normalized ? `login_lock_${normalized}` : null;
-    };
-
-    const getLockoutState = (identifier) => {
-        const key = getLockStorageKey(identifier);
-        if (!key) return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
-        try {
-            const data = JSON.parse(localStorage.getItem(key));
-            if (!data) return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
-            const isStillLocked = data.lockUntil && new Date(data.lockUntil) > new Date();
-            if (!isStillLocked) {
-                localStorage.removeItem(key);
-                return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
-            }
-            const remaining = Math.ceil((new Date(data.lockUntil) - new Date()) / 1000);
-            return { failedAttempts: data.failedAttempts || 0, isLocked: true, lockoutCountdown: remaining > 0 ? remaining : 0 };
-        } catch {
-            return { failedAttempts: 0, isLocked: false, lockoutCountdown: 0 };
-        }
-    };
-
-    const persistLockoutState = (identifier, failedAttempts, lockUntil) => {
-        const key = getLockStorageKey(identifier);
-        if (!key) return;
-        if (lockUntil) {
-            localStorage.setItem(key, JSON.stringify({ failedAttempts, lockUntil: lockUntil.toISOString() }));
-        } else {
-            localStorage.removeItem(key);
-        }
-    };
 
     // Lockout state — derived from the current identifier in the form
     const [lockState, setLockState] = useState(() => getLockoutState(formData.email));
@@ -145,7 +144,7 @@ export const useLogin = () => {
                 }
 
                 // Call AuthStore.login() which updates auth state and saves JWT
-                const response = await useAuthStore.getState().login(formData);
+                await useAuthStore.getState().login(formData);
 
                 // Show success message before redirect
                 notifySuccess("Welcome back! Redirecting...");

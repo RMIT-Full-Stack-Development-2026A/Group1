@@ -33,23 +33,22 @@ const AbortModal = ({
         onConfirmRef.current = onConfirm;
     }, [onConfirm]);
 
-    useEffect(() => {
-        if (!isOpen) {
-            autoReturnFiredRef.current = false;
-            return undefined;
-        }
+    // Restart the countdown whenever the modal opens or its mode changes. Done while rendering (tracking the
+    // previous key) instead of in an effect, so the number never shows a stale value for one frame.
+    const countdownKey = isOpen ? `${isNotification}-${autoReturnSeconds}` : null;
+    const [seenCountdownKey, setSeenCountdownKey] = useState(null);
+    if (countdownKey !== seenCountdownKey) {
+        setSeenCountdownKey(countdownKey);
+        if (countdownKey) setSecondsLeft(autoReturnSeconds);
+    }
 
-        let timerId;
-        if (isNotification) {
-            setSecondsLeft(autoReturnSeconds);
-            autoReturnFiredRef.current = false;
-            timerId = setInterval(() => {
-                setSecondsLeft((s) => Math.max(s - 1, 0));
-            }, 1000);
-        } else {
-            setSecondsLeft(autoReturnSeconds);
-            autoReturnFiredRef.current = false;
-        }
+    useEffect(() => {
+        autoReturnFiredRef.current = false;
+        if (!isOpen || !isNotification) return undefined;
+
+        const timerId = setInterval(() => {
+            setSecondsLeft((s) => Math.max(s - 1, 0));
+        }, 1000);
         return () => {
             if (timerId) clearInterval(timerId);
         };

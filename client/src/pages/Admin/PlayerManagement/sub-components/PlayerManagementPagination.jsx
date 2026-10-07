@@ -5,9 +5,6 @@ export default function PlayerManagementPagination({ page, totalPlayers, pageSiz
 	const totalPages = Math.max(1, Math.ceil((totalPlayers || 0) / pageSize));
 	const startIndex = totalPlayers === 0 ? 0 : (page - 1) * pageSize + 1;
 	const endIndex = Math.min(page * pageSize, totalPlayers);
-	const leftPage = Math.max(1, page - 1);
-	const middlePage = Math.min(totalPages, page);
-	const rightPage = Math.min(totalPages, page + 1);
 
 	return (
 		<section className="flex flex-col gap-4 border border-outline-variant bg-surface-container p-4 font-['IBM_Plex_Mono'] md:flex-row md:items-center md:justify-between">

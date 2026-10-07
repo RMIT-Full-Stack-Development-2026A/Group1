@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import SoundButton from '@/components/reusable/sound/SoundButton';
 import { useAuthStore } from '@/stores/auth/AuthStore';
@@ -6,8 +6,10 @@ import { useAuthStore } from '@/stores/auth/AuthStore';
 export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscribe }) {
     const storeExpires = useAuthStore((s) => s.user?.premiumExpiresAt);
     const expires = storeExpires;
+    // Read the clock once on mount: calling Date.now() while rendering is impure.
+    const [now] = useState(() => Date.now());
     const isStillActive = isPremium
-        ? (expires ? new Date(expires).getTime() > Date.now() : true)
+        ? (expires ? new Date(expires).getTime() > now : true)
         : false;
 
     return (

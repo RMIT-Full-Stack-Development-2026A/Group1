@@ -66,10 +66,8 @@ export default function PlayerProfile() {
       setIsChangingPassword(true);
       const response = await handleSaveProfile(passwordData);
       return response;
-    } catch (error) {
-      // Re-throw so modal can catch and display the error
-      throw error;
     } finally {
+      // Errors propagate to the modal, which displays them
       setIsChangingPassword(false);
     }
   };

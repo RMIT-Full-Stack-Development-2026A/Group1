@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/stores/auth/AuthStore';
 import { useChat } from '../hook/useChat.hook';
 
-export default function ChatBox({ roomId, currentUserId, currentUsername, placement = "top" }) {
+export default function ChatBox({ roomId, placement = "top" }) {
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
   const inputRef = useRef(null);

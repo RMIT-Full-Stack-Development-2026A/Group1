@@ -57,7 +57,8 @@ export default function MatchHistoryTable({
     
     
   }, [matches, totalMatches, currentPage, totalPages]);
-  const SortIndicator = ({ column }) => {
+  // A plain render helper (not a component), so it is not re-created as a new component type on every render.
+  const renderSortIndicator = (column) => {
     if (sortBy !== column) return <span className="ml-1 text-outline/40">⇅</span>;
     return sortOrder === "desc" 
       ? <span className="ml-1 text-primary-container">↓</span> 
@@ -164,7 +165,7 @@ export default function MatchHistoryTable({
       const formattedSeconds = String(seconds).padStart(2, "0");
       
       return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-    } catch (error) {
+    } catch {
       return "--";
     }
   };
@@ -285,7 +286,7 @@ export default function MatchHistoryTable({
                 className="px-6 py-4 cursor-pointer hover:text-primary-container transition-colors" 
                 onClick={() => onSortBy("endedAt")}
               >
-                DATE <SortIndicator column="endedAt" />
+                DATE {renderSortIndicator("endedAt")}
               </th>
               <th className="px-6 py-4">START TIME</th>
               <th className="px-6 py-4">END TIME</th>

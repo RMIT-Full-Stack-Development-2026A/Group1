@@ -36,9 +36,6 @@ export const useProfile = () => {
   const [filterGameType, setFilterGameType] = useState(() => readParam(searchParams, "type"));
   const [dateFrom, setDateFrom] = useState(() => readParam(searchParams, "from"));
   const [dateTo, setDateTo] = useState(() => readParam(searchParams, "to"));
-  const [sortBy, setSortBy] = useState(() => readParam(searchParams, "sort", "endedAt")); // 'endedAt' or 'startedAt'
-  const [sortOrder, setSortOrder] = useState(() => readParam(searchParams, "order", "desc")); // 'asc' or 'desc'
-  const [currentPage, setCurrentPage] = useState(() => readPositiveInt(searchParams, "page"));
   const [totalMatches, setTotalMatches] = useState(0);
 
   // Applied filters state - only these trigger API calls
@@ -360,10 +357,8 @@ export const useProfile = () => {
       setPlayerData(mappedData);
 
       return true;
-    } catch (err) {
-      // Re-throw so modal can catch and display the error
-      throw err;
     } finally {
+      // Errors propagate to the modal, which displays them
       setIsSavingProfile(false);
     }
   };

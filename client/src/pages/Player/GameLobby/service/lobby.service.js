@@ -108,7 +108,7 @@ export const LobbyService = {
             });
 
             // Convert game history to activity format
-            const activity = games.items?.slice(0, 4).map((game, index) => {
+            const activity = games.items?.slice(0, 4).map((game) => {
                 const formatTime = (date) => {
                     const d = new Date(date);
                     return d.toLocaleTimeString(undefined, { 

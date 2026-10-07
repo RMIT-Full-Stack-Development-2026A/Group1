@@ -1,5 +1,5 @@
 // Route: /replay/:gameId
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PremiumRequiredModal from '@/components/reusable/overlay/PremiumBannerOverlay';
 import { useAuthStore } from '@/stores/auth/AuthStore';
@@ -13,10 +13,12 @@ const MatchReplay = () => {
     const { gameId: rawGameId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    // Read the clock once on mount: calling Date.now() while rendering is impure.
+    const [now] = useState(() => Date.now());
     const isUserPremium = (() => {
         if (!user) return false;
         if (user.premiumExpiresAt) {
-            return new Date(user.premiumExpiresAt).getTime() > Date.now();
+            return new Date(user.premiumExpiresAt).getTime() > now;
         }
         return user.isPremium || false;
     })();

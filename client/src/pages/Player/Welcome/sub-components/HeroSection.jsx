@@ -14,12 +14,11 @@ import PixelCanvas from "./PixelCanvas";
 
 export default function HeroSection() {
   return (
-    <section
-      id="welcome-top"
-      className="relative min-h-[80vh] w-full flex flex-col items-center justify-center overflow-hidden px-6 py-20"
+    <div
+      className="relative h-full min-h-0 w-full flex flex-col items-center justify-center overflow-hidden px-6 pt-16"
     >
       <video
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover blur-sm"
         src="/videos/welcome-placeholder.mp4"
         autoPlay
         muted
@@ -30,6 +29,7 @@ export default function HeroSection() {
           WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)"
         }}
       />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d1a]/80 via-[#0d0d1a]/60 to-[#0d0d1a]/10 z-10 pointer-events-none" />
       <PixelCanvas className="absolute inset-0 z-[15] mix-blend-screen" variant="glow" />
 
       <div className="relative z-20 flex flex-col items-center text-center max-w-5xl mx-auto gap-4">
@@ -41,6 +41,6 @@ export default function HeroSection() {
           <span className="text-[#93e2ff]">Precision or Perish.</span>
         </p>
       </div>
-    </section>
+    </div>
   );
 }

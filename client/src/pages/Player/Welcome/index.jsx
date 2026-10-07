@@ -64,7 +64,7 @@ function HeroScreenSection({ reducedMotion }) {
       <HeroSection />
 
       {/* MarqueeBand pinned to the bottom of the hero screen */}
-      <div className="absolute bottom-0 left-0 w-full z-30">
+      <div className="absolute inset-x-0 bottom-1 z-30">
         <MarqueeBand reducedMotion={reducedMotion} />
       </div>
     </section>

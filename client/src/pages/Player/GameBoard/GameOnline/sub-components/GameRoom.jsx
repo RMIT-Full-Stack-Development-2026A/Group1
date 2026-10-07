@@ -65,7 +65,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
         <div className="h-1 w-24 bg-primary-cyan" />
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center overflow-auto lg:overflow-hidden min-h-0 px-4 lg:px-6 pt-14 lg:pt-0 gap-4">
+      <div className="flex-1 flex flex-col lg:flex-row items-start lg:items-center overflow-auto lg:overflow-hidden min-h-0 px-4 lg:px-6 pt-14 lg:pt-0 pb-40 lg:pb-0 gap-4">
         <div className="flex flex-col items-center gap-3 w-full lg:w-[260px] shrink-0">
           <PlayerCard participant={host} isCurrentUser={host?.userId === currentUserId} side="left" avatarUrl={hostAvatarUrl} markerStyle={hostMarkerStyle} markerVariantKey={hostMarkerStyle} />
 
@@ -144,7 +144,9 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-3 w-full lg:max-w-65 flex-none min-h-35">
+          {/* Below lg this block is pinned to the bottom of the screen so READY and LEAVE ROOM are always
+              reachable; from lg up every pinned-bar property is reset and it sits in the center column as before. */}
+          <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 px-4 py-3 bg-deep-bg border-t-2 border-outline-variant w-full flex-none lg:static lg:inset-auto lg:z-auto lg:gap-3 lg:p-0 lg:bg-transparent lg:border-t-0 lg:max-w-65 lg:min-h-35">
             <div className="flex items-center justify-center gap-4 w-full">
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -156,15 +158,18 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
               ))}
             </div>
             
-            {/* READY BUTTON */}
-            <ReadyButton isReady={isMyReady} isDisabled={!canReady} onReady={onReady} />
+            {/* Two columns in the pinned bar; lg:contents makes this wrapper disappear on desktop */}
+            <div className="grid grid-cols-[1.4fr_1fr] gap-2 w-full lg:contents">
+              {/* READY BUTTON */}
+              <ReadyButton isReady={isMyReady} isDisabled={!canReady} onReady={onReady} />
 
-            <button
-              onClick={handleLeaveWithSound}
-              className="bg-transparent border border-[#ffb4ab] text-[#ffb4ab] cursor-pointer font-headline py-3 px-8 tracking-tight hover:bg-[#ffb4ab]/10 active:translate-y-0.5 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] text-xs w-full"
-            >
-              LEAVE ROOM
-            </button>
+              <button
+                onClick={handleLeaveWithSound}
+                className="bg-transparent border border-[#ffb4ab] text-[#ffb4ab] cursor-pointer font-headline py-3 px-4 lg:px-8 tracking-tight hover:bg-[#ffb4ab]/10 active:translate-y-0.5 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] text-xs w-full"
+              >
+                LEAVE ROOM
+              </button>
+            </div>
           </div>
         </div>
 

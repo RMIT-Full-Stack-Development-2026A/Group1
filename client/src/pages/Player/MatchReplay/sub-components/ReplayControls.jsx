@@ -10,7 +10,7 @@ function IconBtn({ icon, label, onClick, size = 'sm', disabled = false }) {
             onClick={onClick}
             disabled={disabled}
             aria-label={label}
-            className={`${dimensionClass} cursor-pointer bg-surface-container bg-[#006780] border border-outline text-on-surface flex items-center justify-center chunky-shadow hover:bg-surface-container-high active:translate-x-0.5 active:translate-y-0.5 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-30 disabled:cursor-not-allowed`}
+            className={`${dimensionClass} cursor-pointer bg-[#006780] border border-outline text-on-surface flex items-center justify-center chunky-shadow hover:brightness-125 active:translate-x-0.5 active:translate-y-0.5 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-30 disabled:cursor-not-allowed`}
         >
             <span aria-hidden="true" className="material-symbols-outlined">{icon}</span>
         </SoundButton>
@@ -42,7 +42,7 @@ export default function ReplayControls({
     };
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 w-full bg-[#0d0d1a] border-4 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-3 sm:px-6 lg:px-8 py-4 border-surface-container">
+        <div className="fixed bottom-0 left-0 right-0 z-50 w-full bg-[#0d0d1a] border-4 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-3 sm:px-6 lg:px-8 py-4">
             <div className="mx-auto w-full max-w-[1200px] mb-5">
                 <div className="flex justify-between mb-1">
                     <span className="font-mono text-xs text-[#4cc9f0]">STEP {currentStep || '--'}</span>

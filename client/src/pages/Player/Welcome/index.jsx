@@ -1,12 +1,13 @@
 import { useWelcome } from "./hook/useWelcome.hook";
 import {
+  IntroSplash,
   HeroSection,
   MarqueeBand,
   ModeSelectPreview,
   HowToPlaySection,
   FeatureGrid,
   TeamSection,
-  ReviewsSection,
+  FeedbackSection,
   ChallengeCounter,
   FaqAccordion,
   FinalCta,
@@ -19,13 +20,15 @@ export default function Welcome() {
 
   return (
     <div className="min-h-screen w-full bg-[#0d0d1a] text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
-      <HeroSection onPlayNow={goToPlay} onHowToPlay={() => scrollToSection("how-to-play")} />
+      <IntroSplash />
+
+      <HeroSection />
       <MarqueeBand reducedMotion={prefersReducedMotion} />
       <ModeSelectPreview onPlayNow={goToPlay} reducedMotion={prefersReducedMotion} />
       <HowToPlaySection />
       <FeatureGrid />
       <TeamSection />
-      <ReviewsSection />
+      <FeedbackSection />
       <ChallengeCounter />
       <FaqAccordion />
       <FinalCta onPlayNow={goToPlay} />

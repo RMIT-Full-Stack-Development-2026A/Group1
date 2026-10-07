@@ -13,6 +13,9 @@ export const API_ENDPOINTS = {
         PASSWORD: "/profile/password",
         AVATAR: "/profile/avatar",
     },
+    FEEDBACK: {
+        SUBMIT: "/feedback",
+    },
     COUNTRIES: {
         LIST: "/countries",
         FLAGS: (countryName) => `/countries/${encodeURIComponent(countryName)}/flag`,

@@ -1,10 +1,11 @@
+export { default as IntroSplash } from "./IntroSplash";
 export { default as HeroSection } from "./HeroSection";
 export { default as MarqueeBand } from "./MarqueeBand";
 export { default as ModeSelectPreview } from "./ModeSelectPreview";
 export { default as HowToPlaySection } from "./HowToPlaySection";
 export { default as FeatureGrid } from "./FeatureGrid";
 export { default as TeamSection } from "./TeamSection";
-export { default as ReviewsSection } from "./ReviewsSection";
+export { default as FeedbackSection } from "./FeedbackSection";
 export { default as ChallengeCounter } from "./ChallengeCounter";
 export { default as FaqAccordion } from "./FaqAccordion";
 export { default as FinalCta } from "./FinalCta";

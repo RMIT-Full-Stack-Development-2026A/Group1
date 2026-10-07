@@ -60,12 +60,14 @@ export const HOW_TO_PLAY_STEPS = [
   },
 ];
 
+// icon values are Material Symbols ligature names — rendered with the
+// `material-symbols-outlined` font class in FeatureGrid.jsx.
 export const FEATURE_CARDS = [
   {
     id: "board-size",
     title: "10x10 & 15x15 BOARDS",
     description: "Massive tactical grids for unpredictable, drawn-out battles.",
-    icon: "⊞",
+    icon: "grid_on",
   },
   {
     id: "ai-levels",
@@ -94,28 +96,6 @@ export const TEAM_MEMBERS = [
   { id: 3, name: "Member Name 3", role: "Design", github: "https://github.com/", photo: null },
   { id: 4, name: "Member Name 4", role: "QA", github: "https://github.com/", photo: null },
   { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/", photo: null },
-];
-
-// TODO: replace with real user reviews once collected
-export const USER_REVIEWS = [
-  {
-    id: 1,
-    name: "Player One",
-    rating: 5,
-    quote: "The neon theme and the Hard AI genuinely wrecked me. 10/10 arena.",
-  },
-  {
-    id: 2,
-    name: "Player Two",
-    rating: 4,
-    quote: "Online lobby matches load fast, and the 15x15 board is a different game entirely.",
-  },
-  {
-    id: 3,
-    name: "Player Three",
-    rating: 5,
-    quote: "Playing local arena with a friend on one laptop is way more fun than it should be.",
-  },
 ];
 
 // Placeholder stat — not backed by a real API call yet (see plan §4.7)
@@ -149,7 +129,7 @@ export const DOCK_SECTIONS = [
   { id: "modes", label: "Modes", icon: "sports_esports" },
   { id: "how-to-play", label: "How to Play", icon: "menu_book" },
   { id: "team", label: "Team", icon: "groups" },
-  { id: "reviews", label: "Reviews", icon: "reviews" },
+  { id: "feedback", label: "Feedback", icon: "feedback" },
   { id: "faq", label: "FAQ", icon: "help" },
   { id: "cta", label: "Play Now", icon: "play_arrow" },
 ];

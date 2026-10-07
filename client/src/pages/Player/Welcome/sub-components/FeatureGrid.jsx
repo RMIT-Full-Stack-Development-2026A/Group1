@@ -52,7 +52,7 @@ export default function FeatureGrid() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {FEATURE_CARDS.map((feature, index) => (
           <CardShell key={feature.id} index={index}>
-            <span className="text-3xl text-[#4cc9f0]">{feature.icon}</span>
+            <span className="material-symbols-outlined text-3xl text-[#4cc9f0]">{feature.icon}</span>
             <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">{feature.title}</h3>
             <p className="text-xs text-[#bcc8ce] leading-relaxed">{feature.description}</p>
           </CardShell>

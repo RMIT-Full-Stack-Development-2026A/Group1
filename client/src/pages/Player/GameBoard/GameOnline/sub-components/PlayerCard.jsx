@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { User } from 'lucide-react';
+import Icon from '@/components/common/Icon';
 import { getMarkerVariant, resolveMarkerStyleClasses } from '@/utils/markerRenderer';
 import { MarkerX, MarkerO } from '@/components/reusable/custom/CustomMarkers';
 
@@ -85,12 +85,12 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
       <div className="flex flex-col items-center gap-3 pt-6 pb-4 px-6 flex-none">
         <div className="flex items-center gap-2 h-6">
           {participant.isHost && (
-            <span className="font-headline text-[10px] px-3 py-1 uppercase tracking-widest border text-[#fad100] border-[#fad100] bg-[#fad100]/10 shadow-[0px_0px_8px_rgba(250,209,0,0.2)]">
+            <span className="font-headline text-xs px-3 py-1 uppercase tracking-widest border text-[#fad100] border-[#fad100] bg-[#fad100]/10 shadow-[0px_0px_8px_rgba(250,209,0,0.2)]">
               HOST
             </span>
           )}
           {isCurrentUser && (
-            <span className="font-mono text-[10px] text-[#4cc9f0] uppercase tracking-widest border border-[#4cc9f0]/40 px-2 py-0.5">
+            <span className="font-mono text-xs text-[#4cc9f0] uppercase tracking-widest border border-[#4cc9f0]/40 px-2 py-0.5">
               YOU
             </span>
           )}
@@ -101,7 +101,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
           {avatarUrl ? (
             <img width="96" height="96" src={avatarUrl} alt={participant.usernameSnapshot} className="w-full h-full object-cover" />
           ) : (
-            <User size={40} className="text-[#879398]" />
+            <Icon name="person" size={40} className="text-[#879398]" />
           )}
         </div>
 
@@ -111,7 +111,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
         </p>
 
         {participant.isPremium && (
-          <span className="font-mono text-[10px] bg-secondary-container text-on-secondary-container px-2 py-0.5 uppercase tracking-widest">
+          <span className="font-mono text-xs bg-secondary-container text-[#3b2f00] px-2 py-0.5 uppercase tracking-widest">
             PREMIUM
           </span>
         )}
@@ -142,21 +142,21 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
             {participant.wins !== undefined && (
               <div className="flex flex-col items-center gap-0.5">
                 <span className="font-headline text-sm text-neon-green">{participant.wins}</span>
-                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">WIN</span>
+                <span className="font-mono text-xs text-[#879398] uppercase tracking-widest">WIN</span>
               </div>
             )}
 
             {participant.losses !== undefined && (
               <div className="flex flex-col items-center gap-0.5">
                 <span className="font-headline text-sm text-error">{participant.losses}</span>
-                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">LOSS</span>
+                <span className="font-mono text-xs text-[#879398] uppercase tracking-widest">LOSS</span>
               </div>
             )}
 
             {participant.totalGames !== undefined && (
               <div className="flex flex-col items-center gap-0.5">
                 <span className="font-headline text-sm text-[#bcc8ce]">{participant.totalGames}</span>
-                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">TOTAL</span>
+                <span className="font-mono text-xs text-[#879398] uppercase tracking-widest">TOTAL</span>
               </div>
             )}
           </div>
@@ -165,7 +165,7 @@ export default function PlayerCard({ participant, isCurrentUser, side, avatarUrl
 
       {/* ── SECTION D: Ready state indicator (bottom) ── */}
       <div 
-        className={`mx-6 mb-4 py-2 text-center font-headline text-[11px] uppercase tracking-widest border transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700 shadow-[2px_2px_0px_#343342] ${
+        className={`mx-6 mb-4 py-2 text-center font-headline text-xs uppercase tracking-widest border transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-700 shadow-[2px_2px_0px_#343342] ${
           isReady 
             ? 'text-[#69ff47] border-[#69ff47] bg-[#69ff47]/10 shadow-glow-green' 
             : 'text-[#ff6b6b] border-[#ff6b6b] bg-[#ff6b6b]/10'

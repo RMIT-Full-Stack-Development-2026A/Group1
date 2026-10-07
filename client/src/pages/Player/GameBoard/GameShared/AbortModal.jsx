@@ -1,6 +1,6 @@
 // AbortModal.jsx
 import { createPortal } from 'react-dom';
-import { AlertTriangle } from 'lucide-react';
+import Icon from '@/components/common/Icon';
 import { useEffect, useRef, useState } from 'react';
 import { useDialogA11y } from '@/hooks/useDialogA11y';
 
@@ -79,14 +79,14 @@ const AbortModal = ({
             >
                 {/* Warning icon */}
                 <div className="flex justify-center mb-4">
-                    <AlertTriangle size={40} color="#ffb4ab" />
+                    <Icon name="warning" size={40} color="#ffb4ab" />
                 </div>
 
                 <h2 className="font-headline text-[13px] text-[#ffb4ab] uppercase mb-3">
                     {isNotification ? 'MATCH ABORTED' : 'ABORT MATCH?'}
                 </h2>
 
-                <p className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-2">
+                <p className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-2">
                     {isNotification
                         ? notificationText
                         : isOnline
@@ -99,13 +99,13 @@ const AbortModal = ({
                         <>
                             <button
                                 onClick={onConfirm}
-                                className="w-56 bg-[#ffb4ab] text-[#3b0000] font-headline text-[10px] py-4 uppercase
+                                className="w-56 bg-[#ffb4ab] text-[#3b0000] font-headline text-xs py-4 uppercase
                                            hover:translate-y-0.5 transition-transform"
                                 style={{ boxShadow: '2px 2px 0px #7a0000' }}
                             >
                                 RETURN TO LOBBY
                             </button>
-                            <p className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mt-2">
+                            <p className="font-mono text-xs text-[#879398] uppercase tracking-widest mt-2">
                                 {`Auto-returning in ${secondsLeft}s`}
                             </p>
                         </>
@@ -114,7 +114,7 @@ const AbortModal = ({
                             <button
                                 onClick={onConfirm}
                                 disabled={isSaving}
-                                className="w-56 bg-[#ffb4ab] text-[#3b0000] font-headline text-[10px] py-4 uppercase
+                                className="w-56 bg-[#ffb4ab] text-[#3b0000] font-headline text-xs py-4 uppercase
                                            hover:translate-y-0.5 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
                                 style={{ boxShadow: '2px 2px 0px #7a0000' }}
                             >
@@ -123,7 +123,7 @@ const AbortModal = ({
                             <button
                                 onClick={onCancel}
                                 disabled={isSaving}
-                                className="w-56 border-2 border-outline-variant text-[#879398] font-headline text-[10px] py-3 uppercase
+                                className="w-56 border-2 border-outline-variant text-[#879398] font-headline text-xs py-3 uppercase
                                            hover:border-primary-cyan hover:text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                             >
                                 KEEP PLAYING

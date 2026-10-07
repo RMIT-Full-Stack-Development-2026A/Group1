@@ -1,10 +1,10 @@
-import { User, Bot } from 'lucide-react';
+import Icon from '@/components/common/Icon';
 import { MarkerX, MarkerO } from '@/components/reusable/custom/CustomMarkers';
 
 const difficultyConfig = {
     EASY: 'bg-green-400 text-green-950',
-    MEDIUM: 'bg-[#fad100] text-[#6d5a00]', 
-    HARD: 'bg-red-500 text-red-50'
+    MEDIUM: 'bg-[#fad100] text-[#3b2f00]', 
+    HARD: 'bg-red-500 text-red-950'
 };
 
 /**
@@ -32,7 +32,7 @@ const PlayerPanel = ({
     return (
         <aside
             className={`w-full lg:w-[260px] flex flex-col gap-3 lg:gap-4 self-start mt-4 lg:mt-8 transition-opacity duration-300 shrink-0 ${
-                isActive ? 'opacity-100' : 'opacity-50'
+                isActive ? 'opacity-100' : 'opacity-80'
             }`}
         >
             <div
@@ -41,7 +41,7 @@ const PlayerPanel = ({
                 }`}
             >
                 {isActive && (
-                    <div className={`absolute -top-3 ${isX ? 'left-4' : 'right-4'} bg-primary-cyan text-[#003543] px-2 py-0.5 text-[10px] font-bold uppercase font-headline`}>
+                    <div className={`absolute -top-3 ${isX ? 'left-4' : 'right-4'} bg-primary-cyan text-[#003543] px-2 py-0.5 text-xs font-bold uppercase font-headline`}>
                         ACTIVE TURN
                     </div>
                 )}
@@ -51,18 +51,18 @@ const PlayerPanel = ({
                     {avatarUrl ? (
                         <img width="96" height="96" src={avatarUrl} alt={playerName} className="w-full h-full object-cover" />
                     ) : (
-                        isBot ? <Bot size={36} color="#879398" /> : <User size={36} color="#879398" />
+                        <Icon name={isBot ? "smart_toy" : "person"} size={36} color="#879398" />
                     )}
                     
                     {difficulty && (
-                        <div className={`absolute bottom-0 right-0 px-2 py-0.5 text-[10px] font-bold font-mono ${diffStyle}`}>
+                        <div className={`absolute bottom-0 right-0 px-2 py-0.5 text-xs font-bold font-mono ${diffStyle}`}>
                             {difficulty}
                         </div>
                     )}
                 </div>
 
-                <p className="font-headline text-[10px] lg:text-[10px] tracking-tighter uppercase"
-                   style={{ color: isActive ? '#93e2ff' : '#879398' }}>
+                <p className="font-headline text-xs lg:text-xs tracking-tighter uppercase"
+                   style={{ color: isActive ? '#93e2ff' : '#bcc8ce' }}>
                     {playerName}
                 </p>
 

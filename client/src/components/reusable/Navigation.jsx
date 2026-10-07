@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { Volume2, VolumeX } from "lucide-react";
+import Icon from '@/components/common/Icon';
 import { useAuthStore } from "../../stores/auth/AuthStore";
 import { useAudioStore } from "../../stores/audio/AudioStore";
 import SoundButton from '@/components/reusable/sound/SoundButton';
@@ -134,7 +134,7 @@ export default function Navigation() {
                     aria-pressed={!isBackgroundMusicEnabled}
                     title={isBackgroundMusicEnabled ? 'Turn background music off' : 'Turn background music on'}
                 >
-                    {isBackgroundMusicEnabled ? <Volume2 size={14} aria-hidden="true" /> : <VolumeX size={14} aria-hidden="true" />}
+                    {isBackgroundMusicEnabled ? <Icon name="volume_up" size={16} /> : <Icon name="volume_off" size={16} />}
                     {isBackgroundMusicEnabled ? 'MUSIC ON' : 'MUSIC OFF'}
                 </SoundButton>
 

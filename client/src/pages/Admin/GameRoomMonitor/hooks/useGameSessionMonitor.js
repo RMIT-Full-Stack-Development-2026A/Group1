@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { gameRoomMonitorService } from "../services/gameRoomMonitor.service";
 
 const formatDateTime = (value) => {
@@ -41,9 +41,11 @@ const normalizeSession = (session) => {
   };
 };
 
-export const useGameSessionMonitor = (filters = {}) => {
+export const useGameSessionMonitor = (filters = {}, initialPage = 1) => {
   const [sessions, setSessions] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
+  // The first load honors a page restored from the URL; later filter changes go back to page 1.
+  const firstLoadPageRef = useRef(initialPage);
   const [totalSessions, setTotalSessions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,24 +72,20 @@ export const useGameSessionMonitor = (filters = {}) => {
     }
   }, []);
 
+  // Load on mount and re-load whenever the filters change
   useEffect(() => {
-    // Initial load
-    fetchSessions(1, filters);
-  }, []);
-
-  // Auto-refetch when filters change
-  useEffect(() => {
-    setPage(1);
-    fetchSessions(1, filters);
+    const pageToLoad = firstLoadPageRef.current;
+    firstLoadPageRef.current = 1;
+    fetchSessions(pageToLoad, filters);
   }, [filters, fetchSessions]);
 
   const totalPages = Math.max(1, Math.ceil(totalSessions / pageSize));
 
   useEffect(() => {
-    if (page > totalPages) {
+    if (!loading && page > totalPages) {
       setPage(totalPages);
     }
-  }, [page, totalPages]);
+  }, [loading, page, totalPages]);
 
   const changePage = (nextPage) => {
     const normalizedPage = Math.min(Math.max(1, nextPage), totalPages);

@@ -42,6 +42,7 @@ function shortestOffset(index, rotation, length) {
 export default function WheelCarousel({
   items,
   photoSide = "left",
+  photoShape = "square",
   photoWidth = 38,
   photoAspect = "1/1",
   contentWidth = 700,
@@ -130,22 +131,7 @@ export default function WheelCarousel({
     []
   );
 
-  useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const handleWheel = (event) => {
-      if (event.ctrlKey || event.metaKey) return;
-      event.preventDefault();
-      const delta = event.deltaY * scrollSpeed;
-      commitRotation(rotationRef.current + delta);
-      velocityRef.current = delta * 0.2;
-      runAnimation();
-    };
-
-    stage.addEventListener("wheel", handleWheel, { passive: false });
-    return () => stage.removeEventListener("wheel", handleWheel);
-  }, [commitRotation, runAnimation, scrollSpeed]);
+  // Wheel handler removed per Phase 2. Rely on drag / arrow keys instead.
 
   const moveBy = (amount) => {
     velocityRef.current = 0;
@@ -229,26 +215,46 @@ export default function WheelCarousel({
         onKeyDown={handleKeyDown}
       >
         <div
-          className="flex h-full shrink-0 items-center justify-center"
-          style={{ width: `${photoWidth}%` }}
+          className={cn("flex h-full shrink-0 items-center justify-center", photoShape === "circle" ? "w-[42%]" : "")}
+          style={photoShape === "square" ? { width: `${photoWidth}%` } : undefined}
         >
           <div
-            className="relative w-full max-h-full overflow-hidden"
-            style={{ aspectRatio: aspectRatios[photoAspect], borderRadius: photoRadius }}
+            className={cn(
+              "relative",
+              photoShape === "circle" ? "rounded-full" : "w-full max-h-full overflow-hidden"
+            )}
+            style={{
+              aspectRatio: photoShape === "circle" ? "1 / 1" : aspectRatios[photoAspect],
+              borderRadius: photoShape === "circle" ? "9999px" : photoRadius,
+              width: photoShape === "circle" ? "min(56dvh, 480px)" : undefined,
+            }}
           >
-            <AnimatePresence initial={false} mode="sync">
-              <MotionImg
-                key={`${safeSelectedIndex}-${selectedItem.image}`}
-                src={selectedItem.image}
-                alt={selectedItem.imageAlt ?? selectedItem.label}
-                initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reduceMotion ? 0 : crossfadeDuration }}
-                className="absolute inset-0 h-full w-full object-cover"
-                draggable={false}
+            <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: photoShape === "circle" ? "9999px" : photoRadius }}>
+              <AnimatePresence initial={false} mode="sync">
+                <MotionImg
+                  key={`${safeSelectedIndex}-${selectedItem.image}`}
+                  src={selectedItem.image}
+                  alt={selectedItem.imageAlt ?? selectedItem.label}
+                  initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : crossfadeDuration }}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  draggable={false}
+                />
+              </AnimatePresence>
+            </div>
+            {photoShape === "circle" && (
+              <MotionDiv
+                className="pointer-events-none absolute inset-0 rounded-full"
+                style={{
+                  boxShadow: "0 0 40px rgba(76,201,240,0.25), inset 0 0 60px rgba(13,13,26,0.6)",
+                  border: "2px solid rgba(76,201,240,0.6)",
+                }}
+                animate={!reduceMotion ? { scale: [1, 1.02, 1] } : false}
+                transition={!reduceMotion ? { duration: 4, repeat: Infinity, ease: "easeInOut" } : undefined}
               />
-            </AnimatePresence>
+            )}
           </div>
         </div>
 
@@ -307,6 +313,7 @@ WheelCarousel.propTypes = {
     PropTypes.shape({ label: PropTypes.string.isRequired, image: PropTypes.string.isRequired, imageAlt: PropTypes.string })
   ).isRequired,
   photoSide: PropTypes.oneOf(["left", "right"]),
+  photoShape: PropTypes.oneOf(["square", "circle"]),
   photoWidth: PropTypes.number,
   photoAspect: PropTypes.oneOf(["3/4", "1/1", "4/3", "3/2"]),
   contentWidth: PropTypes.number,

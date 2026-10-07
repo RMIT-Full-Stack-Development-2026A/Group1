@@ -460,7 +460,7 @@ export default function AuroraFlow({
 
     const resize = () => {
       // Phase 4: cap dpr at 1.0 — aurora is a background, 1× is indistinguishable
-      const dpr = Math.min(window.devicePixelRatio || 1, 1);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1) * 0.75;
       const rect = container.getBoundingClientRect();
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));

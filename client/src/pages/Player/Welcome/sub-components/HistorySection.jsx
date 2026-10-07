@@ -49,7 +49,7 @@ const SLIDES = buildSlides();
 // viewport (IntersectionObserver, rootMargin 200px). Keeps at most one
 // extra WebGL context alive at a time.
 // ---------------------------------------------------------------------------
-function LazySpiral({ slides }) {
+function LazySpiral({ slides, isDesktop }) {
   const wrapperRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -69,9 +69,17 @@ function LazySpiral({ slides }) {
       {visible && (
         <Spiral3DSlider
           items={slides}
+          cardWidth={360}
+          cardAspectRatio={4 / 3}
+          radius={300}
+          verticalGap={110}
+          maxCardWidthRatio={0.4}
+          maxRadiusRatio={0.5}
+          maxGapRatio={0.14}
+          offsetXRatio={isDesktop ? 0.15 : 0}
+          bend={0.17}
+          fov={44}
           className="h-full w-full"
-          // Phase 3: transparent canvas — AuroraFlow shows through
-          // Phase 4: reduced dpr, demand frame loop
         />
       )}
     </div>
@@ -79,10 +87,17 @@ function LazySpiral({ slides }) {
 }
 
 export default function HistorySection() {
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center h-full min-h-0">
       {/* ---- Left column: text + timeline ---- */}
-      <div className="flex flex-col gap-6 min-h-0 overflow-y-auto">
+      <div className="flex flex-col gap-6 min-h-0 overflow-y-auto max-w-xl pr-8">
         <h2 className="font-headline text-xl md:text-3xl text-[#e3e0f4] uppercase">
           {HISTORY_PLACEHOLDER.title}
         </h2>
@@ -109,9 +124,14 @@ export default function HistorySection() {
       </div>
 
       {/* ---- Right column: 3D spiral gallery ---- */}
-      {/* No border, no bg — transparent canvas per Phase 3 spec */}
-      <div className="h-[70dvh] md:h-full min-h-0">
-        <LazySpiral slides={SLIDES} />
+      <div
+        className="relative h-[60dvh] md:h-dvh md:-mt-20 md:-mb-28 md:-mr-[18vw] md:w-[calc(100%+18vw)] overflow-visible"
+        style={{
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%)",
+        }}
+      >
+        <LazySpiral slides={SLIDES} isDesktop={isDesktop} />
       </div>
     </div>
   );

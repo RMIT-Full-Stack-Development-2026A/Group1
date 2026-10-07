@@ -98,6 +98,10 @@ function SpiralScene({
   bend,
   reducedMotion,
   lastInteraction,
+  maxCardWidthRatio,
+  maxRadiusRatio,
+  maxGapRatio,
+  offsetXRatio,
 }) {
   const sceneItems = useMemo(
     () => Array.from({ length: Math.max(items.length, 16) }, (_, index) => items[index % items.length]),
@@ -141,10 +145,10 @@ function SpiralScene({
     progress.current += (targetProgressRef.current - progress.current) * ease;
 
     const factor = Math.max(viewport.factor, 1);
-    const planeWidth = Math.min(cardWidth / factor, viewport.width * 0.225);
+    const planeWidth = Math.min(cardWidth / factor, viewport.width * maxCardWidthRatio);
     const planeHeight = planeWidth / cardAspectRatio;
-    const spiralRadius = Math.min(radius / factor, viewport.width * 0.245);
-    const gap = Math.min(verticalGap / factor, viewport.height * 0.082);
+    const spiralRadius = Math.min(radius / factor, viewport.width * maxRadiusRatio);
+    const gap = Math.min(verticalGap / factor, viewport.height * maxGapRatio);
     const count = sceneItems.length;
 
     meshes.current.forEach((mesh, index) => {
@@ -168,7 +172,7 @@ function SpiralScene({
   });
 
   return (
-    <>
+    <group position={[viewport.width * offsetXRatio, 0, 0]}>
       {sceneItems.map((item, index) => (
         <mesh
           key={`${item.src}-${index}`}
@@ -191,7 +195,7 @@ function SpiralScene({
           />
         </mesh>
       ))}
-    </>
+    </group>
   );
 }
 
@@ -209,6 +213,10 @@ export default function Spiral3DSlider({
   blurStrength = 1.65,
   bend = 0.17,
   fov = 44,
+  maxCardWidthRatio = 0.225,
+  maxRadiusRatio = 0.245,
+  maxGapRatio = 0.082,
+  offsetXRatio = 0,
   ariaLabel = "TicTacToang development history gallery",
 }) {
   const stageRef = useRef(null);
@@ -297,6 +305,10 @@ export default function Spiral3DSlider({
                 bend={bend}
                 reducedMotion={reducedMotion}
                 lastInteraction={lastInteraction}
+                maxCardWidthRatio={maxCardWidthRatio}
+                maxRadiusRatio={maxRadiusRatio}
+                maxGapRatio={maxGapRatio}
+                offsetXRatio={offsetXRatio}
               />
             </Suspense>
           </Canvas>

@@ -49,6 +49,8 @@ import {
 } from "./sub-components";
 import "./styles.css";
 
+const AURORA_VISIBILITY = 0.2;
+
 // ---------------------------------------------------------------------------
 // HeroScreenSection — custom wrapper for screen 1
 // MarqueeBand lives at the bottom of this screen (not a separate screen).
@@ -123,17 +125,27 @@ export default function Welcome() {
       {/* Phase 5: z-0, no solid ancestor bg, sections are transparent        */}
       {/* ------------------------------------------------------------------ */}
       {introDone && (
-        <AuroraFlow
-          className="fixed inset-0 z-0"
-          preset="arcade"
-          opacity={0.9}
-          intensity={1.2}
-          brightness={1.1}
-          ambientOpacity={0.6}
-          layers={4}
-          pointerInteraction={false}
-          grain={false}
-        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-0 bg-[#0d0d1a]"
+        >
+          <div 
+            className="absolute inset-0 transition-opacity duration-1000"
+            style={{ opacity: AURORA_VISIBILITY }}
+          >
+            <AuroraFlow
+              className="absolute inset-0"
+              preset="arcade"
+              opacity={1}
+              intensity={1}
+              brightness={1}
+              ambientOpacity={0.5}
+              layers={4}
+              pointerInteraction={false}
+              grain={false}
+            />
+          </div>
+        </div>
       )}
 
       {/* IntroSplash — fixed z-[100] overlay, unmounts after its exit anim */}

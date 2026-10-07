@@ -37,7 +37,9 @@ export default function BoardThemesSection() {
       <WheelCarousel
         items={THEME_ITEMS}
         contentWidth={1100}
-        photoWidth={40}
+        photoShape="circle"
+        photoWidth={42}
+        apexInset={8}
         className="flex-1 min-h-0 w-full"
       />
     </div>

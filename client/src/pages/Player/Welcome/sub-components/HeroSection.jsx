@@ -25,8 +25,11 @@ export default function HeroSection() {
         muted
         loop
         playsInline
+        style={{
+          maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)"
+        }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d1a]/80 via-[#0d0d1a]/60 to-[#0d0d1a] z-10" />
       <PixelCanvas className="absolute inset-0 z-[15] mix-blend-screen" variant="glow" />
 
       <div className="relative z-20 flex flex-col items-center text-center max-w-5xl mx-auto gap-4">

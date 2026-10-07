@@ -65,6 +65,9 @@ export default function GameOnline() {
     return null;
   };
 
+  // The board replaces the lobby once a match starts (and stays after it ends), the chat moves with it.
+  const isBoardScreen = hasCompletedMatch || roomData?.status === 'PLAYING' || roomData?.status === 'ABORTED';
+
   return (
     <div className="h-screen w-screen bg-deep-bg text-on-surface overflow-hidden overscroll-none relative flex flex-col">
 
@@ -83,7 +86,7 @@ export default function GameOnline() {
       </main>
 
       {(roomData?.status === 'READY' || roomData?.status === 'PLAYING') && (
-        <ChatBox roomId={roomData?.id} currentUserId={user?.id} currentUsername={user?.username} />
+        <ChatBox roomId={roomData?.id} currentUserId={user?.id} currentUsername={user?.username} placement={isBoardScreen ? "bottom" : "top"} />
       )}
     </div>
   );

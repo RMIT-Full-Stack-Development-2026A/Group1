@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/stores/auth/AuthStore';
 import { useChat } from '../hook/useChat.hook';
 
-export default function ChatBox({ roomId, currentUserId, currentUsername }) {
+export default function ChatBox({ roomId, currentUserId, currentUsername, placement = "top" }) {
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -39,8 +39,16 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
     if (isChatOpen) inputRef.current?.focus();
   }, [isChatOpen]);
 
+  // Floating window, no layout space. "top" (match lobby): top-left, panel opening downward, so it only covers
+  // the host card's name and avatar and never the marker style pickers at the bottom of the columns.
+  // "bottom" (game board): bottom-left from lg up, like the offline chat, panel opening upward; below lg it stays
+  // at the top-left so it clears the board corner.
+  const position = placement === "bottom"
+    ? "top-20 lg:top-auto lg:bottom-8 lg:mb-12 flex-col lg:flex-col-reverse"
+    : "top-20 flex-col";
+
   return (
-    <div className="fixed top-20 left-6 z-[60] flex flex-col items-start gap-2">
+    <div className={`fixed left-6 z-[60] flex items-start gap-2 ${position}`}>
       <button
         onClick={toggleChat}
         type="button"

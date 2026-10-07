@@ -25,7 +25,7 @@ Status key: **Fixed** = changed and confirmed in the browser. **Fixed (code only
 | Guideline sweep: transitions, outlines, ellipses, locale and number formatting, images, typography rules, `translate="no"`, skip link | Fixed |
 | URL state for filters | Fixed (profile verified; admin players code only; room and session monitors not done) |
 | Copy: abort label, duplicate heading, raw IDs, revenue footer, lobby empty state | Fixed |
-| Layout leftovers: READY below the fold on stacked match lobby, chat panel covering the left card | Open (excluded on purpose) |
+| Layout: READY below the fold on the stacked match lobby, chat panel covering other content | Fixed (pinned action bar; floating chat placed per screen) |
 | Dead Tailwind classes (`tailwind.config.js` never loaded) | Fixed (tokens defined, conflicts resolved, contrast scan clean) |
 | Small text and mixed icon libraries | Fixed (12 px minimum; one icon family) |
 
@@ -49,10 +49,10 @@ Three earlier claims were wrong and are retracted in section 2.
 | L8 | ABORT button overlapped the ACTIVE TURN tag; on mobile it covered the host panel | Fixed | Top on stacked layouts, bottom-right on desktop. |
 | L9 | Match lobby at tablet: center column too narrow ("CLASSI", legend clipped, wrapped labels) | Fixed | Stacks below `lg`. |
 | L10 | Match lobby mobile: CHAT button overlapped the host card | Fixed | Top padding below `lg`. |
-| L11 | Match lobby mobile: READY button below the fold | Open | Follows from the stacked layout; not reordered. |
+| L11 | Match lobby, stacked layout: READY and LEAVE ROOM were 1,100 to 1,200 px down the page, below the fold on phones and tablets | Fixed | Below 1024 px the ready status and both buttons are a bar pinned to the bottom of the screen; from 1024 px up every pinned-bar property is reset. Desktop verified identical: all 167 elements have the same position, size and stacking at 1440, 1280 and 1024 px. Both buttons are inside the first screen at 768x1024, 390x844 and 360x640. |
 | L12 | Chat panel wider than the viewport on mobile, close button cut off | Fixed | Width `min(380px, 100vw - 3rem)`. |
 | L13 | Chat toggle button moved down when the panel opened | Fixed | Button now sits above the panel. |
-| L14 | Chat panel covers the left player card (HOST badge, avatar) on desktop and tablet | Open | It is a floating panel; moving it is a design decision. |
+| L14 | Chat panel covers the left player card (HOST badge, avatar) and marker pickers | Fixed (as a floating window) | The chat stays a floating window that takes no layout space. Match lobby: top-left, opening downward, covering only the top of the host card (never a control); verified no control is covered at 1440, 1024, 768 and 390 px. Online board: bottom-left from 1024 px up, opening upward, the same spot as the offline chat; top-left below 1024 px. It follows the screen change when a match starts. Known trade-off: on the desktop board the open 380 px window reaches about 89 px over the board's left edge (the row labels and column A cells in the lower rows), the same as the offline game. |
 | L15 | Replay: fixed control bar covered the lower board rows at every size | Fixed | Extra bottom padding; board ends above the bar (desktop 579 vs 759, tablet 123 vs 843, mobile -89 vs 663 when scrolled to the end). |
 | L16 | Profile mobile: CHANGE PASSWORD clipped | Fixed | Action buttons wrap. |
 | L17 | Profile mobile: long username pushed the avatar off-screen and clipped the name (found during the fix pass) | Fixed | `min-w-0` and `break-all` on the name. |
@@ -170,7 +170,6 @@ Not tested: the local-arena board (it shares the offline board code), and the Pa
 
 ## 4. What is still open
 
-1. **Layout (held for discussion):** the READY button is below the fold in the stacked match lobby on mobile and tablet, and the chat panel covers the left player card.
-2. **Online screens after the third fix pass** need a second player: match lobby and online board (token colors, 12 px text, chat).
-3. **Remaining unverified items:** the disconnect countdown (needs a second player who drops), chat delivery and delay between two screens, the local-arena board, the PayPal checkout flow.
-4. **Cleanup:** the pre-existing lint errors (68 errors, 6 warnings, mostly unused variables, plus a real duplicate key `playerTwoName` in the room monitor hook and two useless `catch` blocks), and the `autoFocus` on the lobby jump input and the profile page input (both user-triggered, left on purpose).
+1. **Online board, chat overlap (optional):** the open 380 px chat window covers about 89 px of the board's left edge on desktop (row labels and the lower column A cells). Making the window 280 px wide on desktop would remove the overlap; held because the placement was approved as is.
+2. **Remaining unverified items:** the disconnect countdown (needs a second player who drops), chat delivery and delay between two screens, the local-arena board, the PayPal checkout flow, and the pressed-READY look in the match lobby.
+3. **Cleanup:** the pre-existing lint errors (68 errors, 6 warnings, mostly unused variables, plus a real duplicate key `playerTwoName` in the room monitor hook and two useless `catch` blocks), and the `autoFocus` on the lobby jump input and the profile page input (both user-triggered, left on purpose).

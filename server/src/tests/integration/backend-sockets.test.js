@@ -37,15 +37,28 @@ describe('Backend room rules and concurrent commands', () => {
         await RoomService.handleRoomReady(guest.user.id, { roomId });
     };
 
-    it('allows non-premium participants to chat but blocks outsiders even if premium', async () => {
-        const message = await RoomService.handleChatSend(host.user.id, { roomId, message: ' hello ' });
-        expect(message.message).toBe('hello');
-        const outsider = await generateTestUser({ premiumExpiresAt: new Date(Date.now() + 60_000) });
-        await expect(RoomService.handleChatSend(outsider.user.id, { roomId, message: 'intrusion' }))
-            .rejects.toMatchObject({ statusCode: 403, error: 'FORBIDDEN' });
-        await GameRoom.updateOne({ _id: roomId }, { $set: { status: 'CLOSED' } });
+    it('chat is premium-only: rejects free participants, allows premium ones, blocks outsiders even if premium', async () => {
         await expect(RoomService.handleChatSend(host.user.id, { roomId, message: 'hello' }))
+            .rejects.toMatchObject({ statusCode: 403, error: 'PREMIUM_REQUIRED' });
+
+        const premiumHost = await generateTestUser({ premiumExpiresAt: new Date(Date.now() + 60_000) });
+        const premiumRoomId = (await RoomService.handleRoomCreate(premiumHost.user.id, { boardSize: 10, marker: 'X' })).room.id;
+        const message = await RoomService.handleChatSend(premiumHost.user.id, { roomId: premiumRoomId, message: ' hello ' });
+        expect(message.message).toBe('hello');
+
+        const outsider = await generateTestUser({ premiumExpiresAt: new Date(Date.now() + 60_000) });
+        await expect(RoomService.handleChatSend(outsider.user.id, { roomId: premiumRoomId, message: 'intrusion' }))
+            .rejects.toMatchObject({ statusCode: 403, error: 'FORBIDDEN' });
+        await GameRoom.updateOne({ _id: premiumRoomId }, { $set: { status: 'CLOSED' } });
+        await expect(RoomService.handleChatSend(premiumHost.user.id, { roomId: premiumRoomId, message: 'hello' }))
             .rejects.toMatchObject({ error: 'INVALID_STATE' });
+    });
+
+    it('treats an expired premium subscription as free for chat', async () => {
+        const lapsed = await generateTestUser({ premiumExpiresAt: new Date(Date.now() - 60_000) });
+        const lapsedRoomId = (await RoomService.handleRoomCreate(lapsed.user.id, { boardSize: 10, marker: 'X' })).room.id;
+        await expect(RoomService.handleChatSend(lapsed.user.id, { roomId: lapsedRoomId, message: 'hello' }))
+            .rejects.toMatchObject({ error: 'PREMIUM_REQUIRED' });
     });
 
     it('does not let outsiders ready another player’s room', async () => {
@@ -191,8 +204,9 @@ describe('Socket session lifecycle and chat delivery', () => {
         await disconnected;
     });
 
-    it('delivers ordinary-player chat to the opponent and rejects an outsider', async () => {
-        const host = await generateTestUser(), guest = await generateTestUser(), outsider = await generateTestUser();
+    it('delivers premium chat to the opponent, rejects free senders and outsiders', async () => {
+        const host = await generateTestUser({ premiumExpiresAt: new Date(Date.now() + 60_000) });
+        const guest = await generateTestUser(), outsider = await generateTestUser({ premiumExpiresAt: new Date(Date.now() + 60_000) });
         const roomId = (await RoomService.handleRoomCreate(host.user.id, { boardSize: 10, marker: 'X' })).room.id;
         await RoomService.handleRoomJoin(guest.user.id, { roomId });
         const hostClient = await connect(host.cookie), guestClient = await connect(guest.cookie), outsiderClient = await connect(outsider.cookie);
@@ -202,8 +216,19 @@ describe('Socket session lifecycle and chat delivery', () => {
             await joined;
         }
         const received = event(guestClient, 'chat:message');
-        hostClient.emit('chat:send', { roomId, message: 'hello from a regular player' });
-        expect((await received).message).toBe('hello from a regular player');
+        hostClient.emit('chat:send', { roomId, message: 'hello from a premium player' });
+        expect((await received).message).toBe('hello from a premium player');
+
+        // A free account cannot chat even by emitting the socket event directly, and nothing is broadcast.
+        const leakedFree = jest.fn();
+        hostClient.on('chat:message', leakedFree);
+        const freeDenied = event(guestClient, 'error');
+        guestClient.emit('chat:send', { roomId, message: 'free chat attempt' });
+        const freeError = await freeDenied;
+        expect(freeError.error).toBe('PREMIUM_REQUIRED');
+        expect(freeError.message.toLowerCase()).toContain('premium');
+        expect(leakedFree).not.toHaveBeenCalled();
+
         const denied = event(outsiderClient, 'error');
         const leakedMessage = jest.fn();
         guestClient.on('chat:message', leakedMessage);

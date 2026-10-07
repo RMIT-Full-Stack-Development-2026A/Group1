@@ -483,17 +483,26 @@ export const RoomService = {
     handleChatSend: async (userId, payload) => {
         const { roomId, message } = validateChatSend(payload);
         
-        const user = await AuthInterface.getUserById(userId);
+        // The two lookups are independent, so run them together: one database round trip instead of two.
+        // The checks below keep the same order, so callers see the same error for the same situation.
+        const [user, room] = await Promise.all([
+            AuthInterface.getUserById(userId),
+            RoomRepository.findById(roomId),
+        ]);
         if (!user?.isActive) {
             throw { statusCode: 403, error: 'FORBIDDEN', message: 'An active account is required.' };
         }
-        const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: 'ROOM_NOT_FOUND', message: 'Room not found.' };
         if (!room.participants.some(p => String(p.userId) === String(userId))) {
             throw { statusCode: 403, error: 'FORBIDDEN', message: 'Only participants can chat in this room.' };
         }
         if (![ROOM_STATUS.WAITING, ROOM_STATUS.READY, ROOM_STATUS.PLAYING].includes(room.status)) {
             throw { statusCode: 400, error: 'INVALID_STATE', message: 'This room is no longer active.' };
+        }
+        // Match chat is a premium feature. The client hides it for free accounts, and the server enforces it too,
+        // because a client can emit chat:send directly. Checked last so the other errors keep their meaning.
+        if (!computeIsPremium(user)) {
+            throw { statusCode: 403, error: 'PREMIUM_REQUIRED', message: 'Chat is a Premium feature. Upgrade to unlock it!' };
         }
 
         return RoomDTO.toChatMessagePayload({

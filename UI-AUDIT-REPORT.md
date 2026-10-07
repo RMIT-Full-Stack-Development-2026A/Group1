@@ -162,6 +162,10 @@ Fixed in code but not seen working live:
 
 Also verified live with the admin role (2026-10-08): `/admin`, `/admin/players` and `/admin/rooms` at desktop, tablet and mobile show 0 contrast failures, 0 unnamed controls, no page overflow or clipped text, a clean console and no failed requests. URL state works in both directions on the players list (`?q=&status=&page=`; RESET clears the URL; reload restores) and on the room and session monitors (`?view=sessions&sq=&status=&spage=` and `?rq=`; a restored page such as `spage=3` is kept). The pinned Action column on the players list now matches the row color.
 
+Disconnect countdown, verified live with a real disconnect (2026-10-09): the banner "CONNECTION LOST. Opponent disconnected. Waiting for them to return..." appeared with `role="status"` and `aria-live="polite"`, the countdown ran 59, 57, 55 ... 34 SEC (the number is `aria-hidden`, the unit "SEC" is visible), and when the opponent returned with 34 s left the banner cleared and an "OPPONENT RECONNECTED" flash showed for under 5 s.
+
+Latency, measured live against the remote MongoDB Atlas database: a chat message took 162 to 176 ms from click to appearing (two sequential database reads in `handleChatSend`); running them in parallel brought it to about 116 ms. A move took 263 ms from click to marker (one read plus one atomic conditional write on the server, which is already minimal); an optimistic marker on the client now shows it in about 48 ms and rolls back if the server rejects the move (verified: clicking an occupied cell draws nothing and the next click still lands in 48 ms). The user lookup in `handleChatSend` is kept because it is also the active-account guard.
+
 Not tested: the local-arena board (it shares the offline board code), and the PayPal checkout flow.
 
 `vite build` passes. The client has no test suite. This round added no lint errors (33 before and 33 after across the changed files; the three new files are clean). The pre-existing lint errors (unused variables, `no-dupe-keys`, React compiler warnings) are untouched.
@@ -171,5 +175,6 @@ Not tested: the local-arena board (it shares the offline board code), and the Pa
 ## 4. What is still open
 
 1. **Online board, chat overlap (optional):** the open 380 px chat window covers about 89 px of the board's left edge on desktop (row labels and the lower column A cells). Making the window 280 px wide on desktop would remove the overlap; held because the placement was approved as is.
-2. **Remaining unverified items:** the disconnect countdown (needs a second player who drops), chat delivery and delay between two screens, the local-arena board, the PayPal checkout flow, and the pressed-READY look in the match lobby.
-3. **Cleanup:** the pre-existing lint errors (68 errors, 6 warnings, mostly unused variables, plus a real duplicate key `playerTwoName` in the room monitor hook and two useless `catch` blocks), and the `autoFocus` on the lobby jump input and the profile page input (both user-triggered, left on purpose).
+2. **Chat premium rule (decided: premium-only):** the server now enforces it (`PREMIUM_REQUIRED`, 403) in addition to the client gate, so a free account cannot chat by emitting `chat:send` directly; an expired subscription counts as free. The two tests that asserted free chat were rewritten, and two new tests cover free senders and lapsed premium. The subscription page does not yet list chat among the premium benefits, so adding it there would make the rule visible to users.
+3. **Remaining unverified items:** the local-arena board, the PayPal checkout flow, and the pressed-READY look in the match lobby.
+4. **Cleanup:** the pre-existing lint errors (68 errors, 6 warnings, mostly unused variables, plus a real duplicate key `playerTwoName` in the room monitor hook and two useless `catch` blocks), and the `autoFocus` on the lobby jump input and the profile page input (both user-triggered, left on purpose).

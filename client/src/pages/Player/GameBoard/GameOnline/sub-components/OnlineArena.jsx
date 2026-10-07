@@ -68,6 +68,14 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
   const player2MarkerStyle = player2?.markerStyle || roomData?.markerStyle || "CLASSIC";
 
   const currentState = gameState?.roomId === roomData?.id ? gameState : null;
+
+  // Optimistic move: the marker is drawn the moment the player clicks, without waiting for the server
+  // round trip (about 260 ms against the remote database). It stays "pending" only until the server's game
+  // state contains one more move than when the click happened; a rejected move removes it again.
+  const [pendingMove, setPendingMove] = useState(null);
+  const serverMoveCount = currentState?.board?.length ?? 0;
+  const activePendingMove = pendingMove && serverMoveCount === pendingMove.baseCount ? pendingMove : null;
+
   const board = useMemo(() => {
     const cells = Array.from({ length: boardSize }, () => Array(boardSize).fill(null));
     for (const move of currentState?.board || []) {
@@ -76,8 +84,11 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         cells[move.row][move.col] = mark;
       }
     }
+    if (activePendingMove && cells[activePendingMove.row]?.[activePendingMove.col] === null) {
+      cells[activePendingMove.row][activePendingMove.col] = activePendingMove.mark;
+    }
     return cells;
-  }, [boardSize, currentState, roomData?.participants]);
+  }, [boardSize, currentState, roomData?.participants, activePendingMove]);
 
   const turnIndex = currentState?.currentTurnParticipantIndex ?? roomData?.currentTurnParticipantIndex ?? 0;
   const currentPlayerMark = roomData?.participants?.[turnIndex]?.mark || "X";
@@ -275,11 +286,29 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
     };
   }, [socket, isConnected, navigate, roomData, boardSize, connectSocket]);
 
+  // Roll the optimistic marker back if the server rejects the move, or if nothing comes back at all.
+  useEffect(() => {
+    if (!socket || !pendingMove) return undefined;
+    const onServerError = (payload) => {
+      if (!payload || payload.event === "game:move") setPendingMove(null);
+    };
+    socket.on("error", onServerError);
+    const timer = setTimeout(() => setPendingMove(null), 5000);
+    return () => {
+      socket.off("error", onServerError);
+      clearTimeout(timer);
+    };
+  }, [socket, pendingMove]);
+
   const handleCellClick = (rowIndex, colIndex) => {
     if (winnerData || isDraw || roomData?.status !== "PLAYING") return;
 
     // Check if it's the current user's turn
     if (currentPlayerMark !== userMark) return;
+
+    // One move at a time: wait for the server to confirm (or reject) the pending one
+    if (activePendingMove) return;
+    setPendingMove({ row: rowIndex, col: colIndex, mark: userMark, baseCount: serverMoveCount });
 
     socket.emit("game:move", {
       roomId: roomData?.id || roomId,

@@ -140,10 +140,17 @@ void main() {
     uv.x += 4. * u_distortion * n2 * cos(angle);
     uv.y += 4. * u_distortion * n2 * sin(angle);
 
+    // WebGL1 requires a loop's bound to be a compile-time constant (GLSL ES
+    // 1.00 loop restrictions; WebGL2/#version 300 es relaxed this, which is
+    // why this compiled fine before the WebGL2->1 downgrade). Standard
+    // WebGL1-safe pattern: loop to the real max (30, matches the clamp
+    // above) and break early once past the dynamic iteration count.
     float iterations_number = ceil(clamp(u_swirlIterations, 1., 30.));
-    for (float i = 1.; i <= iterations_number; i++) {
-        uv.x += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1.5 * uv.y);
-        uv.y += clamp(u_swirl, 0., 2.) / i * cos(t + i * 1. * uv.x);
+    for (int i = 1; i <= 30; i++) {
+        if (float(i) > iterations_number) break;
+        float fi = float(i);
+        uv.x += clamp(u_swirl, 0., 2.) / fi * cos(t + fi * 1.5 * uv.y);
+        uv.y += clamp(u_swirl, 0., 2.) / fi * cos(t + fi * 1. * uv.x);
     }
 
     float proportion = clamp(u_proportion, 0., 1.);
@@ -202,6 +209,7 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
         powerPreference: "high-performance",
       });
       if (!gl) {
+        console.error("[AnimatedGradient] canvas.getContext('webgl') returned null — WebGL unavailable or canvas already bound to a different context type.");
         setHasWebGLError(true);
         return;
       }
@@ -210,6 +218,7 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       gl.shaderSource(vertexShader, VERTEX_SHADER);
       gl.compileShader(vertexShader);
       if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+        console.error("[AnimatedGradient] vertex shader failed to compile:", gl.getShaderInfoLog(vertexShader));
         gl.deleteShader(vertexShader);
         setHasWebGLError(true);
         return;
@@ -219,6 +228,7 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       gl.shaderSource(fragmentShader, FRAGMENT_SHADER);
       gl.compileShader(fragmentShader);
       if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        console.error("[AnimatedGradient] fragment shader failed to compile:", gl.getShaderInfoLog(fragmentShader));
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
         setHasWebGLError(true);
@@ -230,6 +240,7 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       gl.attachShader(program, fragmentShader);
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.error("[AnimatedGradient] program failed to link:", gl.getProgramInfoLog(program));
         gl.deleteProgram(program);
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
@@ -331,15 +342,23 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       return () => {
         if (frameIdRef.current !== undefined) cancelAnimationFrame(frameIdRef.current);
         resizeObserver.disconnect();
-        // Phase 4: full GL cleanup to free GPU resources
+        // Phase 4: full GL cleanup to free GPU resources.
+        // Removed WEBGL_lose_context.loseContext() (07/10) -- it force-kills
+        // the context immediately, and context restoration is asynchronous.
+        // Under React 19 dev StrictMode, this effect's cleanup runs and the
+        // effect re-mounts synchronously right after (double-invoke to catch
+        // missing cleanup), before the lost context has a chance to restore,
+        // so every gl.create*/compile call on the "new" getContext() result
+        // returns null -- which is exactly the null shader-info-log Khanh
+        // saw. Deleting the program/shaders/buffer already frees the GPU
+        // resources without blowing up the context itself.
         gl.deleteProgram(program);
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
         gl.deleteBuffer(positionBuffer);
-        const ext = gl.getExtension("WEBGL_lose_context");
-        ext?.loseContext();
       };
-    } catch {
+    } catch (err) {
+      console.error("[AnimatedGradient] setup threw:", err);
       setHasWebGLError(true);
       return undefined;
     }

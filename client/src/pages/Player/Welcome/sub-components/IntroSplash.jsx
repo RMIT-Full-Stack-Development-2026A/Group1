@@ -15,9 +15,12 @@ import AnimatedGradient from "./AnimatedGradient";
 
 const MotionDiv = motion.div;
 
+// Timings widened 07/10 (Khanh): hold the AnimatedGradient intro for 5s
+// total, with "Welcome to" settling in before "TICTACTOANG" appears below
+// it, instead of the two nearly overlapping at the old 2s duration.
 const WELCOME_DELAY_MS = 0;
-const TITLE_DELAY_MS = 700;
-const SPLASH_DURATION_MS = 2000;
+const TITLE_DELAY_MS = 1500;
+const SPLASH_DURATION_MS = 5000;
 
 export default function IntroSplash() {
   const prefersReducedMotion = useReducedMotion();

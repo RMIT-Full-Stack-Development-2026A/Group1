@@ -30,6 +30,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useWelcome } from "./hook/useWelcome.hook";
 import {
   IntroSplash,
@@ -83,8 +84,16 @@ function HeroScreenSection({ reducedMotion }) {
 export default function Welcome() {
   const { prefersReducedMotion, scrollToSection, goToPlay } = useWelcome();
 
+  // Intro splash only plays right after a fresh login (07/10, Khanh).
+  // Login/index.jsx passes { fromLogin: true } in navigation state when it
+  // redirects here; clicking the logo (Navigation.jsx) or the /play "back
+  // to Welcome" button both navigate() here without that state, so the
+  // splash does not replay on those visits.
+  const location = useLocation();
+  const showIntroSplash = Boolean(location.state?.fromLogin) && !prefersReducedMotion;
+
   // Phase 2: defer AuroraFlow until intro exits
-  const [introDone, setIntroDone] = useState(prefersReducedMotion);
+  const [introDone, setIntroDone] = useState(!showIntroSplash);
 
   // Enable scroll-snap on <html> for md+ breakpoints only.
   useEffect(() => {
@@ -113,16 +122,17 @@ export default function Welcome() {
     };
   }, [prefersReducedMotion]);
 
-  // Delay introDone by the IntroSplash duration (~2.6s incl. exit anim)
-  // when not using reduced motion.
+  // Delay introDone by the IntroSplash duration (5s hold + 0.6s exit fade,
+  // 07/10 -- kept in sync with SPLASH_DURATION_MS in IntroSplash.jsx), but
+  // only when the splash is actually going to play (fresh login).
   useEffect(() => {
-    if (prefersReducedMotion) {
+    if (!showIntroSplash) {
       setIntroDone(true);
       return;
     }
-    const t = setTimeout(() => setIntroDone(true), 2800);
+    const t = setTimeout(() => setIntroDone(true), 5600);
     return () => clearTimeout(t);
-  }, [prefersReducedMotion]);
+  }, [showIntroSplash]);
 
   return (
     <div className="relative w-full text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
@@ -155,7 +165,7 @@ export default function Welcome() {
       )}
 
       {/* IntroSplash — fixed z-[100] overlay, unmounts after its exit anim */}
-      <IntroSplash />
+      {showIntroSplash && <IntroSplash />}
 
       {/* ------------------------------------------------------------------ */}
       {/* Scrollable content — z-10 so it sits above AuroraFlow              */}

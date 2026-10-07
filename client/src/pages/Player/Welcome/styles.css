@@ -1,0 +1,24 @@
+/* Welcome page — scoped keyframes. CSS transform only, per issue #201. */
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.welcome-marquee-track {
+  animation: marquee-scroll 18s linear infinite;
+}
+
+.welcome-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-marquee-track {
+    animation: none;
+  }
+}

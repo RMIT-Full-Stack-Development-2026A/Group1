@@ -241,14 +241,26 @@ const createEngine = (board, botMark) => {
         if (fours[other] > 0) return false; // the opponent threatens five, so we must defend instead
 
         const makers = fourMakers(me);
+
+        // First look for a move that wins outright (an open four, or two fours at once): it needs no
+        // forcing sequence at all, so it must be played in preference to a longer route to the same win.
+        for (let i = 0; i < makers.length; i++) {
+            const cell = makers[i];
+            place(cell, me);
+            const decisive = completionCells(me).length >= 2;
+            remove(cell);
+            if (decisive) {
+                if (isRoot) vcfRootMove = cell;
+                return true;
+            }
+        }
+
         for (let i = 0; i < makers.length; i++) {
             const cell = makers[i];
             place(cell, me);
             let won = false;
             const completions = completionCells(me);
-            if (completions.length >= 2) {
-                won = true;
-            } else if (completions.length === 1) {
+            if (completions.length === 1) {
                 const reply = completions[0];
                 place(reply, other);
                 if (fives[other] === 0) won = vcf(me, depth - 1);
@@ -423,8 +435,12 @@ const createEngine = (board, botMark) => {
         if (fours[HUMAN] > 0) return toCoordinates(completionCells(HUMAN)[0]);
         // 3. A forced win made of fours (given a share of the time budget, so it can never stall the move).
         deadline = Date.now() + VCF_BUDGET_MS;
-        const forcedWin = threes[BOT] > 0 && vcf(BOT, VCF_DEPTH_ROOT, true) && vcfRootMove >= 0;
-        if (forcedWin) return toCoordinates(vcfRootMove);
+        // Deepen one four at a time so the shortest forced win is the one played.
+        if (threes[BOT] > 0) {
+            for (let length = 1; length <= VCF_DEPTH_ROOT && !timedOut; length++) {
+                if (vcf(BOT, length, true) && vcfRootMove >= 0) return toCoordinates(vcfRootMove);
+            }
+        }
         timedOut = false;
 
         // 4. Deepening search.

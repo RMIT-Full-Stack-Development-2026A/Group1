@@ -49,13 +49,17 @@ function hexToRgba(hex) {
   return [r, g, b, a];
 }
 
-const VERTEX_SHADER = `#version 300 es
-in vec4 a_position;
+// Downgraded from WebGL2 (#version 300 es) to WebGL1 (07/10, Khanh reported
+// "Interactive WebGL content is unavailable" on his machine). AuroraFlow
+// next to this works fine on WebGL1, so the most likely fix is dropping
+// the WebGL2 requirement rather than debugging one specific GPU/driver.
+const VERTEX_SHADER = `
+attribute vec4 a_position;
 void main() {
   gl_Position = a_position;
 }`;
 
-const FRAGMENT_SHADER = `#version 300 es
+const FRAGMENT_SHADER = `
 precision highp float;
 
 uniform float u_time;
@@ -74,8 +78,6 @@ uniform float u_shapeScale;
 uniform float u_distortion;
 uniform float u_swirl;
 uniform float u_swirlIterations;
-
-out vec4 fragColor;
 
 #define TWO_PI 6.28318530718
 #define PI 3.14159265358979323846
@@ -169,7 +171,7 @@ void main() {
 
     vec4 color_mix = blend_colors(u_color1, u_color2, u_color3, mixer, 1. - clamp(u_softness, 0., 1.), .01 + .01 * u_scale);
 
-    fragColor = vec4(color_mix.rgb, color_mix.a);
+    gl_FragColor = vec4(color_mix.rgb, color_mix.a);
 }
 `;
 
@@ -193,7 +195,7 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
     if (!canvas || !container) return;
 
     try {
-      const gl = canvas.getContext("webgl2", {
+      const gl = canvas.getContext("webgl", {
         premultipliedAlpha: true,
         alpha: true,
         antialias: false,

@@ -97,11 +97,11 @@ import member5Photo from "@/assets/team/member-5.jpg";
 
 // TODO: replace placeholder names/roles/GitHub links with the real ones before merging to main
 export const TEAM_MEMBERS = [
-  { id: 1, name: "Member Name 1", role: "Frontend", github: "https://github.com/", photo: member1Photo },
-  { id: 2, name: "Member Name 2", role: "Backend", github: "https://github.com/", photo: member2Photo },
-  { id: 3, name: "Member Name 3", role: "Design", github: "https://github.com/", photo: member3Photo },
-  { id: 4, name: "Member Name 4", role: "QA", github: "https://github.com/", photo: member4Photo },
-  { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/", photo: member5Photo },
+  { id: 1, name: "Member Name 1", role: "Frontend", github: "https://github.com/KhanhQNguyn", photo: member1Photo },
+  { id: 2, name: "Member Name 2", role: "Backend", github: "https://github.com/giaphat060206", photo: member2Photo },
+  { id: 3, name: "Member Name 3", role: "Design", github: "https://github.com/ThangHoang54", photo: member3Photo },
+  { id: 4, name: "Member Name 4", role: "QA", github: "https://github.com/kiemminh000", photo: member4Photo },
+  { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/Minz516", photo: member5Photo },
 ];
 
 // TODO: replace with real player quotes before merging to main.

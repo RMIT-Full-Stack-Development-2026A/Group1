@@ -5,10 +5,13 @@ export const MarkerX = ({ variantData, className }) => {
     const combinedClass = `${variantData?.xColor || ''} ${variantData?.xGlow || ''} ${variantData?.animation || ''} ${className}`;
 
     if (variantData?.id === "PIXEL" || variantData?.id === "MINIMAL") {
+        // `block` fixes PIXEL/MINIMAL sitting a few px lower than the other
+        // 4 (text-based) variants in a flex row: an inline <svg> inherits
+        // text's default `vertical-align: baseline`, same as an <img>.
         return (
-            <svg className={combinedClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                {variantData.id === "PIXEL" 
-                    ? <path d="M4 4h5v5H4V4zm11 0h5v5h-5V4zM9 9h6v6H9V9zm-5 6h5v5H4v-5zm11 0h5v5h-5v-5z" fill="currentColor" stroke="none"/> 
+            <svg className={`block ${combinedClass}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                {variantData.id === "PIXEL"
+                    ? <path d="M4 4h5v5H4V4zm11 0h5v5h-5V4zM9 9h6v6H9V9zm-5 6h5v5H4v-5zm11 0h5v5h-5v-5z" fill="currentColor" stroke="none"/>
                     : <path d="M18 6L6 18M6 6l12 12" />
                 }
             </svg>
@@ -24,7 +27,7 @@ export const MarkerO = ({ variantData, className }) => {
 
     if (variantData?.id === "MINIMAL" || variantData?.id === "PIXEL") {
         return (
-            <svg className={combinedClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg className={`block ${combinedClass}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 {variantData.id === "PIXEL"
 
                     ? <path fillRule="evenodd" clipRule="evenodd" d="M4 4h16v16H4V4zm4 4v8h8V8H8z" fill="currentColor" stroke="none" />

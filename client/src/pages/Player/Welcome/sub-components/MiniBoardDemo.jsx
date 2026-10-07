@@ -57,7 +57,10 @@ WinLineOverlay.propTypes = {
   reducedMotion: PropTypes.bool,
 };
 
-export default function MiniBoardDemo({ script, reducedMotion }) {
+// Stable default for array prop (avoids new reference each render)
+const DEFAULT_SCRIPT = [0, 4, 1, 5, 2]; // X wins the top row
+
+export default function MiniBoardDemo({ script = DEFAULT_SCRIPT, reducedMotion = false }) {
   const [board, setBoard] = useState(EMPTY_BOARD);
   const [winInfo, setWinInfo] = useState(null);
   const timeoutsRef = useRef([]);
@@ -132,7 +135,5 @@ MiniBoardDemo.propTypes = {
   reducedMotion: PropTypes.bool,
 };
 
-MiniBoardDemo.defaultProps = {
-  script: [0, 4, 1, 5, 2], // default: X wins the top row
-  reducedMotion: false,
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

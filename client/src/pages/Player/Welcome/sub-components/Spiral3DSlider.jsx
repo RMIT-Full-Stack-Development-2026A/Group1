@@ -197,19 +197,19 @@ function SpiralScene({
 
 export default function Spiral3DSlider({
   items,
-  className,
-  radius,
-  verticalGap,
-  cardWidth,
-  cardAspectRatio,
-  autoRotate,
-  autoSpeed,
-  scrollSensitivity,
-  smoothing,
-  blurStrength,
-  bend,
-  fov,
-  ariaLabel,
+  className = "",
+  radius = 190,
+  verticalGap = 56,
+  cardWidth = 220,
+  cardAspectRatio = 3 / 2,
+  autoRotate = true,
+  autoSpeed = 0.13,
+  scrollSensitivity = 0.0024,
+  smoothing = 0.065,
+  blurStrength = 1.65,
+  bend = 0.17,
+  fov = 44,
+  ariaLabel = "TicTacToang development history gallery",
 }) {
   const stageRef = useRef(null);
   const targetProgress = useRef(0);
@@ -272,15 +272,15 @@ export default function Spiral3DSlider({
       ref={stageRef}
       role="region"
       aria-label={ariaLabel}
-      className={cn("relative min-h-[26rem] w-full overflow-hidden bg-[#0d0d1a]", className)}
+      className={cn("relative w-full h-full overflow-hidden", className)}
       onWheel={handleWheel}
     >
       <WebGLErrorBoundary fallback={<WebGLFallback className="absolute inset-0 h-full w-full" />}>
         <div className="absolute inset-0">
           <Canvas
-            dpr={[1, 1.75]}
+            dpr={[1, 1.25]}
             camera={{ position: [0, 0, 10], fov, near: 0.1, far: 100 }}
-            gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+            gl={{ alpha: true, antialias: false, powerPreference: "high-performance" }}
           >
             <Suspense fallback={null}>
               <SpiralScene
@@ -333,18 +333,5 @@ Spiral3DSlider.propTypes = {
   ariaLabel: PropTypes.string,
 };
 
-Spiral3DSlider.defaultProps = {
-  className: "",
-  radius: 190,
-  verticalGap: 56,
-  cardWidth: 220,
-  cardAspectRatio: 3 / 2,
-  autoRotate: true,
-  autoSpeed: 0.13,
-  scrollSensitivity: 0.0024,
-  smoothing: 0.065,
-  blurStrength: 1.65,
-  bend: 0.17,
-  fov: 44,
-  ariaLabel: "TicTacToang development history gallery",
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

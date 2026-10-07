@@ -118,12 +118,15 @@ export const FAQ_ITEMS = [
 ];
 
 export const DOCK_SECTIONS = [
-  { id: "welcome-top", label: "Home", icon: "home" },
-  { id: "modes", label: "Modes", icon: "sports_esports" },
-  { id: "how-to-play", label: "How to Play", icon: "menu_book" },
-  { id: "history", label: "History", icon: "history_edu" },
-  { id: "team", label: "Team", icon: "groups" },
-  { id: "feedback", label: "Feedback", icon: "feedback" },
-  { id: "faq", label: "FAQ", icon: "help" },
-  { id: "cta", label: "Play Now", icon: "play_arrow" },
+  { id: "welcome-top",   label: "Home",         icon: "home" },
+  { id: "modes",         label: "Modes",         icon: "sports_esports" },
+  { id: "how-to-play",   label: "How to Play",   icon: "menu_book" },
+  { id: "features",      label: "Features",       icon: "star" },
+  { id: "board-themes",  label: "Board Themes",   icon: "grid_on" },
+  { id: "markers",       label: "Markers",        icon: "edit" },
+  { id: "history",       label: "History",        icon: "history_edu" },
+  { id: "team",          label: "Team",           icon: "groups" },
+  { id: "feedback",      label: "Feedback",       icon: "feedback" },
+  { id: "faq",           label: "FAQ",            icon: "help" },
+  { id: "cta",           label: "Play Now",       icon: "play_arrow" },
 ];

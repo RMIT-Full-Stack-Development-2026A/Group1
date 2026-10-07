@@ -31,7 +31,16 @@ function lerpColor(color1, color2, t) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-export default function PixelCanvas({ className, gap, speed, colors, variant }) {
+// Stable default for array prop (avoids new reference each render)
+const DEFAULT_PIXEL_COLORS = ["#4cc9f0", "#93e2ff", "#fad100"];
+
+export default function PixelCanvas({
+  className = "",
+  gap = 7,
+  speed = 0.025,
+  colors = DEFAULT_PIXEL_COLORS,
+  variant = "glow",
+}) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const pixelsRef = useRef([]);
@@ -218,10 +227,5 @@ PixelCanvas.propTypes = {
   variant: PropTypes.oneOf(["default", "trail", "glow"]),
 };
 
-PixelCanvas.defaultProps = {
-  className: "",
-  gap: 7,
-  speed: 0.025,
-  colors: ["#4cc9f0", "#93e2ff", "#fad100"],
-  variant: "glow",
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

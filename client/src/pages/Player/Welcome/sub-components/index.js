@@ -4,7 +4,11 @@ export { default as HeroSection } from "./HeroSection";
 export { default as MarqueeBand } from "./MarqueeBand";
 export { default as ModeSelectPreview } from "./ModeSelectPreview";
 export { default as HowToPlaySection } from "./HowToPlaySection";
+// FeatureGrid kept for backward compat (not used in main Welcome anymore)
 export { default as FeatureGrid } from "./FeatureGrid";
+export { default as FeatureCardsSection } from "./FeatureCardsSection";
+export { default as BoardThemesSection } from "./BoardThemesSection";
+export { default as MarkerStylesSection } from "./MarkerStylesSection";
 export { default as HistorySection } from "./HistorySection";
 export { default as TeamSection } from "./TeamSection";
 export { default as FeedbackCta } from "./FeedbackCta";
@@ -12,3 +16,4 @@ export { default as ChallengeCounter } from "./ChallengeCounter";
 export { default as FaqAccordion } from "./FaqAccordion";
 export { default as FinalCta } from "./FinalCta";
 export { default as MagneticDock } from "./MagneticDock";
+export { default as FullScreenSection } from "./FullScreenSection";

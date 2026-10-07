@@ -28,6 +28,7 @@ const PALETTE = {
 };
 
 function wrapIndex(index, length) {
+  if (!length || !Number.isFinite(index)) return 0;
   return ((index % length) + length) % length;
 }
 
@@ -40,24 +41,24 @@ function shortestOffset(index, rotation, length) {
 
 export default function WheelCarousel({
   items,
-  photoSide,
-  photoWidth,
-  photoAspect,
-  contentWidth,
-  gap,
-  photoRadius,
-  crossfadeDuration,
-  radius,
-  spacing,
-  visibleItems,
-  apexInset,
-  scrollSpeed,
-  dragSpeed,
-  snap,
-  momentum,
-  edgeFade,
-  edgeFadeSize,
-  initialIndex,
+  photoSide = "left",
+  photoWidth = 38,
+  photoAspect = "1/1",
+  contentWidth = 700,
+  gap = 0,
+  photoRadius = 0,
+  crossfadeDuration = 0.5,
+  radius = 160,
+  spacing = 16,
+  visibleItems = 3,
+  apexInset = 44,
+  scrollSpeed = 0.008,
+  dragSpeed = 0.02,
+  snap = true,
+  momentum = true,
+  edgeFade = true,
+  edgeFadeSize = 25,
+  initialIndex = 0,
   onActiveChange,
   className,
 }) {
@@ -198,6 +199,7 @@ export default function WheelCarousel({
 
   const safeSelectedIndex = wrapIndex(selectedIndex, itemCount);
   const selectedItem = items[safeSelectedIndex];
+  if (!selectedItem) return null;
   const mask = edgeFade
     ? `linear-gradient(to bottom, transparent 0%, black ${edgeFadeSize}%, black ${100 - edgeFadeSize}%, transparent 100%)`
     : undefined;
@@ -207,8 +209,7 @@ export default function WheelCarousel({
       initial={!reduceMotion ? { opacity: 0, y: 18 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className={cn("flex h-full min-h-[320px] w-full items-center justify-center overflow-hidden", className)}
-      style={{ backgroundColor: PALETTE.background }}
+      className={cn("flex h-full w-full items-center justify-center", className)}
     >
       <div
         ref={stageRef}
@@ -229,11 +230,11 @@ export default function WheelCarousel({
       >
         <div
           className="flex h-full shrink-0 items-center justify-center"
-          style={{ width: `${photoWidth}%`, backgroundColor: PALETTE.background }}
+          style={{ width: `${photoWidth}%` }}
         >
           <div
             className="relative w-full max-h-full overflow-hidden"
-            style={{ aspectRatio: aspectRatios[photoAspect], borderRadius: photoRadius, backgroundColor: PALETTE.panel }}
+            style={{ aspectRatio: aspectRatios[photoAspect], borderRadius: photoRadius }}
           >
             <AnimatePresence initial={false} mode="sync">
               <MotionImg
@@ -327,25 +328,5 @@ WheelCarousel.propTypes = {
   className: PropTypes.string,
 };
 
-WheelCarousel.defaultProps = {
-  photoSide: "left",
-  photoWidth: 38,
-  photoAspect: "1/1",
-  contentWidth: 700,
-  gap: 0,
-  photoRadius: 0,
-  crossfadeDuration: 0.5,
-  radius: 160,
-  spacing: 16,
-  visibleItems: 3,
-  apexInset: 44,
-  scrollSpeed: 0.008,
-  dragSpeed: 0.02,
-  snap: true,
-  momentum: true,
-  edgeFade: true,
-  edgeFadeSize: 25,
-  initialIndex: 0,
-  onActiveChange: undefined,
-  className: "",
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

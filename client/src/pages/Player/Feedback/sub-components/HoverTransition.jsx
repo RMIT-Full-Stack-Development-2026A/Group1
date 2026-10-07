@@ -80,12 +80,12 @@ function Layer({ children, style }) {
 export default function HoverTransition({
   defaultComponent,
   hoverComponent,
-  effect,
-  direction,
-  duration,
-  easing,
-  label,
-  className,
+  effect = "wipe",
+  direction = "right",
+  duration = 0.72,
+  easing = "cubic-bezier(0.22, 1, 0.36, 1)",
+  label = "Interactive hover transition",
+  className = "",
 }) {
   const rootRef = useRef(null);
   const [active, setActive] = useState(false);
@@ -240,11 +240,5 @@ HoverTransition.propTypes = {
   className: PropTypes.string,
 };
 
-HoverTransition.defaultProps = {
-  effect: "wipe",
-  direction: "right",
-  duration: 0.72,
-  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-  label: "Interactive hover transition",
-  className: "",
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

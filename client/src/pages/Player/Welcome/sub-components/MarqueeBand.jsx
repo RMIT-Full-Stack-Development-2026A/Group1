@@ -7,7 +7,7 @@
 import PropTypes from "prop-types";
 import { MARQUEE_ITEMS } from "../service/welcomeContent.service";
 
-export default function MarqueeBand({ reducedMotion }) {
+export default function MarqueeBand({ reducedMotion = false }) {
   if (reducedMotion) {
     return (
       <div className="w-full border-y border-[#3d484d] bg-[#1e1e2c] py-4">
@@ -41,6 +41,5 @@ MarqueeBand.propTypes = {
   reducedMotion: PropTypes.bool,
 };
 
-MarqueeBand.defaultProps = {
-  reducedMotion: false,
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

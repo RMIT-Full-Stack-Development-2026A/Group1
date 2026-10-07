@@ -173,7 +173,10 @@ void main() {
 }
 `;
 
-export default function AnimatedGradient({ className, radius, style }) {
+// Stable default for object prop (avoids new reference each render)
+const DEFAULT_ANIMATED_GRADIENT_STYLE = {};
+
+export default function AnimatedGradient({ className = "", radius = "0px", style = DEFAULT_ANIMATED_GRADIENT_STYLE }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const frameIdRef = useRef(undefined);
@@ -190,7 +193,12 @@ export default function AnimatedGradient({ className, radius, style }) {
     if (!canvas || !container) return;
 
     try {
-      const gl = canvas.getContext("webgl2", { premultipliedAlpha: true, alpha: true, antialias: true });
+      const gl = canvas.getContext("webgl2", {
+        premultipliedAlpha: true,
+        alpha: true,
+        antialias: false,
+        powerPreference: "high-performance",
+      });
       if (!gl) {
         setHasWebGLError(true);
         return;
@@ -257,9 +265,12 @@ export default function AnimatedGradient({ className, radius, style }) {
       const resize = () => {
         const width = container.clientWidth;
         const height = container.clientHeight;
-        const pixelRatio = window.devicePixelRatio || 1;
-        canvas.width = width * pixelRatio;
-        canvas.height = height * pixelRatio;
+        // Phase 4: render at 50% of native dpr (capped at 0.5×) — gradients
+        // are smooth so upscaling is invisible, but it cuts shader cost ~4×
+        // on hi-DPI screens.
+        const scale = Math.min(window.devicePixelRatio || 1, 1) * 0.5;
+        canvas.width = Math.max(1, Math.round(width * scale));
+        canvas.height = Math.max(1, Math.round(height * scale));
         canvas.style.width = `${width}px`;
         canvas.style.height = `${height}px`;
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -270,8 +281,21 @@ export default function AnimatedGradient({ className, radius, style }) {
       resizeObserver.observe(container);
 
       startTimeRef.current = performance.now();
+      let lastFrameTime = 0;
+      const TARGET_INTERVAL = 1000 / 30; // ~30 fps cap
 
       const animate = (time) => {
+        // Phase 4: skip frames to cap at ~30 fps
+        if (time - lastFrameTime < TARGET_INTERVAL) {
+          frameIdRef.current = requestAnimationFrame(animate);
+          return;
+        }
+        lastFrameTime = time;
+        // Phase 4: pause when tab is hidden
+        if (document.hidden) {
+          frameIdRef.current = requestAnimationFrame(animate);
+          return;
+        }
         const elapsed = (time - startTimeRef.current) / 1000;
         const speed = (params.speed / 100) * 5;
 
@@ -305,10 +329,13 @@ export default function AnimatedGradient({ className, radius, style }) {
       return () => {
         if (frameIdRef.current !== undefined) cancelAnimationFrame(frameIdRef.current);
         resizeObserver.disconnect();
+        // Phase 4: full GL cleanup to free GPU resources
         gl.deleteProgram(program);
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
         gl.deleteBuffer(positionBuffer);
+        const ext = gl.getExtension("WEBGL_lose_context");
+        ext?.loseContext();
       };
     } catch {
       setHasWebGLError(true);
@@ -335,8 +362,5 @@ AnimatedGradient.propTypes = {
   style: PropTypes.object,
 };
 
-AnimatedGradient.defaultProps = {
-  className: "",
-  radius: "0px",
-  style: {},
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

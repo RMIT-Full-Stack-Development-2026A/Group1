@@ -218,41 +218,44 @@ function useReducedMotion() {
   return reduced;
 }
 
+// Stable defaults for object/array props (avoids new reference each render)
+const DEFAULT_AURORA_STYLE = {};
+
 export default function AuroraFlow({
-  colors,
-  preset,
-  speed,
-  intensity,
-  opacity,
-  blur,
-  contrast,
-  brightness,
-  grain,
-  grainOpacity,
-  layers,
-  flowScale,
-  flowStrength,
-  flowDirection,
-  animationSpeed,
-  pointerInteraction,
-  pointerStrength,
-  scrollInteraction,
-  parallaxStrength,
-  lighting,
-  lightingIntensity,
-  lightingRadius,
-  lightingSpeed,
-  ambientGlow,
-  ambientOpacity,
-  noise,
-  noiseOpacity,
-  noiseScale,
-  vignette,
-  vignetteStrength,
-  borderRadius,
-  className,
-  style,
-  children,
+  colors = undefined,
+  preset = "arcade",
+  speed = 0.6,
+  intensity = 1,
+  opacity = 1,
+  blur = 1,
+  contrast = 1.04,
+  brightness = 1,
+  grain = true,
+  grainOpacity = 0.14,
+  layers = 6,
+  flowScale = 1,
+  flowStrength = 1,
+  flowDirection = -18,
+  animationSpeed = 1,
+  pointerInteraction = true,
+  pointerStrength = 0.5,
+  scrollInteraction = false,
+  parallaxStrength = 0.5,
+  lighting = true,
+  lightingIntensity = 0.6,
+  lightingRadius = 1,
+  lightingSpeed = 0.6,
+  ambientGlow = true,
+  ambientOpacity = 0.5,
+  noise = true,
+  noiseOpacity = 0.1,
+  noiseScale = 1,
+  vignette = true,
+  vignetteStrength = 0.55,
+  borderRadius = 0,
+  className = "",
+  style = DEFAULT_AURORA_STYLE,
+  children = null,
 }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
@@ -456,7 +459,8 @@ export default function AuroraFlow({
     };
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      // Phase 4: cap dpr at 1.0 — aurora is a background, 1× is indistinguishable
+      const dpr = Math.min(window.devicePixelRatio || 1, 1);
       const rect = container.getBoundingClientRect();
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
@@ -577,39 +581,5 @@ AuroraFlow.propTypes = {
   children: PropTypes.node,
 };
 
-AuroraFlow.defaultProps = {
-  colors: undefined,
-  preset: "arcade",
-  speed: 0.6,
-  intensity: 1,
-  opacity: 1,
-  blur: 1,
-  contrast: 1.04,
-  brightness: 1,
-  grain: true,
-  grainOpacity: 0.14,
-  layers: 6,
-  flowScale: 1,
-  flowStrength: 1,
-  flowDirection: -18,
-  animationSpeed: 1,
-  pointerInteraction: true,
-  pointerStrength: 0.5,
-  scrollInteraction: false,
-  parallaxStrength: 0.5,
-  lighting: true,
-  lightingIntensity: 0.6,
-  lightingRadius: 1,
-  lightingSpeed: 0.6,
-  ambientGlow: true,
-  ambientOpacity: 0.5,
-  noise: true,
-  noiseOpacity: 0.1,
-  noiseScale: 1,
-  vignette: true,
-  vignetteStrength: 0.55,
-  borderRadius: 0,
-  className: "",
-  style: {},
-  children: null,
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

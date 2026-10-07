@@ -14,7 +14,7 @@ const UsernameField = ({
 }) => {
     return (
         <div className="space-y-2">
-            <label htmlFor="field-username" className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+            <label htmlFor="field-username" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                 Username
             </label>
             <input
@@ -32,7 +32,7 @@ const UsernameField = ({
             />
             {value.length > 0 && (
                 <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">
-                    <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
+                    <p className="text-xs text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
                         Requirements:
                     </p>
                     <div className="space-y-1">

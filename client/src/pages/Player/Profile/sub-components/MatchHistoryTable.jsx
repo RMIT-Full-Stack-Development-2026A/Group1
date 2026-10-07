@@ -130,7 +130,7 @@ export default function MatchHistoryTable({
     }
 
     return (
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-outline-variant bg-surface-container-highest text-[10px] font-bold text-outline">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-outline-variant bg-surface-container-highest text-xs font-bold text-on-surface-variant">
         {getInitials(alt)}
       </div>
     );
@@ -187,7 +187,7 @@ export default function MatchHistoryTable({
         <div className="flex flex-wrap items-end gap-3 w-full xl:w-auto">
           {/* Search Input */}
           <div className="relative grow md:w-64 flex flex-col gap-1">
-            <label htmlFor="history-search" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">SEARCH</label>
+            <label htmlFor="history-search" className="text-xs text-[#879398] uppercase font-bold tracking-wider">SEARCH</label>
             <input
               id="history-search"
               autoComplete="off"
@@ -201,7 +201,7 @@ export default function MatchHistoryTable({
 
           {/* Date From Filter */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="history-from" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">From</label>
+            <label htmlFor="history-from" className="text-xs text-[#879398] uppercase font-bold tracking-wider">From</label>
             <input
               className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-[#879398] focus:border-primary-container"
               id="history-from"
@@ -213,7 +213,7 @@ export default function MatchHistoryTable({
 
           {/* Date To Filter */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="history-to" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">To</label>
+            <label htmlFor="history-to" className="text-xs text-[#879398] uppercase font-bold tracking-wider">To</label>
             <input
               className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-[#879398] focus:border-primary-container"
               id="history-to"
@@ -256,7 +256,7 @@ export default function MatchHistoryTable({
           <button
             type="button"
             onClick={onResetFilters}
-            className="bg-surface-container-highest text-outline px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5"
+            className="bg-surface-container-highest text-on-surface-variant px-4 py-2 text-xs uppercase font-bold border border-outline hover:bg-outline hover:text-surface transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5"
           >
             RESET
           </button>
@@ -276,7 +276,7 @@ export default function MatchHistoryTable({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-container-lowest text-outline text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant">
+            <tr className="bg-surface-container-lowest text-outline text-xs font-bold uppercase tracking-widest border-b border-outline-variant">
               <th className="px-6 py-4">#</th>
               <th className="px-6 py-4">GAME TYPE</th>
               <th className="px-6 py-4">OPPONENT</th>
@@ -317,7 +317,7 @@ export default function MatchHistoryTable({
                   key={match.id}
                   className="hover:bg-surface-container-highest/50 transition-colors group"
                 >
-                  <td className="px-6 py-4 text-outline font-arcade text-[10px]" title={match.id}>
+                  <td className="px-6 py-4 text-outline font-arcade text-xs" title={match.id}>
                     #{String(match.id).slice(-6).toUpperCase()}
                   </td>
                   <td className="px-6 py-4">{match.gameType}</td>
@@ -379,7 +379,7 @@ export default function MatchHistoryTable({
 
       {/* Pagination */}
       <div className="p-6 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-[10px] font-bold text-outline">
+        <p className="text-xs font-bold text-outline">
           SHOWING {matches.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-
           {Math.min(currentPage * itemsPerPage, totalMatches)} OF {totalMatches} MATCHES
         </p>
@@ -449,7 +449,7 @@ export default function MatchHistoryTable({
                   <button
                     key={`ellipsis-${idx}`}
                     onClick={() => setShowJumpInput(true)}
-                    className="px-3 py-1 text-xs text-outline/50 hover:text-primary transition-colors cursor-pointer hover:bg-surface-container-highest border border-outline-variant rounded"
+                    className="px-3 py-1 text-xs text-on-surface-variant hover:text-primary transition-colors cursor-pointer hover:bg-surface-container-highest border border-outline-variant rounded"
                     title="Click to jump to a page"
                   >
                     ...

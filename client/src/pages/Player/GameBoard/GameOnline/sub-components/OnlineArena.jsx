@@ -354,7 +354,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         {disconnectCountdown !== null && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                 <div role="status" aria-live="polite" className={`border-2 ${disconnectCountdown === 0 ? 'border-[#555]' : 'border-[#ff3d00]'} bg-[#1a0a0a] px-8 py-6 max-w-sm w-full text-center shadow-[0_0_40px_rgba(255,61,0,0.4)]`}>
-                    <p className="font-headline text-[10px] text-[#ff3d00] uppercase tracking-widest mb-2">
+                    <p className="font-headline text-xs text-[#ff3d00] uppercase tracking-widest mb-2">
                         {disconnectCountdown === 0 ? 'MATCH ABORTED' : 'CONNECTION LOST'}
                     </p>
                     <p className="font-mono text-[#e3e0f4] text-sm mb-4">
@@ -367,7 +367,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
                             {disconnectCountdown}<span className="ml-2 text-xs">SEC</span>
                         </div>
                     )}
-                    <p className="font-mono text-[10px] text-outline uppercase tracking-widest">
+                    <p className="font-mono text-xs text-outline uppercase tracking-widest">
                         {disconnectCountdown === 0
                             ? 'RETURNING TO LOBBY…'
                             : disconnectCountdown <= 10
@@ -382,7 +382,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         {reconnectFlash && (
           <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
             <div role="status" aria-live="polite" className="border-2 border-[#00e5ff] bg-[#001a1f] px-8 py-4 text-center shadow-[0_0_40px_rgba(0,229,255,0.4)]">
-              <p className="font-headline text-[10px] text-[#00e5ff] uppercase tracking-widest">
+              <p className="font-headline text-xs text-[#00e5ff] uppercase tracking-widest">
                 OPPONENT RECONNECTED
               </p>
             </div>
@@ -393,7 +393,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
           <div className="fixed top-20 right-6 lg:top-auto lg:bottom-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
-              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[10px] px-4 py-2 uppercase bg-[#b82b1a]
+              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-xs px-4 py-2 uppercase bg-[#b82b1a]
                        hover:text-[#b82b1a] hover:bg-[#ffff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] cursor-pointer"
             >
               ABORT

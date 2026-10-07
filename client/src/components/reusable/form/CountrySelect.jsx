@@ -152,7 +152,7 @@ export const CountrySelect = ({
                     className="mt-1 w-full bg-surface-card border border-outline-variant shadow-lg max-h-64 overflow-y-auto rounded-sm"
                 >
                     {error ? (
-                            <div className="p-3 text-[#ffb4ab] text-[10px]">
+                            <div className="p-3 text-[#ffb4ab] text-xs">
                             Failed to load countries
                         </div>
                     ) : (

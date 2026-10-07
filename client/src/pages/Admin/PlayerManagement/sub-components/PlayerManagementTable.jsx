@@ -20,7 +20,7 @@ export default function PlayerManagementTable({ players, onToggleStatus, actionL
 		}
 
 		return (
-			<div className="flex h-full w-full items-center justify-center bg-slate-900 text-[10px] font-bold tracking-widest text-outline">
+			<div className="flex h-full w-full items-center justify-center bg-slate-900 text-xs font-bold tracking-widest text-outline">
 				{(player.name || "").slice(0, 2).toUpperCase()}
 			</div>
 		);
@@ -51,12 +51,12 @@ export default function PlayerManagementTable({ players, onToggleStatus, actionL
 			<table className="w-full border-collapse text-left font-['IBM_Plex_Mono'] text-sm">
 				<thead>
 					<tr className="border-b border-outline-variant bg-surface-container-high">
-						<th className="hidden xl:table-cell px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">ID</th>
-						<th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Player</th>
-						<th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Email Node</th>
-						<th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Premium</th>
-						<th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Status</th>
-						<th className="sticky right-0 bg-[#292937] px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-outline">Action</th>
+						<th className="hidden xl:table-cell px-6 py-4 text-xs font-bold uppercase tracking-widest text-outline">ID</th>
+						<th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-outline">Player</th>
+						<th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-outline">Email Node</th>
+						<th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-widest text-outline">Premium</th>
+						<th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-widest text-outline">Status</th>
+						<th className="sticky right-0 bg-inherit px-6 py-4 text-center text-xs font-bold uppercase tracking-widest text-outline">Action</th>
 					</tr>
 				</thead>
 				<tbody className="divide-y divide-outline-variant">
@@ -87,18 +87,18 @@ export default function PlayerManagementTable({ players, onToggleStatus, actionL
 							</td>
 							<td className="px-6 py-4 text-center">
 								<span
-									className={`inline-block border px-3 py-1 text-[10px] font-bold tracking-widest ${player.statusBorder} ${player.statusBg} ${player.statusText}`}
+									className={`inline-block border px-3 py-1 text-xs font-bold tracking-widest ${player.statusBorder} ${player.statusBg} ${player.statusText}`}
 									style={player.statusStyle}
 								>
 									{player.status}
 								</span>
 							</td>
-							<td className="sticky right-0 bg-surface-card px-6 py-4 text-center">
+							<td className="sticky right-0 bg-inherit px-6 py-4 text-center">
 								<button
 									type="button"
 									onClick={() => onToggleStatus?.(player)}
 									disabled={actionLoadingId === player.id}
-									className={`inline-flex items-center justify-center border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5 ${player.actionClass}`}
+									className={`inline-flex items-center justify-center border px-4 py-2 text-xs font-bold uppercase tracking-widest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] active:translate-y-0.5 ${player.actionClass}`}
 									style={player.actionStyle}
 								>
 									{actionLoadingId === player.id ? "Working…" : player.actionLabel}

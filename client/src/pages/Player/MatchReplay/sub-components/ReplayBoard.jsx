@@ -22,12 +22,12 @@ export default function ReplayBoard({ boardState, boardSize, playerX = {}, playe
                 >
                     {/* Top Labels */}
                     <div className="col-start-2 flex justify-between px-1">
-                        {columns.map(c => <span key={c} className="w-full text-center text-[10px] text-[#879398] font-mono">{c}</span>)}
+                        {columns.map(c => <span key={c} className="w-full text-center text-xs text-[#879398] font-mono">{c}</span>)}
                     </div>
 
                     {/* Left Labels */}
                     <div className="row-start-2 flex flex-col justify-between py-1 px-1">
-                        {rows.map(r => <span key={r} className="h-full flex items-center text-[10px] text-[#879398] font-mono">{r}</span>)}
+                        {rows.map(r => <span key={r} className="h-full flex items-center text-xs text-[#879398] font-mono">{r}</span>)}
                     </div>
 
                     {/* Main Board Grid */}
@@ -70,12 +70,12 @@ export default function ReplayBoard({ boardState, boardSize, playerX = {}, playe
 
                     {/* Right Labels */}
                     <div className="row-start-2 col-start-3 flex flex-col justify-between py-1 px-1">
-                        {rows.map(r => <span key={r} className="h-full flex items-center text-[10px] text-[#879398] font-mono">{r}</span>)}
+                        {rows.map(r => <span key={r} className="h-full flex items-center text-xs text-[#879398] font-mono">{r}</span>)}
                     </div>
 
                     {/* Bottom Labels */}
                     <div className="col-start-2 row-start-3 flex justify-between px-1">
-                        {columns.map(c => <span key={c} className="w-full text-center text-[10px] text-[#879398] font-mono">{c}</span>)}
+                        {columns.map(c => <span key={c} className="w-full text-center text-xs text-[#879398] font-mono">{c}</span>)}
                     </div>
                 </div>
             </div>

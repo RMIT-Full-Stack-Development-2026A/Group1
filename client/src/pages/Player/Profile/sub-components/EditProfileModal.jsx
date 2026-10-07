@@ -65,7 +65,7 @@ export default function EditProfileModal({
 
   // Reusable criteria checkbox component
   const CriteriaCheckbox = ({ met, label }) => (
-    <div className="flex items-center gap-2 text-[10px] uppercase font-mono">
+    <div className="flex items-center gap-2 text-xs uppercase font-mono">
       <span
         className={`w-4 h-4 flex items-center justify-center border ${
           met ? "bg-[#5cb85c] border-[#5cb85c]" : "bg-[#ffb4ab] border-[#ffb4ab]"
@@ -194,7 +194,7 @@ export default function EditProfileModal({
           {/* Country */}
           {/* Country */}
           <div className="space-y-2">
-            <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
               Regional Sector
             </label>
             <CountrySelect

@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   if (error) {
     return (
       <main className="max-w-7xl mx-auto p-8">
-        <div className="bg-error-container/20 border border-error-container text-error-container p-6 text-center">
+        <div className="bg-error-container/20 border border-error-container text-error p-6 text-center">
           Error loading dashboard: {error}
         </div>
       </main>

@@ -57,7 +57,7 @@ export default function ChatOverlay({
                     }}
                 >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e2a30]">
-                        <span className="text-[10px] font-bold tracking-widest text-[#4cc9f0] uppercase font-mono">
+                        <span className="text-xs font-bold tracking-widest text-[#4cc9f0] uppercase font-mono">
                             Match Chat
                         </span>
                         <button onClick={onClose} className="text-[#879398] hover:text-[#e3e0f4] text-xs transition-colors">✕</button>
@@ -65,17 +65,17 @@ export default function ChatOverlay({
 
                     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0" style={{ maxHeight: '280px' }}>
                         {messages.length === 0 && (
-                            <p className="text-[10px] text-[#879398] text-center pt-8 uppercase tracking-widest font-mono">
+                            <p className="text-xs text-[#879398] text-center pt-8 uppercase tracking-widest font-mono">
                                 No messages yet…
                             </p>
                         )}
                         {messages.map(msg => (
                             <div key={msg.id} className={`flex flex-col ${isOwn(msg.sender) ? 'items-end' : 'items-start'}`}>
-                                <span className="text-[10px] text-[#879398] mb-1 uppercase tracking-wider font-mono">
+                                <span className="text-xs text-[#879398] mb-1 uppercase tracking-wider font-mono">
                                     {getSenderLabel(msg.sender)} · {msg.ts}
                                 </span>
                                 <div
-                                    className="px-3 py-2 text-[11px] leading-relaxed max-w-[80%] font-mono break-words"
+                                    className="px-3 py-2 text-xs leading-relaxed max-w-[80%] font-mono break-words"
                                     style={{
                                         background: isOwn(msg.sender)
                                             ? 'rgba(123,97,255,0.22)'
@@ -97,7 +97,7 @@ export default function ChatOverlay({
 
                         {opponentIsTyping && (
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-[#4cc9f0] uppercase tracking-wider font-mono">
+                                <span className="text-xs text-[#4cc9f0] uppercase tracking-wider font-mono">
                                     {opponentName} is typing
                                 </span>
                                 {[0, 1, 2].map(i => (
@@ -123,12 +123,12 @@ export default function ChatOverlay({
                                 onKeyDown={handleKeyDown}
                                 placeholder="TYPE MSG…"
                                 maxLength={MAX_CHARS}
-                                className="flex-1 bg-transparent text-[11px] text-[#e3e0f4] placeholder-[#879398] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase tracking-wider font-mono"
+                                className="flex-1 bg-transparent text-xs text-[#e3e0f4] placeholder-[#879398] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase tracking-wider font-mono"
                             />
                             <button
                                 onClick={handleSend}
                                 disabled={!input.trim()}
-                                className="text-[#4cc9f0] text-[10px] font-bold uppercase tracking-widest font-mono disabled:opacity-30 hover:text-white transition-colors"
+                                className="text-[#4cc9f0] text-xs font-bold uppercase tracking-widest font-mono disabled:opacity-30 hover:text-white transition-colors"
                             >
                                 SEND
                             </button>
@@ -139,7 +139,7 @@ export default function ChatOverlay({
 
             <button
                 onClick={onToggle}
-                className="flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest font-mono transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:scale-105 relative"
+                className="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-widest font-mono transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:scale-105 relative"
                 style={{
                     background: unreadCount > 0 ? 'rgba(255,61,0,0.18)' : 'rgba(76,201,240,0.08)',
                     border:     `1px solid ${unreadCount > 0 ? 'rgba(255,61,0,0.6)' : 'rgba(76,201,240,0.3)'}`,
@@ -151,7 +151,7 @@ export default function ChatOverlay({
                 </span>
                 CHAT
                 {unreadCount > 0 && !isOpen && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] rounded-full bg-[#ff3d00] text-white text-[10px] font-bold flex items-center justify-center px-1">
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] rounded-full bg-[#ff3d00] text-[#0d0d1a] text-xs font-bold flex items-center justify-center px-1">
                         {unreadCount}
                     </span>
                 )}

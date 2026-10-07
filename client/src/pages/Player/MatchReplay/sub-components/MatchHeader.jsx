@@ -15,7 +15,7 @@ const MatchHeader = ({ session }) => {
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-4">
                     <h1 className="font-headline text-2xl text-[#fad100] uppercase tracking-tight">MATCH REPLAY</h1>
-                    <span className="bg-secondary-container text-[#fad100] px-3 py-1 flex items-center gap-2 text-[10px] font-bold border-2 border-on-secondary-container chunky-shadow">
+                    <span className="bg-[#fad100]/10 text-[#fad100] px-3 py-1 flex items-center gap-2 text-xs font-bold border-2 border-[#fad100] chunky-shadow">
                         <span aria-hidden="true" className="font-headline material-symbols-outlined text-[#fad100]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
                         PREMIUM
                     </span>

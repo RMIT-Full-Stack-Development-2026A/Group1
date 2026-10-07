@@ -45,8 +45,8 @@ export default function ReplayControls({
         <div className="fixed bottom-0 left-0 right-0 z-50 w-full bg-[#0d0d1a] border-4 border-[#3d484d] border-b-2 shadow-[0_-4px_24px_rgba(0,0,0,0.7)] px-3 sm:px-6 lg:px-8 py-4 border-surface-container">
             <div className="mx-auto w-full max-w-[1200px] mb-5">
                 <div className="flex justify-between mb-1">
-                    <span className="font-mono text-[10px] text-[#4cc9f0]">STEP {currentStep || '--'}</span>
-                    <span className="font-mono text-[10px] text-[#879398]">{totalMoves} MOVES</span>
+                    <span className="font-mono text-xs text-[#4cc9f0]">STEP {currentStep || '--'}</span>
+                    <span className="font-mono text-xs text-[#879398]">{totalMoves} MOVES</span>
                 </div>
                 <div
                     role="slider"
@@ -85,7 +85,7 @@ export default function ReplayControls({
                             type="button"
                             aria-pressed={speed === value}
                             onClick={() => onSetSpeed(value)}
-                            className={`px-3 py-1 cursor-pointer border font-body uppercase tracking-widest text-[10px] transition-colors ${
+                            className={`px-3 py-1 cursor-pointer border font-body uppercase tracking-widest text-xs transition-colors ${
                                 speed === value
                                     ? 'bg-[#4cc9f0] text-[#003543] border-[#4cc9f0] shadow-[2px_2px_0px_#005266] font-bold'
                                     : 'bg-[#1e1e2c] text-[#879398] border-[#3d484d] hover:border-[#4cc9f0] hover:text-[#4cc9f0]'

@@ -45,11 +45,11 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
         onClick={toggleChat}
         type="button"
         aria-expanded={isChatOpen}
-        className="relative flex items-center text-[#3b2f00] cursor-pointer gap-2 border border-[#3d484d] bg-[#1e1e2c] px-4 py-2 font-headline text-[11px] text-[#bcc8ce] hover:border-[#4cc9f0] hover:text-[#4cc9f0] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] shadow-[2px_2px_0px_#343342]"
+        className="relative flex items-center text-[#3b2f00] cursor-pointer gap-2 border border-[#3d484d] bg-[#1e1e2c] px-4 py-2 font-headline text-xs text-[#bcc8ce] hover:border-[#4cc9f0] hover:text-[#4cc9f0] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] shadow-[2px_2px_0px_#343342]"
       >
         CHAT
         {unreadCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-[#fad100] text-[#3b2f00] font-headline text-[10px] px-1.5 py-0.5 min-w-[18px] text-center">
+          <span className="absolute -top-2 -right-2 bg-[#fad100] text-[#3b2f00] font-headline text-xs px-1.5 py-0.5 min-w-[18px] text-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -70,23 +70,23 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#3d484d]">
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 bg-[#4cc9f0]" />
-              <span className="font-headline text-[10px] text-[#4cc9f0] tracking-widest">MATCH CHAT</span>
+              <span className="font-headline text-xs text-[#4cc9f0] tracking-widest">MATCH CHAT</span>
             </div>
             <button type="button" onClick={toggleChat} aria-label="Close chat" className="text-[#879398] hover:text-on-surface text-xs transition-colors font-mono">✕</button>
           </div>
 
           <div role="log" aria-live="polite" className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0 max-h-[260px]">
             {messages.length === 0 && (
-              <p className="font-mono text-[10px] text-outline text-center pt-8 uppercase tracking-widest">No messages yet…</p>
+              <p className="font-mono text-xs text-outline text-center pt-8 uppercase tracking-widest">No messages yet…</p>
             )}
 
             {messages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.isOwn ? 'items-end' : 'items-start'}`}>
-                <span className="font-mono text-[10px] text-outline mb-1 uppercase tracking-wider">
+                <span className="font-mono text-xs text-outline mb-1 uppercase tracking-wider">
                   {msg.senderName} · {formatTimestamp(msg.timestamp)}
                 </span>
                 <div
-                  className={`px-3 py-2 font-mono text-[11px] leading-relaxed max-w-[80%] break-words text-on-surface ${msg.isOwn ? 'bg-[#123348]/90 border border-[#4cc9f0]/40 shadow-[0_0_10px_rgba(76,201,240,0.15)]'
+                  className={`px-3 py-2 font-mono text-xs leading-relaxed max-w-[80%] break-words text-on-surface ${msg.isOwn ? 'bg-[#123348]/90 border border-[#4cc9f0]/40 shadow-[0_0_10px_rgba(76,201,240,0.15)]'
                     : 'bg-[#232337]/90 border border-[#3d484d] shadow-[2px_2px_0px_#161621]'}`}
                 >
                   {msg.message}
@@ -99,7 +99,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
 
           {sendError && (
             <div className="px-4 py-2 border-t border-error/30 bg-error-container/20">
-              <p className="font-mono text-[10px] text-error uppercase tracking-widest">{sendError}</p>
+              <p className="font-mono text-xs text-error uppercase tracking-widest">{sendError}</p>
             </div>
           )}
 
@@ -118,7 +118,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
                 bg-[#1a1a2b]
                 border border-[#3d484d]
                 text-[#d7e3ea]
-                font-mono text-[11px]
+                font-mono text-xs
                 px-3 py-2
                 placeholder:text-[#6f7b80]
                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0]
@@ -132,7 +132,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
                 border border-[#4cc9f0]
                 text-[#4cc9f0]
                 bg-[#4cc9f0]/5
-                font-headline text-[10px]
+                font-headline text-xs
                 px-4 py-2
                 hover:bg-[#4cc9f0]/15
                 hover:shadow-[0_0_10px_rgba(76,201,240,0.2)]

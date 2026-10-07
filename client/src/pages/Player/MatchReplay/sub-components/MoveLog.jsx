@@ -24,15 +24,15 @@ export default function MoveLog({ moveLog, currentStep, boardSize, onJumpToStep,
     return (
         <div className="h-full min-h-[500px] flex flex-col bg-surface border border-outline-variant chunky-shadow overflow-hidden">
             <div className="h-15 bg-primary-container flex items-center px-4 justify-between shrink-0">
-                <span className="text-[#5bd5fc] font-bold text-[10px] uppercase tracking-widest font-body">
+                <span className="text-[#003543] font-bold text-xs uppercase tracking-widest font-body">
                     MOVE_LOG
                 </span>
-                <span className="text-[#5bd5fc] font-bold text-[10px] font-body">
+                <span className="text-[#003543] font-bold text-xs font-body">
                     {moveLog.length} ROUNDS
                 </span>
             </div>
 
-            <div className="grid grid-cols-[40px_1fr_1fr] gap-2 text-[10px] font-body text-outline px-4 py-2 border-b border-outline-variant/40 uppercase tracking-widest shrink-0">
+            <div className="grid grid-cols-[40px_1fr_1fr] gap-2 text-xs font-body text-outline px-4 py-2 border-b border-outline-variant/40 uppercase tracking-widest shrink-0">
                 <span>#</span>
                 <span className="truncate">X: {getPlayerLabel(playerX)}</span>
                 <span className="truncate text-right">O: {getPlayerLabel(playerO)}</span>

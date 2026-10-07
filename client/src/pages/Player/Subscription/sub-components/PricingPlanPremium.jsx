@@ -13,7 +13,7 @@ export default function PricingPlanPremium({ isPremium, onScrollToStatus }) {
                 </div>
                 <div className="text-right">
                     <span className="font-headline text-2xl text-[#fad100]">$10</span>
-                    <p className="text-[10px] font-mono text-[#fff0c4]">PER CYCLE (MONTH)</p>
+                    <p className="text-xs font-mono text-[#fff0c4]">PER CYCLE (MONTH)</p>
                 </div>
             </div>
             <ul className="space-y-4 mb-8 flex-grow">
@@ -25,7 +25,7 @@ export default function PricingPlanPremium({ isPremium, onScrollToStatus }) {
             {isPremium ? (
                 <SoundButton
                     disabled
-                    className="w-full bg-[#fad100] text-[#6d5a00] font-headline text-xs py-4 opacity-60 cursor-not-allowed"
+                    className="w-full bg-[#fad100] text-[#3b2f00] font-headline text-xs py-4 cursor-default"
                 >
                     CURRENT STATUS
                 </SoundButton>

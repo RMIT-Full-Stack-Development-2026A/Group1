@@ -11,7 +11,7 @@ export default function PlayerManagementPagination({ page, totalPlayers, pageSiz
 
 	return (
 		<section className="flex flex-col gap-4 border border-outline-variant bg-surface-container p-4 font-['IBM_Plex_Mono'] md:flex-row md:items-center md:justify-between">
-			<span className="text-[10px] uppercase tracking-widest text-outline">
+			<span className="text-xs uppercase tracking-widest text-outline">
 				Displaying {startIndex}-{endIndex} of {formatInteger(totalPlayers)} MEMBERS
 			</span>
 

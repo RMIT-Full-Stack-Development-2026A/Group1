@@ -36,7 +36,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
         >
             <div className="flex justify-between items-center px-4 py-3 border-b-2 border-outline-variant bg-deep-bg">
                 <span className="font-mono text-xs text-primary-cyan font-bold">ROOM #{room.roomNumber}</span>
-                <span className="font-mono text-[10px] text-outline bg-deep-bg px-2 py-1 border border-outline-variant">{room.boardSize}</span>
+                <span className="font-mono text-xs text-outline bg-deep-bg px-2 py-1 border border-outline-variant">{room.boardSize}</span>
             </div>
 
             {/* Room Content */}
@@ -49,8 +49,8 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                             {renderAvatar(room.hostAvatarUrl, room.host)}
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-mono text-[10px] text-outline uppercase tracking-wide">{room.host}</span>
-                            <span className="font-mono text-[10px] text-[#fad100] uppercase" title={room.hostUserId}>#{formatRoomParticipantId(room.hostUserId || room.hostRank)}</span>
+                            <span className="font-mono text-xs text-outline uppercase tracking-wide">{room.host}</span>
+                            <span className="font-mono text-xs text-[#fad100] uppercase" title={room.hostUserId}>#{formatRoomParticipantId(room.hostUserId || room.hostRank)}</span>
                         </div>
                     </div>
 
@@ -65,8 +65,8 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                             {renderAvatar(room.opponentAvatarUrl, room.opponent || 'WAITING')}
                         </div>
                         <div className="flex flex-col items-end">
-                            <span className="font-mono text-[10px] text-primary-cyan font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>
-                            <span className="font-mono text-[10px] text-[#fad100] uppercase" title={room.opponentUserId}>#{formatRoomParticipantId(room.opponentUserId || room.opponentRank)}</span>
+                            <span className="font-mono text-xs text-primary-cyan font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>
+                            <span className="font-mono text-xs text-[#fad100] uppercase" title={room.opponentUserId}>#{formatRoomParticipantId(room.opponentUserId || room.opponentRank)}</span>
                         </div>
                     </div>
                 </div>

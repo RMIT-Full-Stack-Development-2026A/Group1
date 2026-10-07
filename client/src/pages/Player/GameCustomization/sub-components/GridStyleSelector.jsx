@@ -64,8 +64,8 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                     style.displayId === "dark" ? 
                                     "bg-[#4cc9f0] text-[#003543] drop-shadow-[0_0_5px_#4cc9f0]" : 
                                     style.displayId === "jungle" ? 
-                                    "bg-[#27872c] text-[#003543] drop-shadow-[0_0_5px_#27872c]": 
-                                    "bg-[#ff3d00] text-[#003543] drop-shadow-[0_0_5px_#ff3d00]"
+                                    "bg-[#2f9a34] text-[#0d0d1a] drop-shadow-[0_0_5px_#2f9a34]": 
+                                    "bg-[#ff3d00] text-[#0d0d1a] drop-shadow-[0_0_5px_#ff3d00]"
                                 }`}
                             >
 

@@ -58,7 +58,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
   return (
     <section 
-      className="border border-outline-variant p-6 relative flex flex-col md:flex-row justify-between items-center gap-6"
+      className="border border-outline-variant p-6 relative flex flex-col lg:flex-row justify-between items-center gap-6"
       style={{ backgroundColor: "#1b1c2c" }}
     >
       <div 
@@ -130,7 +130,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
           {/* Error Message */}
           {uploadError && (
-            <div className="absolute -bottom-8 left-0 right-0 whitespace-nowrap text-[10px] text-error-container bg-error-container bg-opacity-20 p-1 rounded-none text-center">
+            <div className="absolute -bottom-8 left-0 right-0 whitespace-nowrap text-xs text-error bg-error-container bg-opacity-20 p-1 rounded-none text-center">
               {uploadError}
             </div>
           )}
@@ -146,7 +146,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                 </h2>
                 {playerData.isPremium && (
                   <div
-                    className="bg-secondary-container text-[#fad100] px-3 py-1 flex items-center gap-2 text-[10px] font-bold border-2 border-on-secondary-container chunky-shadow"
+                    className="bg-[#fad100]/10 text-[#fad100] px-3 py-1 flex items-center gap-2 text-xs font-bold border-2 border-[#fad100] chunky-shadow"
                     title="Premium"
                   >
                     <span aria-hidden="true"

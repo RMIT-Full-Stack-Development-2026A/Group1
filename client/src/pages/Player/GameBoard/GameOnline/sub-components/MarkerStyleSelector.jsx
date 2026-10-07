@@ -12,7 +12,7 @@ export default function MarkerStyleSelector({
         <section className="w-full md:w-[260px] shrink-0 flex flex-col gap-3 bg-[#12121f] border border-outline-variant px-4 py-3 shadow-[2px_2px_0px_#343342]">
             <div className="flex items-center gap-2">
                 <div className="w-1 h-4 bg-primary-cyan" />
-                <span className="font-mono text-[10px] text-primary-cyan uppercase tracking-widest">
+                <span className="font-mono text-xs text-primary-cyan uppercase tracking-widest">
                     {title}
                 </span>
             </div>
@@ -53,7 +53,7 @@ export default function MarkerStyleSelector({
                                     </>
                                 )}
                             </div>
-                            <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">
+                            <span className="font-mono text-xs text-[#879398] uppercase tracking-widest">
                                 {variant.id}
                             </span>
                         </button>

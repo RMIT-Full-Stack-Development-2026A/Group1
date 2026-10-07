@@ -15,12 +15,12 @@ export default function ReadyButton({ isReady, isDisabled, onReady, onUnready })
     if (onUnready) onUnready();
   };
 
-  const base = "border-2 font-headline text-[10px] px-8 py-2 uppercase tracking-widest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] max-w-[320px]";
+  const base = "border-2 font-headline text-xs px-8 py-2 uppercase tracking-widest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] max-w-[320px]";
 
   if (isDisabled) {
     return (
       <button type="button" disabled
-        className={`${base} border-outline-variant text-outline opacity-40 cursor-not-allowed`}
+        className={`${base} border-outline-variant text-[#bcc8ce] cursor-not-allowed`}
       >
 
         WAITING FOR OPPONENT

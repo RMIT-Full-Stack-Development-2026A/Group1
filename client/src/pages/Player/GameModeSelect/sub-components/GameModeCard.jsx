@@ -41,7 +41,7 @@ const GameModeCard = ({ mode, onSelect }) => {
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: '#4cc9f0', boxShadow: '0 0 5px #4cc9f0' }}
           ></span>
-          <span className="text-primary-container text-[10px] font-bold">{badge}</span>
+          <span className="text-primary-container text-xs font-bold">{badge}</span>
         </div>
       )}
 
@@ -65,7 +65,7 @@ const GameModeCard = ({ mode, onSelect }) => {
       <div className="mt-auto w-full">
         <button
           onClick={handleClick}
-          className={`w-full cursor-pointer py-4 font-headline text-[10px] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] flex items-center justify-center gap-2 chunky-offset-active ${
+          className={`w-full cursor-pointer py-4 font-headline text-xs transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] flex items-center justify-center gap-2 chunky-offset-active ${
             buttonStyle === 'filled'
               ? 'bg-primary-container text-on-primary hover:drop-shadow-[0_0_8px_rgba(76,201,240,0.4)]'
               : 'border-2 border-primary-container text-primary-container hover:bg-primary-container/10'

@@ -8,7 +8,7 @@ export default function RegisterPage() {
 
     // Criteria checkbox component
     const CriteriaCheckbox = ({ met, label }) => (
-        <div className="flex items-center gap-2 text-[10px] uppercase font-mono">
+        <div className="flex items-center gap-2 text-xs uppercase font-mono">
             <span className={`w-4 h-4 flex items-center justify-center border ${
                 met 
                     ? "bg-[#5cb85c] border-[#5cb85c]"
@@ -92,7 +92,7 @@ export default function RegisterPage() {
 
                         {/* Country */}
                         <div className="space-y-2">
-                            <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+                            <label className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                 Regional Sector
                             </label>
                             <CountrySelect
@@ -104,7 +104,7 @@ export default function RegisterPage() {
                                 countries={countries}
                             />
                             {countriesError && (
-                                <p className="text-[10px] text-[#ffb4ab]">
+                                <p className="text-xs text-[#ffb4ab]">
                                     Failed to load countries. Please try again.
                                 </p>
                             )}
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                     <div className="mt-8 pt-6 border-t border-[#3d484d] text-center">
                         <button
                             onClick={handleLoginNav}
-                            className="text-[10px] tracking-[0.2em] text-[#4cc9f0] hover:underline uppercase font-bold cursor-pointer"
+                            className="text-xs tracking-[0.2em] text-[#4cc9f0] hover:underline uppercase font-bold cursor-pointer"
                         >
                             Already have an account? LOGIN
                         </button>

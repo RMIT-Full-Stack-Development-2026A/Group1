@@ -22,7 +22,7 @@ export default function PricingPlanFree({ isPremium }) {
             </ul>
             <SoundButton
                 disabled
-                className="w-full border border-[#3d484d] text-[#879398] font-headline text-xs py-4 opacity-40 cursor-not-allowed"
+                className="w-full border border-[#3d484d] text-[#bcc8ce] font-headline text-xs py-4 cursor-default"
             >
                 {isPremium ? 'ENJOY YOUR PREMIUM BENEFITS' : 'CURRENT PLAN'}
             </SoundButton>

@@ -1,6 +1,6 @@
 # TicTacToang UI Audit Report
 
-Date: 2026-10-06, updated 2026-10-07 after the second fix pass (console group, accessibility, guidelines, copy)
+Date: 2026-10-06, updated 2026-10-08 after the third fix pass (dead Tailwind classes, text size, icon library, URL state, disabled contrast)
 Scope: live responsive check with playwright-cli (desktop 1440x900, tablet 768x1024, mobile 390x844, plus 1024x768 for the game board) and a static review of `client/src/pages` and `client/src/components` against the Web Interface Guidelines.
 Screenshots (not committed): `.playwright-shots/`. Originals are named `<page>-<size>.png`, post-fix shots `fix-*.png`.
 
@@ -26,8 +26,8 @@ Status key: **Fixed** = changed and confirmed in the browser. **Fixed (code only
 | URL state for filters | Fixed (profile verified; admin players code only; room and session monitors not done) |
 | Copy: abort label, duplicate heading, raw IDs, revenue footer, lobby empty state | Fixed |
 | Layout leftovers: READY below the fold on stacked match lobby, chat panel covering the left card | Open (excluded on purpose) |
-| Dead Tailwind classes (`tailwind.config.js` never loaded) | Open, deliberately not changed (see 4) |
-| Remaining tiny text (10 px) and mixed icon libraries | Open |
+| Dead Tailwind classes (`tailwind.config.js` never loaded) | Fixed (tokens defined, conflicts resolved, contrast scan clean) |
+| Small text and mixed icon libraries | Fixed (12 px minimum; one icon family) |
 
 Three earlier claims were wrong and are retracted in section 2.
 
@@ -64,6 +64,8 @@ Three earlier claims were wrong and are retracted in section 2.
 | L23 | Admin rooms mobile: title "GAME ROOMS MANAGEMENT" overflowed | Fixed | Smaller size and `break-words` on mobile. |
 | L24 | Replay desktop and tablet: no result shown; ambiguous date | Fixed | Header names the winner; date uses `Intl.DateTimeFormat`. |
 | L26 | Offline board at tablet and mobile: CHAT button sat on cell A10 and partly blocked clicks | Fixed | Moved to the reserved top strip below `lg`. |
+| D1 | Dead Tailwind classes: `tailwind.config.js` never loaded, so 23 color tokens used in 45 files (about 370 uses) did nothing | Fixed | All 54 config colors are now defined in `@theme`, so classes render as authored. Combinations that conflicted were fixed: PREMIUM badges (yellow on yellow), replay MOVE_LOG header (cyan on cyan), dark-red error text, the LOSSES value and bar, grey-on-grey buttons, the grid-style labels, difficulty chips. An automated contrast scan over every text element on all guest and player pages and both profile modals, the offline board and the abort modal reports 0 failures. |
+| T6 | Disabled-looking status buttons were hard to read (CURRENT PLAN, ENJOY YOUR PREMIUM BENEFITS, CURRENT STATUS, WAITING FOR OPPONENT) | Fixed | Opacity dimming removed; readable colors. |
 | L27 | Low-contrast text and placeholders (`opacity-30` placeholders, `#3d484d` text, `#6d706d` status text) | Fixed | Replaced with `#879398` (5.9 to 1 on the dark surfaces). |
 | L25 | Pages 15px narrower than the viewport (`scrollWidth` 1425 vs 1440) | Retracted | This is the vertical scrollbar width, not an overflow. |
 
@@ -115,10 +117,10 @@ Three earlier claims were wrong and are retracted in section 2.
 | G9 | `loading="lazy"` only on admin avatars | Fixed | Added to history avatars, country list flags and grid-style previews. |
 | G10 | `autoFocus` (2 places) | Left as is | Both are user-triggered. |
 | G11 | No `tabular-nums` on number columns; no `text-balance` on headings | Fixed | Global rules: `table { font-variant-numeric: tabular-nums }` and `h1, h2, h3 { text-wrap: balance }`. |
-| G12 | About 169 uses of 8 to 10 px text | Partly fixed | All 38 uses of 8 px and 9 px raised to 10 px. The 10 px text (about 170 uses) remains. |
-| G13 | Match history and admin filters, sorting and pagination held in `useState`, not the URL | Fixed (profile verified, admin code only) | Applied filters, sort and page sync to the query string (`?result=WIN&type=ONLINE_MATCH`, `?q=&status=&page=`). Verified live on the profile (filtered URL pre-applies the filter, RESET and FILTER clears it). The admin players hook uses the same helper but needs the admin role to test. The admin room and session monitors are not synced yet. |
+| G12 | Small text (about 169 uses of 10 px, plus 11 px) | Fixed | Every `text-[10px]` and `text-[11px]` is now `text-xs` (12 px). A scan of every guest and player page at desktop, tablet and mobile finds no page overflow and no clipped text. |
+| G13 | Match history and admin filters, sorting and pagination held in `useState`, not the URL | Fixed (profile verified; admin code only) | Profile and admin players sync to the query string. The admin room and session monitors now do too (`?view=sessions&rq=&rpage=&sn=&sq=&from=&to=&status=&spage=`); a page restored from the URL is no longer wiped by the first load. The admin pages need the admin role to verify. |
 | G14 | No `translate="no"` on the brand name | Fixed | Navbar logo, landing title and footer line. |
-| G15 | Material Symbols and `lucide-react` both in use | Open | |
+| G15 | Material Symbols and `lucide-react` both in use | Fixed | All 8 files moved to a shared `components/common/Icon.jsx` (Material Symbols); `lucide-react` is removed from the code and from `package.json`. |
 | G16 | Straight quotes in the landing copy | Fixed | Curly quotes. |
 
 ### 2.5 Retracted findings
@@ -158,6 +160,8 @@ Fixed in code but not seen working live:
 - URL state on the admin players page, and anything else behind the admin role (the test account is currently PLAYER).
 - Chat delivery to the other player's screen and any delay between the two screens.
 
+Also verified live with the admin role (2026-10-08): `/admin`, `/admin/players` and `/admin/rooms` at desktop, tablet and mobile show 0 contrast failures, 0 unnamed controls, no page overflow or clipped text, a clean console and no failed requests. URL state works in both directions on the players list (`?q=&status=&page=`; RESET clears the URL; reload restores) and on the room and session monitors (`?view=sessions&sq=&status=&spage=` and `?rq=`; a restored page such as `spage=3` is kept). The pinned Action column on the players list now matches the row color.
+
 Not tested: the local-arena board (it shares the offline board code), and the PayPal checkout flow.
 
 `vite build` passes. The client has no test suite. This round added no lint errors (33 before and 33 after across the changed files; the three new files are clean). The pre-existing lint errors (unused variables, `no-dupe-keys`, React compiler warnings) are untouched.
@@ -166,10 +170,7 @@ Not tested: the local-arena board (it shares the offline board code), and the Pa
 
 ## 4. What is still open
 
-1. **Layout (excluded from this round on request):** the READY button is below the fold in the stacked match lobby on mobile and tablet, and the chat panel covers the left player card.
-2. **Dead Tailwind classes.** `tailwind.config.js` is not loaded under Tailwind v4 (no `@config` line in `index.css`), so classes such as `text-outline`, `text-on-surface`, `text-primary`, `bg-primary-container` and `text-secondary-container` do nothing. Defining them all was tried and backed out: it turns the PREMIUM badge into yellow text on a solid yellow block and the replay MOVE_LOG header into an unreadable cyan bar, because the components also hard-code their own colors. These classes were not the cause of the low-contrast text (undefined text classes inherit a bright color); the real low-contrast spots were fixed directly. Cleaning this up means deciding, component by component, which look is intended.
-3. **URL state for the admin room and session monitors,** and verifying the admin players URL state with the admin role.
-4. **Text size:** about 170 uses of 10 px text remain.
-5. **Icon libraries:** Material Symbols and `lucide-react` are both still used.
-6. **Remaining unverified items** in section 3 (disconnect countdown, chat latency between two screens).
-7. **Cleanup:** the pre-existing lint errors, and the `autoFocus` on the lobby jump input and profile page input (both user-triggered, left on purpose).
+1. **Layout (held for discussion):** the READY button is below the fold in the stacked match lobby on mobile and tablet, and the chat panel covers the left player card.
+2. **Online screens after the third fix pass** need a second player: match lobby and online board (token colors, 12 px text, chat).
+3. **Remaining unverified items:** the disconnect countdown (needs a second player who drops), chat delivery and delay between two screens, the local-arena board, the PayPal checkout flow.
+4. **Cleanup:** the pre-existing lint errors (68 errors, 6 warnings, mostly unused variables, plus a real duplicate key `playerTwoName` in the room monitor hook and two useless `catch` blocks), and the `autoFocus` on the lobby jump input and the profile page input (both user-triggered, left on purpose).

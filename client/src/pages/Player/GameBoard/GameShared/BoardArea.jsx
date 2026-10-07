@@ -40,14 +40,14 @@ const BoardArea = ({
                 {/* Top labels */}
                 <div className="col-start-2 flex justify-between px-1">
                     {columns.map(col => (
-                        <span key={col} className="w-full text-center text-[10px] text-[#879398] font-mono">{col}</span>
+                        <span key={col} className="w-full text-center text-xs text-[#879398] font-mono">{col}</span>
                     ))}
                 </div>
 
                 {/* Left labels */}
                 <div className="row-start-2 flex flex-col justify-between py-1">
                     {rows.map(row => (
-                        <span key={row} className="h-full flex items-center text-[10px] text-[#879398] font-mono">{row}</span>
+                        <span key={row} className="h-full flex items-center text-xs text-[#879398] font-mono">{row}</span>
                     ))}
                 </div>
 
@@ -85,14 +85,14 @@ const BoardArea = ({
                 {/* Right labels */}
                 <div className="row-start-2 col-start-3 flex flex-col justify-between py-1 px-1">
                     {rows.map(row => (
-                        <span key={row} className="h-full flex items-center text-[10px] text-[#879398] font-mono">{row}</span>
+                        <span key={row} className="h-full flex items-center text-xs text-[#879398] font-mono">{row}</span>
                     ))}
                 </div>
 
                 {/* Bottom labels */}
                 <div className="col-start-2 row-start-3 flex justify-between px-1">
                     {columns.map(col => (
-                        <span key={col} className="w-full text-center text-[10px] text-[#879398] font-mono">{col}</span>
+                        <span key={col} className="w-full text-center text-xs text-[#879398] font-mono">{col}</span>
                     ))}
                 </div>
             </div>

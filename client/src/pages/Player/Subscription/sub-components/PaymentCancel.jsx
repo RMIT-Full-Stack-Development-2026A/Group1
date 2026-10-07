@@ -13,7 +13,7 @@ export default function PaymentCancel() {
                     <span className="font-mono text-[#fad100]">●</span>
                     <span className="font-headline text-sm text-[#fad100]">PAYMENT CANCELLED</span>
                 </div>
-                <p className="font-mono text-[11px] text-[#879398] uppercase tracking-widest mb-8 leading-relaxed">
+                <p className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-8 leading-relaxed">
                     You cancelled the payment process. No charge was made. You can subscribe again at any time.
                 </p>
                 <SoundButton

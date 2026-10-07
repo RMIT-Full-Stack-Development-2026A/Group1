@@ -85,7 +85,7 @@ export default function LoginPage() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Email/Username */}
                             <div className="space-y-2">
-                                <label htmlFor="login-identifier" className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+                                <label htmlFor="login-identifier" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                     USERNAME OR EMAIL
                                 </label>
                                 <input
@@ -106,7 +106,7 @@ export default function LoginPage() {
                             {/* Password */}
                             <div className="space-y-2">
                                 <div className="flex justify-between items-end">
-                                    <label htmlFor="login-password" className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+                                    <label htmlFor="login-password" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                         PASSWORD
                                     </label>
                                 </div>

@@ -77,7 +77,7 @@ export default function PlayerProfile() {
   if (error) {
     return (
       <main className="max-w-[1440px] mx-auto p-8">
-        <div className="bg-error-container/20 border border-error-container text-error-container p-6 text-center">
+        <div className="bg-error-container/20 border border-error-container text-error p-6 text-center">
           Error loading profile: {error}
         </div>
       </main>

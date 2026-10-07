@@ -32,7 +32,7 @@ const mapPlayerRow = (player) => {
 		actionStyle: isActive
 			? { backgroundColor: "#ffb4ab", color: "#690005", borderColor: "#ffb4ab" }
 			: { backgroundColor: "#93e2ff", color: "#003543", borderColor: "#93e2ff" },
-		rowClass: isActive ? "bg-surface hover:bg-surface-container-low" : "bg-surface-container-low/50 hover:bg-surface-container-low",
+		rowClass: isActive ? "bg-surface hover:bg-surface-container-low" : "bg-[#161623] hover:bg-surface-container-low",
 	};
 };
 

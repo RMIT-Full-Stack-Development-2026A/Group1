@@ -28,7 +28,7 @@ export default function BoardSizeSelector({ selectedSize, onSelect }) {
                         <span className="font-headline text-2xl text-[#4cc9f0] mb-2">
                             {size.label}
                         </span>
-                        <span className="text-[12px] tracking-widest opacity-50 font-bold">
+                        <span className="text-[12px] tracking-widest opacity-75 font-bold">
                             {size.subtitle}
                         </span>
                     </SoundButton>

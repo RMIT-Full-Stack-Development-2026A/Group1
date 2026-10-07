@@ -5,7 +5,7 @@ export default function GameRoomMonitorFilters({ searchTerm, setSearchTerm, onRe
     <section className="border border-outline-variant bg-[#1b1c2c] p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <label className="flex-1 space-y-2">
-          <span className="block font-mono text-[10px] uppercase tracking-[0.32em] text-outline">
+          <span className="block font-mono text-xs uppercase tracking-[0.32em] text-outline">
             Search sessions
           </span>
           <div className="flex items-center gap-3 border-b-2 border-outline bg-surface-container-highest px-4 py-2">

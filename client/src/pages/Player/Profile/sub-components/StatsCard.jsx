@@ -12,8 +12,8 @@ export default function StatsCard({ label, value, icon, barWidth, color }) {
         };
       case "LOSSES":
         return {
-          borderColor: "#93000a", // error-container
-          textColor: "#93000a",
+          borderColor: "#e63946", // danger red for the bar and border (the old dark red was under 3:1 against the card)
+          textColor: "#ffb4ab", // readable red for the value and icon (the dark red is only 1.8:1 on this surface)
         };
       case "DRAWS":
         return {
@@ -81,7 +81,7 @@ export default function StatsCard({ label, value, icon, barWidth, color }) {
       ></div>
 
       <div className="flex justify-between items-start mb-4">
-        <p className="text-[10px] font-bold text-outline uppercase tracking-widest">
+        <p className="text-xs font-bold text-outline uppercase tracking-widest">
           {label}
         </p>
         <span aria-hidden="true" 
@@ -93,7 +93,7 @@ export default function StatsCard({ label, value, icon, barWidth, color }) {
       </div>
 
       <p 
-        className="font-arcade text-2xl lg:text-3xl break-words"
+        className="font-arcade text-2xl md:text-base lg:text-3xl whitespace-nowrap"
         style={{ color: colorScheme.textColor }}
       >
         {value}

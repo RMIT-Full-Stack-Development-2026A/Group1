@@ -51,11 +51,11 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
           <span className="font-mono text-xs font-bold text-primary-cyan uppercase tracking-[0.18em]">
             Room #{room.roomNumber}
           </span>
-          <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">
+          <div className="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-white/35">
             Board {room.boardSize}
           </div>
         </div>
-        <span className={`font-mono text-[10px] uppercase tracking-[0.24em] ${style.badge}`}>
+        <span className={`font-mono text-xs uppercase tracking-[0.24em] ${style.badge}`}>
           {style.label}
         </span>
       </div>
@@ -67,13 +67,13 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
               {renderAvatar(room.participants?.[0], room.playerOneName || "Player 1")}
             </div>
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[10px] uppercase tracking-wide text-white/45">
+              <span className="font-mono text-xs uppercase tracking-wide text-white/45">
                 Player 1
               </span>
               <span className="font-mono text-sm uppercase tracking-wide text-white">
                 {room.playerOneName}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-wide text-[#fad100]">
+              <span className="font-mono text-xs uppercase tracking-wide text-[#fad100]">
                 #{getParticipantId(room.participants?.[0])}
               </span>
             </div>
@@ -88,13 +88,13 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
               {renderAvatar(room.participants?.[1], room.playerTwoName || "Player 2")}
             </div>
             <div className="flex flex-col gap-1 lg:items-end">
-              <span className="font-mono text-[10px] uppercase tracking-wide text-white/45">
+              <span className="font-mono text-xs uppercase tracking-wide text-white/45">
                 Player 2
               </span>
               <span className="font-mono text-sm uppercase tracking-wide text-white">
                 {room.playerTwoName}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-wide text-[#fad100]">
+              <span className="font-mono text-xs uppercase tracking-wide text-[#fad100]">
                 #{getParticipantId(room.participants?.[1])}
               </span>
             </div>
@@ -103,7 +103,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="border border-dashed border-[#2a2a4e] bg-deep-bg px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/35">
               Start time
             </p>
             <p className="mt-1 font-mono text-sm uppercase tracking-[0.18em] text-primary">
@@ -111,7 +111,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
             </p>
           </div>
           <div className="border border-dashed border-[#2a2a4e] bg-deep-bg px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-white/35">
               {room.endTimeLabel || "End time"}
             </p>
             <p className="mt-1 font-mono text-sm uppercase tracking-[0.18em] text-primary">

@@ -8,11 +8,11 @@ export default function ErrorScreen({ message = "AN ERROR OCCURRED" }) {
         <span className="font-headline text-2xl leading-none">⚠</span>
       </div>
 
-      <p className="font-headline text-[10px] uppercase tracking-widest text-error animate-pulse">
+      <p className="font-headline text-xs uppercase tracking-widest text-error animate-pulse">
         {message}
       </p>
 
-      <p className="font-mono text-[10px] text-on-surface-variant">
+      <p className="font-mono text-xs text-on-surface-variant">
         Redirecting…
       </p>
     </div>

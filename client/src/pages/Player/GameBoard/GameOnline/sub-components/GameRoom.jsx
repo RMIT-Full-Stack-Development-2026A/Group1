@@ -85,7 +85,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
            
             {/* Ready counter badge */}
             <div className="flex flex-col items-center gap-0.5">
-              <span className="font-headline text-[11px] text-primary-cyan border border-primary-cyan/40 px-4 py-1.5 uppercase tracking-widest shadow-[0px_0px_8px_rgba(76,201,240,0.2)]">
+              <span className="font-headline text-xs text-primary-cyan border border-primary-cyan/40 px-4 py-1.5 uppercase tracking-widest shadow-[0px_0px_8px_rgba(76,201,240,0.2)]">
                 READY {readyCount}/2
               </span>
             </div>
@@ -95,7 +95,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             {/* Gold section label — matches GameCustomization section header style */}
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1 h-5 bg-[#fad100]" />
-              <span className="font-headline text-[10px] text-[#fad100] uppercase tracking-widest">
+              <span className="font-headline text-xs text-[#fad100] uppercase tracking-widest">
                 MATCH CONFIG
               </span>
             </div>
@@ -103,7 +103,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             {/* BATTLEFIELD */}
             <div className="flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-primary-cyan to-transparent" />
-              <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">BATTLEFIELD</span>
+              <span className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-1">BATTLEFIELD</span>
               <span className="font-headline text-2xl text-primary-cyan">
                 {roomData?.boardSize || 10}
                 <span className="text-[#879398] text-sm">x</span>
@@ -114,11 +114,11 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             {/* STYLE + MARKER side by side */}
             <div className="flex flex-col lg:flex-row gap-2 w-full">
               <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] w-full">
-                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">STYLE</span>
+                <span className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-1">STYLE</span>
                 <span className="font-headline text-sm text-[#4cc9f0]">{roomData?.boardStyle || 'JUNGLE'}</span>
               </div>
               <div className="flex-1 flex flex-col items-center py-3 bg-[#1e1e2c] border border-outline-variant shadow-[2px_2px_0px_#343342] w-full">
-                  <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">ROOM DEFAULT</span>
+                  <span className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-1">ROOM DEFAULT</span>
                   <span className="font-headline text-sm text-primary-cyan">{roomData?.markerStyle || 'CLASSIC'}</span>
               </div>
             </div>
@@ -135,9 +135,9 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
               title={isHost ? 'Click to toggle first player' : 'Only host can change first player'}
             >
               <div className="flex flex-col gap-0.5">
-                <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">FIRST MOVE</span>
+                <span className="font-mono text-xs text-[#879398] uppercase tracking-widest">FIRST MOVE</span>
                 {isHost && (
-                  <span className="font-mono text-[10px] text-primary-cyan uppercase tracking-wider font-bold">CLICK TO CHANGE</span>
+                  <span className="font-mono text-xs text-primary-cyan uppercase tracking-wider font-bold">CLICK TO CHANGE</span>
                 )}
               </div>
               <span className="font-headline text-sm text-[#fad100]">PLAYER {firstPlayerMark}</span>
@@ -149,7 +149,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className={`w-2 h-2 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-500 ${p?.isReady ? 'bg-[#24d642]' : 'bg-[#6d706d]'}`} />
-                  <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-[#24d642]' : 'text-[#879398]'}`}>
+                  <span className={`font-mono text-xs uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-[#24d642]' : 'text-[#879398]'}`}>
                     {p?.usernameSnapshot || '???'}
                   </span>
                 </div>
@@ -185,7 +185,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
       {disconnectCountdown !== null && (
         <div className="flex-none flex items-center justify-center gap-3 px-6 py-2 border-t border-error/40 bg-error-container/15">
           <div className="w-2 h-2 bg-error animate-pulse" />
-          <p className="font-headline text-[10px] text-error uppercase tracking-widest">OPPONENT DISCONNECTED — ABORTING IN {disconnectCountdown}S</p>
+          <p className="font-headline text-xs text-error uppercase tracking-widest">OPPONENT DISCONNECTED — ABORTING IN {disconnectCountdown}S</p>
         </div>
       )}
       <Footer/>

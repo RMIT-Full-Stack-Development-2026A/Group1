@@ -64,7 +64,7 @@ export default function FirstPlayerSelector({ gameMode, selectedPlayer, onSelect
                         <span className="text-sm tracking-widest font-bold text-[#e3e0f4]">
                             {option.label}
                         </span>
-                        <span className="text-[10px] tracking-widest opacity-60 font-bold mt-1">
+                        <span className="text-xs tracking-widest opacity-60 font-bold mt-1">
                             {option.subtitle}
                         </span>
                     </SoundButton>

@@ -54,7 +54,7 @@ const PasswordField = ({
     };
     return (
         <div className="space-y-2">
-            <label htmlFor={`field-${name}`} className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+            <label htmlFor={`field-${name}`} className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                 {label}
             </label>
             <div className="relative">
@@ -89,7 +89,7 @@ const PasswordField = ({
             </div>
 
             {isConfirmField && passwordMismatch && (
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#ffb4ab] font-bold">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#ffb4ab] font-bold">
                     Passwords do not match
                 </p>
             )}
@@ -100,11 +100,11 @@ const PasswordField = ({
                     {/* Strength Indicator Bar */}
                     <div className="space-y-1">
                         <div className="flex justify-between items-center">
-                            <p className="text-[10px] text-[#4cc9f0] font-bold uppercase tracking-widest">
+                            <p className="text-xs text-[#4cc9f0] font-bold uppercase tracking-widest">
                                 Strength:
                             </p>
                             <span
-                                className="text-[10px] font-bold"
+                                className="text-xs font-bold"
                                 style={{ color: getStrengthDisplay().color }}
                             >
                                 {getStrengthDisplay().label}
@@ -123,7 +123,7 @@ const PasswordField = ({
 
                     {/* Requirements Box */}
                     <div className="p-3 bg-[#1a1a28] border border-[#2a2a4e]">
-                        <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
+                        <p className="text-xs text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
                             Requirements:
                         </p>
                         <div className="space-y-1">

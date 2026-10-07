@@ -11,7 +11,7 @@ export default function ActionButton({ onClick, label, path, description, icon }
           <span className="font-headline text-sm text-primary-cyan">
             {label}
           </span>
-          <span className="font-mono text-[10px] text-on-surface-variant">
+          <span className="font-mono text-xs text-on-surface-variant">
             {path}
           </span>
         </div>

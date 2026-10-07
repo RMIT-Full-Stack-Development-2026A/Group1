@@ -290,7 +290,7 @@ export default function WheelCarousel({
                 key={`${item.label}-${index}`}
                 role="option"
                 aria-selected={selected}
-                className="pointer-events-none absolute top-1/2 origin-left whitespace-nowrap font-headline text-[clamp(0.75rem,1.6vw,1.1rem)] leading-none tracking-[-0.01em]"
+                className="pointer-events-none absolute top-1/2 origin-left whitespace-nowrap font-headline text-[clamp(1.1rem,2.4vw,1.75rem)] leading-none tracking-[-0.01em]"
                 style={{
                   left: `${apexInset}%`,
                   color: selected ? PALETTE.selected : PALETTE.text,

@@ -28,9 +28,11 @@ export default function MarkerStylesSection() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.35, delay: index * 0.06 }}
           >
-            <div className="flex gap-3 items-center bg-[#1e1e2c]/60 backdrop-blur-sm border border-[#3d484d] p-3 rounded-sm">
-              <MarkerX variantData={variant} className="text-2xl w-8 h-8" />
-              <MarkerO variantData={variant} className="text-2xl w-8 h-8" />
+            {/* No box/background (07/10, Khanh) — markers sit directly on the
+                AuroraFlow backdrop, sized up so they read clearly without one. */}
+            <div className="flex gap-4 items-center">
+              <MarkerX variantData={variant} className="text-4xl w-16 h-16" />
+              <MarkerO variantData={variant} className="text-4xl w-16 h-16" />
             </div>
             <span className="font-headline text-[10px] text-[#bcc8ce] uppercase tracking-wide">
               {variant.id}

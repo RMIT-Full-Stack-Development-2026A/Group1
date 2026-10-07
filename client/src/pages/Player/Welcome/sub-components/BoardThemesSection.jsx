@@ -39,7 +39,7 @@ export default function BoardThemesSection() {
         contentWidth={1100}
         photoShape="circle"
         photoWidth={42}
-        apexInset={8}
+        apexInset={18}
         className="flex-1 min-h-0 w-full"
       />
     </div>

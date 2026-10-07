@@ -24,7 +24,9 @@
  * 10  Feedback      — FeedbackCta
  * 11  Stats         — ChallengeCounter
  * 12  Final CTA     — FinalCta
- * 13  FAQ           — FaqAccordion
+ *
+ * FAQ screen removed (07/10, Khanh) — section and its dock entry dropped.
+ * FaqAccordion.jsx/FAQ_ITEMS kept in the codebase, just unused for now.
  */
 
 import { useEffect, useState } from "react";
@@ -45,13 +47,15 @@ import {
   TestimonialsMarquee,
   ChallengeCounter,
   FinalCta,
-  FaqAccordion,
   MagneticDock,
   FullScreenSection,
 } from "./sub-components";
 import "./styles.css";
 
-const AURORA_VISIBILITY = 0.2;
+// Bumped 0.2 -> 0.5 (07/10, Khanh reported the aurora fade was effectively
+// invisible). At 0.2 the WebGL gradient was likely rendering correctly but
+// too faint against the dark page background to perceive as "there".
+const AURORA_VISIBILITY = 0.5;
 
 // ---------------------------------------------------------------------------
 // HeroScreenSection — custom wrapper for screen 1
@@ -213,11 +217,6 @@ export default function Welcome() {
         {/* Screen 12: Final CTA */}
         <FullScreenSection id="cta">
           <FinalCta onPlayNow={goToPlay} />
-        </FullScreenSection>
-
-        {/* Screen 13: FAQ — snap-proximity so tall FAQs don't trap the user */}
-        <FullScreenSection id="faq" className="snap-proximity overflow-y-auto">
-          <FaqAccordion />
         </FullScreenSection>
       </div>
 

@@ -89,23 +89,33 @@ export const HISTORY_PLACEHOLDER = {
   ],
 };
 
-// TODO: replace with real photos/GitHub handles before merging to main
+import member1Photo from "@/assets/team/member-1.jpg";
+import member2Photo from "@/assets/team/member-2.jpg";
+import member3Photo from "@/assets/team/member-3.jpg";
+import member4Photo from "@/assets/team/member-4.jpg";
+import member5Photo from "@/assets/team/member-5.jpg";
+
+// TODO: replace placeholder names/roles/GitHub links with the real ones before merging to main
 export const TEAM_MEMBERS = [
-  { id: 1, name: "Member Name 1", role: "Frontend", github: "https://github.com/", photo: null },
-  { id: 2, name: "Member Name 2", role: "Backend", github: "https://github.com/", photo: null },
-  { id: 3, name: "Member Name 3", role: "Design", github: "https://github.com/", photo: null },
-  { id: 4, name: "Member Name 4", role: "QA", github: "https://github.com/", photo: null },
-  { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/", photo: null },
+  { id: 1, name: "Member Name 1", role: "Frontend", github: "https://github.com/", photo: member1Photo },
+  { id: 2, name: "Member Name 2", role: "Backend", github: "https://github.com/", photo: member2Photo },
+  { id: 3, name: "Member Name 3", role: "Design", github: "https://github.com/", photo: member3Photo },
+  { id: 4, name: "Member Name 4", role: "QA", github: "https://github.com/", photo: member4Photo },
+  { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/", photo: member5Photo },
 ];
 
-// TODO: replace with real player quotes before merging to main
+// TODO: replace with real player quotes before merging to main.
+// avatar: served from client/public/avatars/ (NOT client/src/assets/ — a
+// plain path string here, not a static import, so the build doesn't break
+// before the real photos exist). Drop files named reviewer-1.jpg .. 6.jpg
+// into client/public/avatars/ later; see the README there.
 export const TESTIMONIALS = [
-  { id: 1, name: "Alex Tran", role: "Casual Player", quote: "The online matches feel instant — no lag, no fuss. My go-to break between classes." },
-  { id: 2, name: "Priya Nair", role: "Weekend Grinder", quote: "Finally a tic-tac-toe that doesn't get boring. The bigger boards actually make you think." },
-  { id: 3, name: "Minh Khoa", role: "Local Arena Regular", quote: "Playing against my roommate on the same screen is still the best way to end an argument." },
-  { id: 4, name: "Sara Ibrahim", role: "Mobile Player", quote: "Works great on my phone during commutes. Clean UI, zero sign-up friction to try it out." },
-  { id: 5, name: "Daniel Vo", role: "AI Challenger", quote: "Hard mode actually punishes mistakes. Took me a week to beat it consistently." },
-  { id: 6, name: "Linh Pham", role: "Online Ranked", quote: "Three themes, six marker styles — small touches, but they make every match feel fresh." },
+  { id: 1, name: "Alex Tran", role: "Casual Player", avatar: "/avatars/reviewer-1.jpg", quote: "The online matches feel instant — no lag, no fuss. My go-to break between classes." },
+  { id: 2, name: "Priya Nair", role: "Weekend Grinder", avatar: "/avatars/reviewer-2.jpg", quote: "Finally a tic-tac-toe that doesn't get boring. The bigger boards actually make you think." },
+  { id: 3, name: "Minh Khoa", role: "Local Arena Regular", avatar: "/avatars/reviewer-3.jpg", quote: "Playing against my roommate on the same screen is still the best way to end an argument." },
+  { id: 4, name: "Sara Ibrahim", role: "Mobile Player", avatar: "/avatars/reviewer-4.jpg", quote: "Works great on my phone during commutes. Clean UI, zero sign-up friction to try it out." },
+  { id: 5, name: "Daniel Vo", role: "AI Challenger", avatar: "/avatars/reviewer-5.jpg", quote: "Hard mode actually punishes mistakes. Took me a week to beat it consistently." },
+  { id: 6, name: "Linh Pham", role: "Online Ranked", avatar: "/avatars/reviewer-6.jpg", quote: "Three themes, six marker styles — small touches, but they make every match feel fresh." },
 ];
 
 export const FAQ_ITEMS = [
@@ -127,17 +137,18 @@ export const FAQ_ITEMS = [
   },
 ];
 
+// Dock is intentionally coarser than the page's section list: "Features",
+// "Board Themes" and "Markers" are 3 separate full-screen sections on the
+// page (unchanged), but share one "Features" entry here so the dock stays
+// short. FAQ removed (07/10, page section also removed).
 export const DOCK_SECTIONS = [
   { id: "welcome-top",   label: "Home",         icon: "home" },
   { id: "modes",         label: "Modes",         icon: "sports_esports" },
   { id: "how-to-play",   label: "How to Play",   icon: "menu_book" },
   { id: "features",      label: "Features",       icon: "star" },
-  { id: "board-themes",  label: "Board Themes",   icon: "grid_on" },
-  { id: "markers",       label: "Markers",        icon: "edit" },
   { id: "history",       label: "History",        icon: "history_edu" },
   { id: "team",          label: "Team",           icon: "groups" },
   { id: "testimonials",  label: "Reviews",        icon: "reviews" },
   { id: "feedback",      label: "Feedback",       icon: "feedback" },
-  { id: "faq",           label: "FAQ",            icon: "help" },
   { id: "cta",           label: "Play Now",       icon: "play_arrow" },
 ];

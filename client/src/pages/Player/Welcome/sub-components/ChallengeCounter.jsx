@@ -1,44 +1,45 @@
 /**
  * ChallengeCounter — Section 6
- * Count-up placeholder stat (not backed by a real API yet, see
- * welcomeContent.service.js CHALLENGE_STAT). Snaps to the final value
- * immediately when the user prefers reduced motion.
+ * 07/10 update (Khanh): no more mock number. Fetches the real total match
+ * count from the backend (GET /games/stats/total) and displays it through
+ * the ported SplitFlapDisplay (componentry.dev) airport-scoreboard effect.
  */
 
-import { useRef, useState } from "react";
-import { motion, animate, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import SplitFlapDisplay from "./SplitFlapDisplay";
+import { getTotalMatchesPlayed } from "../service/gameStats.service";
 import { CHALLENGE_STAT } from "../service/welcomeContent.service";
 
-const MotionDiv = motion.div;
-
 export default function ChallengeCounter() {
-  const prefersReducedMotion = useReducedMotion();
-  const [displayValue, setDisplayValue] = useState(0);
-  const hasAnimatedRef = useRef(false);
+  const [totalMatches, setTotalMatches] = useState(null); // null while loading
 
-  const shownValue = prefersReducedMotion ? CHALLENGE_STAT.value : displayValue;
+  useEffect(() => {
+    let isMounted = true;
+    getTotalMatchesPlayed()
+      .then((total) => {
+        if (isMounted) setTotalMatches(total);
+      })
+      .catch(() => {
+        if (isMounted) setTotalMatches(0);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  const handleViewportEnter = () => {
-    if (hasAnimatedRef.current || prefersReducedMotion) return;
-    hasAnimatedRef.current = true;
-    animate(0, CHALLENGE_STAT.value, {
-      duration: 1.5,
-      ease: "easeOut",
-      onUpdate: (value) => setDisplayValue(Math.round(value)),
-    });
-  };
+  const displayValue = totalMatches === null ? "" : String(totalMatches);
 
   return (
-    <section className="w-full max-w-4xl mx-auto px-6 py-20 text-center">
-      <MotionDiv onViewportEnter={handleViewportEnter} viewport={{ once: true, amount: 0.5 }}>
-        <h2 className="font-headline text-lg md:text-xl text-[#e3e0f4] uppercase mb-6">
-          {CHALLENGE_STAT.label}
-        </h2>
-        <p className="font-headline text-4xl md:text-6xl text-[#fad100]">
-          {shownValue}
-          <span className="text-lg md:text-2xl text-[#bcc8ce] ml-2">{CHALLENGE_STAT.suffix}</span>
-        </p>
-      </MotionDiv>
+    <section className="w-full max-w-4xl mx-auto px-6 py-20 text-center flex flex-col items-center gap-8">
+      <h2 className="font-headline text-lg md:text-xl text-[#e3e0f4] uppercase">
+        {CHALLENGE_STAT.label}
+      </h2>
+      <SplitFlapDisplay
+        rows={[{ label: "MATCHES PLAYED", value: displayValue }]}
+        columns={20}
+        size="sm"
+        accentColor="#fad100"
+      />
     </section>
   );
 }

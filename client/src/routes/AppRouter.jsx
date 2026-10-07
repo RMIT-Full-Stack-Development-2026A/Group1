@@ -9,6 +9,7 @@ const LoginPage = lazy(() => import("@/pages/Guest/Login/index"));
 const RegisterPage = lazy(() => import("@/pages/Guest/Register/index"));
 
 const WelcomePage = lazy(() => import("@/pages/Player/Welcome/index"));
+const FeedbackPage = lazy(() => import("@/pages/Player/Feedback/index"));
 
 const ProfilePage = lazy(() => import("@/pages/Player/Profile/index"));
 const GameModeSelect = lazy(() => import("@/pages/Player/GameModeSelect/index"));
@@ -47,6 +48,7 @@ export default function AppRouter() {
 
                 {/* 2. Player Pages (Free & Premium) */}
                 <Route path="/welcome" element={<ProtectedRoute><WelcomePage /></ProtectedRoute>} />
+                <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                 <Route path="/play" element={<ProtectedRoute><GameModeSelect /></ProtectedRoute>} />
                 <Route path="/lobby" element={<ProtectedRoute><GameLobby /></ProtectedRoute>} />

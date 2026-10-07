@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
         DETAILS: (id) => `/games/${id}`,
         MOVES: (id) => `/games/${id}/moves`,
         SEARCH: "/games/search",
+        TOTAL_MATCHES: "/games/stats/total",
     },
     ROOM: {
         LIST: "/rooms",

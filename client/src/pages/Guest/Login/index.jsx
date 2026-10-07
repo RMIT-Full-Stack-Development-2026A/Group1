@@ -41,7 +41,7 @@ export default function LoginPage() {
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
             const { user } = useAuthStore.getState();
-            const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/play';
+            const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/welcome';
             
             navigate(redirectPath, { replace: true });
         }

@@ -7,10 +7,10 @@ import {
   HowToPlaySection,
   FeatureGrid,
   TeamSection,
-  FeedbackSection,
+  FeedbackCta,
   ChallengeCounter,
-  FaqAccordion,
   FinalCta,
+  FaqAccordion,
   MagneticDock,
 } from "./sub-components";
 import "./styles.css";
@@ -24,14 +24,14 @@ export default function Welcome() {
 
       <HeroSection />
       <MarqueeBand reducedMotion={prefersReducedMotion} />
-      <ModeSelectPreview onPlayNow={goToPlay} reducedMotion={prefersReducedMotion} />
+      <ModeSelectPreview onPlayNow={goToPlay} />
       <HowToPlaySection />
       <FeatureGrid />
       <TeamSection />
-      <FeedbackSection />
+      <FeedbackCta />
       <ChallengeCounter />
-      <FaqAccordion />
       <FinalCta onPlayNow={goToPlay} />
+      <FaqAccordion />
 
       <MagneticDock onNavigate={scrollToSection} />
     </div>

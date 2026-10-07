@@ -98,11 +98,10 @@ export const TEAM_MEMBERS = [
   { id: 5, name: "Member Name 5", role: "Project Lead", github: "https://github.com/", photo: null },
 ];
 
-// Placeholder stat — not backed by a real API call yet (see plan §4.7)
+// 07/10: value now comes from the real backend (GET /games/stats/total),
+// see ChallengeCounter.jsx + gameStats.service.js. Only the label is static.
 export const CHALLENGE_STAT = {
   label: "Can you beat the AI on Hard?",
-  value: 128,
-  suffix: "+ matches played",
 };
 
 export const FAQ_ITEMS = [

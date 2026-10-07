@@ -5,7 +5,7 @@ export { default as ModeSelectPreview } from "./ModeSelectPreview";
 export { default as HowToPlaySection } from "./HowToPlaySection";
 export { default as FeatureGrid } from "./FeatureGrid";
 export { default as TeamSection } from "./TeamSection";
-export { default as FeedbackSection } from "./FeedbackSection";
+export { default as FeedbackCta } from "./FeedbackCta";
 export { default as ChallengeCounter } from "./ChallengeCounter";
 export { default as FaqAccordion } from "./FaqAccordion";
 export { default as FinalCta } from "./FinalCta";

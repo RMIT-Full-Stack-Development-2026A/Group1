@@ -30,6 +30,20 @@ export const GameController = {
         }
     },
 
+    // [GET] /games/stats/total endpoint
+    getTotalMatches: async (req, res, next) => {
+        try {
+            const total = await GameService.getTotalPlatformMatches();
+
+            return res.status(200).json({
+                data: { total },
+                message: "Total platform match count fetched successfully."
+            });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
     // [GET] /games/:id endpoint
     getGameDetail: async (req, res, next) => {
         try {

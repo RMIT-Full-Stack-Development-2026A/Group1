@@ -20,10 +20,11 @@
  *  6  Markers       — MarkerStylesSection (6 variants)
  *  7  History       — HistorySection (description + Spiral3DSlider)
  *  8  Team          — TeamSection
- *  9  Feedback      — FeedbackCta
- * 10  Stats         — ChallengeCounter
- * 11  Final CTA     — FinalCta
- * 12  FAQ           — FaqAccordion
+ *  9  Testimonials  — TestimonialsMarquee (user review cards, infinite loop)
+ * 10  Feedback      — FeedbackCta
+ * 11  Stats         — ChallengeCounter
+ * 12  Final CTA     — FinalCta
+ * 13  FAQ           — FaqAccordion
  */
 
 import { useEffect, useState } from "react";
@@ -41,6 +42,7 @@ import {
   HistorySection,
   TeamSection,
   FeedbackCta,
+  TestimonialsMarquee,
   ChallengeCounter,
   FinalCta,
   FaqAccordion,
@@ -193,22 +195,27 @@ export default function Welcome() {
           <TeamSection />
         </FullScreenSection>
 
-        {/* Screen 9: Feedback */}
+        {/* Screen 9: Testimonials — infinite right-to-left card marquee */}
+        <FullScreenSection id="testimonials">
+          <TestimonialsMarquee reducedMotion={prefersReducedMotion} />
+        </FullScreenSection>
+
+        {/* Screen 10: Feedback */}
         <FullScreenSection id="feedback">
           <FeedbackCta />
         </FullScreenSection>
 
-        {/* Screen 10: Stats */}
+        {/* Screen 11: Stats */}
         <FullScreenSection id="stats">
           <ChallengeCounter />
         </FullScreenSection>
 
-        {/* Screen 11: Final CTA */}
+        {/* Screen 12: Final CTA */}
         <FullScreenSection id="cta">
           <FinalCta onPlayNow={goToPlay} />
         </FullScreenSection>
 
-        {/* Screen 12: FAQ — snap-proximity so tall FAQs don't trap the user */}
+        {/* Screen 13: FAQ — snap-proximity so tall FAQs don't trap the user */}
         <FullScreenSection id="faq" className="snap-proximity overflow-y-auto">
           <FaqAccordion />
         </FullScreenSection>

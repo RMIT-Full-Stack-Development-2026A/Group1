@@ -11,6 +11,7 @@ export { default as BoardThemesSection } from "./BoardThemesSection";
 export { default as MarkerStylesSection } from "./MarkerStylesSection";
 export { default as HistorySection } from "./HistorySection";
 export { default as TeamSection } from "./TeamSection";
+export { default as TestimonialsMarquee } from "./TestimonialsMarquee";
 export { default as FeedbackCta } from "./FeedbackCta";
 export { default as ChallengeCounter } from "./ChallengeCounter";
 export { default as FaqAccordion } from "./FaqAccordion";

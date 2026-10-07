@@ -166,15 +166,22 @@ Disconnect countdown, verified live with a real disconnect (2026-10-09): the ban
 
 Latency, measured live against the remote MongoDB Atlas database: a chat message took 162 to 176 ms from click to appearing (two sequential database reads in `handleChatSend`); running them in parallel brought it to about 116 ms. A move took 263 ms from click to marker (one read plus one atomic conditional write on the server, which is already minimal); an optimistic marker on the client now shows it in about 48 ms and rolls back if the server rejects the move (verified: clicking an occupied cell draws nothing and the next click still lands in 48 ms). The user lookup in `handleChatSend` is kept because it is also the active-account guard.
 
-Not tested: the local-arena board (it shares the offline board code), and the PayPal checkout flow.
+Local-arena board, verified live (2026-10-10): clean at 1440, 1024, 768 and 390 px (no overflow, no clipped text, 0 contrast failures, 0 console errors); a full game was played, turns alternated between the two players, X's five in a row was detected and highlighted, and the VICTORY overlay appeared.
 
-`vite build` passes. The client has no test suite. This round added no lint errors (33 before and 33 after across the changed files; the three new files are clean). The pre-existing lint errors (unused variables, `no-dupe-keys`, React compiler warnings) are untouched.
+Pressed-READY lobby, verified live: the button turns into a green, disabled, pulsing READY, the counter reads READY 1/2, the card tags and status dots reflect each player, and the pinned bar shows the same state on phones; no overflow or contrast failures.
+
+Client lint: `npm run lint` went from 74 problems (68 errors, 6 warnings) to 0. The duplicate `playerTwoName` key was removed (the second copy was the one that always took effect). Unused variables were removed, JSX-only component props are recognized by the lint config, form resets and the abort countdown now adjust state while rendering, render-time `Math.random` and `Date.now` calls moved to mount time, the login lockout helpers were hoisted, and `vite.config.js` defines its own `__dirname`. Two targeted suppressions carry written reasons (the board's hydration flag and the once-on-mount PayPal capture). One refactor (applying the lobby's room data during render) broke room creation under StrictMode, was caught, and was reverted to an effect with an explanatory comment before anything was pushed; creating a room, leaving it, and creating again were then verified live.
+
+Not tested: the PayPal checkout flow.
+
+`vite build` passes and `npm run lint` is at 0 problems. The client has no test suite; the server has 92 integration tests, all passing.
 
 ---
 
 ## 4. What is still open
 
-1. **Online board, chat overlap (optional):** the open 380 px chat window covers about 89 px of the board's left edge on desktop (row labels and the lower column A cells). Making the window 280 px wide on desktop would remove the overlap; held because the placement was approved as is.
-2. **Chat premium rule (decided: premium-only):** the server now enforces it (`PREMIUM_REQUIRED`, 403) in addition to the client gate, so a free account cannot chat by emitting `chat:send` directly; an expired subscription counts as free. The two tests that asserted free chat were rewritten, and two new tests cover free senders and lapsed premium. The subscription page does not yet list chat among the premium benefits, so adding it there would make the rule visible to users.
-3. **Remaining unverified items:** the local-arena board, the PayPal checkout flow, and the pressed-READY look in the match lobby.
-4. **Cleanup:** the pre-existing lint errors (68 errors, 6 warnings, mostly unused variables, plus a real duplicate key `playerTwoName` in the room monitor hook and two useless `catch` blocks), and the `autoFocus` on the lobby jump input and the profile page input (both user-triggered, left on purpose).
+1. **PayPal checkout:** not tested yet (left for last on purpose). `PaymentSuccess` captures the payment once on mount, guarded by a ref so a payment is never captured twice; that effect was deliberately left untouched during the lint cleanup.
+2. **Online board, chat overlap (optional):** the open 380 px chat window covers about 89 px of the board's left edge on desktop (row labels and the lower column A cells). Making the window 280 px wide on desktop would remove the overlap; held because the placement was approved as is.
+3. **Possible hardening:** the online page's cleanup sends `room:leave` for any active room on unmount, which cannot tell a real navigation from React StrictMode's simulated unmount in development. It is fine today (room data from the lobby is applied in an effect, with a comment explaining why), but making the leave deferred and cancellable on remount would remove the fragility.
+4. **Optional product choices:** list "Match chat" among the Neuro-Elite benefits on the subscription page (chat is now premium-only on the server too), and an "unready" option (READY cannot be cancelled once pressed).
+5. **Existing weakness outside the UI:** none open. `npm run lint` in the client passes with 0 problems.

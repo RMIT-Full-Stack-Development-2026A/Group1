@@ -49,7 +49,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
       >
         CHAT
         {unreadCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-[#fad100] text-[#3b2f00] font-headline text-[8px] px-1.5 py-0.5 min-w-[18px] text-center">
+          <span className="absolute -top-2 -right-2 bg-[#fad100] text-[#3b2f00] font-headline text-[10px] px-1.5 py-0.5 min-w-[18px] text-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -77,12 +77,12 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
 
           <div role="log" aria-live="polite" className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0 max-h-[260px]">
             {messages.length === 0 && (
-              <p className="font-mono text-[9px] text-outline text-center pt-8 uppercase tracking-widest">No messages yet…</p>
+              <p className="font-mono text-[10px] text-outline text-center pt-8 uppercase tracking-widest">No messages yet…</p>
             )}
 
             {messages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.isOwn ? 'items-end' : 'items-start'}`}>
-                <span className="font-mono text-[8px] text-outline mb-1 uppercase tracking-wider">
+                <span className="font-mono text-[10px] text-outline mb-1 uppercase tracking-wider">
                   {msg.senderName} · {formatTimestamp(msg.timestamp)}
                 </span>
                 <div
@@ -99,12 +99,14 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
 
           {sendError && (
             <div className="px-4 py-2 border-t border-error/30 bg-error-container/20">
-              <p className="font-mono text-[9px] text-error uppercase tracking-widest">{sendError}</p>
+              <p className="font-mono text-[10px] text-error uppercase tracking-widest">{sendError}</p>
             </div>
           )}
 
           <div className="flex items-center gap-2 px-3 py-3 border-t border-outline-variant">
             <input
+              aria-label="Chat message"
+              autoComplete="off"
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -130,7 +132,7 @@ export default function ChatBox({ roomId, currentUserId, currentUsername }) {
                 border border-[#4cc9f0]
                 text-[#4cc9f0]
                 bg-[#4cc9f0]/5
-                font-headline text-[9px]
+                font-headline text-[10px]
                 px-4 py-2
                 hover:bg-[#4cc9f0]/15
                 hover:shadow-[0_0_10px_rgba(76,201,240,0.2)]

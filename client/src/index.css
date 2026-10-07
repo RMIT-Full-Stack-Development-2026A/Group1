@@ -219,3 +219,8 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Numbers line up in tables and stat blocks; headings avoid single-word last lines. */
+table, .tabular-nums { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { text-wrap: balance; }

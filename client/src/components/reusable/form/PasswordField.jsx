@@ -82,7 +82,7 @@ const PasswordField = ({
                         showPassword ? "text-[#4cc9f0]" : "text-[#879398]"
                     } hover:text-[#4cc9f0]`}
                 >
-                    <span className="material-symbols-outlined text-sm">
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">
                         {showPassword ? "visibility_off" : "visibility"}
                     </span>
                 </button>

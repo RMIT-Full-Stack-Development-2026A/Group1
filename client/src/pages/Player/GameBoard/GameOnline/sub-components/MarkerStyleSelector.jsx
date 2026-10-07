@@ -53,7 +53,7 @@ export default function MarkerStyleSelector({
                                     </>
                                 )}
                             </div>
-                            <span className="font-mono text-[8px] text-[#879398] uppercase tracking-widest">
+                            <span className="font-mono text-[10px] text-[#879398] uppercase tracking-widest">
                                 {variant.id}
                             </span>
                         </button>

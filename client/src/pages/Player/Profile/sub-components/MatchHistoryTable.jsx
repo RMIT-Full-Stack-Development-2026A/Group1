@@ -121,6 +121,9 @@ export default function MatchHistoryTable({
         <img
           src={src}
           alt={alt}
+          width="32"
+          height="32"
+          loading="lazy"
           className="h-8 w-8 shrink-0 border border-outline-variant object-cover"
         />
       );
@@ -174,7 +177,7 @@ export default function MatchHistoryTable({
       {/* Table Header/Controls */}
       <div className="p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 border-b border-outline-variant">
         <h3 className="font-arcade text-lg text-on-surface flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary-container">
+          <span aria-hidden="true" className="material-symbols-outlined text-primary-container">
             history
           </span>
           MATCH HISTORY
@@ -200,7 +203,7 @@ export default function MatchHistoryTable({
           <div className="flex flex-col gap-1">
             <label htmlFor="history-from" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">From</label>
             <input
-              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-[#879398] focus:border-primary-container"
               id="history-from"
               type="date"
               value={dateFrom}
@@ -212,7 +215,7 @@ export default function MatchHistoryTable({
           <div className="flex flex-col gap-1">
             <label htmlFor="history-to" className="text-[10px] text-[#879398] uppercase font-bold tracking-wider">To</label>
             <input
-              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-outline-variant focus:border-primary-container"
+              className="bg-surface-container-highest border-b-2 border-outline text-xs px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] uppercase font-bold text-on-surface placeholder:text-[#879398] focus:border-primary-container"
               id="history-to"
               type="date"
               value={dateTo}
@@ -314,8 +317,8 @@ export default function MatchHistoryTable({
                   key={match.id}
                   className="hover:bg-surface-container-highest/50 transition-colors group"
                 >
-                  <td className="px-6 py-4 text-outline font-arcade text-[8px]">
-                    {match.id}
+                  <td className="px-6 py-4 text-outline font-arcade text-[10px]" title={match.id}>
+                    #{String(match.id).slice(-6).toUpperCase()}
                   </td>
                   <td className="px-6 py-4">{match.gameType}</td>
                   <td className={`px-6 py-4 ${getOpponentColor(match.result)}`}>
@@ -358,7 +361,7 @@ export default function MatchHistoryTable({
                         </span>
                       </button>
                     ) : (
-                      <span
+                      <span aria-hidden="true"
                         className="material-symbols-outlined text-warning cursor-pointer hover:scale-110 transition-transform"
                         onClick={() => onReplay(match.id)}
                         title="Premium feature - click to view replay"

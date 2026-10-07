@@ -1,4 +1,5 @@
 // Custom hook for Admin Dashboard state and logic
+import { formatCount } from "@/utils/formatNumber";
 import { useState, useEffect } from "react";
 import { adminDashboardService } from "../services/adminDashboard.service";
 
@@ -83,12 +84,7 @@ export const useAdminDashboard = () => {
   }, []);
 
   // Format large numbers with commas and K suffix
-  const formatNumber = (num) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "k";
-    }
-    return num.toLocaleString();
-  };
+  const formatNumber = (num) => formatCount(num);
 
   return {
     metrics,

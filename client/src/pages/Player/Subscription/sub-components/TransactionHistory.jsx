@@ -17,11 +17,11 @@ export default function TransactionHistory({ transactions }) {
                 <table className="w-full text-left font-mono text-xs border-collapse table table-hover table-striped table-bordered">
                     <thead>
                         <tr className="bg-[#292937] border-b border-[#3d484d]">
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">ORDER ID</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">TIMESTAMP (LOCAL)</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">AMOUNT</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">EXPIRES AT</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">STATUS</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[10px]">ORDER ID</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[10px]">TIMESTAMP (LOCAL)</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[10px]">AMOUNT</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[10px]">EXPIRES AT</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-[10px]">STATUS</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#3d484d]">
@@ -77,7 +77,7 @@ export default function TransactionHistory({ transactions }) {
                 </table>
             </div>
             <div className="px-6 py-3 border-t border-[#3d484d] bg-[#292937] text-right">
-                <span className="font-mono text-[9px] text-[#879398]">
+                <span className="font-mono text-[10px] text-[#879398]">
                     {transactions.length > 0 ? `${transactions.length} RECORD(S) FOUND` : 'END OF DATA STREAM'}
                 </span>
             </div>

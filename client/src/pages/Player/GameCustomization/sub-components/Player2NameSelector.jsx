@@ -23,6 +23,10 @@ export default function Player2NameInput({ value, onChange }) {
 
             <div className="bg-[#1e1e2c] border border-[#3d484d] p-6 space-y-3">
                 <input
+                    id="player2-name"
+                    aria-label="Player 2 name"
+                    autoComplete="off"
+                    spellCheck={false}
                     type="text"
                     value={value}
                     onChange={handleChange}

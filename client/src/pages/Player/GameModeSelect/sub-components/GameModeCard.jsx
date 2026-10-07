@@ -41,13 +41,13 @@ const GameModeCard = ({ mode, onSelect }) => {
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: '#4cc9f0', boxShadow: '0 0 5px #4cc9f0' }}
           ></span>
-          <span className="text-primary-container text-[8px] font-bold">{badge}</span>
+          <span className="text-primary-container text-[10px] font-bold">{badge}</span>
         </div>
       )}
 
       {/* Icon */}
       <div className="mb-8 mt-4" style={{ color: accentColor }}>
-        <span
+        <span aria-hidden="true"
           className="material-symbols-outlined block text-7xl"
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
@@ -73,7 +73,7 @@ const GameModeCard = ({ mode, onSelect }) => {
           aria-label={`Select ${title} game mode`}
         >
           {buttonText}
-          <span className="material-symbols-outlined text-sm">{buttonIcon}</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">{buttonIcon}</span>
         </button>
       </div>
     </div>

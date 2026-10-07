@@ -132,7 +132,7 @@ export default function LoginPage() {
                                             showPassword ? "text-[#4cc9f0]" : "text-[#879398]"
                                         } hover:text-[#4cc9f0]`}
                                     >
-                                        <span className="material-symbols-outlined text-sm">
+                                        <span aria-hidden="true" className="material-symbols-outlined text-sm">
                                             {showPassword ? "visibility_off" : "visibility"}
                                         </span>
                                     </button>
@@ -152,11 +152,11 @@ export default function LoginPage() {
                                 }`}
                             >
                                 {isLocked ? (
-                                        <span className="material-symbols-outlined">lock</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined">lock</span>
                                     ) : loading ? (
-                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined animate-spin">hourglass_empty</span>
                                     ) : (
-                                        <span className="material-symbols-outlined">play_arrow</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined">play_arrow</span>
                                     )}
                                 {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN…" : "LOGIN"}
                             </button>

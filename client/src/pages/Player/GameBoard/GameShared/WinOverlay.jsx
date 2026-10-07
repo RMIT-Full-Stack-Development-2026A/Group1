@@ -1,3 +1,4 @@
+import { useDialogA11y } from '@/hooks/useDialogA11y';
 import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { X, Eye } from 'lucide-react';
@@ -51,6 +52,11 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
         }
     }, [winnerData, isDraw]);
 
+    const dialogRef = useDialogA11y({
+        active: Boolean(winnerData || isDraw) && !isMinimized,
+        onClose: () => setIsMinimized(true),
+    });
+
     if (!winnerData && !isDraw) return null;
 
     // Minimized state (bottom-right button)
@@ -75,7 +81,7 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
 
     // Portal to <body> so the overlay sits above fixed UI (chat button) that lives outside the game stacking context.
     return createPortal(
-        <div role="dialog" aria-modal="true" aria-label="Game over" className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center overscroll-contain animate-fade-in">
+        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Game over" className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center overscroll-contain animate-fade-in">
 
             {/* Background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none animated-particles">
@@ -98,8 +104,10 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
             >
                 {/* Close (minimize) button */}
                 <button
+                    type="button"
                     onClick={() => setIsMinimized(true)}
                     className="absolute top-4 right-4 text-[#879398] hover:text-[#ffb4ab] transition-colors"
+                    aria-label="Hide overlay"
                     title="Hide overlay"
                 >
                     <X size={24} />
@@ -137,14 +145,14 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
                 <div className="flex flex-col gap-3 items-center">
                     <button
                         onClick={onRestart}
-                        className="w-60 bg-primary-cyan text-[#003543] font-headline text-[9px] py-4 uppercase hover:translate-y-0.5 transition-transform"
+                        className="w-60 bg-primary-cyan text-[#003543] font-headline text-[10px] py-4 uppercase hover:translate-y-0.5 transition-transform"
                         style={{ boxShadow: '2px 2px 0px #005266' }}
                     >
                         PLAY AGAIN
                     </button>
                     <button
                         onClick={onBackToLobby}
-                        className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
+                        className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[10px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                     >
                         BACK TO LOBBY
                     </button>

@@ -2,17 +2,19 @@ import React from "react";
 import PropTypes from "prop-types";
 import { getMarkerVariants } from "../service/customization.service";
 import SoundButton from "@/components/reusable/sound/SoundButton";
-export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
+export default function MarkerVariantSelector({ selectedMarker, onSelect, hideTitle = false }) {
     const markerVariants = getMarkerVariants();
 
     return (
         <section className="space-y-4">
-            <div className="flex items-center gap-3">
-                <div className="w-1.5 h-6 bg-[#fad100]"></div>
-                <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
-                    03. MARKER VARIANTS
-                </h2>
-            </div>
+            {!hideTitle && (
+                <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-6 bg-[#fad100]"></div>
+                    <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
+                        03. MARKER VARIANTS
+                    </h2>
+                </div>
+            )}
             <div className="bg-[#1e1e2c] border border-[#3d484d] p-6 grid grid-cols-3 md:grid-cols-6 gap-6">
                 {markerVariants.map((variant) => (
                     <SoundButton
@@ -70,4 +72,5 @@ export default function MarkerVariantSelector({ selectedMarker, onSelect }) {
 MarkerVariantSelector.propTypes = {
     selectedMarker: PropTypes.number.isRequired,
     onSelect: PropTypes.func.isRequired,
+    hideTitle: PropTypes.bool,
 };

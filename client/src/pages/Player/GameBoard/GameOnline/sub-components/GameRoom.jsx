@@ -149,7 +149,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
               {[host, guest].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className={`w-2 h-2 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-500 ${p?.isReady ? 'bg-[#24d642]' : 'bg-[#6d706d]'}`} />
-                  <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-[#24d642]' : 'text-[#6d706d]'}`}>
+                  <span className={`font-mono text-[10px] uppercase tracking-wider transition-colors duration-500 ${p?.isReady ? 'text-[#24d642]' : 'text-[#879398]'}`}>
                     {p?.usernameSnapshot || '???'}
                   </span>
                 </div>
@@ -185,7 +185,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
       {disconnectCountdown !== null && (
         <div className="flex-none flex items-center justify-center gap-3 px-6 py-2 border-t border-error/40 bg-error-container/15">
           <div className="w-2 h-2 bg-error animate-pulse" />
-          <p className="font-headline text-[8px] text-error uppercase tracking-widest">OPPONENT DISCONNECTED — ABORTING IN {disconnectCountdown}S</p>
+          <p className="font-headline text-[10px] text-error uppercase tracking-widest">OPPONENT DISCONNECTED — ABORTING IN {disconnectCountdown}S</p>
         </div>
       )}
       <Footer/>

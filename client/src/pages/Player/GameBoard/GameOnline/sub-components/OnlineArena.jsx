@@ -393,7 +393,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
           <div className="fixed top-20 right-6 lg:top-auto lg:bottom-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
-              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[8px] px-4 py-2 uppercase bg-[#b82b1a]
+              className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-[10px] px-4 py-2 uppercase bg-[#b82b1a]
                        hover:text-[#b82b1a] hover:bg-[#ffff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] cursor-pointer"
             >
               ABORT

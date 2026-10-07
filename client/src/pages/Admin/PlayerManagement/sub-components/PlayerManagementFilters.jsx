@@ -15,7 +15,7 @@ export default function PlayerManagementFilters({
 			<div className="absolute left-0 top-0 h-0.5 w-16 bg-primary" />
 			<div className="flex flex-col gap-4 xl:flex-row xl:items-end">
 				<label className="relative flex-1">
-					<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-outline">
+					<span aria-hidden="true" className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-outline">
 						search
 					</span>
 					<input
@@ -43,7 +43,7 @@ export default function PlayerManagementFilters({
 							</option>
 						))}
 					</select>
-					<span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline">
+					<span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline">
 						expand_more
 					</span>
 				</label>

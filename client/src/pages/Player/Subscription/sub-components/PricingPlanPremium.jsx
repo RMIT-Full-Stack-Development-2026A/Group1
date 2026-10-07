@@ -13,14 +13,14 @@ export default function PricingPlanPremium({ isPremium, onScrollToStatus }) {
                 </div>
                 <div className="text-right">
                     <span className="font-headline text-2xl text-[#fad100]">$10</span>
-                    <p className="text-[8px] font-mono text-[#fff0c4]">PER CYCLE (MONTH)</p>
+                    <p className="text-[10px] font-mono text-[#fff0c4]">PER CYCLE (MONTH)</p>
                 </div>
             </div>
             <ul className="space-y-4 mb-8 flex-grow">
-                <li className="flex items-center gap-3 font-body text-sm text-[#e3e0f4]"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> ONLINE PLAY (RANKED)</li>
-                <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> MATCH REPLAYS</li>
-                <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> CUSTOM MARKERS</li>
-                <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> PRIORITY MATCHMAKING</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#e3e0f4]"><span aria-hidden="true" className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> ONLINE PLAY (RANKED)</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span aria-hidden="true" className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> MATCH REPLAYS</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span aria-hidden="true" className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> CUSTOM MARKERS</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#fad100] font-bold"><span aria-hidden="true" className="material-symbols-outlined text-[#fad100] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span> PRIORITY MATCHMAKING</li>
             </ul>
             {isPremium ? (
                 <SoundButton

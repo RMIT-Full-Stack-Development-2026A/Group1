@@ -34,7 +34,10 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                 {themeConfig.bgImage && (
                                     <img 
                                         src={themeConfig.bgImage} 
-                                        alt={`${style.name} background`}
+                                        alt=""
+                                        aria-hidden="true"
+                                        loading="lazy"
+                                        decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover opacity-40 z-0 pointer-events-none"
                                     />
                                 )}

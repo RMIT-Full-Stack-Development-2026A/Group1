@@ -24,7 +24,7 @@ export default function SubscriptionStatus({ isPremium, isRedirecting, onSubscri
 
                             {expires && (
                                 <div className="sm:text-right border-l-2 sm:border-l-0 sm:border-r-2 border-[#a8ff78]/50 pl-3 sm:pl-0 sm:pr-3">
-                                    <p className="font-mono text-[9px] text-[#879398] uppercase tracking-widest mb-1">
+                                    <p className="font-mono text-[10px] text-[#879398] uppercase tracking-widest mb-1">
                                         ACCESS VALID UNTIL
                                     </p>
                                     <p className="font-mono text-xs text-[#a8ff78] uppercase tracking-widest">

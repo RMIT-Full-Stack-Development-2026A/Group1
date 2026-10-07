@@ -19,7 +19,7 @@ export default function ActionButton({ onClick, label, path, description, icon }
           {description}
         </p>
       </div>
-      <span
+      <span aria-hidden="true"
         className="material-symbols-outlined text-4xl text-primary-cyan group-hover:translate-x-1 transition-transform"
         data-icon={icon}
       >

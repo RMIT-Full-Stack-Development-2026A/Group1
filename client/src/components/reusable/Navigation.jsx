@@ -39,6 +39,7 @@ export default function Navigation() {
             <div className="flex items-center gap-8">
                 <button
                     type="button"
+                    translate="no"
                     onClick={handleLogoClick}
                     className="text-lg sm:text-2xl font-black text-[#4cc9f0] [text-shadow:2px_2px_0px_#1e1e2c] font-headline uppercase tracking-widest cursor-pointer hover:drop-shadow-[0_0_8px_#4cc9f0] transition-[filter] focus-visible:outline-2 focus-visible:outline-[#4cc9f0]"
                 >

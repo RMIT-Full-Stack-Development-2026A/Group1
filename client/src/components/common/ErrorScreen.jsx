@@ -12,7 +12,7 @@ export default function ErrorScreen({ message = "AN ERROR OCCURRED" }) {
         {message}
       </p>
 
-      <p className="font-mono text-[9px] text-on-surface-variant">
+      <p className="font-mono text-[10px] text-on-surface-variant">
         Redirecting…
       </p>
     </div>

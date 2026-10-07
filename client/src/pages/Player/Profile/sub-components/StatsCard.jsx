@@ -84,7 +84,7 @@ export default function StatsCard({ label, value, icon, barWidth, color }) {
         <p className="text-[10px] font-bold text-outline uppercase tracking-widest">
           {label}
         </p>
-        <span 
+        <span aria-hidden="true" 
           className="material-symbols-outlined opacity-50"
           style={{ color: colorScheme.textColor }}
         >

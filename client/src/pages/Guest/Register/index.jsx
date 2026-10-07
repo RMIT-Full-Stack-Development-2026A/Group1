@@ -122,9 +122,9 @@ export default function RegisterPage() {
                                 }`}
                             >
                                 {form.loading ? (
-                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined animate-spin">hourglass_empty</span>
                                     ) : (
-                                        <span className="material-symbols-outlined">add</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined">add</span>
                                     )}
                                 {form.loading ? "CREATING ACCOUNT…" : "CREATE ACCOUNT"}
                             </button>

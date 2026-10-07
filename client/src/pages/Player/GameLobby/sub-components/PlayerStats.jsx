@@ -6,7 +6,7 @@ export default function PlayerStats({ stats }) {
             <div className="h-1 w-full bg-[#4cc9f0]"></div>
             <div className="p-6">
                 <h3 className="font-mono text-xs tracking-[0.2em] uppercase text-[#879398] mb-6 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">bar_chart</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">bar_chart</span>
                     MY STATS
                 </h3>
                 <div className="space-y-5">

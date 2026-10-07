@@ -39,7 +39,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
       return <img width="96" height="96" src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
     }
 
-    return <span className="material-symbols-outlined text-primary-cyan">person</span>;
+    return <span aria-hidden="true" className="material-symbols-outlined text-primary-cyan">person</span>;
   };
 
   return (
@@ -122,7 +122,7 @@ export default function GameRoomCard({ room, onClose, closingRoomId }) {
 
         <div className="flex items-center justify-center border border-dashed border-[#2a2a4e] bg-deep-bg py-3">
           <span className={`font-mono text-xs uppercase tracking-[0.24em] ${style.badge} flex items-center gap-2`}>
-            <span className="material-symbols-outlined text-sm">{style.icon}</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">{style.icon}</span>
             {room.statusLabel}
           </span>
         </div>

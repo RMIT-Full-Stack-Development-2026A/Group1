@@ -55,13 +55,13 @@ const PlayerPanel = ({
                     )}
                     
                     {difficulty && (
-                        <div className={`absolute bottom-0 right-0 px-2 py-0.5 text-[8px] font-bold font-mono ${diffStyle}`}>
+                        <div className={`absolute bottom-0 right-0 px-2 py-0.5 text-[10px] font-bold font-mono ${diffStyle}`}>
                             {difficulty}
                         </div>
                     )}
                 </div>
 
-                <p className="font-headline text-[9px] lg:text-[10px] tracking-tighter uppercase"
+                <p className="font-headline text-[10px] lg:text-[10px] tracking-tighter uppercase"
                    style={{ color: isActive ? '#93e2ff' : '#879398' }}>
                     {playerName}
                 </p>

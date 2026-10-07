@@ -58,7 +58,7 @@ export default function Landing() {
 
                     {/* Main Logo */}
                     <div className="relative group mb-6">
-                        <h1 className="font-headline text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
+                        <h1 translate="no" className="font-headline text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
                             TicTacToang
                         </h1>
                         <div className="absolute -top-4 -right-4 w-8 h-8 border-t-2 border-r-2 border-[#fda866]"></div>
@@ -110,7 +110,7 @@ export default function Landing() {
                             <div className="p-6">
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-[#292937] flex items-center justify-center border border-[#3d484d] group-hover:border-[#fad100] transition-colors flex-shrink-0">
-                                        <span className="material-symbols-outlined text-[#fad100]">settings</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[#fad100]">settings</span>
                                     </div>
                                     <h3 className="font-headline text-sm text-[#e3e0f4] uppercase break-words min-w-0">3 AI Levels</h3>
                                 </div>

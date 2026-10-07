@@ -74,7 +74,7 @@ export default function MetricCard({
         <p className={`text-[10px] font-bold uppercase tracking-widest font-mono ${scheme.text}`}>
           {title}
         </p>
-        <span
+        <span aria-hidden="true"
           className={`material-symbols-outlined text-lg ${scheme.text}`}
           data-icon={icon}
           style={isPremium ? { fontVariationSettings: "'FILL' 1" } : {}}
@@ -99,7 +99,7 @@ export default function MetricCard({
         </p>
       )}
       {footer && (
-        <p className={`text-[9px] mt-2 uppercase font-mono ${scheme.text}`}>
+        <p className={`text-[10px] mt-2 uppercase font-mono ${scheme.text}`}>
           {footer}
         </p>
       )}

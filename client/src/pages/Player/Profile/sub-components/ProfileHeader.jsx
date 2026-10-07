@@ -79,11 +79,13 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
             {playerData?.avatarUrl ? (
               <img
                 alt="Player Avatar"
+                width="80"
+                height="80"
                 className="w-full h-full group-hover:opacity-75 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200 cursor-pointer"
                 src={playerData.avatarUrl}
               />
             ) : (
-              <span className="material-symbols-outlined text-6xl text-primary-container group-hover:text-opacity-40 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200">
+              <span aria-hidden="true" className="material-symbols-outlined text-6xl text-primary-container group-hover:text-opacity-40 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200">
                 account_circle
               </span>
             )}
@@ -101,7 +103,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                 className="p-2 text-primary-cyan hover:text-opacity-70 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 title="Change avatar"
               >
-                <span className="material-symbols-outlined text-xl">edit</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">edit</span>
               </button>
             </div>
           </div>
@@ -121,7 +123,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
           {uploading && (
             <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center rounded-none">
               <div className="animate-spin">
-                <span className="material-symbols-outlined text-white">progress_activity</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-white">progress_activity</span>
               </div>
             </div>
           )}
@@ -147,7 +149,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                     className="bg-secondary-container text-[#fad100] px-3 py-1 flex items-center gap-2 text-[10px] font-bold border-2 border-on-secondary-container chunky-shadow"
                     title="Premium"
                   >
-                    <span
+                    <span aria-hidden="true"
                       className="font-headline material-symbols-outlined text-[#fad100]"
                       style={{ fontVariationSettings: "'FILL' 1" }}
                     >
@@ -167,6 +169,8 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                     <img
                       src={flagUrl}
                       alt={countryFlag.flagAlt}
+                      width="24"
+                      height="16"
                       className="w-6 h-4 object-cover"
                     />
                   ) : flagEmoji ? (
@@ -174,7 +178,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                       {flagEmoji}
                     </span>
                   ) : (
-                    <span className="material-symbols-outlined text-sm">flag</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">flag</span>
                   )}
                   {playerData.country}
                 </span>
@@ -195,7 +199,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
           onClick={onEditProfile}
           className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
         >
-          <span className="material-symbols-outlined text-sm">edit</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">edit</span>
           EDIT PROFILE
         </button>
 
@@ -204,7 +208,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
           className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
           title="Change your password"
         >
-          <span className="material-symbols-outlined text-sm">lock</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">lock</span>
           CHANGE PASSWORD
         </button>
       </div>

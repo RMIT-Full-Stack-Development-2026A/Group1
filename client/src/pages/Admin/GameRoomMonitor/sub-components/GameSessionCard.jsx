@@ -155,7 +155,7 @@ export default function GameSessionCard({ session }) {
 
         <div className="flex items-center justify-center border border-dashed border-[#2a2a4e] bg-deep-bg py-3">
           <span className={`font-mono text-xs uppercase tracking-[0.24em] ${style.badge} flex items-center gap-2`}>
-            <span className="material-symbols-outlined text-sm">{style.icon}</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">{style.icon}</span>
             {style.label}
           </span>
         </div>

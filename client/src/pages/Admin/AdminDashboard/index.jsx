@@ -2,6 +2,7 @@
 // Route: /admin
 // Displays system overview metrics and quick navigation to admin features
 
+import { formatOneDecimal } from "@/utils/formatNumber";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminDashboard } from "./hooks/useAdminDashboard";
@@ -80,10 +81,10 @@ export default function AdminDashboard() {
             loading
               ? "Calculating…"
               : metrics?.totalPlayers > 0
-              ? (
+              ? formatOneDecimal(
                   ((metrics?.premiumPlayers || 0) / metrics?.totalPlayers) *
                   100
-                ).toFixed(1) + "% conversion"
+                ) + "% conversion"
               : "No data"
           }
           loading={loading}
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
           value={`$${formatNumber(metrics?.totalRevenue || 0)}`}
           icon="monetization_on"
           colorScheme="yellow"
-          footer={loading ? "Calculating…" : `Monthly: $${formatNumber(metrics?.revenueThisMonth || 0)}`}
+          footer={loading ? "Calculating…" : `This month: $${formatNumber(metrics?.revenueThisMonth || 0)}`}
           loading={loading}
         />
       </section>

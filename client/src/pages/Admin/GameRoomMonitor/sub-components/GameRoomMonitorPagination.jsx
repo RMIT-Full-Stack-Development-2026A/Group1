@@ -1,3 +1,4 @@
+import { formatInteger } from "@/utils/formatNumber";
 import React from "react";
 
 export default function GameRoomMonitorPagination({ page, totalPages, totalItems, pageSize, onPageChange, label = "ROOMS" }) {
@@ -9,7 +10,7 @@ export default function GameRoomMonitorPagination({ page, totalPages, totalItems
   return (
     <section className="flex flex-col gap-4 border border-outline-variant bg-surface-card p-4 font-mono md:flex-row md:items-center md:justify-between">
       <span className="text-[10px] uppercase tracking-widest text-outline">
-        Displaying {startIndex}-{endIndex} of {totalItems.toLocaleString()} {label}
+        Displaying {startIndex}-{endIndex} of {formatInteger(totalItems)} {label}
       </span>
 
       <div className="flex gap-1">
@@ -20,7 +21,7 @@ export default function GameRoomMonitorPagination({ page, totalPages, totalItems
           className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Previous page"
         >
-          <span className="material-symbols-outlined text-sm">chevron_left</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">chevron_left</span>
         </button>
 
         <button
@@ -38,7 +39,7 @@ export default function GameRoomMonitorPagination({ page, totalPages, totalItems
           className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Next page"
         >
-          <span className="material-symbols-outlined text-sm">chevron_right</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">chevron_right</span>
         </button>
       </div>
     </section>

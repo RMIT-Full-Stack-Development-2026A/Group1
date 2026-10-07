@@ -163,10 +163,18 @@ export default function GameCustomization() {
 
                         {/* Section 3: Marker Variant */}
                         {!isOnlineMatch && (
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-1.5 h-6 bg-[#fad100]"></div>
+                                    <h2 className="font-headline text-sm tracking-widest text-[#fad100]">
+                                        03. MARKER VARIANTS
+                                    </h2>
+                                </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-[#879398] mb-2 uppercase font-mono">Player 1 Marker</p>
                                     <MarkerVariantSelector
+                                        hideTitle
                                         selectedMarker={selectedMarkerP1}
                                         onSelect={(v) => { setSelectedMarkerP1(v); }}
                                     />
@@ -174,10 +182,12 @@ export default function GameCustomization() {
                                 <div>
                                     <p className="text-sm text-[#879398] mb-2 uppercase font-mono">{gameMode === 'SINGLE_PLAYER' ? 'AI Marker' : 'Player 2 Marker'}</p>
                                     <MarkerVariantSelector
+                                        hideTitle
                                         selectedMarker={selectedMarkerP2}
                                         onSelect={(v) => { setSelectedMarkerP2(v); }}
                                     />
                                 </div>
+                            </div>
                             </div>
                         )}
 

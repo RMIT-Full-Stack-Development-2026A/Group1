@@ -1,3 +1,4 @@
+import { formatInteger } from "@/utils/formatNumber";
 import React from "react";
 
 export default function PlayerManagementPagination({ page, totalPlayers, pageSize, onPageChange }) {
@@ -11,12 +12,12 @@ export default function PlayerManagementPagination({ page, totalPlayers, pageSiz
 	return (
 		<section className="flex flex-col gap-4 border border-outline-variant bg-surface-container p-4 font-['IBM_Plex_Mono'] md:flex-row md:items-center md:justify-between">
 			<span className="text-[10px] uppercase tracking-widest text-outline">
-				Displaying {startIndex}-{endIndex} of {totalPlayers.toLocaleString()} MEMBERS
+				Displaying {startIndex}-{endIndex} of {formatInteger(totalPlayers)} MEMBERS
 			</span>
 
 			<div className="flex gap-1">
 				<button type="button" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page <= 1} className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Previous page">
-					<span className="material-symbols-outlined text-sm">chevron_left</span>
+					<span aria-hidden="true" className="material-symbols-outlined text-sm">chevron_left</span>
 				</button>
 
 				{page > 1 && (
@@ -36,7 +37,7 @@ export default function PlayerManagementPagination({ page, totalPlayers, pageSiz
 				)}
 
 				<button type="button" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page >= totalPages} className="flex h-8 w-8 items-center justify-center border border-outline-variant text-outline transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary hover:text-primary active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Next page">
-					<span className="material-symbols-outlined text-sm">chevron_right</span>
+					<span aria-hidden="true" className="material-symbols-outlined text-sm">chevron_right</span>
 				</button>
 			</div>
 		</section>

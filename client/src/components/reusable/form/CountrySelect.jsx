@@ -115,6 +115,8 @@ export const CountrySelect = ({
                                 <img
                                     src={selectedFlag.value}
                                     alt={selectedCountry.name.common}
+                                    width="20"
+                                    height="16"
                                     className="w-5 h-4 object-cover rounded-sm"
                                 />
                             ) : selectedFlag?.type === 'emoji' ? (
@@ -169,6 +171,9 @@ export const CountrySelect = ({
                                     <img
                                         src={getFlagDisplay(country).value}
                                         alt={country.name.common}
+                                        width="24"
+                                        height="16"
+                                        loading="lazy"
                                         className="w-6 h-4 object-cover rounded-sm shrink-0"
                                     />
                                 ) : getFlagDisplay(country)?.type === 'emoji' ? (

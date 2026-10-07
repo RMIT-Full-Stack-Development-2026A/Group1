@@ -14,7 +14,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
             return <img width="96" height="96" src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
         }
 
-        return <span className="material-symbols-outlined text-primary-cyan">person</span>;
+        return <span aria-hidden="true" className="material-symbols-outlined text-primary-cyan">person</span>;
     };
 
     const formatRoomParticipantId = (value) => {
@@ -75,19 +75,19 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                 <div className="flex items-center justify-center py-3 bg-deep-bg border border-dashed border-outline-variant">
                     {normalizedStatus === "waiting" && (
                         <span className="font-mono text-xs text-[#fad100] animate-pulse uppercase tracking-widest flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">hourglass_empty</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">hourglass_empty</span>
                             WAITING FOR PLAYER…
                         </span>
                     )}
                     {normalizedStatus === "ready" && (
                         <span className="font-mono text-xs text-primary-cyan uppercase tracking-widest flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">check_circle</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">check_circle</span>
                             READY TO START
                         </span>
                     )}
                     {normalizedStatus === "playing" && (
                         <span className="font-mono text-xs text-error uppercase tracking-widest flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">fiber_manual_record</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">fiber_manual_record</span>
                             MATCH IN PROGRESS
                         </span>
                     )}

@@ -122,6 +122,13 @@ export const useAuthStore = create((set) => ({
             } : null;
             
             
+            if (!userIdentity) {
+                // Anonymous visitor: the server answers 200 with user null
+                set({ isAuthenticated: false, user: null, isCheckingAuth: false });
+                useSocketStore.getState().disconnectSocket();
+                return;
+            }
+
             set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
             
         } catch (error) {

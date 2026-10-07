@@ -117,6 +117,7 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
                                     return showJumpInput ? (
                                         <div key={`jump-input-${idx}`}>
                                             <input
+                                                aria-label="Jump to page number"
                                                 autoFocus
                                                 type="number"
                                                 min="1"

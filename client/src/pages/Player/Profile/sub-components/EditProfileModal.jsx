@@ -1,4 +1,5 @@
 // Edit Profile Modal - Allows players to update email, username, and country
+import { useDialogA11y } from '@/hooks/useDialogA11y';
 import React, { useState, useEffect } from "react";
 import {
   EmailField,
@@ -138,10 +139,12 @@ export default function EditProfileModal({
     }
   };
 
+  const dialogRef = useDialogA11y({ active: isOpen, onClose: isSaving ? undefined : onClose });
+
   if (!isOpen) return null;
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Edit profile" className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overscroll-contain">
+    <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Edit profile" className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overscroll-contain">
       <div className="bg-[#1a1a2e] border border-[#2a2a4e] w-full max-w-[500px] max-h-[90vh] shadow-[4px_4px_0px_0px_#343342] relative flex flex-col">
         {/* Terminal Header Decoration */}
         <div className="absolute top-0 left-0 w-full h-1 bg-[#4cc9f0]"></div>
@@ -231,7 +234,7 @@ export default function EditProfileModal({
           disabled={isSaving}
           className="absolute top-4 right-4 text-outline hover:text-on-surface disabled:opacity-50"
         >
-          <span className="material-symbols-outlined">close</span>
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
     </div>

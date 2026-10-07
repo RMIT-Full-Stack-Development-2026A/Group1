@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { readParam, readPositiveInt, writeParams } from "@/utils/urlState";
 import { playerManagementService } from "../services/playerManagement.service";
 
 const PAGE_SIZE = 10;
@@ -35,16 +37,26 @@ const mapPlayerRow = (player) => {
 };
 
 export const usePlayerManagement = () => {
-	const [searchTerm, setSearchTerm] = useState("");
-	const [statusFilter, setStatusFilter] = useState("");
-	const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
-	const [appliedStatusFilter, setAppliedStatusFilter] = useState("");
-	const [page, setPage] = useState(1);
+	// Applied filters and the page live in the URL (?q=&status=&page=) so a view can be shared and survives reload.
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchTerm, setSearchTerm] = useState(() => readParam(searchParams, "q"));
+	const [statusFilter, setStatusFilter] = useState(() => readParam(searchParams, "status"));
+	const [appliedSearchTerm, setAppliedSearchTerm] = useState(() => readParam(searchParams, "q"));
+	const [appliedStatusFilter, setAppliedStatusFilter] = useState(() => readParam(searchParams, "status"));
+	const [page, setPage] = useState(() => readPositiveInt(searchParams, "page"));
 	const [players, setPlayers] = useState([]);
 	const [totalPlayers, setTotalPlayers] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [actionLoadingId, setActionLoadingId] = useState(null);
+
+	useEffect(() => {
+		writeParams(setSearchParams, {
+			q: [appliedSearchTerm.trim(), ""],
+			status: [appliedStatusFilter, ""],
+			page: [page, 1],
+		});
+	}, [appliedSearchTerm, appliedStatusFilter, page, setSearchParams]);
 
 	const statusFilterOptions = playerManagementService.getStatusFilterOptions();
 

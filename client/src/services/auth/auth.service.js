@@ -68,7 +68,7 @@ export const authService = {
     },
 
     // Call check-auth API to verify session
-    checkAuth: async () => {
-        return await http.get(API_ENDPOINTS.AUTH.CHECK_AUTH);
+    checkAuth: async (config = {}) => {
+        return await http.get(API_ENDPOINTS.AUTH.CHECK_AUTH, {}, config);
     },
 };

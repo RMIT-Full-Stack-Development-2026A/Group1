@@ -7,6 +7,37 @@ let hasInitializedAuth = false;
 
 let isLoggingOut = false;
 
+export const SESSION_COOKIE_BLOCKED = 'SESSION_COOKIE_BLOCKED';
+const SESSION_COOKIE_BLOCKED_MESSAGE =
+    'Your browser blocked the login cookie, so your session could not start. ' +
+    'Allow third-party cookies for this site (or leave Incognito / private mode) and sign in again.';
+
+/**
+ * Confirms the session cookie really reached the browser. The API is on a different site than this app,
+ * and a browser that blocks third-party cookies drops it silently: the login response still says success,
+ * but every later request has no cookie and the user is thrown back to the login page with no explanation.
+ * Only a definite "not signed in" answer counts; a network error or timeout is not treated as a blocked cookie.
+ */
+const assertSessionStarted = async (user) => {
+    let confirmed;
+    try {
+        const response = await authService.checkAuth({ skipGlobalAuthError: true });
+        confirmed = response?.data?.user ?? null;
+    } catch (error) {
+        if (error?.status !== 401) return;
+        confirmed = null;
+    }
+
+    const expectedId = user?.id ?? user?.userId;
+    const confirmedId = confirmed?.id ?? confirmed?.userId;
+    const sameUser = !expectedId || !confirmedId || String(expectedId) === String(confirmedId);
+    if (confirmed && sameUser) return;
+
+    const blocked = new Error(SESSION_COOKIE_BLOCKED_MESSAGE);
+    blocked.code = SESSION_COOKIE_BLOCKED;
+    throw blocked;
+};
+
 export const useAuthStore = create((set) => ({
     user: null,
     isAuthenticated: false,
@@ -22,7 +53,8 @@ export const useAuthStore = create((set) => ({
             // authService.login() already extracts user identity from JWT
             const response = await authService.login(credentials);
             const userIdentity = response.user; // Extracted in authService
-            
+
+            await assertSessionStarted(userIdentity);
 
             set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
@@ -45,8 +77,9 @@ export const useAuthStore = create((set) => ({
             // authService.register() already extracts user identity from JWT
             const response = await authService.register(userData);
             const userIdentity = response.user; // Extracted in authService
-            
-            
+
+            await assertSessionStarted(userIdentity);
+
             set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
             // Allow checkAuth to run again on next page/route to verify backend session

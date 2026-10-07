@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/auth/AuthStore";
+import { useAuthStore, SESSION_COOKIE_BLOCKED } from "@/stores/auth/AuthStore";
 import { notifySuccess } from "@/utils/toast.util";
 
 // ── Per-identifier lockout helpers (scoped localStorage keys) ──
@@ -88,7 +88,8 @@ export const useLogin = () => {
 
     // Auto-dismiss transient auth notifications, but keep the lockout countdown visible
     useEffect(() => {
-        if (!message.text) return;
+        // A blocked login cookie needs the user to change a browser setting, so it stays until they edit the form.
+        if (!message.text || message.persistent) return;
 
         const isLockoutCountdownMessage =
             isLocked && lockoutCountdown > 0 && message.text.includes("Too many failed attempts for this account");
@@ -100,7 +101,7 @@ export const useLogin = () => {
         }, 5000);
 
         return () => clearTimeout(timeoutId);
-    }, [message.text, isLocked, lockoutCountdown]);
+    }, [message.text, message.persistent, isLocked, lockoutCountdown]);
 
     // Handle input change
     const handleInputChange = useCallback((e) => {
@@ -162,7 +163,9 @@ export const useLogin = () => {
                 const errorCode = error.response?.data?.error;
                 const errorMessage = error.response?.data?.message || error.message || "Login failed. Please try again.";
 
-                if (error.response?.status === 403 && errorCode === "ACCOUNT_DEACTIVATED") {
+                if (error.code === SESSION_COOKIE_BLOCKED) {
+                    setMessage({ type: "error", text: errorMessage, persistent: true });
+                } else if (error.response?.status === 403 && errorCode === "ACCOUNT_DEACTIVATED") {
                     setMessage({
                         type: "error",
                         text: errorMessage,

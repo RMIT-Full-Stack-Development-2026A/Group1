@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import SoundButton from "@/components/reusable/sound/SoundButton";
-export default function ActionButtons({ onCreateRoom, onCancel, isLoading, gameMode }) {
+export default function ActionButtons({ onCreateRoom, onCancel, isLoading = false, gameMode = "" }) {
     const primaryLabel = gameMode === "ONLINE_MATCH" ? "CREATE ROOM" : "PLAY";
 
     return (
@@ -30,7 +30,5 @@ ActionButtons.propTypes = {
     gameMode: PropTypes.string,
 };
 
-ActionButtons.defaultProps = {
-    isLoading: false,
-    gameMode: "",
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.

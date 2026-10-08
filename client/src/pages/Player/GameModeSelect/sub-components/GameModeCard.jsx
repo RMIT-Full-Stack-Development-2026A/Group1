@@ -16,8 +16,8 @@ const GameModeCard = ({ mode, onSelect }) => {
     buttonText,
     buttonIcon,
     buttonStyle,
-    badge,
-    glowEffect,
+    badge = null,
+    glowEffect = false,
     topBarColor,
   } = mode;
 
@@ -97,9 +97,7 @@ GameModeCard.propTypes = {
   onSelect: PropTypes.func.isRequired,
 };
 
-GameModeCard.defaultProps = {
-  badge: null,
-  glowEffect: false,
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.
 
 export default GameModeCard;

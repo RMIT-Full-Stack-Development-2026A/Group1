@@ -16,12 +16,13 @@ export default function Navigation() {
     const isAdmin = user?.role === 'ADMIN';
 
     const handleLogoClick = () => {
-        // If logged in, go to appropriate dashboard. Otherwise, go to landing page
+        // If logged in, go to appropriate dashboard. Otherwise, go to landing page.
+        // Non-admin players land on /welcome (07/10, Khanh), not /play directly.
         if (isAuthenticated) {
             if (isAdmin) {
                 navigate("/admin");
             } else {
-                navigate("/play");
+                navigate("/welcome");
             }
         } else {
             navigate("/");

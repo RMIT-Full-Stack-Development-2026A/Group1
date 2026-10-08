@@ -1,0 +1,36 @@
+/* Welcome page — scoped keyframes. CSS transform only, per issue #201. */
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.welcome-marquee-track {
+  animation: marquee-scroll 18s linear infinite;
+}
+
+.welcome-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Testimonial cards are wider than marquee chips, so the loop runs slower
+   (40s vs 18s) to keep a readable pace. Same -50% keyframe: exactly two
+   copies of the card list means the loop point is seamless. */
+.welcome-testimonials-track {
+  animation: marquee-scroll 40s linear infinite;
+}
+
+.welcome-testimonials-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-marquee-track,
+  .welcome-testimonials-track {
+    animation: none;
+  }
+}

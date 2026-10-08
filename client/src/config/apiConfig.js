@@ -13,6 +13,9 @@ export const API_ENDPOINTS = {
         PASSWORD: "/profile/password",
         AVATAR: "/profile/avatar",
     },
+    FEEDBACK: {
+        SUBMIT: "/feedback",
+    },
     COUNTRIES: {
         LIST: "/countries",
         FLAGS: (countryName) => `/countries/${encodeURIComponent(countryName)}/flag`,
@@ -22,6 +25,7 @@ export const API_ENDPOINTS = {
         DETAILS: (id) => `/games/${id}`,
         MOVES: (id) => `/games/${id}/moves`,
         SEARCH: "/games/search",
+        TOTAL_MATCHES: "/games/stats/total",
     },
     ROOM: {
         LIST: "/rooms",

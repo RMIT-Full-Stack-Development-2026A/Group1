@@ -18,6 +18,7 @@ export default function GameOnline() {
     hasCompletedMatch,
     completedMatch,
     handleReady,
+    handleUnready,
     handlePlayAgain,
     handleLeaveRoom,
     handleSetFirstTurn,
@@ -54,6 +55,7 @@ export default function GameOnline() {
           roomData={roomData}
           currentUserId={user?.id}
           onReady={handleReady}
+          onUnready={handleUnready}
           onLeave={handleLeaveRoom}
           onSetFirstTurn={handleSetFirstTurn}
           onSetMarkerStyle={handleSetMarkerStyle}

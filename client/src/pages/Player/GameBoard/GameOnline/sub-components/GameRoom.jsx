@@ -7,7 +7,7 @@ import ReadyButton from './ReadyButton';
 import MarkerStyleSelector from './MarkerStyleSelector';
 import Footer from '@/components/reusable/Footer';
 
-export default function GameRoom({ roomData, currentUserId, onReady, onLeave, onSetFirstTurn, onSetMarkerStyle, disconnectCountdown }) {
+export default function GameRoom({ roomData, currentUserId, onReady, onUnready, onLeave, onSetFirstTurn, onSetMarkerStyle, disconnectCountdown }) {
   const host = roomData?.participants?.[0] || null;
   const guest = roomData?.participants?.[1] || null;
   const myParticipant = roomData?.participants?.find((p) => p.userId === currentUserId) || null;
@@ -161,7 +161,7 @@ export default function GameRoom({ roomData, currentUserId, onReady, onLeave, on
             {/* Two columns in the pinned bar; lg:contents makes this wrapper disappear on desktop */}
             <div className="grid grid-cols-[1.4fr_1fr] gap-2 w-full lg:contents">
               {/* READY BUTTON */}
-              <ReadyButton isReady={isMyReady} isDisabled={!canReady} onReady={onReady} />
+              <ReadyButton isReady={isMyReady} isDisabled={!canReady} onReady={onReady} onUnready={onUnready} />
 
               <button
                 onClick={handleLeaveWithSound}

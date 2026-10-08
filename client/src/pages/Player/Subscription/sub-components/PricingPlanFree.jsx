@@ -17,6 +17,7 @@ export default function PricingPlanFree({ isPremium }) {
                 <li className="flex items-center gap-3 font-body text-sm"><span aria-hidden="true" className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> ONLINE PLAY</li>
                 <li className="flex items-center gap-3 font-body text-sm"><span aria-hidden="true" className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> AI MATCHES</li>
                 <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> MATCH REPLAYS</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> MATCH CHAT</li>
                 <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> CUSTOM MARKERS</li>
                 <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> PRIORITY MATCHMAKING</li>
             </ul>

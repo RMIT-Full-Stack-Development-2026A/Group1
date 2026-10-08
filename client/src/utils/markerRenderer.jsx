@@ -59,20 +59,6 @@ export const renderOMarker = (variantDisplayId, className = "") => {
 };
 
 /**
- * Render both X and O markers side by side (for preview)
- * @param {number} variantDisplayId - Marker variant display ID (1-6)
- * @returns {JSX.Element} Both markers
- */
-export const renderMarkerPair = (variantDisplayId) => {
-    return (
-        <div className="flex items-center space-x-4">
-            {renderXMarker(variantDisplayId, "w-8 h-8")}
-            {renderOMarker(variantDisplayId, "w-8 h-8")}
-        </div>
-    );
-};
-
-/**
  * Resolve Tailwind wrapper classes for a marker style
  * Maps visual styles to animation and effect classes
  * * @param {string} markerStyle - Marker style from roomData.markerStyle

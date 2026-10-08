@@ -172,8 +172,6 @@ export const SubscriptionService = {
 
     // [POST] /subscription/create-order endpoint
     createOrder: async (userId) => {
-        const user = await AuthInterface.getUserById(userId);
-
         const accessToken = await generateAccessToken();
         const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
             method: 'POST',

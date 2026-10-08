@@ -13,8 +13,6 @@ export const MARQUEE_ITEMS = [
   "100% FREE",
 ];
 
-// Each mode gets its own scripted win pattern so the 3 hover demos look
-// visually distinct (see MiniBoardDemo.jsx): diagonal, column, bottom row.
 export const MODE_PREVIEWS = [
   {
     id: "SINGLE_PLAYER",
@@ -22,7 +20,6 @@ export const MODE_PREVIEWS = [
     description: "Battle the AI across 3 difficulty levels.",
     accentColor: "#4cc9f0",
     icon: "smart_toy",
-    script: [0, 1, 4, 2, 8], // X wins the diagonal
   },
   {
     id: "TWO_PLAYERS",
@@ -30,7 +27,6 @@ export const MODE_PREVIEWS = [
     description: "Challenge a friend on the same machine.",
     accentColor: "#fad100",
     icon: "videogame_asset",
-    script: [0, 1, 3, 2, 6], // X wins the left column
   },
   {
     id: "ONLINE_MATCH",
@@ -38,7 +34,6 @@ export const MODE_PREVIEWS = [
     description: "Enter the global network and climb the rankings.",
     accentColor: "#ffb780",
     icon: "public",
-    script: [6, 0, 7, 1, 8], // X wins the bottom row
   },
 ];
 
@@ -61,7 +56,7 @@ export const HOW_TO_PLAY_STEPS = [
 ];
 
 // icon values are Material Symbols ligature names — rendered with the
-// `material-symbols-outlined` font class in FeatureGrid.jsx.
+// `material-symbols-outlined` font class.
 export const FEATURE_CARDS = [
   {
     id: "board-size",
@@ -117,29 +112,9 @@ export const TESTIMONIALS = [
   { id: 6, name: "Linh Pham", role: "Online Ranked", avatar: "/avatars/reviewer-6.jpg", quote: "Three themes, six marker styles — small touches, but they make every match feel fresh." },
 ];
 
-export const FAQ_ITEMS = [
-  {
-    question: "Is it free to play?",
-    answer: "Yes, the core modes are completely free. Some extra features are part of the Premium plan.",
-  },
-  {
-    question: "Do I need to create an account?",
-    answer: "You need an account to save progress, play Online, and view your match history.",
-  },
-  {
-    question: "What are the rules?",
-    answer: "Connect 3 marks in a row — horizontally, vertically, or diagonally — before your opponent.",
-  },
-  {
-    question: "Does it work on mobile?",
-    answer: "Yes, the layout is fully responsive on both desktop and mobile.",
-  },
-];
-
 // Dock is intentionally coarser than the page's section list: "Features",
 // "Board Themes" and "Markers" are 3 separate full-screen sections on the
-// page (unchanged), but share one "Features" entry here so the dock stays
-// short. FAQ removed (07/10, page section also removed).
+// page, but share one "Features" entry here so the dock stays short.
 export const DOCK_SECTIONS = [
   { id: "welcome-top",   label: "Home",         icon: "home" },
   { id: "modes",         label: "Modes",         icon: "sports_esports" },

@@ -105,12 +105,6 @@ export const RoomDTO = {
     /** Maps room to socket created DTO. */
     toSocketRoomCreated: (room) => ({ room: RoomDTO.toRoomSummary(room) }),
     
-    /** Maps room to socket updated DTO. */
-    toSocketRoomUpdated: (room) => ({ room: RoomDTO.toRoomSummary(room) }),
-    
-    /** Maps room ID to socket removed DTO. */
-    toSocketRoomRemoved: (roomId) => ({ roomId: String(roomId) }),
-
     /** Maps game state to payload DTO. */
     toGameStatePayload: ({ room, board }) => ({
         roomId: String(room.id || room._id),

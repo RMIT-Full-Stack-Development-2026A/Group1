@@ -7,15 +7,12 @@ import mongoose from "mongoose";
  */
 export const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        
+        await mongoose.connect(process.env.MONGO_URI);
     } catch (error) {
-        
-        
         // Ensure connection is fully closed before exiting
-        await mongoose.disconnect(); 
-        
+        await mongoose.disconnect();
+
         // Terminate the process with a failure code
-        process.exit(1); 
+        process.exit(1);
     }
 };

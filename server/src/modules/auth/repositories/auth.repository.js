@@ -13,18 +13,6 @@ export const AuthRepository = {
         }).select("+passwordHash +auth.loginAttempts +auth.lockUntil +auth.loginWindowStartedAt");
     },
 
-    /** Checks email existence. */
-    existsByEmail: async (email) => {
-        const normalizedEmail = String(email).trim().toLowerCase();
-        return !!(await User.exists({ email: normalizedEmail }));
-    },
-
-    /** Checks username existence. */
-    existsByUsername: async (username) => {
-        const normalizedUsername = String(username).trim();
-        return !!(await User.exists({ username: normalizedUsername }));
-    },
-
     /** Creates a new user. */
     createUser: async (userData) => {
         const newUser = new User(userData);

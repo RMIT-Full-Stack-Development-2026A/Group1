@@ -6,7 +6,7 @@ import React, { useState, useRef, useEffect } from "react";
  * Uses REST Countries API flag URLs
  * Features keyboard navigation - type to jump to countries
  */
-export const CountrySelect = ({
+const CountrySelect = ({
     value,
     onChange,
     disabled = false,

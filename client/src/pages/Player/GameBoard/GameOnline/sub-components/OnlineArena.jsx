@@ -155,10 +155,8 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
     if (gameOver) {
       // Play sound immediately
       if (perspective === 'loser') {
-        console.log(completedMatch)
         playLoseSound();
       } else if (perspective === 'winner') {
-        console.log(completedMatch)
         playVictorySound();
       }
 

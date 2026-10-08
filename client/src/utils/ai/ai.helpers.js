@@ -1,7 +1,7 @@
 /**
  * Standardized Heuristic Scoring Matrix for all AI levels
  */
-export const getScore = (count, blocks) => {
+const getScore = (count, blocks) => {
     if (count >= 5) return 10000000;         // Guaranteed Win
     if (count === 4 && blocks === 0) return 100000; // Open 4
     if (count === 4 && blocks === 1) return 5000;   // Capped 4

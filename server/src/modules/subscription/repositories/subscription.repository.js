@@ -48,19 +48,6 @@ export const SubscriptionRepository = {
     },
 
     /**
-     * Retrieves active transaction for a user.
-     * @param {string} userId - User ID.
-     * @returns {Promise<Object>} Active transaction.
-     */
-    getActiveTransactionByUserId: async (userId) => {
-        return await Transaction.findOne({ 
-            userId,
-            status: 'SUCCESS',
-            subscriptionPeriodEnd: { $exists: true, $gt: new Date() },
-        });
-    },
-
-    /**
      * Retrieves successful transactions for a user.
      * @param {string} userId - User ID.
      * @param {number} skip - Number of records to skip.

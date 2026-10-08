@@ -44,18 +44,6 @@ export const SubscriptionDTO = {
     toHistoryItem,
 
     /**
-     * Maps transaction to history list DTO.
-     * @param {Object} transaction - Raw transaction data.
-     * @returns {Object} History list payload.
-     */
-    toHistory: (transaction) => ({
-        items: transaction ? [toHistoryItem(transaction)] : [],
-        total: transaction ? 1 : 0,
-        page: 1,  
-        limit: 1 
-    }),
-
-    /**
      * Maps successful transaction list to history list DTO.
      * @param {Array<Object>} items - Transaction list.
      * @param {Object} meta - Pagination metadata.

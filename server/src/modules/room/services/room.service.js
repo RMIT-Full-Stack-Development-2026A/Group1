@@ -475,11 +475,6 @@ export const RoomService = {
         }
     },
 
-    // Delete room completely (called from socket layer for cleanup)
-    forceDeleteRoom: async (roomId) => {
-        await RoomRepository.deleteRoom(roomId);
-    },
-
     handleChatSend: async (userId, payload) => {
         const { roomId, message } = validateChatSend(payload);
         
@@ -631,10 +626,4 @@ export const RoomService = {
         return { roomId, room: RoomDTO.toRoomSummary(started || room), gameStart: !!started };
     },
 
-    /** Retrieves game state. */
-    getGameState: async (roomId) => {
-        const room = await GameRoom.findById(roomId);
-        if (!room) return null;
-        return RoomDTO.toGameStatePayload({ room, board: room.moves });
-    }
 };

@@ -12,9 +12,6 @@ import { countryService } from "@/services/countryService";
  * @returns {boolean} true if premium is active (expiry date is in the future)
  */
 const isPremiumActive = (premiumExpiresAt) => {
-  // DEVELOPMENT: Uncomment the line below to hardcode premium for testing
-  // return true;
-  
   if (!premiumExpiresAt) return false;
   const expiryDate = new Date(premiumExpiresAt);
   return expiryDate > new Date();

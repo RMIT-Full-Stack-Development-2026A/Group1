@@ -10,7 +10,7 @@ const isProduction = () => process.env.NODE_ENV === 'production';
  * Secure, so it is only used in production. Clearing a cookie needs the same attributes it was set with.
  * @param {{ partitioned?: boolean }} [options] - set partitioned to false to address the older, unpartitioned cookie.
  */
-export const accessTokenCookieOptions = ({ partitioned = true } = {}) => {
+const accessTokenCookieOptions = ({ partitioned = true } = {}) => {
     const production = isProduction();
     return {
         httpOnly: true,

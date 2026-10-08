@@ -36,13 +36,6 @@ export const countryService = {
         return getFlag(countryName);
     },
 
-        /**
-     * Alias for getCountryFlag — kept for backward compatibility
-     */
-    getCountryFlagAsync(countryName) {
-        return this.getCountryFlag(countryName);
-    },
-
     /**
      * Get all available countries from local data
      * Returns data in format for CountrySelect component: {name: {common: string}, flags: {svg, png}}
@@ -59,10 +52,4 @@ export const countryService = {
         return countriesCache;
     },
 
-    /**
-     * Clear cache (useful for testing)
-     */
-    clearCache() {
-        countriesCache = null;
-    },
 };

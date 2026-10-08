@@ -12,11 +12,13 @@
  * merging to main. Drop real photos into client/src/assets/history/.
  */
 
-import { useEffect, useRef, useState } from "react";
-import classicBg from "@/assets/themes/classic/bg.png";
-import blockBg from "@/assets/themes/block/bg.png";
-import neonBg from "@/assets/themes/neon/bg.png";
-import Spiral3DSlider from "./Spiral3DSlider";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import classicBg from "@/assets/themes/classic/bg.webp";
+import blockBg from "@/assets/themes/block/bg.webp";
+import neonBg from "@/assets/themes/neon/bg.webp";
+// three.js and its React renderer are large, so the slider is its own chunk, fetched only when the section
+// is about to scroll into view (see LazySpiral below) instead of with the rest of the welcome page.
+const Spiral3DSlider = lazy(() => import("./Spiral3DSlider"));
 import { HISTORY_PLACEHOLDER } from "../service/welcomeContent.service";
 
 // ---------------------------------------------------------------------------
@@ -67,20 +69,22 @@ function LazySpiral({ slides, isDesktop }) {
   return (
     <div ref={wrapperRef} className="h-full w-full">
       {visible && (
-        <Spiral3DSlider
-          items={slides}
-          cardWidth={360}
-          cardAspectRatio={4 / 3}
-          radius={300}
-          verticalGap={110}
-          maxCardWidthRatio={0.4}
-          maxRadiusRatio={0.5}
-          maxGapRatio={0.14}
-          offsetXRatio={isDesktop ? 0.15 : 0}
-          bend={0.17}
-          fov={44}
-          className="h-full w-full"
-        />
+        <Suspense fallback={null}>
+          <Spiral3DSlider
+            items={slides}
+            cardWidth={360}
+            cardAspectRatio={4 / 3}
+            radius={300}
+            verticalGap={110}
+            maxCardWidthRatio={0.4}
+            maxRadiusRatio={0.5}
+            maxGapRatio={0.14}
+            offsetXRatio={isDesktop ? 0.15 : 0}
+            bend={0.17}
+            fov={44}
+            className="h-full w-full"
+          />
+        </Suspense>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
-import classicBg from '@/assets/themes/classic/bg.png';
-import neonBg from '@/assets/themes/neon/bg.png';
-import blockBg from '@/assets/themes/block/bg.png';
+import classicBg from '@/assets/themes/classic/bg.webp';
+import neonBg from '@/assets/themes/neon/bg.webp';
+import blockBg from '@/assets/themes/block/bg.webp';
 
 export const GAME_THEMES = {
     jungle: {

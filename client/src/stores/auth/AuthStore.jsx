@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { authService } from "../../services/auth/auth.service";
 import { useSocketStore } from '../socket/SocketStore';
+import { setSessionHint, clearSessionHint } from '@/utils/sessionHint';
 
 // Global flag to ensure checkAuth is only called once per app lifecycle
 let hasInitializedAuth = false;
@@ -55,6 +56,7 @@ export const useAuthStore = create((set) => ({
             const userIdentity = response.user; // Extracted in authService
 
             await assertSessionStarted(userIdentity);
+            setSessionHint();
 
             set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
@@ -79,6 +81,7 @@ export const useAuthStore = create((set) => ({
             const userIdentity = response.user; // Extracted in authService
 
             await assertSessionStarted(userIdentity);
+            setSessionHint();
 
             set({ isAuthenticated: true, user: userIdentity, isLoading: false, isCheckingAuth: false });
             
@@ -109,6 +112,7 @@ export const useAuthStore = create((set) => ({
             // The frontend state will be cleared regardless
         } finally {
             // Always clear state on the frontend regardless of API success/failure
+            clearSessionHint();
             set({ isAuthenticated: false, user: null, isLoading: false });
             useSocketStore.getState().disconnectSocket();
             isLoggingOut = false;
@@ -157,11 +161,13 @@ export const useAuthStore = create((set) => ({
             
             if (!userIdentity) {
                 // Anonymous visitor: the server answers 200 with user null
+                clearSessionHint();
                 set({ isAuthenticated: false, user: null, isCheckingAuth: false });
                 useSocketStore.getState().disconnectSocket();
                 return;
             }
 
+            setSessionHint();
             set({ isAuthenticated: true, user: userIdentity, isCheckingAuth: false });
             
         } catch (error) {
@@ -169,7 +175,7 @@ export const useAuthStore = create((set) => ({
             
             // If checkAuth fails, user is not authenticated
             // (no valid cookie or session expired)
-            
+            clearSessionHint();
             set({ isAuthenticated: false, user: null, isCheckingAuth: false });
             useSocketStore.getState().disconnectSocket();
         }

@@ -1,7 +1,7 @@
 import React from "react";
 import RoomCard from "./RoomCard";
 
-export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserId, pagination, onPageChange }) {
+export default function RoomGrid({ rooms, loading = false, onJoinRoom, onCreateRoom, currentUserId, pagination, onPageChange }) {
     
     const roomList = Array.isArray(rooms) ? rooms : [];
     const hasRooms = roomList.length > 0;
@@ -48,7 +48,19 @@ export default function RoomGrid({ rooms, onJoinRoom, onCreateRoom, currentUserI
                 </div>
             )}
 
-            {!hasRooms && (
+            {/* While the first load is in flight, hold the space the room cards will take so the page does not jump */}
+            {!hasRooms && loading && (
+                <div role="status" aria-live="polite" aria-busy="true" className="flex-1 py-2">
+                    <span className="sr-only">Loading rooms…</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max" aria-hidden="true">
+                        {[0, 1, 2].map((placeholder) => (
+                            <div key={placeholder} className="min-h-[220px] bg-surface-container-low border border-outline-variant/40 animate-pulse motion-reduce:animate-none" />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {!hasRooms && !loading && (
                 <div className="flex-1 flex items-center justify-center px-6 py-12">
                     <div className="text-center bg-surface-container-low border border-dashed border-outline/40 px-12 py-16 shadow-inner max-w-lg w-full">
                         <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-surface-container-highest border border-outline-variant mb-6">

@@ -73,14 +73,6 @@ export default function GameLobby() {
         return rooms.filter((room) => String(room.status || '').toLowerCase() === 'waiting');
     }, [rooms, showWaitingOnly]);
 
-    if (isCheckingAuth || lobbyLoading) {
-        return (
-            <div className="bg-deep-bg text-on-surface min-h-screen flex items-center justify-center">
-                <div className="font-mono text-primary-cyan">Loading Lobby…</div>
-            </div>
-        );
-    }
-
     // Show error if lobby data failed to load
     if (lobbyError) {
         return (
@@ -166,6 +158,7 @@ export default function GameLobby() {
                 {/* Room Grid */}
                 <RoomGrid
                     rooms={visibleRooms}
+                    loading={lobbyLoading}
                     onJoinRoom={handleJoinRoom}
                     onCreateRoom={handleCreateRoom}
                     currentUserId={user?.id}

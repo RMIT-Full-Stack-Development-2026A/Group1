@@ -22,16 +22,17 @@ export default function Layout({ children }) {
     const connectSocket = useSocketStore((state) => state.connectSocket);
     const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
 
+    // The session check itself runs once from App.jsx.
     useEffect(() => {
-        useAuthStore.getState().checkAuth();
-    }, []);
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            connectSocket();
-        } else {
+        if (!isAuthenticated) {
             disconnectSocket();
+            return;
         }
+        // Connect once the browser is idle so the socket handshake does not compete with the first paint
+        const schedule = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 200));
+        const cancel = window.cancelIdleCallback || window.clearTimeout;
+        const handle = schedule(() => connectSocket(), { timeout: 2000 });
+        return () => cancel(handle);
     }, [isAuthenticated, connectSocket, disconnectSocket]);
 
     useEffect(() => {

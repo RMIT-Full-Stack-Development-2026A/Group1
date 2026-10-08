@@ -14,7 +14,6 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
     const [onlineCount, setOnlineCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [usingMockData, setUsingMockData] = useState(false);
     const [pagination, setPagination] = useState({ page, limit, total: 0 });
     const socket = useSocketStore((state) => state.socket);
     const isConnected = useSocketStore((state) => state.isConnected);
@@ -34,11 +33,6 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
         ]);
 
         const normalizedRooms = roomsData?.items || [];
-
-        const isMockData = roomsData?.total === LobbyService._getMockRooms().length ||
-                           (Array.isArray(normalizedRooms) && normalizedRooms[0]?.roomNumber === 42);
-
-        setUsingMockData(isMockData);
         setRooms(normalizedRooms);
         if (activityData) setRecentActivity(activityData);
         setOnlineCount(roomsData?.total ?? normalizedRooms.length ?? 0);
@@ -55,7 +49,6 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
             try {
                 setLoading(true);
                 setError(null);
-                setUsingMockData(false);
                 
                 
 
@@ -66,7 +59,6 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
                 setError(err.message || "Failed to load lobby data");
                 setRooms([]);
                 setRecentActivity([]);
-                setUsingMockData(true);
             } finally {
                 setLoading(false);
             }
@@ -107,9 +99,6 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
         wasConnected.current = isConnected;
     }, [isConnected, loadLobbyData]);
 
-    // Get available rooms (filter by status)
-    const availableRooms = LobbyService.getAvailableRooms(rooms);
-
     // Refresh lobby data manually
     const refreshLobby = async () => {
         try {
@@ -128,10 +117,8 @@ export const useLobby = ({ page = 1, limit = 5, waitingOnly = false } = {}) => {
         rooms,
         recentActivity,
         onlineCount,
-        availableRooms,
         loading,
         error,
-        usingMockData,
         pagination,
         refreshLobby,
     };

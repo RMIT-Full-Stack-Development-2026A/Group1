@@ -13,7 +13,7 @@ export default function GameLobby() {
     const { setGameMode } = useModeStore();
     const [page, setPage] = useState(1);
     const [showWaitingOnly, setShowWaitingOnly] = useState(false);
-    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby, pagination } = useLobby({
+    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, refreshLobby, pagination } = useLobby({
         page,
         limit: 9,
         waitingOnly: showWaitingOnly,
@@ -130,13 +130,6 @@ export default function GameLobby() {
                     >
                         REJOIN MATCH
                     </button>
-                </div>
-            )}
-
-            {/* Mock Data Warning Banner */}
-            {usingMockData && !lobbyError && (
-                <div className="bg-surface-container-low border-b border-primary-cyan text-primary-cyan px-6 py-3 text-center text-sm font-mono tracking-tight">
-                    DEMO MODE: Showing example data. Backend endpoints not yet implemented.
                 </div>
             )}
 

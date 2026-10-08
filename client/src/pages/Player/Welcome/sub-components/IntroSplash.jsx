@@ -1,8 +1,8 @@
 /**
- * IntroSplash — new (07/10, Khanh)
+ * IntroSplash
  * Full-screen background shown briefly before the /welcome content is
- * revealed. 07/10 update: background is now the ported AnimatedGradient
- * (componentry.dev, WebGL) instead of a plain CSS gradient. Two-stage
+ * revealed. The background is the ported AnimatedGradient
+ * (componentry.dev, WebGL). Two-stage
  * reveal — "Welcome to" fades in first, holds briefly, then "TICTACTOANG"
  * appears below it, before the whole overlay fades out. Skipped entirely
  * when the user prefers reduced motion (no forced animation, page content
@@ -15,9 +15,7 @@ import AnimatedGradient from "./AnimatedGradient";
 
 const MotionDiv = motion.div;
 
-// Timings widened 07/10 (Khanh): hold the AnimatedGradient intro for 5s
-// total, with "Welcome to" settling in before "TICTACTOANG" appears below
-// it, instead of the two nearly overlapping at the old 2s duration.
+// The intro holds for 5s in total, with "Welcome to" settling in before "TICTACTOANG" appears below it.
 const WELCOME_DELAY_MS = 0;
 const TITLE_DELAY_MS = 1500;
 const SPLASH_DURATION_MS = 5000;

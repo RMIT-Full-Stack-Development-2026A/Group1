@@ -1,17 +1,11 @@
 /**
- * BoardThemesSection — split from FeatureGrid (Phase 1/2 refactor)
+ * BoardThemesSection
  * Renders WheelCarousel without the CardShell box, directly on the
  * AuroraFlow background. Screen #5 in the welcome page.
  *
- * Phase 2 changes applied here:
- *  - No CardShell / no solid bg wrapping the carousel.
- *  - WheelCarousel itself had its solid PALETTE.background removed (see
- *    WheelCarousel.jsx changes).
- *  - Size is h-[min(70dvh,640px)] w-full max-w-6xl; contentWidth ≈ 1100.
- *  - Wheel handler only prevents default when there are more items to
- *    scroll; the scroll-through escape is handled by dropping the inline
- *    wheel handler and relying only on drag / arrow keys instead (simpler
- *    and more robust than direction-aware preventDefault).
+ * Size is h-[min(70dvh,640px)] w-full max-w-6xl; contentWidth ≈ 1100. The carousel
+ * has no wheel handler (it responds to drag and arrow keys), so page scrolling
+ * is never trapped.
  */
 
 import { getGridStyles, BOARD_THEMES } from "@/pages/Player/GameCustomization/service/customization.service";

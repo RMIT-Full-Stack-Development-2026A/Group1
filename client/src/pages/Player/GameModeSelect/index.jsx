@@ -20,7 +20,7 @@ const GameModeSelect = () => {
 
       {/* Main Content */}
       <main className="pt-20 pb-20 px-6 md:px-12 flex flex-col items-center justify-center min-h-screen relative z-10">
-        {/* Back to Welcome (07/10, Khanh) */}
+        {/* Back to Welcome */}
         <button
           type="button"
           onClick={goToWelcome}

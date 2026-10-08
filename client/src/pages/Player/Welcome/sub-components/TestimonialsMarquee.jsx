@@ -7,11 +7,8 @@
  * content instead of short text chips. Pauses on hover; snaps to the
  * static final frame when the user prefers reduced motion.
  *
- * Avatars (07/10): served from client/public/avatars/ (see README there),
- * not a static import — the file doesn't exist yet, so the <img> falls
- * back to a placeholder person icon via onError until Khanh adds the
- * real photos. Matches the existing TeamSection/HistorySection convention
- * of shipping a working placeholder instead of leaving a TODO stub.
+ * Avatars are served from client/public/avatars/ (see README there), not a static
+ * import, so a missing file falls back to a placeholder person icon via onError.
  */
 
 import { useState } from "react";

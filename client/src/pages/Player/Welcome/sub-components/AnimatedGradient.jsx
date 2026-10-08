@@ -1,6 +1,6 @@
 /**
  * AnimatedGradient — ported from componentry.dev/r/animated-gradient.json
- * (07/10). WebGL2 procedural gradient, zero dependencies in the original
+ *. WebGL2 procedural gradient, zero dependencies in the original
  * registry item. Ported to plain JSX/PropTypes (source is TypeScript for
  * Next.js). Used by IntroSplash as the splash-screen background.
  */
@@ -49,10 +49,8 @@ function hexToRgba(hex) {
   return [r, g, b, a];
 }
 
-// Downgraded from WebGL2 (#version 300 es) to WebGL1 (07/10, Khanh reported
-// "Interactive WebGL content is unavailable" on his machine). AuroraFlow
-// next to this works fine on WebGL1, so the most likely fix is dropping
-// the WebGL2 requirement rather than debugging one specific GPU/driver.
+// WebGL1 (not WebGL2): some machines report "Interactive WebGL content is unavailable" without WebGL2, and
+// AuroraFlow already runs on WebGL1.
 const VERTEX_SHADER = `
 attribute vec4 a_position;
 void main() {
@@ -278,7 +276,7 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       const resize = () => {
         const width = container.clientWidth;
         const height = container.clientHeight;
-        // Phase 4: render at 50% of native dpr (capped at 0.5×) — gradients
+        // render at 50% of native dpr (capped at 0.5×) — gradients
         // are smooth so upscaling is invisible, but it cuts shader cost ~4×
         // on hi-DPI screens.
         const scale = Math.min(window.devicePixelRatio || 1, 1) * 0.5;
@@ -298,13 +296,13 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       const TARGET_INTERVAL = 1000 / 30; // ~30 fps cap
 
       const animate = (time) => {
-        // Phase 4: skip frames to cap at ~30 fps
+        // skip frames to cap at ~30 fps
         if (time - lastFrameTime < TARGET_INTERVAL) {
           frameIdRef.current = requestAnimationFrame(animate);
           return;
         }
         lastFrameTime = time;
-        // Phase 4: pause when tab is hidden
+        // pause when tab is hidden
         if (document.hidden) {
           frameIdRef.current = requestAnimationFrame(animate);
           return;
@@ -342,15 +340,15 @@ export default function AnimatedGradient({ className = "", radius = "0px", style
       return () => {
         if (frameIdRef.current !== undefined) cancelAnimationFrame(frameIdRef.current);
         resizeObserver.disconnect();
-        // Phase 4: full GL cleanup to free GPU resources.
-        // Removed WEBGL_lose_context.loseContext() (07/10) -- it force-kills
+        // full GL cleanup to free GPU resources.
+        // Removed WEBGL_lose_context.loseContext() -- it force-kills
         // the context immediately, and context restoration is asynchronous.
         // Under React 19 dev StrictMode, this effect's cleanup runs and the
         // effect re-mounts synchronously right after (double-invoke to catch
         // missing cleanup), before the lost context has a chance to restore,
         // so every gl.create*/compile call on the "new" getContext() result
-        // returns null -- which is exactly the null shader-info-log Khanh
-        // saw. Deleting the program/shaders/buffer already frees the GPU
+        // returns null -- which shows up as a null shader-info-log
+        // error. Deleting the program/shaders/buffer already frees the GPU
         // resources without blowing up the context itself.
         gl.deleteProgram(program);
         gl.deleteShader(vertexShader);

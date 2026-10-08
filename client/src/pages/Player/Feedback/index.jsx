@@ -1,6 +1,5 @@
 /**
- * Feedback page (/feedback) — 07/10, Khanh.
- * Dedicated page (was previously an inline section on /welcome). Uses two
+ * Feedback page (/feedback). Uses two
  * real componentry.dev components: PixelCanvas (ambient background) and
  * HoverTransition (via CategoryCard). Submits to the real backend
  * (/api/v1/feedback), which emails the project inbox.

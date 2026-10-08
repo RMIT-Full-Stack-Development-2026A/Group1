@@ -1,7 +1,7 @@
 /**
- * TeamSection — new section (07/10, Khanh)
- * Dedicated team introduction, separate from FeatureGrid. 5 member slots:
- * photo (placeholder circle until Khanh adds real photos), name, role, and
+ * TeamSection
+ * Team introduction. 5 member slots:
+ * photo (placeholder circle when a photo is missing), name, role, and
  * a clickable GitHub profile link.
  */
 

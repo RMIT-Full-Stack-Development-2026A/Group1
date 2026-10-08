@@ -1,9 +1,6 @@
 /**
  * ChallengeCounter — Section
- * 07/10 update (Khanh): dropped the "Can you beat the AI on Hard?" heading
- * and the SplitFlapDisplay (airport-board flip didn't fit the page's
- * vibe here). Now just a simple real match count, fetched from the
- * backend (GET /games/stats/total) — still no mock number.
+ * A simple real match count, fetched from the backend (GET /games/stats/total) — never a mock number.
  */
 
 import { useEffect, useState } from "react";

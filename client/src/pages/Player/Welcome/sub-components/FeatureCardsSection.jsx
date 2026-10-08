@@ -1,5 +1,5 @@
 /**
- * FeatureCardsSection — split from FeatureGrid (Phase 1/2 refactor)
+ * FeatureCardsSection
  * Displays the 2 FEATURE_CARDS in a two-column grid.
  * Lives inside its own FullScreenSection (Screen #4 in the welcome page).
  */

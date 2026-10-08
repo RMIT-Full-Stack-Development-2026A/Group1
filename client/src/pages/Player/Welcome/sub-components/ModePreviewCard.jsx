@@ -2,11 +2,8 @@
  * ModePreviewCard
  * Pure visual preview card — clicking navigates to /play (same destination
  * as the Hero "PLAY NOW" button) regardless of which card was clicked.
- * This is intentional: see docs/welcome-page-plan.md §4.4 (confirmed with
- * Khanh 06/10 — no shortcut logic, /play keeps owning real mode selection).
- *
- * 07/10 update: removed the hover-to-preview mini board demo per Khanh's
- * feedback — back to a static card (icon, title, description).
+ * This is intentional: see docs/welcome-page-plan.md §4.4 (no shortcut logic,
+ * /play keeps owning real mode selection).
  */
 
 import PropTypes from "prop-types";

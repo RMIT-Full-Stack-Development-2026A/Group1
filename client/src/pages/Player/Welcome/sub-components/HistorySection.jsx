@@ -1,5 +1,5 @@
 /**
- * HistorySection — Phase 3 redesign
+ * HistorySection
  * Full-screen two-column layout:
  *   Left  — heading + description paragraph + timeline milestones.
  *   Right — Spiral3DSlider, mounted lazily (IntersectionObserver) and with

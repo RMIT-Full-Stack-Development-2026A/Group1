@@ -1,6 +1,6 @@
 /**
  * Spiral3DSlider — ported from componentry.dev/r/spiral-3d-slider.json
- * (07/10). "A compact, autoplaying image gallery that responds to scroll
+ *. "A compact, autoplaying image gallery that responds to scroll
  * along a smooth 3D spiral." Ported to plain JSX/PropTypes (source is
  * TypeScript for Next.js). Requires three.js + @react-three/fiber
  * (installed) — used by HistorySection for the project's photo gallery.

@@ -1,5 +1,5 @@
 /**
- * MarkerStylesSection — split from FeatureGrid (Phase 1/2 refactor)
+ * MarkerStylesSection
  * Renders the 6 marker variants using the real CustomMarkers components.
  * Screen #6 in the welcome page.
  */
@@ -28,7 +28,7 @@ export default function MarkerStylesSection() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.35, delay: index * 0.06 }}
           >
-            {/* No box/background (07/10, Khanh) — markers sit directly on the
+            {/* No box/background — markers sit directly on the
                 AuroraFlow backdrop, sized up so they read clearly without one. */}
             <div className="flex gap-4 items-center">
               <MarkerX variantData={variant} className="text-4xl w-16 h-16" />

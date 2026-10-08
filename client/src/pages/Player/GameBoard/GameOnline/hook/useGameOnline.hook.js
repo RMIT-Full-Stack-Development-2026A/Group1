@@ -68,7 +68,6 @@ export const useGameOnline = () => {
         function handleRoomUpdated(payload) {
             if (String(payload.room?.id) !== roomId) return;
             
-            // Delete this log after confirming payload structure is correct and consistent with backend
             if (joinTimeoutId) {
                 clearTimeout(joinTimeoutId);
                 joinTimeoutId = null;

@@ -1,5 +1,5 @@
 /**
- * AuroraFlow — ported from componentry.dev/r/aurora-flow.json (07/10).
+ * AuroraFlow — ported from componentry.dev/r/aurora-flow.json.
  * "A procedural atmospheric hero background with layered flowing color,
  * diffused aurora light, and subtle interaction." Ported to plain
  * JSX/PropTypes (source is TypeScript for Next.js). Used as the page-wide
@@ -459,7 +459,7 @@ export default function AuroraFlow({
     };
 
     const resize = () => {
-      // Phase 4: cap dpr at 1.0 — aurora is a background, 1× is indistinguishable
+      // cap dpr at 1.0 — aurora is a background, 1× is indistinguishable
       const dpr = Math.min(window.devicePixelRatio || 1, 1) * 0.75;
       const rect = container.getBoundingClientRect();
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));

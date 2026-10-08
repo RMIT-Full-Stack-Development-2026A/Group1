@@ -43,7 +43,7 @@ export default function LoginPage() {
             const { user } = useAuthStore.getState();
             const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/welcome';
 
-            // fromLogin (07/10, Khanh): tells /welcome to play its 5s intro
+            // fromLogin: tells /welcome to play its 5s intro
             // splash. Only a fresh login should trigger it -- clicking the
             // logo or the /play "back to Welcome" button both navigate to
             // /welcome without this state, so the splash doesn't replay.

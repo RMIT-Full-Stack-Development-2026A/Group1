@@ -1,6 +1,6 @@
 /**
  * HoverTransition — ported from componentry.dev/r/hover-transition.json
- * (07/10). "Eight polished hover transitions with per-card animation,
+ * "Eight polished hover transitions with per-card animation,
  * direction, color, and content controls." Ported to plain JSX/PropTypes
  * (source is TypeScript for Next.js). Requires clsx + tailwind-merge
  * (installed) via src/lib/utils.js's `cn` helper.

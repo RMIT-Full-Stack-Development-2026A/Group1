@@ -1,7 +1,6 @@
 /**
- * FeedbackCta — 07/10, Khanh.
- * Single button linking out to the dedicated /feedback page (was an inline
- * multi-field form here before — moved for a richer, full-page experience).
+ * FeedbackCta
+ * Single button linking out to the dedicated /feedback page.
  */
 
 import { useNavigate } from "react-router-dom";

@@ -1,12 +1,11 @@
 /**
  * WheelCarousel — ported from componentry.dev/r/wheel-carousel.json
- * (07/10). "A cinematic rotating-wheel picker with inertial drag, curved
+ *. "A cinematic rotating-wheel picker with inertial drag, curved
  * fading labels, and crossfading project imagery." Ported to plain
  * JSX/PropTypes (source is TypeScript for Next.js). The original also
  * depends on `next-themes` for light/dark switching — dropped entirely
  * since this app has no theme provider (always dark) — palette is
- * hardcoded to the arcade neon colors instead. Used by FeatureGrid to
- * display the 3 board themes.
+ * hardcoded to the arcade neon colors instead. Used to display the 3 board themes.
  */
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -130,7 +129,7 @@ export default function WheelCarousel({
     []
   );
 
-  // Wheel handler removed per Phase 2. Rely on drag / arrow keys instead.
+  // No wheel handler: rely on drag / arrow keys so page scrolling is never trapped.
 
   const moveBy = (amount) => {
     velocityRef.current = 0;

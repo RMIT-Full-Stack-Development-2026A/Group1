@@ -1,13 +1,13 @@
 /**
  * Welcome — /welcome page root
  *
- * Phase 1: scroll-snap layout.
+ * Scroll-snap layout.
  * Each section occupies exactly one viewport height on md+ screens.
  * Scroll-snap is applied on the <html> element so window.scrollY works
  * correctly for AuroraFlow and scrollToSection. Mobile uses normal
  * scrolling with min-h-dvh sections.
  *
- * Phase 2: AuroraFlow is deferred until intro exits (introDone) so the
+ * AuroraFlow is deferred until the intro exits (introDone) so the
  * WebGL intro gradient is the only WebGL context during the first ~2s.
  * The hero video also starts after introDone.
  *
@@ -24,9 +24,6 @@
  * 10  Feedback      — FeedbackCta
  * 11  Stats         — ChallengeCounter
  * 12  Final CTA     — FinalCta
- *
- * FAQ screen removed (07/10, Khanh) — section and its dock entry dropped.
- * FaqAccordion.jsx/FAQ_ITEMS kept in the codebase, just unused for now.
  */
 
 import { useEffect, useState } from "react";
@@ -53,9 +50,7 @@ import {
 } from "./sub-components";
 import "./styles.css";
 
-// Bumped 0.2 -> 0.5 (07/10, Khanh reported the aurora fade was effectively
-// invisible). At 0.2 the WebGL gradient was likely rendering correctly but
-// too faint against the dark page background to perceive as "there".
+// How visible the page-wide aurora background is. Lower values are too faint against the dark page to notice.
 const AURORA_VISIBILITY = 0.5;
 
 // ---------------------------------------------------------------------------
@@ -84,7 +79,7 @@ function HeroScreenSection({ reducedMotion }) {
 export default function Welcome() {
   const { prefersReducedMotion, scrollToSection, goToPlay } = useWelcome();
 
-  // Intro splash only plays right after a fresh login (07/10, Khanh).
+  // Intro splash only plays right after a fresh login.
   // Login/index.jsx passes { fromLogin: true } in navigation state when it
   // redirects here; clicking the logo (Navigation.jsx) or the /play "back
   // to Welcome" button both navigate() here without that state, so the
@@ -92,7 +87,7 @@ export default function Welcome() {
   const location = useLocation();
   const showIntroSplash = Boolean(location.state?.fromLogin) && !prefersReducedMotion;
 
-  // Phase 2: defer AuroraFlow until intro exits
+  // Defer AuroraFlow until the intro exits
   // introDone is derived: with no splash it is true at once; otherwise the timer below flips it
   const [introTimerDone, setIntroTimerDone] = useState(false);
   const introDone = !showIntroSplash || introTimerDone;
@@ -125,7 +120,7 @@ export default function Welcome() {
   }, [prefersReducedMotion]);
 
   // Delay introDone by the IntroSplash duration (5s hold + 0.6s exit fade,
-  // 07/10 -- kept in sync with SPLASH_DURATION_MS in IntroSplash.jsx), but
+  // kept in sync with SPLASH_DURATION_MS in IntroSplash.jsx), but
   // only when the splash is actually going to play (fresh login).
   useEffect(() => {
     if (!showIntroSplash) return;
@@ -137,7 +132,7 @@ export default function Welcome() {
     <div className="relative w-full text-[#e3e0f4] font-body overflow-x-hidden selection:bg-[#fad100] selection:text-[#003543]">
       {/* ------------------------------------------------------------------ */}
       {/* AuroraFlow — page-wide ambient background (deferred until introDone) */}
-      {/* Phase 5: z-0, no solid ancestor bg, sections are transparent        */}
+      {/* z-0, no solid ancestor bg, sections are transparent                 */}
       {/* ------------------------------------------------------------------ */}
       {introDone && (
         <div

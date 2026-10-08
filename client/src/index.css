@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Cấu hình Theme của Tailwind v4 thay cho tailwind.config.js */
+/* Tailwind v4 theme: configured here in CSS (there is no tailwind.config.js) */
 @theme {
   --color-deep-bg: #0d0d1a;
   --color-surface-card: #1a1a2e;
@@ -10,8 +10,7 @@
   --color-premium-gold: #ffd60a;
   --color-outline-variant: #3d484d;
 
-  /* Material-style tokens that tailwind.config.js defines but Tailwind v4 never loaded (index.css has no @config).
-     Defined here so classes like text-outline, text-on-surface and bg-primary-container render as authored. */
+  /* Material-style tokens, so classes like text-outline, text-on-surface and bg-primary-container render as authored. */
   --color-on-tertiary: #4e2600;
   --color-on-tertiary-fixed-variant: #6f3800;
   --color-on-surface-variant: #bcc8ce;
@@ -89,15 +88,6 @@ body {
     font-family: 'IBM Plex Mono', monospace;
 }
 
-/* Responsive adjustments for navbar and board */
-/* Hide default scrollbar for overflowed nav on small screens */
-.nav-scrollable {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  white-space: nowrap;
-}
-.nav-scrollable::-webkit-scrollbar { display: none; }
-
 /* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
 .board-wrapper {
   /* Never wider than the viewport minus page gutters when the panels are stacked */
@@ -116,55 +106,14 @@ body {
   display: grid;
   /* columns controlled inline by BoardArea via gridTemplateColumns */
 }
-.grid-cell, .board-grid > * {
+.board-grid > * {
   touch-action: manipulation;
   min-width: 18px;
   min-height: 18px;
   padding: 4px;
 }
 
-/* Reflow side panels on small screens: stack vertically on narrow viewports */
 @media (max-width: 768px) {
-  main.responsive-game-layout {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    overflow:auto;
-  }
-
-  aside.w-55 {
-    width: 100%;
-    margin-top: 8px;
-    align-self: center;
-  }
-
-  /* Mobile menu dropdown spacing */
-  .mobile-nav-dropdown {
-    position: absolute;
-    left: 0; right: 0; top: 100%;
-    background: var(--color-deep-bg);
-    z-index: 60;
-    padding: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-  }
-
-  /* Ensure player columns and board column behave predictably on mobile */
-  .player-column {
-    width: 100%;
-    box-sizing: border-box;
-    padding-left: 6px;
-    padding-right: 6px;
-  }
-
-  .board-column {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    box-sizing: border-box;
-    padding-left: 6px;
-    padding-right: 6px;
-  }
-
   /* Stronger centering for the board wrapper on mobile */
   .board-wrapper {
     width: clamp(240px, 90vw, 700px) !important;
@@ -180,11 +129,6 @@ body {
 
 /* Pixel font for arcade/number display */
 .font-arcade {
-    font-family: 'Press Start 2P', cursive;
-}
-
-/* Optional: Use for specific elements if needed */
-.pixel-font {
     font-family: 'Press Start 2P', cursive;
 }
 
@@ -232,14 +176,6 @@ body {
   box-shadow: 0 0 10px #4cc9f0;
 }
 
-.glow-amber {
-  box-shadow: 0 0 15px #fad100;
-}
-
-.text-glow-amber {
-  text-shadow: 0 0 12px #fad100;
-}
-
 .chunky-offset {
   box-shadow: 2px 2px 0px 0px #005266;
 }
@@ -253,16 +189,6 @@ body {
   /* Chunky shadow on secondary/premium cards */
   .chunky-shadow-secondary {
     box-shadow: 6px 6px 0px rgba(250, 209, 0, 0.3);
-  }
-
-  /* Chunky shadow on primary action buttons */
-  .chunky-shadow-primary {
-    box-shadow: 4px 4px 0px rgba(76, 201, 240, 0.3);
-  }
-
-  /* Cyan glow effect for interactive elements */
-  .cyan-glow {
-    box-shadow: 0px 0px 8px rgba(147, 226, 255, 0.6);
   }
 }
 

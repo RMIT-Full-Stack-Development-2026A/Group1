@@ -1,5 +1,5 @@
 /**
- * PixelCanvas — ported from componentry.dev/r/pixel-canvas.json (07/10)
+ * PixelCanvas — ported from componentry.dev/r/pixel-canvas.json
  * "An interactive pixel grid with smooth trailing effects that lights up on
  * hover and decays over time." Zero dependencies in the original registry
  * item — ported to plain JSX/PropTypes (source is TypeScript for Next.js).

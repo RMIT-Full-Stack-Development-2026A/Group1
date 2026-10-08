@@ -1,13 +1,8 @@
 /**
  * HeroSection — Section 1
  * Full-bleed autoplay background video + title + tagline. No buttons — the
- * user just scrolls down on their own.
- *
- * 07/10 update (Khanh): "Welcome to" moved into IntroSplash (shown once,
- * before this page reveals) — removed here to avoid repeating it. The
- * tagline is back ("Welcome to" is no longer here, so it no longer reads
- * oddly next to it). Added PixelCanvas as an interactive ambient
- * background layer for more arcade-style motion (componentry.dev).
+ * user just scrolls down on their own. PixelCanvas (componentry.dev) adds an
+ * interactive ambient layer on top of the video.
  */
 
 import { useEffect, useRef, useState } from "react";

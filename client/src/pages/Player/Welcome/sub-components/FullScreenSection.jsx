@@ -1,5 +1,5 @@
 /**
- * FullScreenSection — Phase 1 helper
+ * FullScreenSection
  * Wraps each welcome-page section so it occupies exactly one full viewport
  * height when scroll-snap is active (≥ md breakpoint). On mobile the
  * section is at minimum full-viewport tall but can be taller; normal

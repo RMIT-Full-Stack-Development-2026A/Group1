@@ -36,13 +36,13 @@ export default function Navigation() {
     };
 
     return (
-        <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-deep-bg border-b-2 border-[#3d484d]">
-            <div className="flex items-center gap-8">
+        <nav className="fixed top-0 w-full z-50 flex justify-between items-center gap-2 px-3 min-[340px]:px-6 h-16 bg-deep-bg border-b-2 border-[#3d484d]">
+            <div className="flex min-w-0 items-center gap-8">
                 <button
                     type="button"
                     translate="no"
                     onClick={handleLogoClick}
-                    className="text-lg sm:text-2xl font-black text-[#4cc9f0] [text-shadow:2px_2px_0px_#1e1e2c] font-headline uppercase tracking-widest cursor-pointer hover:drop-shadow-[0_0_8px_#4cc9f0] transition-[filter] focus-visible:outline-2 focus-visible:outline-[#4cc9f0]"
+                    className="text-[10px] min-[300px]:text-xs min-[340px]:text-lg sm:text-2xl font-black text-[#4cc9f0] [text-shadow:2px_2px_0px_#1e1e2c] font-headline uppercase tracking-widest cursor-pointer hover:drop-shadow-[0_0_8px_#4cc9f0] transition-[filter] focus-visible:outline-2 focus-visible:outline-[#4cc9f0]"
                 >
                     TicTacToang
                 </button>

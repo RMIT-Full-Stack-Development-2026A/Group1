@@ -12,13 +12,26 @@ const MotionDiv = motion.div;
 
 const MARKER_VARIANTS = getMarkerVariants();
 
+// Each marker sits centred in a fixed cell, so every pair has the same width and every glyph is vertically centred.
+// The glyph fills a different share of its box in each style (the four letter styles are small, PIXEL and MINIMAL are
+// SVGs), so the sizes below are tuned for a drawn glyph of about 40px in every style.
+const MARKER_CELL = "flex h-12 w-12 items-center justify-center";
+// The letters are drawn in the upper-left part of their text box, so they are nudged down and right to look centred.
+const LETTER_SIZE = "relative left-[3px] top-1 text-[2.8rem]";
+// shrink-0: a flex item would otherwise be squeezed to the cell width, and these SVGs are intentionally larger than it.
+const SVG_SIZES = {
+  PIXEL: { X: "shrink-0 h-[58px] w-[58px]", O: "shrink-0 h-[52px] w-[52px]" },
+  MINIMAL: { X: "shrink-0 h-[71px] w-[71px]", O: "shrink-0 h-[48px] w-[48px]" },
+};
+const markerSize = (variantId, mark) => SVG_SIZES[variantId]?.[mark] ?? LETTER_SIZE;
+
 export default function MarkerStylesSection() {
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-10">
       <h2 className="font-headline text-xl md:text-3xl text-[#e3e0f4] text-center uppercase">
         All 6 Marker Styles
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+      <div className="grid grid-cols-1 min-[300px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 sm:gap-8">
         {MARKER_VARIANTS.map((variant, index) => (
           <MotionDiv
             key={variant.id}
@@ -30,9 +43,13 @@ export default function MarkerStylesSection() {
           >
             {/* No box/background — markers sit directly on the
                 AuroraFlow backdrop, sized up so they read clearly without one. */}
-            <div className="flex gap-4 items-center">
-              <MarkerX variantData={variant} className="text-4xl w-16 h-16" />
-              <MarkerO variantData={variant} className="text-4xl w-16 h-16" />
+            <div className="flex items-center gap-2">
+              <div className={MARKER_CELL}>
+                <MarkerX variantData={variant} className={markerSize(variant.id, "X")} />
+              </div>
+              <div className={MARKER_CELL}>
+                <MarkerO variantData={variant} className={markerSize(variant.id, "O")} />
+              </div>
             </div>
             <span className="font-headline text-xs text-[#bcc8ce] uppercase tracking-wide">
               {variant.id}

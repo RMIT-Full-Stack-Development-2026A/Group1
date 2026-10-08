@@ -64,6 +64,25 @@ describe('Backend Integration Tests - 28 API Endpoints', () => {
             expect(res.headers['set-cookie'][0]).toMatch(/access_token=;/);
         });
 
+        it('3b. [POST] /api/v1/auth/logout - Should succeed and clear the cookie when already logged out', async () => {
+            const res = await request(app).post('/api/v1/auth/logout');
+            expect(res.statusCode).toEqual(200);
+            expect(res.headers['set-cookie'][0]).toMatch(/access_token=;/);
+        });
+
+        it('4b. [GET] /api/v1/auth/check-auth - Should answer 200 with no user for anonymous visitors', async () => {
+            const res = await request(app).get('/api/v1/auth/check-auth');
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.user).toBeNull();
+            expect(res.body.data.activeRoom).toBeNull();
+        });
+
+        it('4c. [GET] /api/v1/auth/check-auth - Should treat an invalid token as anonymous', async () => {
+            const res = await request(app).get('/api/v1/auth/check-auth').set('Cookie', 'access_token=not-a-jwt');
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.data.user).toBeNull();
+        });
+
         // [GET] /auth/check-auth -> PASSED
         it('4. [GET] /api/v1/auth/check-auth - Should return session payload', async () => {
            const res = await request(app).get('/api/v1/auth/check-auth')

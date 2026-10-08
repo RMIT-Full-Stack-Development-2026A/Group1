@@ -22,6 +22,9 @@ export const useButtonSound = (src = AUDIO_FILES.BUTTON_CLICK, volume = 0.45) =>
 
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch((error) => {
+            // AbortError: the button unmounted (navigation, logout) and paused its own sound mid-play.
+            // NotAllowedError: the browser blocked autoplay before any user gesture. Neither is a bug.
+            if (error?.name === 'AbortError' || error?.name === 'NotAllowedError') return;
             console.error('Error playing button sound:', error);
         });
     }, []);

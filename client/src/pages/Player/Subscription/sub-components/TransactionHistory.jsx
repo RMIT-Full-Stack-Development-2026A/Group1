@@ -11,23 +11,23 @@ export default function TransactionHistory({ transactions }) {
     return (
         <section className="bg-[#0d0d1a] border border-[#3d484d] overflow-hidden mt-16">
             <div className="bg-[#1e1e2c] px-6 py-3 border-b border-[#3d484d]">
-                <h2 className="font-headline text-[10px] text-[#e3e0f4]">Current Subscription Details</h2>
+                <h2 className="font-headline text-xs text-[#e3e0f4]">Current Subscription Details</h2>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left font-mono text-xs border-collapse table table-hover table-striped table-bordered">
                     <thead>
                         <tr className="bg-[#292937] border-b border-[#3d484d]">
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">ORDER ID</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">TIMESTAMP (LOCAL)</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">AMOUNT</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">EXPIRES AT</th>
-                            <th className="px-6 py-4 text-[#879398] font-headline text-[9px]">STATUS</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-xs">ORDER ID</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-xs">TIMESTAMP (LOCAL)</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-xs">AMOUNT</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-xs">EXPIRES AT</th>
+                            <th className="px-6 py-4 text-[#879398] font-headline text-xs">STATUS</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#3d484d]">
                         {transactions.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-[#879398] font-mono text-[11px] uppercase tracking-widest">
+                                <td colSpan={5} className="px-6 py-8 text-center text-[#879398] font-mono text-xs uppercase tracking-widest">
                                     NO TRANSACTIONS FOUND
                                 </td>
                             </tr>
@@ -40,11 +40,10 @@ export default function TransactionHistory({ transactions }) {
                                 const amountFormatted = typeof tx.amount === 'number'
                                     ? new Intl.NumberFormat(undefined, { style: 'currency', currency: tx.currency || 'USD' }).format(tx.amount)
                                     : tx.amount;
-                                const plan = tx.planName || tx.plan || tx.description || '—';
                                 const statusKey = (tx.status || '').toUpperCase();
                                 return (
                                     <tr key={key} className="hover:bg-[#1e1e2c] transition-colors">
-                                        <td className="px-6 py-4 text-[#879398] font-mono text-[10px]">
+                                        <td className="px-6 py-4 text-[#879398] font-mono text-xs">
                                             <button
                                                 type="button"
                                                 onClick={() => navigator.clipboard?.writeText(orderId)}
@@ -77,7 +76,7 @@ export default function TransactionHistory({ transactions }) {
                 </table>
             </div>
             <div className="px-6 py-3 border-t border-[#3d484d] bg-[#292937] text-right">
-                <span className="font-mono text-[9px] text-[#879398]">
+                <span className="font-mono text-xs text-[#879398]">
                     {transactions.length > 0 ? `${transactions.length} RECORD(S) FOUND` : 'END OF DATA STREAM'}
                 </span>
             </div>

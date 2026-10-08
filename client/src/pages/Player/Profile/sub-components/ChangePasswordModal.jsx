@@ -1,4 +1,5 @@
 // Change Password Modal - Allows players to change their password
+import { useDialogA11y } from '@/hooks/useDialogA11y';
 import React, { useState, useEffect } from "react";
 import { PasswordField } from "@/components/reusable/form";
 import {
@@ -36,8 +37,11 @@ export default function ChangePasswordModal({
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Initialize form when modal opens
-  useEffect(() => {
+  // Reset the form each time the modal opens. This is done while rendering (tracking the previous
+  // value of isOpen) instead of in an effect, so there is no extra render with stale values.
+  const [wasOpen, setWasOpen] = useState(false);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
     if (isOpen) {
       setFormData({
         oldPassword: "",
@@ -60,7 +64,7 @@ export default function ChangePasswordModal({
       setShowConfirmPassword(false);
       setPasswordMismatch(false);
     }
-  }, [isOpen]);
+  }
 
   // Auto-close modal after successful password change
   useEffect(() => {
@@ -74,7 +78,7 @@ export default function ChangePasswordModal({
 
   // Reusable criteria checkbox component
   const CriteriaCheckbox = ({ met, label }) => (
-    <div className="flex items-center gap-2 text-[10px] uppercase font-mono">
+    <div className="flex items-center gap-2 text-xs uppercase font-mono">
       <span
         className={`w-4 h-4 flex items-center justify-center border ${
           met ? "bg-[#5cb85c] border-[#5cb85c]" : "bg-[#ffb4ab] border-[#ffb4ab]"
@@ -160,10 +164,12 @@ export default function ChangePasswordModal({
     }
   };
 
+  const dialogRef = useDialogA11y({ active: isOpen, onClose: isSaving ? undefined : onClose });
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Change password" className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overscroll-contain">
       <div className="bg-[#1a1a2e] border border-[#2a2a4e] w-full max-w-[500px] max-h-[90vh] shadow-[4px_4px_0px_0px_#343342] relative flex flex-col">
         {/* Terminal Header Decoration */}
         <div className="absolute top-0 left-0 w-full h-1 bg-[#4cc9f0]"></div>
@@ -178,8 +184,8 @@ export default function ChangePasswordModal({
         {/* Success Message */}
         {saveSuccess && (
           <div className="mx-8 mb-4 p-3 bg-[#5cb85c]/20 border border-[#5cb85c] text-[#5cb85c] text-xs rounded flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm">check_circle</span>
-            Password changed successfully! Closing...
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">check_circle</span>
+            Password changed successfully! Closing…
           </div>
         )}
 
@@ -202,29 +208,31 @@ export default function ChangePasswordModal({
           >
             {/* Current Password Field */}
             <div className="space-y-2">
-              <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+              <label htmlFor="field-oldPassword" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                 Current Password
               </label>
               <div className="relative">
                 <input
+                  id="field-oldPassword"
                   type={showOldPassword ? "text" : "password"}
                   name="oldPassword"
                   value={formData.oldPassword}
                   onChange={handleInputChange}
                   placeholder="Enter your current password"
                   disabled={isSaving}
-                  autoComplete="off"
-                  className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed pr-10"
+                  autoComplete="current-password"
+                  className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:text-[#879398] focus:ring-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed pr-10"
                 />
                 <button
                   type="button"
+                  aria-label={showOldPassword ? "Hide current password" : "Show current password"}
                   onClick={() => setShowOldPassword(!showOldPassword)}
                   disabled={isSaving}
                   className={`absolute right-3 top-3 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                    showOldPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                    showOldPassword ? "text-[#4cc9f0]" : "text-[#879398]"
                   } hover:text-[#4cc9f0]`}
                 >
-                  <span className="material-symbols-outlined text-sm">
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm">
                     {showOldPassword ? "visibility_off" : "visibility"}
                   </span>
                 </button>
@@ -271,7 +279,7 @@ export default function ChangePasswordModal({
             type="button"
             onClick={onClose}
             disabled={isSaving || saveSuccess}
-            className="px-4 py-2 border border-outline text-xs uppercase font-bold tracking-widest hover:bg-surface-container-highest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-outline text-xs uppercase font-bold tracking-widest hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             CANCEL
           </button>
@@ -279,9 +287,9 @@ export default function ChangePasswordModal({
             type="button"
             disabled={isSaving || saveSuccess}
             onClick={handleSave}
-            className="px-6 py-2 bg-[#4cc9f0] text-[#0d0d1a] text-xs uppercase font-bold tracking-widest hover:bg-[#5dd9ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-[#4cc9f0] text-[#0d0d1a] text-xs uppercase font-bold tracking-widest hover:bg-[#5dd9ff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saveSuccess ? "✓ SUCCESS" : isSaving ? "CHANGING..." : "CHANGE PASSWORD"}
+            {saveSuccess ? "✓ SUCCESS" : isSaving ? "CHANGING…" : "CHANGE PASSWORD"}
           </button>
         </div>
 
@@ -289,9 +297,9 @@ export default function ChangePasswordModal({
         <button
           onClick={onClose}
           disabled={isSaving}
-          className="absolute top-0 right-0 text-[#4cc9f0] hover:text-opacity-75 p-4 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="absolute top-0 right-0 text-[#4cc9f0] hover:text-opacity-75 p-4 disabled:opacity-50 disabled:cursor-not-allowed transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
         >
-          <span className="material-symbols-outlined">close</span>
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
     </div>

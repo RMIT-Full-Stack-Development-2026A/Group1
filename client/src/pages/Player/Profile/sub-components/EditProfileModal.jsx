@@ -1,5 +1,6 @@
 // Edit Profile Modal - Allows players to update email, username, and country
-import React, { useState, useEffect } from "react";
+import { useDialogA11y } from '@/hooks/useDialogA11y';
+import React, { useState } from "react";
 import {
   EmailField,
   UsernameField,
@@ -39,9 +40,14 @@ export default function EditProfileModal({
 
   const [saveError, setSaveError] = useState("");
 
-  // Initialize form with player data and validate existing values
-  useEffect(() => {
-    if (playerData && isOpen) {
+  // Initialize the form with player data and validate existing values. Runs when the modal opens or the
+  // player data changes while open. Done while rendering (tracking the previous source) instead of in an
+  // effect, so there is no extra render with stale values.
+  const formSource = isOpen && playerData ? playerData : null;
+  const [seenSource, setSeenSource] = useState(null);
+  if (formSource !== seenSource) {
+    setSeenSource(formSource);
+    if (formSource) {
       const initialUsername = playerData.username || "";
       const initialEmail = playerData.email || "";
 
@@ -60,11 +66,11 @@ export default function EditProfileModal({
 
       setSaveError("");
     }
-  }, [isOpen, playerData]);
+  }
 
   // Reusable criteria checkbox component
   const CriteriaCheckbox = ({ met, label }) => (
-    <div className="flex items-center gap-2 text-[10px] uppercase font-mono">
+    <div className="flex items-center gap-2 text-xs uppercase font-mono">
       <span
         className={`w-4 h-4 flex items-center justify-center border ${
           met ? "bg-[#5cb85c] border-[#5cb85c]" : "bg-[#ffb4ab] border-[#ffb4ab]"
@@ -138,10 +144,12 @@ export default function EditProfileModal({
     }
   };
 
+  const dialogRef = useDialogA11y({ active: isOpen, onClose: isSaving ? undefined : onClose });
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Edit profile" className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overscroll-contain">
       <div className="bg-[#1a1a2e] border border-[#2a2a4e] w-full max-w-[500px] max-h-[90vh] shadow-[4px_4px_0px_0px_#343342] relative flex flex-col">
         {/* Terminal Header Decoration */}
         <div className="absolute top-0 left-0 w-full h-1 bg-[#4cc9f0]"></div>
@@ -191,7 +199,7 @@ export default function EditProfileModal({
           {/* Country */}
           {/* Country */}
           <div className="space-y-2">
-            <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+            <label className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
               Regional Sector
             </label>
             <CountrySelect
@@ -211,7 +219,7 @@ export default function EditProfileModal({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="px-4 py-2 border border-outline text-xs uppercase font-bold tracking-widest hover:bg-surface-container-highest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-outline text-xs uppercase font-bold tracking-widest hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             CANCEL
           </button>
@@ -219,9 +227,9 @@ export default function EditProfileModal({
             type="button"
             disabled={isSaving}
             onClick={handleSave}
-            className="px-6 py-2 bg-[#4cc9f0] text-[#0d0d1a] text-xs uppercase font-bold tracking-widest hover:bg-[#5dd9ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-[#4cc9f0] text-[#0d0d1a] text-xs uppercase font-bold tracking-widest hover:bg-[#5dd9ff] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSaving ? "SAVING..." : "SAVE CHANGES"}
+            {isSaving ? "SAVING…" : "SAVE CHANGES"}
           </button>
         </div>
 
@@ -231,7 +239,7 @@ export default function EditProfileModal({
           disabled={isSaving}
           className="absolute top-4 right-4 text-outline hover:text-on-surface disabled:opacity-50"
         >
-          <span className="material-symbols-outlined">close</span>
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
     </div>

@@ -69,12 +69,12 @@ export default function MetricCard({
   const displaySecondaryValue = formatCompactNumber(secondaryValue);
 
   return (
-    <div className={`bg-surface-card border-circuit p-6 relative transition-all duration-300 ${scheme.border} ${scheme.glow}`}>
+    <div className={`bg-surface-card border-circuit p-6 relative transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-300 ${scheme.border} ${scheme.glow}`}>
       <div className="flex justify-between items-start mb-4">
-        <p className={`text-[10px] font-bold uppercase tracking-widest font-mono ${scheme.text}`}>
+        <p className={`text-xs font-bold uppercase tracking-widest font-mono ${scheme.text}`}>
           {title}
         </p>
-        <span
+        <span aria-hidden="true"
           className={`material-symbols-outlined text-lg ${scheme.text}`}
           data-icon={icon}
           style={isPremium ? { fontVariationSettings: "'FILL' 1" } : {}}
@@ -99,7 +99,7 @@ export default function MetricCard({
         </p>
       )}
       {footer && (
-        <p className={`text-[9px] mt-2 uppercase font-mono ${scheme.text}`}>
+        <p className={`text-xs mt-2 uppercase font-mono ${scheme.text}`}>
           {footer}
         </p>
       )}

@@ -11,10 +11,10 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
 
     const renderAvatar = (avatarUrl, label) => {
         if (avatarUrl) {
-            return <img src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
+            return <img width="96" height="96" src={avatarUrl} alt={label} className="w-full h-full object-cover" />;
         }
 
-        return <span className="material-symbols-outlined text-primary-cyan">person</span>;
+        return <span aria-hidden="true" className="material-symbols-outlined text-primary-cyan">person</span>;
     };
 
     const formatRoomParticipantId = (value) => {
@@ -24,7 +24,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
 
     return (
         <div
-            className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-all w-full ${
+            className={`bg-surface-card border-2 flex flex-col overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] w-full ${
                 isJoinable
                     ? "border-outline-variant hover:border-primary-cyan hover:shadow-[0_0_12px_#4cc9f0]"
                     : isReady
@@ -36,7 +36,7 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
         >
             <div className="flex justify-between items-center px-4 py-3 border-b-2 border-outline-variant bg-deep-bg">
                 <span className="font-mono text-xs text-primary-cyan font-bold">ROOM #{room.roomNumber}</span>
-                <span className="font-mono text-[10px] text-outline bg-deep-bg px-2 py-1 border border-outline-variant">{room.boardSize}</span>
+                <span className="font-mono text-xs text-outline bg-deep-bg px-2 py-1 border border-outline-variant">{room.boardSize}</span>
             </div>
 
             {/* Room Content */}
@@ -49,8 +49,8 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                             {renderAvatar(room.hostAvatarUrl, room.host)}
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-mono text-[10px] text-outline uppercase tracking-wide">{room.host}</span>
-                            <span className="font-mono text-[10px] text-[#fad100] uppercase" title={room.hostUserId}>#{formatRoomParticipantId(room.hostUserId || room.hostRank)}</span>
+                            <span className="font-mono text-xs text-outline uppercase tracking-wide">{room.host}</span>
+                            <span className="font-mono text-xs text-[#fad100] uppercase" title={room.hostUserId}>#{formatRoomParticipantId(room.hostUserId || room.hostRank)}</span>
                         </div>
                     </div>
 
@@ -65,8 +65,8 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                             {renderAvatar(room.opponentAvatarUrl, room.opponent || 'WAITING')}
                         </div>
                         <div className="flex flex-col items-end">
-                            <span className="font-mono text-[10px] text-primary-cyan font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>
-                            <span className="font-mono text-[10px] text-[#fad100]" uppercase title={room.opponentUserId}>#{formatRoomParticipantId(room.opponentUserId || room.opponentRank)}</span>
+                            <span className="font-mono text-xs text-primary-cyan font-bold uppercase tracking-wide">{room.opponent || 'WAITING'}</span>
+                            <span className="font-mono text-xs text-[#fad100] uppercase" title={room.opponentUserId}>#{formatRoomParticipantId(room.opponentUserId || room.opponentRank)}</span>
                         </div>
                     </div>
                 </div>
@@ -75,19 +75,19 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                 <div className="flex items-center justify-center py-3 bg-deep-bg border border-dashed border-outline-variant">
                     {normalizedStatus === "waiting" && (
                         <span className="font-mono text-xs text-[#fad100] animate-pulse uppercase tracking-widest flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">hourglass_empty</span>
-                            WAITING FOR PLAYER...
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">hourglass_empty</span>
+                            WAITING FOR PLAYER…
                         </span>
                     )}
                     {normalizedStatus === "ready" && (
                         <span className="font-mono text-xs text-primary-cyan uppercase tracking-widest flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">check_circle</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">check_circle</span>
                             READY TO START
                         </span>
                     )}
                     {normalizedStatus === "playing" && (
                         <span className="font-mono text-xs text-error uppercase tracking-widest flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">fiber_manual_record</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">fiber_manual_record</span>
                             MATCH IN PROGRESS
                         </span>
                     )}
@@ -99,14 +99,14 @@ export default function RoomCard({ room, onJoin, currentUserId }) {
                 {isJoinable ? (
                     <button
                         onClick={() => onJoin(room.id)}
-                        className="w-full border-2 border-primary-cyan text-primary-cyan py-2 font-mono font-bold hover:bg-primary-cyan hover:text-[#003543] transition-all uppercase tracking-tighter text-sm shadow-[2px_2px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1"
+                        className="w-full border-2 border-primary-cyan text-primary-cyan py-2 font-mono font-bold hover:bg-primary-cyan hover:text-[#003543] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase tracking-tighter text-sm shadow-[2px_2px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1"
                     >
                         JOIN ROOM
                     </button>
                 ) : isMyPlayingRoom ? (
                     <button
                         onClick={() => onJoin(room.id)}
-                        className="w-full border-2 border-[#fad100] text-[#fad100] py-2 font-mono font-bold hover:bg-[#fad100]/10 transition-all uppercase tracking-tighter text-sm shadow-[2px_2px_0px_0px_#3b2f00] animate-pulse cursor-pointer"
+                        className="w-full border-2 border-[#fad100] text-[#fad100] py-2 font-mono font-bold hover:bg-[#fad100]/10 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase tracking-tighter text-sm shadow-[2px_2px_0px_0px_#3b2f00] animate-pulse cursor-pointer"
                     >
                         ↩ REJOIN MATCH
                     </button>

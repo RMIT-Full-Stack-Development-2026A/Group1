@@ -2,6 +2,10 @@ import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from "path";
+import { fileURLToPath } from "url";
+
+// ESM has no __dirname; derive it so the config does not rely on Vite injecting one
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 
 export default defineConfig({

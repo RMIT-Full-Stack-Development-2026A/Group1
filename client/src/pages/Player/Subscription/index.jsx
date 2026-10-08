@@ -15,7 +15,6 @@ const Subscription = () => {
         isPremium,
         transactions,
         isRedirecting,
-        isLoading,
         error,
         handleSubscribe,
     } = useSubscription();

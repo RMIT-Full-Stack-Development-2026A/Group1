@@ -173,6 +173,48 @@ describe('Real Socket.IO room lifecycle', () => {
         expect(rejoined.participants).toHaveLength(2);
     });
 
+    it('keeps the opponent ready and connected when a player changes marker or profile', async () => {
+        const hostAuth = await generateTestUser();
+        const guestAuth = await generateTestUser();
+        const host = await connect(hostAuth);
+        const guest = await connect(guestAuth);
+        const room = await createRoom(host);
+        let updated = nextEvent(guest, 'room:updated');
+        guest.emit('room:join', { roomId: room.id });
+        await updated;
+        updated = nextEvent(guest, 'room:updated');
+        host.emit('room:ready', { roomId: room.id });
+        expect((await updated).room.participants[0].isReady).toBe(true);
+
+        const hostEvents = [];
+        const disconnects = jest.fn();
+        host.on('room:updated', (p) => hostEvents.push(p.room));
+        host.on('disconnect', disconnects);
+        guest.on('disconnect', disconnects);
+
+        // The guest changes marker: only the guest's own state may change.
+        updated = nextEvent(host, 'room:updated');
+        guest.emit('room:update_settings', { roomId: room.id, markerStyle: 'STONE' });
+        let after = (await updated).room;
+        expect(after.participants[0]).toMatchObject({ isReady: true, markerStyle: 'PIXEL' });
+        expect(after.participants[1]).toMatchObject({ isReady: false, markerStyle: 'STONE' });
+
+        // The guest changes profile data over REST while in the room: no socket event, nothing unreadied.
+        const profile = await request(app).put('/api/v1/profile/update').set('Cookie', guestAuth.cookie).send({ country: 'US' });
+        expect(profile.status).toBe(200);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(hostEvents).toHaveLength(1);
+        expect(disconnects).not.toHaveBeenCalled();
+        const stored = await GameRoom.findById(room.id);
+        expect(stored.participants[0].isReady).toBe(true);
+
+        // The host's ready survived all of that: the guest readying again is enough to start the match.
+        const started = nextEvent(host, 'game:start');
+        guest.emit('room:ready', { roomId: room.id });
+        await started;
+        expect((await GameRoom.findById(room.id)).status).toBe('PLAYING');
+    });
+
     it('restores the board and cancels the grace timer after an in-game reconnect', async () => {
         const hostAuth = await generateTestUser();
         const guestAuth = await generateTestUser();

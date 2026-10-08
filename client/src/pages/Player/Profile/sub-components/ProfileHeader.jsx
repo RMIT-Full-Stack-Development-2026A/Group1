@@ -58,7 +58,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
 
   return (
     <section 
-      className="border border-outline-variant p-6 relative flex flex-col md:flex-row justify-between items-center gap-6"
+      className="border border-outline-variant p-6 relative flex flex-col lg:flex-row justify-between items-center gap-6"
       style={{ backgroundColor: "#1b1c2c" }}
     >
       <div 
@@ -69,7 +69,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
         }}
       ></div>
       
-      <div className="flex items-center gap-6 flex-1">
+      <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0 w-full">
         {/* Avatar with Edit Overlay */}
         <div 
           className="relative w-20 h-20 shrink-0 group cursor-pointer"
@@ -79,11 +79,13 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
             {playerData?.avatarUrl ? (
               <img
                 alt="Player Avatar"
-                className="w-full h-full group-hover:opacity-75 transition-all duration-200 cursor-pointer"
+                width="80"
+                height="80"
+                className="w-full h-full group-hover:opacity-75 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200 cursor-pointer"
                 src={playerData.avatarUrl}
               />
             ) : (
-              <span className="material-symbols-outlined text-6xl text-primary-container group-hover:text-opacity-40 transition-all duration-200">
+              <span aria-hidden="true" className="material-symbols-outlined text-6xl text-primary-container group-hover:text-opacity-40 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-200">
                 account_circle
               </span>
             )}
@@ -98,10 +100,10 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                   handleAvatarClick();
                 }}
                 disabled={uploading || !playerData}
-                className="p-2 text-primary-cyan hover:text-opacity-70 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="p-2 text-primary-cyan hover:text-opacity-70 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 title="Change avatar"
               >
-                <span className="material-symbols-outlined text-xl">edit</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">edit</span>
               </button>
             </div>
           </div>
@@ -121,33 +123,33 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
           {uploading && (
             <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center rounded-none">
               <div className="animate-spin">
-                <span className="material-symbols-outlined text-white">progress_activity</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-white">progress_activity</span>
               </div>
             </div>
           )}
 
           {/* Error Message */}
           {uploadError && (
-            <div className="absolute -bottom-8 left-0 right-0 whitespace-nowrap text-[10px] text-error-container bg-error-container bg-opacity-20 p-1 rounded-none text-center">
+            <div className="absolute -bottom-8 left-0 right-0 whitespace-nowrap text-xs text-error bg-error-container bg-opacity-20 p-1 rounded-none text-center">
               {uploadError}
             </div>
           )}
         </div>
 
         {/* Player Info */}
-        <div className="flex flex-col gap-1 flex-1">
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           {playerData ? (
             <>
               <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="font-arcade text-2xl text-on-surface">
+                <h2 className="font-arcade text-xl sm:text-2xl text-on-surface break-all">
                   {playerData.username}
                 </h2>
                 {playerData.isPremium && (
                   <div
-                    className="bg-secondary-container text-[#fad100] px-3 py-1 flex items-center gap-2 text-[10px] font-bold border-2 border-on-secondary-container chunky-shadow"
+                    className="bg-[#fad100]/10 text-[#fad100] px-3 py-1 flex items-center gap-2 text-xs font-bold border-2 border-[#fad100] chunky-shadow"
                     title="Premium"
                   >
-                    <span
+                    <span aria-hidden="true"
                       className="font-headline material-symbols-outlined text-[#fad100]"
                       style={{ fontVariationSettings: "'FILL' 1" }}
                     >
@@ -167,6 +169,8 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                     <img
                       src={flagUrl}
                       alt={countryFlag.flagAlt}
+                      width="24"
+                      height="16"
                       className="w-6 h-4 object-cover"
                     />
                   ) : flagEmoji ? (
@@ -174,7 +178,7 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
                       {flagEmoji}
                     </span>
                   ) : (
-                    <span className="material-symbols-outlined text-sm">flag</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">flag</span>
                   )}
                   {playerData.country}
                 </span>
@@ -190,21 +194,21 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
       </div>
 
       {/* Edit and Action Buttons */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={onEditProfile}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
         >
-          <span className="material-symbols-outlined text-sm">edit</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">edit</span>
           EDIT PROFILE
         </button>
 
         <button
           onClick={onChangePassword}
-          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-all duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
+          className="border border-outline text-xs px-4 py-2 hover:bg-surface-container-highest transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-75 active:translate-y-0.5 font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
           title="Change your password"
         >
-          <span className="material-symbols-outlined text-sm">lock</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">lock</span>
           CHANGE PASSWORD
         </button>
       </div>

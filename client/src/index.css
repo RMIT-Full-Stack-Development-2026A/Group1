@@ -12,9 +12,70 @@
   --color-premium-gold: #ffd60a;
   --color-outline-variant: #3d484d;
 
+  /* Material-style tokens that tailwind.config.js defines but Tailwind v4 never loaded (index.css has no @config).
+     Defined here so classes like text-outline, text-on-surface and bg-primary-container render as authored. */
+  --color-on-tertiary: #4e2600;
+  --color-on-tertiary-fixed-variant: #6f3800;
+  --color-on-surface-variant: #bcc8ce;
+  --color-neon-green: #69ff47;
+  --color-neon-green-dim: rgba(105,255,71,0.08);
+  --color-secondary: #fff0c4;
+  --color-host-gold: #fad100;
+  --color-host-gold-dim: rgba(250,209,0,0.08);
+  --color-error: #ffb4ab;
+  --color-own-purple: rgba(123,97,255,0.18);
+  --color-own-purple-border: rgba(123,97,255,0.35);
+  --color-chat-bubble: rgba(76,201,240,0.08);
+  --color-chat-border: rgba(76,201,240,0.20);
+  --color-surface: #12121f;
+  --color-inverse-surface: #e3e0f4;
+  --color-surface-container: #1e1e2c;
+  --color-surface-tint: #5bd5fc;
+  --color-surface-container-highest: #343342;
+  --color-tertiary-fixed-dim: #ffb780;
+  --color-primary-fixed-dim: #5bd5fc;
+  --color-tertiary-container: #fba866;
+  --color-surface-container-high: #292937;
+  --color-secondary-container: #fad100;
+  --color-on-primary-fixed-variant: #004e61;
+  --color-secondary-fixed-dim: #e9c400;
+  --color-on-error-container: #ffdad6;
+  --color-outline: #879398;
+  --color-primary-fixed: #b7eaff;
+  --color-on-primary: #003543;
+  --color-on-tertiary-fixed: #2f1400;
+  --color-on-tertiary-container: #753b00;
+  --color-background: #12121f;
+  --color-on-secondary-fixed-variant: #554600;
+  --color-tertiary: #ffcca9;
+  --color-on-secondary-fixed: #221b00;
+  --color-inverse-on-surface: #2f2f3d;
+  --color-on-background: #e3e0f4;
+  --color-surface-dim: #12121f;
+  --color-surface-container-low: #1a1a28;
+  --color-primary-container: #4cc9f0;
+  --color-on-surface: #e3e0f4;
+  --color-on-error: #690005;
+  --color-surface-variant: #343342;
+  --color-primary: #93e2ff;
+  --color-tertiary-fixed: #ffdcc4;
+  --color-on-primary-fixed: #001f28;
+  --color-error-container: #93000a;
+  --color-secondary-fixed: #ffe171;
+  --color-on-secondary-container: #6d5a00;
+  --color-surface-container-lowest: #0d0d1a;
+  --color-on-primary-container: #005266;
+  --color-inverse-primary: #006780;
+  --color-surface-bright: #383847;
+  --color-on-secondary: #3b2f00;
+
   --font-mono: "IBM Plex Mono", monospace;
   --font-headline: "Press Start 2P", cursive;
   --font-body: "Space Grotesk", sans-serif;
+}
+
+html {
+  color-scheme: dark;
 }
 
 html, body, #root {
@@ -41,8 +102,15 @@ body {
 
 /* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
 .board-wrapper {
-  width: clamp(300px, 90vmin, 900px);
+  /* Never wider than the viewport minus page gutters when the panels are stacked */
+  width: clamp(300px, min(90vmin, calc(100vw - 2rem)), 900px);
   margin: 0 auto;
+}
+/* Side-by-side layout: two 260px player panels + gaps + gutters take ~620px */
+@media (min-width: 1024px) {
+  .board-wrapper {
+    width: clamp(300px, min(90vmin, calc(100vw - 620px)), 900px);
+  }
 }
 .board-grid {
   width: 100%;
@@ -197,3 +265,19 @@ body {
     box-shadow: 0px 0px 8px rgba(147, 226, 255, 0.6);
   }
 }
+
+
+/* Honor reduced-motion: settle transitions and animations (the CRT overlay is static and stays). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Numbers line up in tables and stat blocks; headings avoid single-word last lines. */
+table, .tabular-nums { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { text-wrap: balance; }

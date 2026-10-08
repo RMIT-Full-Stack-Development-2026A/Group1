@@ -1,4 +1,6 @@
 import React from "react";
+import { useSearchParams } from "react-router-dom";
+import { readParam, readPositiveInt, writeParams } from "@/utils/urlState";
 import { useGameRoomMonitor } from "./hooks/useGameRoomMonitor";
 import { useGameSessionMonitor } from "./hooks/useGameSessionMonitor";
 import GameRoomMonitorHeader from "./sub-components/GameRoomMonitorHeader";
@@ -10,7 +12,18 @@ import GameSessionGrid from "./sub-components/GameSessionGrid";
 import GameRoomMonitorPagination from "./sub-components/GameRoomMonitorPagination";
 import GameSessionMonitorStats from "./sub-components/GameSessionMonitorStats";
 
+const SESSION_FILTER_PARAMS = { sessionNumber: "sn", q: "sq", from: "from", to: "to", status: "status" };
+
+const readSessionFilters = (params) =>
+	Object.fromEntries(
+		Object.entries(SESSION_FILTER_PARAMS)
+			.map(([key, param]) => [key, readParam(params, param)])
+			.filter(([, value]) => value !== "")
+	);
+
 export default function GameRoomMonitor() {
+	// The view, filters and pages live in the URL so a monitor view can be shared and survives reload.
+	const [searchParams, setSearchParams] = useSearchParams();
 	const getSessionStatus = (session) => String(session?.viewerResult || session?.status || "").toUpperCase();
 
 	const {
@@ -33,9 +46,12 @@ export default function GameRoomMonitor() {
 		changePage: changeRoomPage,
 		pageSize: roomPageSize,
 		visiblePageRooms,
-	} = useGameRoomMonitor();
+	} = useGameRoomMonitor({
+		initialSearch: readParam(searchParams, "rq"),
+		initialPage: readPositiveInt(searchParams, "rpage"),
+	});
 
-	const [sessionFilters, setSessionFilters] = React.useState({});
+	const [sessionFilters, setSessionFilters] = React.useState(() => readSessionFilters(searchParams));
 	const {
 		sessions,
 		loading: sessionsLoading,
@@ -47,11 +63,27 @@ export default function GameRoomMonitor() {
 		totalPages: sessionTotalPages,
 		changePage: changeSessionPage,
 		pageSize: sessionPageSize,
-	} = useGameSessionMonitor(sessionFilters);
+	} = useGameSessionMonitor(sessionFilters, readPositiveInt(searchParams, "spage"));
 	const activeSessions = allSessions.filter((session) => !["FINISHED", "DRAW", "ABORTED"].includes(getSessionStatus(session))).length;
 	const closedSessions = allSessions.filter((session) => ["FINISHED", "DRAW", "ABORTED"].includes(getSessionStatus(session))).length;
 
-	const [selectedView, setSelectedView] = React.useState("rooms");
+	const [selectedView, setSelectedView] = React.useState(() =>
+		readParam(searchParams, "view") === "sessions" ? "sessions" : "rooms"
+	);
+
+	React.useEffect(() => {
+		writeParams(setSearchParams, {
+			view: [selectedView, "rooms"],
+			rq: [searchTerm.trim(), ""],
+			rpage: [roomPage, 1],
+			sn: [sessionFilters.sessionNumber || "", ""],
+			sq: [sessionFilters.q || "", ""],
+			from: [sessionFilters.from || "", ""],
+			to: [sessionFilters.to || "", ""],
+			status: [sessionFilters.status || "", ""],
+			spage: [sessionPage, 1],
+		});
+	}, [selectedView, searchTerm, roomPage, sessionFilters, sessionPage, setSearchParams]);
 
 	return (
 		<main className="relative mx-auto w-full max-w-360 px-4 py-8 font-body text-on-surface md:px-8 md:py-10">

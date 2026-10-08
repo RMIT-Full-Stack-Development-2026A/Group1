@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import subscriptionService from '../service/subscription.service';
 import { useAuthStore } from '@/stores/auth/AuthStore';
 import http from '@/utils/httpHelper';
-import { notifyError, notifyLoading, notifyUpdate } from '@/utils/toast.util';
+import { notifyLoading, notifyUpdate } from '@/utils/toast.util';
 
 // A user is considered premium if:
 // 1. premiumExpiresAt exists and is in the future, OR
@@ -67,7 +67,7 @@ export const useSubscription = () => {
                             const expiresMs = createdMs + 30 * 24 * 60 * 60 * 1000;
                             expiresAt = new Date(expiresMs).toISOString();
                         }
-                    } catch (e) {
+                    } catch {
                         expiresAt = null;
                     }
                 }

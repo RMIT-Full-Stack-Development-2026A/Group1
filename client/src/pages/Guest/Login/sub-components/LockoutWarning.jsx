@@ -5,8 +5,8 @@ export default function LockoutWarning({ failedAttempts, isLocked }) {
     }
 
     return (
-        <div className="bg-[#93000a] border-l-4 border-[#ffb4ab] text-[#ffdad6] p-3 mb-8 flex items-center gap-3 text-[10px] font-bold">
-            <span className="material-symbols-outlined text-sm">lock</span>
+        <div className="bg-[#93000a] border-l-4 border-[#ffb4ab] text-[#ffdad6] p-3 mb-8 flex items-center gap-3 text-xs font-bold">
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">lock</span>
             <span>
                 WARNING: {5 - failedAttempts} ATTEMPTS REMAINING BEFORE LOCKOUT
             </span>

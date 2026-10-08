@@ -33,7 +33,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
 
     // Tracking turns and time for Backend Payload
     const [participantIndex, setParticipantIndex] = useState(initialParticipantIndex);
-    const [firstTurnIndex, setFirstTurnIndex] = useState(initialParticipantIndex); // Track who goes first (default 0)
+    const [firstTurnIndex] = useState(initialParticipantIndex); // Track who goes first (default 0)
     const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
 
     const { aiDifficulty } = useModeStore();
@@ -144,7 +144,6 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
                 setIsLocked(true); // Lock UI while Bot is playing
 
                 // 1. Extract data from global stores and info of AI
-                const botPlayer = playersInfo.find(p => p.role === 'AI');
                 
 
                 // 2. Create a small delay to simulate AI thinking like human
@@ -171,7 +170,7 @@ export const useGame = (gameMode = 'TWO_PLAYERS', playersInfo = [], initialBoard
 
         processAutoMove();
 
-    }, [currentPlayer, gameMode, winnerData, isDraw, board, handleMove, aiDifficulty, playersInfo]);
+    }, [currentPlayer, gameMode, winnerData, isDraw, board, handleMove, aiDifficulty, playersInfo, moveHistory]);
 
     useEffect(() => {
         return () => {

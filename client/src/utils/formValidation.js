@@ -14,7 +14,7 @@ export const validateEmail = (email) => {
     const hasAt = atCount === 1;
     const hasDot = hasAt && email.substring(email.indexOf("@")).includes(".");
     const validLength = email.length < 255;
-    const prohibitedChars = /[\s();\:]/;
+    const prohibitedChars = /[\s();:]/;
     const noProhibited = !prohibitedChars.test(email);
 
     return {

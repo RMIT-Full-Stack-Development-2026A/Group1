@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin, onRefreshLobby, showWaitingOnly, onToggleShowWaitingOnly }) {
+export default function LobbyHeader({ onlineCount, onCreateRoom, onRefreshLobby, showWaitingOnly, onToggleShowWaitingOnly }) {
     return (
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex flex-col gap-3">
@@ -20,7 +20,7 @@ export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin, on
                 <button
                     onClick={onToggleShowWaitingOnly}
                     aria-pressed={showWaitingOnly}
-                    className={`font-mono font-bold cursor-pointer px-5 py-3 border shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase tracking-tighter text-sm flex items-center gap-2 ${
+                    className={`font-mono font-bold cursor-pointer px-5 py-3 border shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase tracking-tighter text-sm flex items-center gap-2 ${
                         showWaitingOnly
                             ? 'bg-[#1a2530] border-primary-cyan text-primary-cyan'
                             : 'bg-transparent border-outline-variant text-outline'
@@ -30,13 +30,13 @@ export default function LobbyHeader({ onlineCount, onCreateRoom, onQuickJoin, on
                 </button>
                 <button
                     onClick={onRefreshLobby}
-                    className="bg-transparent border border-primary-cyan text-primary-cyan font-mono font-bold cursor-pointer px-6 py-3 shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase tracking-tighter text-sm flex items-center gap-2"
+                    className="bg-transparent border border-primary-cyan text-primary-cyan font-mono font-bold cursor-pointer px-6 py-3 shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase tracking-tighter text-sm flex items-center gap-2"
                 >
                     REFRESH
                 </button>
                 <button
                     onClick={onCreateRoom}
-                    className="bg-primary-cyan text-[#003543] font-mono font-bold cursor-pointer px-6 py-3 shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase tracking-tighter text-sm flex items-center gap-2"
+                    className="bg-primary-cyan text-[#003543] font-mono font-bold cursor-pointer px-6 py-3 shadow-[4px_4px_0px_0px_#003543] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase tracking-tighter text-sm flex items-center gap-2"
                 >
                     CREATE ROOM
                 </button>

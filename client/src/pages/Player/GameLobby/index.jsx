@@ -76,7 +76,7 @@ export default function GameLobby() {
     if (isCheckingAuth || lobbyLoading) {
         return (
             <div className="bg-deep-bg text-on-surface min-h-screen flex items-center justify-center">
-                <div className="font-mono text-primary-cyan">Loading Lobby...</div>
+                <div className="font-mono text-primary-cyan">Loading Lobby…</div>
             </div>
         );
     }
@@ -134,7 +134,7 @@ export default function GameLobby() {
                     </div>
                     <button
                         onClick={() => handleJoinRoom(activePlayingRoom.id)}
-                        className="bg-[#ff3d00] text-[#1a0a0a] hover:bg-[#ff5722] hover:scale-105 active:scale-95 transition-all font-headline tracking-widest px-8 py-3 w-full sm:w-auto shadow-[0_0_15px_rgba(255,61,0,0.5)] border border-[#ff3d00]"
+                        className="bg-[#ff3d00] text-[#1a0a0a] hover:bg-[#ff5722] hover:scale-105 active:scale-95 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] font-headline tracking-widest px-8 py-3 w-full sm:w-auto shadow-[0_0_15px_rgba(255,61,0,0.5)] border border-[#ff3d00]"
                     >
                         REJOIN MATCH
                     </button>

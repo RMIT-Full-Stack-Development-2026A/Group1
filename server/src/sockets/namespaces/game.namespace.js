@@ -69,7 +69,7 @@ export const setupGameNamespace = (io) => {
         }
     });
 
-    const disconnectOldSessions = async ({ userId, tokenVersion, reason }) => {
+    const disconnectOldSessions = async ({ userId, tokenVersion, reason, code }) => {
         const stringPlayerId = userId.toString();
 
         try {
@@ -80,7 +80,8 @@ export const setupGameNamespace = (io) => {
             existingSockets.forEach(socket => {
                 if ((socket.data.tokenVersion ?? 0) >= tokenVersion) return;
                 socket.emit('auth:force_logout', {
-                    reason: reason || "Your account was logged in from another location."
+                    reason: reason || "Your account was logged in from another location.",
+                    code: code || 'DUPLICATE_LOGIN'
                 });
                 
                 socket.disconnect(true);
@@ -102,7 +103,7 @@ export const setupGameNamespace = (io) => {
                 expiryTimer = setTimeout(expireWhenDue, Math.min(remaining, 2 ** 31 - 1));
                 return;
             }
-            socket.emit('auth:force_logout', { reason: 'Your session has expired. Please log in again.' });
+            socket.emit('auth:force_logout', { reason: 'Your session has expired. Please log in again.', code: 'SESSION_EXPIRED' });
             socket.disconnect(true);
         };
         const clearExpiry = () => { clearTimeout(expiryTimer); };

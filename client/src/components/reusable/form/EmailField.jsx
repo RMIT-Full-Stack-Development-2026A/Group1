@@ -14,21 +14,25 @@ const EmailField = ({
 }) => {
     return (
         <div className="space-y-2">
-            <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+            <label htmlFor="field-email" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                 Email Address
             </label>
             <input
+                id="field-email"
                 type="email"
                 name="email"
+                autoComplete="email"
+                spellCheck={false}
+                autoCapitalize="none"
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
                 disabled={disabled}
-                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] text-[#4cc9f0] p-3 font-body text-sm placeholder:text-[#879398] focus:ring-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {value.length > 0 && (
                 <div className="mt-3 p-3 bg-[#1a1a28] border border-[#2a2a4e]">
-                    <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
+                    <p className="text-xs text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
                         Requirements:
                     </p>
                     <div className="space-y-1">

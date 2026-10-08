@@ -1,6 +1,6 @@
 import express from "express";
 import { AuthController } from "../controllers/auth.controller.js";
-import { verifyToken } from "../../../middlewares/authMiddleware.js";
+import { optionalVerifyToken } from "../../../middlewares/authMiddleware.js";
 
 const authRoutes = express.Router();
 
@@ -51,27 +51,23 @@ authRoutes.post("/login", AuthController.login);
  * /api/v1/auth/logout:
  *   post:
  *     tags: [Auth]
- *     summary: Clear session cookie and logout
+ *     summary: Clear session cookie and logout (idempotent, also succeeds when already logged out)
  *     responses:
  *       200:
  *         $ref: '#/components/responses/NoDataResponse'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-authRoutes.post("/logout", verifyToken, AuthController.logout);
+authRoutes.post("/logout", optionalVerifyToken, AuthController.logout);
 
 /**
  * @openapi
  * /api/v1/auth/check-auth:
  *   get:
  *     tags: [Auth]
- *     summary: Validate session and bootstrap the app (user + activeRoom)
+ *     summary: Validate session and bootstrap the app (user + activeRoom). Anonymous visitors get 200 with user null.
  *     responses:
  *       200:
  *         $ref: '#/components/responses/CheckAuthResponse'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedResponse'
  */
-authRoutes.get("/check-auth", verifyToken, AuthController.checkAuth);
+authRoutes.get("/check-auth", optionalVerifyToken, AuthController.checkAuth);
 
 export default authRoutes;

@@ -1,6 +1,8 @@
 // Custom hook for managing profile page state and logic
+import { formatOneDecimal } from "@/utils/formatNumber";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { readParam, readPositiveInt, writeParams } from "@/utils/urlState";
 import { profileService } from "../services/profile.service";
 import { countryService } from "@/services/countryService";
 
@@ -20,6 +22,8 @@ const isPremiumActive = (premiumExpiresAt) => {
 
 export const useProfile = () => {
   const navigate = useNavigate();
+  // Applied history filters, sorting and page live in the URL so a view can be shared and survives reload.
+  const [searchParams, setSearchParams] = useSearchParams();
   const [playerData, setPlayerData] = useState(null);
   const [countryFlag, setCountryFlag] = useState(null);
   const [matchHistory, setMatchHistory] = useState([]);
@@ -27,25 +31,35 @@ export const useProfile = () => {
   const [error, setError] = useState(null);
 
   // Filter and pagination state - inputs (what user is adjusting)
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterResult, setFilterResult] = useState("ALL RESULTS");
-  const [filterGameType, setFilterGameType] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [sortBy, setSortBy] = useState("endedAt"); // 'endedAt' or 'startedAt'
-  const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(() => readParam(searchParams, "q"));
+  const [filterResult, setFilterResult] = useState(() => readParam(searchParams, "result", "ALL RESULTS"));
+  const [filterGameType, setFilterGameType] = useState(() => readParam(searchParams, "type"));
+  const [dateFrom, setDateFrom] = useState(() => readParam(searchParams, "from"));
+  const [dateTo, setDateTo] = useState(() => readParam(searchParams, "to"));
   const [totalMatches, setTotalMatches] = useState(0);
 
   // Applied filters state - only these trigger API calls
-  const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
-  const [appliedFilterResult, setAppliedFilterResult] = useState("ALL RESULTS");
-  const [appliedFilterGameType, setAppliedFilterGameType] = useState("");
-  const [appliedDateFrom, setAppliedDateFrom] = useState("");
-  const [appliedDateTo, setAppliedDateTo] = useState("");
-  const [appliedSortBy, setAppliedSortBy] = useState("endedAt");
-  const [appliedSortOrder, setAppliedSortOrder] = useState("desc");
-  const [appliedPage, setAppliedPage] = useState(1);
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState(() => readParam(searchParams, "q"));
+  const [appliedFilterResult, setAppliedFilterResult] = useState(() => readParam(searchParams, "result", "ALL RESULTS"));
+  const [appliedFilterGameType, setAppliedFilterGameType] = useState(() => readParam(searchParams, "type"));
+  const [appliedDateFrom, setAppliedDateFrom] = useState(() => readParam(searchParams, "from"));
+  const [appliedDateTo, setAppliedDateTo] = useState(() => readParam(searchParams, "to"));
+  const [appliedSortBy, setAppliedSortBy] = useState(() => readParam(searchParams, "sort", "endedAt"));
+  const [appliedSortOrder, setAppliedSortOrder] = useState(() => readParam(searchParams, "order", "desc"));
+  const [appliedPage, setAppliedPage] = useState(() => readPositiveInt(searchParams, "page"));
+
+  useEffect(() => {
+    writeParams(setSearchParams, {
+      q: [appliedSearchQuery.trim(), ""],
+      result: [appliedFilterResult, "ALL RESULTS"],
+      type: [appliedFilterGameType, ""],
+      from: [appliedDateFrom, ""],
+      to: [appliedDateTo, ""],
+      sort: [appliedSortBy, "endedAt"],
+      order: [appliedSortOrder, "desc"],
+      page: [appliedPage, 1],
+    });
+  }, [appliedSearchQuery, appliedFilterResult, appliedFilterGameType, appliedDateFrom, appliedDateTo, appliedSortBy, appliedSortOrder, appliedPage, setSearchParams]);
 
   // Edit Profile Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -86,7 +100,7 @@ export const useProfile = () => {
             losses: apiData?.stats?.losses || 0,
             draws: apiData?.stats?.draws || 0,
             winRate: (apiData?.stats?.totalGames - (apiData?.stats?.aborted || 0)) > 0 
-              ? ((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1)
+              ? Number(((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1))
               : 0,
           },
         };
@@ -143,7 +157,7 @@ export const useProfile = () => {
   const transformMatchData = (backendMatch) => {
     const extractTimeFromISO = (isoDate) => {
       if (!isoDate) return "00:00:00";
-      return new Date(isoDate).toLocaleTimeString("en-US", {
+      return new Date(isoDate).toLocaleTimeString(undefined, {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -154,7 +168,7 @@ export const useProfile = () => {
     const extractDateFromISO = (isoDate) => {
       if (!isoDate) return "";
       const date = new Date(isoDate);
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString(undefined, {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -335,7 +349,7 @@ export const useProfile = () => {
           losses: apiData?.stats?.losses || 0,
           draws: apiData?.stats?.draws || 0,
           winRate: (apiData?.stats?.totalGames - (apiData?.stats?.aborted || 0)) > 0 
-            ? ((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1)
+            ? Number(((apiData.stats.wins / (apiData.stats.totalGames - (apiData.stats.aborted || 0))) * 100).toFixed(1))
             : 0,
         },
       };
@@ -343,10 +357,8 @@ export const useProfile = () => {
       setPlayerData(mappedData);
 
       return true;
-    } catch (err) {
-      // Re-throw so modal can catch and display the error
-      throw err;
     } finally {
+      // Errors propagate to the modal, which displays them
       setIsSavingProfile(false);
     }
   };
@@ -437,9 +449,9 @@ export const useProfile = () => {
       },
       {
         label: "WIN RATE",
-        value: `${winRate}%`,
+        value: `${formatOneDecimal(winRate)}%`,
         icon: "star",
-        barWidth: winRate,
+        barWidth: Number(winRate),
         color: "bg-tertiary-container text-tertiary-container",
       },
     ];

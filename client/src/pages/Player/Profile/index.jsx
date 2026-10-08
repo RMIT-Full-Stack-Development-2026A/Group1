@@ -66,10 +66,8 @@ export default function PlayerProfile() {
       setIsChangingPassword(true);
       const response = await handleSaveProfile(passwordData);
       return response;
-    } catch (error) {
-      // Re-throw so modal can catch and display the error
-      throw error;
     } finally {
+      // Errors propagate to the modal, which displays them
       setIsChangingPassword(false);
     }
   };
@@ -77,7 +75,7 @@ export default function PlayerProfile() {
   if (error) {
     return (
       <main className="max-w-[1440px] mx-auto p-8">
-        <div className="bg-error-container/20 border border-error-container text-error-container p-6 text-center">
+        <div className="bg-error-container/20 border border-error-container text-error p-6 text-center">
           Error loading profile: {error}
         </div>
       </main>

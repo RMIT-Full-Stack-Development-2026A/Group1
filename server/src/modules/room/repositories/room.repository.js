@@ -99,6 +99,13 @@ export const RoomRepository = {
         { returnDocument: 'after' }
     ).lean(),
 
+    // Only while the room is still waiting to start: once startIfReady has made it PLAYING this matches nothing.
+    markParticipantUnready: (roomId, userId) => GameRoom.findOneAndUpdate(
+        { _id: roomId, status: ROOM_STATUS.READY, 'participants.userId': userId },
+        { $set: { 'participants.$.isReady': false } },
+        { returnDocument: 'after' }
+    ).lean(),
+
     startIfReady: (roomId) => GameRoom.findOneAndUpdate(
         { _id: roomId, status: ROOM_STATUS.READY, participants: { $size: 2 },
             'participants.0.isReady': true, 'participants.1.isReady': true },

@@ -599,6 +599,23 @@ export const RoomService = {
     },
 
     /** Handles room ready status. */
+    /** Cancels the caller's READY before the match starts. */
+    handleRoomUnready: async (userId, payload) => {
+        const { roomId } = validateRoomReady(payload);
+        const room = await GameRoom.findById(roomId);
+
+        if (!room || room.status !== ROOM_STATUS.READY) {
+            throw { statusCode: 400, error: "INVALID_STATE", message: "Ready can only be cancelled before the match starts." };
+        }
+        if (!room.participants.some(p => String(p.userId) === String(userId))) {
+            throw { statusCode: 403, error: 'FORBIDDEN', message: 'Only participants can cancel ready.' };
+        }
+        const updated = await RoomRepository.markParticipantUnready(roomId, userId);
+        // The match started between the check above and the update.
+        if (!updated) throw { statusCode: 409, error: 'ROOM_CHANGED', message: 'The match already started.' };
+        return { roomId, room: RoomDTO.toRoomSummary(updated) };
+    },
+
     handleRoomReady: async (userId, payload) => {
         const { roomId } = validateRoomReady(payload);
         let room = await GameRoom.findById(roomId);

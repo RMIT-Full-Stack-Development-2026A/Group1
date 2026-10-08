@@ -173,6 +173,54 @@ describe('Real Socket.IO room lifecycle', () => {
         expect(rejoined.participants).toHaveLength(2);
     });
 
+    it('lets a ready player cancel ready before the match starts, without touching the opponent', async () => {
+        const hostAuth = await generateTestUser();
+        const guestAuth = await generateTestUser();
+        const outsiderAuth = await generateTestUser();
+        const host = await connect(hostAuth);
+        const guest = await connect(guestAuth);
+        const outsider = await connect(outsiderAuth);
+        const room = await createRoom(host);
+
+        // Every room update goes to both players, so wait for both to receive it before the next step.
+        const bothSee = async (emitter, event, payload) => {
+            const hostSees = nextEvent(host, 'room:updated');
+            const guestSees = nextEvent(guest, 'room:updated');
+            emitter.emit(event, payload);
+            const [seen] = await Promise.all([hostSees, guestSees]);
+            return seen.room;
+        };
+        const ids = { roomId: room.id };
+
+        await bothSee(guest, 'room:join', ids);
+
+        // Host readies; the guest cancelling a ready they never gave changes nothing for the host.
+        let current = await bothSee(host, 'room:ready', ids);
+        expect(current.participants.map((p) => p.isReady)).toEqual([true, false]);
+        current = await bothSee(guest, 'room:unready', ids);
+        expect(current.participants.map((p) => p.isReady)).toEqual([true, false]);
+
+        // The host cancels: both players are told, and the room is still waiting to start.
+        current = await bothSee(host, 'room:unready', ids);
+        expect(current.status).toBe('READY');
+        expect(current.participants.map((p) => p.isReady)).toEqual([false, false]);
+
+        // A stranger cannot cancel someone else's ready.
+        const refused = new Promise((resolve) => outsider.once('error', resolve));
+        outsider.emit('room:unready', ids);
+        expect((await refused).error).toBe('FORBIDDEN');
+
+        // Once both are ready the match starts, and cancelling is no longer possible.
+        await bothSee(host, 'room:ready', ids);
+        const started = nextEvent(host, 'game:start');
+        guest.emit('room:ready', ids);
+        await started;
+        const tooLate = new Promise((resolve) => host.once('error', resolve));
+        host.emit('room:unready', ids);
+        expect((await tooLate).error).toBe('INVALID_STATE');
+        expect((await GameRoom.findById(room.id)).status).toBe('PLAYING');
+    });
+
     it('keeps the opponent ready and connected when a player changes marker or profile', async () => {
         const hostAuth = await generateTestUser();
         const guestAuth = await generateTestUser();

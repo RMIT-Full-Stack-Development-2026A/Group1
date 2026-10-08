@@ -42,7 +42,7 @@ const MAX_SCALE = 1.5;
 const MAGNETIC_DISTANCE = 140;
 const SPRING_CONFIG = { damping: 20, stiffness: 300, mass: 0.5 };
 
-function DockIcon({ mouseX, section, onClick, magnifyDisabled }) {
+function DockIcon({ mouseX, section, onClick, magnifyDisabled, iconSize }) {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -78,8 +78,8 @@ function DockIcon({ mouseX, section, onClick, magnifyDisabled }) {
       title={section.label}
       className="relative flex items-center justify-center rounded-full"
       style={{
-        width: magnifyDisabled ? ICON_SIZE : size,
-        height: magnifyDisabled ? ICON_SIZE : size,
+        width: magnifyDisabled ? iconSize : size,
+        height: magnifyDisabled ? iconSize : size,
         y: magnifyDisabled ? 0 : lift,
       }}
       whileTap={magnifyDisabled ? undefined : { scale: 0.9 }}
@@ -116,7 +116,7 @@ function DockIcon({ mouseX, section, onClick, magnifyDisabled }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.9 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg whitespace-nowrap font-headline text-[9px] uppercase pointer-events-none z-50"
+            className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg whitespace-nowrap font-headline text-xs uppercase pointer-events-none z-50"
             style={{
               backgroundColor: "#1a1a28",
               color: "#e3e0f4",
@@ -141,6 +141,7 @@ DockIcon.propTypes = {
   }).isRequired,
   onClick: PropTypes.func.isRequired,
   magnifyDisabled: PropTypes.bool.isRequired,
+  iconSize: PropTypes.number.isRequired,
 };
 
 export default function MagneticDock({ onNavigate }) {
@@ -160,7 +161,20 @@ export default function MagneticDock({ onNavigate }) {
     };
   }, []);
 
-  const magnifyDisabled = isTouch || prefersReducedMotion;
+  // On narrow screens the nine icons would be wider than the screen at full size, so shrink them to fit.
+  // Magnify is off there anyway (it needs a mouse), so the fixed size is all that matters.
+  const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const isNarrow = viewportWidth < 640;
+  const iconSize = isNarrow
+    ? Math.max(28, Math.min(ICON_SIZE, Math.floor((viewportWidth - 8 - 2 - 16 - (DOCK_SECTIONS.length - 1) * 6) / DOCK_SECTIONS.length)))
+    : ICON_SIZE;
+
+  const magnifyDisabled = isTouch || prefersReducedMotion || isNarrow;
 
   const handleMouseMove = (event) => {
     if (magnifyDisabled) return;
@@ -173,7 +187,7 @@ export default function MagneticDock({ onNavigate }) {
 
   return (
     <MotionDiv
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-end gap-3 px-4 py-2.5 rounded-full backdrop-blur-sm"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-end gap-1.5 sm:gap-3 px-2 sm:px-4 py-2.5 rounded-full backdrop-blur-sm"
       style={{ backgroundColor: "rgba(13, 13, 26, 0.85)", border: "1px solid #3d484d" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -188,6 +202,7 @@ export default function MagneticDock({ onNavigate }) {
           section={section}
           onClick={() => onNavigate(section.id)}
           magnifyDisabled={magnifyDisabled}
+          iconSize={iconSize}
         />
       ))}
     </MotionDiv>

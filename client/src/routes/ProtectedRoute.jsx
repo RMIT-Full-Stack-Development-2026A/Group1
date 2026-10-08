@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children, allowedRoles = ["PLAYER", "AD
 
     // Show loading while checking auth
     if (isCheckingAuth) {
-        return <div className="flex h-screen items-center justify-center">Checking authentication...</div>;
+        return <div className="flex h-screen items-center justify-center">Checking authentication…</div>;
     }
 
     // Redirect to login if not authenticated

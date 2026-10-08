@@ -86,9 +86,12 @@ export default function HoverTransition({
   easing = "cubic-bezier(0.22, 1, 0.36, 1)",
   label = "Interactive hover transition",
   className = "",
+  focusable = true,
+  forceActive = false,
 }) {
   const rootRef = useRef(null);
-  const [active, setActive] = useState(false);
+  const [hovered, setActive] = useState(false);
+  const active = hovered || forceActive;
   const reducedMotion = usePrefersReducedMotion();
   const vector = directionVectors[direction];
   const perceivedDurationScale = effect === "diagonal" || effect === "ripple" ? 1.25 : 1;
@@ -163,9 +166,9 @@ export default function HoverTransition({
   return (
     <div
       ref={rootRef}
-      role="group"
-      aria-label={label}
-      tabIndex={0}
+      role={focusable ? "group" : undefined}
+      aria-label={focusable ? label : undefined}
+      tabIndex={focusable ? 0 : undefined}
       data-active={active ? "true" : "false"}
       data-effect={effect}
       className={cn(
@@ -238,6 +241,10 @@ HoverTransition.propTypes = {
   easing: PropTypes.string,
   label: PropTypes.string,
   className: PropTypes.string,
+  // false when a parent control (e.g. a button) already provides the focus stop and the name
+  focusable: PropTypes.bool,
+  // lets a parent reveal the hover layer, e.g. when its button has keyboard focus
+  forceActive: PropTypes.bool,
 };
 
 // defaultProps removed — React 19 dropped support for defaultProps on

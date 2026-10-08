@@ -18,7 +18,7 @@ export default function MarkerStylesSection() {
       <h2 className="font-headline text-xl md:text-3xl text-[#e3e0f4] text-center uppercase">
         All 6 Marker Styles
       </h2>
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
         {MARKER_VARIANTS.map((variant, index) => (
           <MotionDiv
             key={variant.id}
@@ -34,7 +34,7 @@ export default function MarkerStylesSection() {
               <MarkerX variantData={variant} className="text-4xl w-16 h-16" />
               <MarkerO variantData={variant} className="text-4xl w-16 h-16" />
             </div>
-            <span className="font-headline text-[10px] text-[#bcc8ce] uppercase tracking-wide">
+            <span className="font-headline text-xs text-[#bcc8ce] uppercase tracking-wide">
               {variant.id}
             </span>
           </MotionDiv>

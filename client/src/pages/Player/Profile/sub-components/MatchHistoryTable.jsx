@@ -75,7 +75,7 @@ export default function MatchHistoryTable({
       case "LOSS":
         return {
           backgroundColor: "#93000a",
-          color: "#000000",
+          color: "#ffdad6",
           borderColor: "#93000a",
         };
       case "ABORT":
@@ -177,12 +177,12 @@ export default function MatchHistoryTable({
     >
       {/* Table Header/Controls */}
       <div className="p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 border-b border-outline-variant">
-        <h3 className="font-arcade text-lg text-on-surface flex items-center gap-3">
+        <h2 className="font-arcade text-lg text-on-surface flex items-center gap-3">
           <span aria-hidden="true" className="material-symbols-outlined text-primary-container">
             history
           </span>
           MATCH HISTORY
-        </h3>
+        </h2>
 
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-3 w-full xl:w-auto">

@@ -10,17 +10,33 @@
  * background layer for more arcade-style motion (componentry.dev).
  */
 
+import { useEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import PixelCanvas from "./PixelCanvas";
 
-export default function HeroSection() {
+export default function HeroSection({ reducedMotion = false }) {
+  const videoRef = useRef(null);
+  // null = follow the OS setting; true/false = the visitor's own choice
+  const [userPaused, setUserPaused] = useState(null);
+  const paused = userPaused ?? reducedMotion;
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (paused) video.pause();
+    else video.play().catch(() => {});
+  }, [paused]);
+
   return (
     <div
       className="relative h-full min-h-0 w-full flex flex-col items-center justify-center overflow-hidden px-6 pt-16"
     >
       <video
+        ref={videoRef}
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover blur-sm"
         src="/videos/welcome-placeholder.mp4"
-        autoPlay
+        autoPlay={!reducedMotion}
         muted
         loop
         playsInline
@@ -32,8 +48,19 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d1a]/80 via-[#0d0d1a]/60 to-[#0d0d1a]/10 z-10 pointer-events-none" />
       <PixelCanvas className="absolute inset-0 z-[15] mix-blend-screen" variant="glow" />
 
-      <div className="relative z-20 flex flex-col items-center text-center max-w-5xl mx-auto gap-4 -translate-y-1">
-        <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
+      <button
+        type="button"
+        onClick={() => setUserPaused(!paused)}
+        aria-label={paused ? "Play background video" : "Pause background video"}
+        className="absolute right-4 top-20 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-[#3d484d] bg-[#1a1a28]/85 text-[#93e2ff] transition-colors hover:border-[#4cc9f0] hover:text-[#4cc9f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0]"
+      >
+        <span className="material-symbols-outlined text-xl" aria-hidden="true">
+          {paused ? "play_arrow" : "pause"}
+        </span>
+      </button>
+
+      <div className="relative z-20 flex w-full min-w-0 flex-col items-center text-center max-w-5xl mx-auto gap-4 -translate-y-1">
+        <h1 className="font-headline text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
           TicTacToang
         </h1>
         <p className="font-body text-base md:text-lg text-[#bcc8ce] max-w-xl uppercase tracking-wide">
@@ -44,3 +71,7 @@ export default function HeroSection() {
     </div>
   );
 }
+
+HeroSection.propTypes = {
+  reducedMotion: PropTypes.bool,
+};

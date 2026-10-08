@@ -39,7 +39,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 export default function AppRouter() {
 
     return (
-        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading…</div>}>
             <Routes>
                 {/* 1. Guest Pages */}
                 <Route path="/" element={<RedirectAuthenticatedUser><LandingPage /></RedirectAuthenticatedUser>} />

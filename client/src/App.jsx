@@ -32,7 +32,7 @@ function App() {
 
     // When checking auth, show loading screen
     if (isCheckingAuth) {
-        return <div className="loading-screen">Validating system...</div>;
+        return <div className="loading-screen">Validating system…</div>;
     }
 
     return (

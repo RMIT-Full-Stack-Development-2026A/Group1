@@ -40,6 +40,8 @@ export default function ReplayBoard({ boardState, boardSize, playerX = {}, playe
                                         src={theme.bgImage} 
                                         alt=""
                                         aria-hidden="true"
+                                        width="640"
+                                        height="360"
                                         decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover opacity-15 z-0 pointer-events-none"
                                     />

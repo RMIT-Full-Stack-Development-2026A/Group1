@@ -114,7 +114,7 @@ export default function HistorySection() {
         <ul className="flex flex-col gap-4">
           {HISTORY_PLACEHOLDER.milestones.map((milestone) => (
             <li key={milestone.date} className="flex gap-3 border-l-2 border-[#4cc9f0] pl-4">
-              <span className="font-headline text-[10px] text-[#fad100] whitespace-nowrap">
+              <span className="font-headline text-xs text-[#fad100] whitespace-nowrap">
                 {milestone.date}
               </span>
               <span className="text-sm text-[#bcc8ce]">{milestone.label}</span>

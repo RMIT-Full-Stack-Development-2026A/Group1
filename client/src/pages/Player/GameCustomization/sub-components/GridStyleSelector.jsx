@@ -36,6 +36,8 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                         src={themeConfig.bgImage} 
                                         alt=""
                                         aria-hidden="true"
+                                        width="640"
+                                        height="360"
                                         loading="lazy"
                                         decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover opacity-40 z-0 pointer-events-none"

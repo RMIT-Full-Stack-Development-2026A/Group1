@@ -68,7 +68,7 @@ function HeroScreenSection({ reducedMotion }) {
       id="welcome-top"
       className="relative h-dvh w-full snap-start snap-always overflow-hidden"
     >
-      <HeroSection />
+      <HeroSection reducedMotion={reducedMotion} />
 
       {/* MarqueeBand pinned to the bottom of the hero screen */}
       <div className="absolute inset-x-0 bottom-1 z-30">
@@ -93,7 +93,9 @@ export default function Welcome() {
   const showIntroSplash = Boolean(location.state?.fromLogin) && !prefersReducedMotion;
 
   // Phase 2: defer AuroraFlow until intro exits
-  const [introDone, setIntroDone] = useState(!showIntroSplash);
+  // introDone is derived: with no splash it is true at once; otherwise the timer below flips it
+  const [introTimerDone, setIntroTimerDone] = useState(false);
+  const introDone = !showIntroSplash || introTimerDone;
 
   // Enable scroll-snap on <html> for md+ breakpoints only.
   useEffect(() => {
@@ -126,11 +128,8 @@ export default function Welcome() {
   // 07/10 -- kept in sync with SPLASH_DURATION_MS in IntroSplash.jsx), but
   // only when the splash is actually going to play (fresh login).
   useEffect(() => {
-    if (!showIntroSplash) {
-      setIntroDone(true);
-      return;
-    }
-    const t = setTimeout(() => setIntroDone(true), 5600);
+    if (!showIntroSplash) return;
+    const t = setTimeout(() => setIntroTimerDone(true), 5600);
     return () => clearTimeout(t);
   }, [showIntroSplash]);
 

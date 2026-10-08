@@ -12,11 +12,11 @@ const MotionDiv = motion.div;
 
 export default function TeamSection() {
   return (
-    <section id="team" className="w-full max-w-6xl mx-auto px-6 py-20">
+    <section className="w-full max-w-6xl mx-auto px-6 py-20">
       <h2 className="font-headline text-xl md:text-2xl text-[#e3e0f4] text-center uppercase mb-12">
         Meet the Team
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-x-8 gap-y-10">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-10">
         {TEAM_MEMBERS.map((member, index) => (
           <MotionDiv
             key={member.id}
@@ -31,6 +31,10 @@ export default function TeamSection() {
                 <img
                   src={member.photo}
                   alt={member.name}
+                  width={160}
+                  height={160}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -49,7 +53,7 @@ export default function TeamSection() {
               aria-label={`${member.name}'s GitHub profile`}
             >
               <span className="material-symbols-outlined text-base">code</span>
-              <span className="text-[10px] font-headline uppercase">GitHub</span>
+              <span className="text-xs font-headline uppercase">GitHub</span>
             </a>
           </MotionDiv>
         ))}

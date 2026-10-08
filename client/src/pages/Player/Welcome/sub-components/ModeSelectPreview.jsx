@@ -8,7 +8,7 @@ import ModePreviewCard from "./ModePreviewCard";
 
 export default function ModeSelectPreview({ onPlayNow }) {
   return (
-    <section id="modes" className="w-full max-w-6xl mx-auto px-6 py-20">
+    <section className="w-full max-w-6xl mx-auto px-6 py-20">
       <h2 className="font-headline text-xl md:text-2xl text-[#e3e0f4] text-center uppercase mb-10">
         3 Game Modes
       </h2>

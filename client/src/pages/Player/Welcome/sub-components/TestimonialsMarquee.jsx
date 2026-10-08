@@ -33,6 +33,10 @@ function TestimonialAvatar({ src, name }) {
     <img
       src={src}
       alt={name}
+      width={44}
+      height={44}
+      loading="lazy"
+      decoding="async"
       onError={() => setErrored(true)}
       className="h-11 w-11 shrink-0 rounded-full border border-[#3d484d] object-cover"
     />

@@ -77,7 +77,7 @@ export default function FeatureGrid() {
                 <MarkerX variantData={variant} className="text-xl w-6 h-6" />
                 <MarkerO variantData={variant} className="text-xl w-6 h-6" />
               </div>
-              <span className="font-headline text-[9px] text-[#bcc8ce]">{variant.id}</span>
+              <span className="font-headline text-xs text-[#bcc8ce]">{variant.id}</span>
             </div>
           ))}
         </div>

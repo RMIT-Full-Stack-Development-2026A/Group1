@@ -16,7 +16,7 @@ export default function ModePreviewCard({ mode, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className="group relative bg-[#1e1e2c] border-2 border-[#3d484d] p-6 text-left flex flex-col items-center text-center gap-4 transition-all hover:border-[#4cc9f0]"
+      className="group relative bg-[#1e1e2c] border-2 border-[#3d484d] p-6 text-left flex flex-col items-center text-center gap-4 transition-[border-color,box-shadow,transform] hover:border-[#4cc9f0]"
       style={{ boxShadow: "4px 4px 0px #343342" }}
     >
       <div

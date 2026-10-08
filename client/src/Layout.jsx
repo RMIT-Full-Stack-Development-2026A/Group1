@@ -95,10 +95,12 @@ export default function Layout({ children }) {
 
             {showScrollTop && (
                 <button
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                    className="fixed bottom-6 right-6 bg-blue-600 text-white px-3 py-2 rounded-full shadow-md hover:bg-blue-800 transition-all duration-200"
+                    type="button"
+                    onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
+                    aria-label="Scroll to top"
+                    className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#4cc9f0] bg-[#4cc9f0] text-[#003543] shadow-md transition-[background-color,box-shadow] duration-200 hover:bg-[#93e2ff] hover:shadow-[0px_0px_8px_#4cc9f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#93e2ff]"
                 >
-                    ↑
+                    <span aria-hidden="true" className="material-symbols-outlined">arrow_upward</span>
                 </button>
             )}
 

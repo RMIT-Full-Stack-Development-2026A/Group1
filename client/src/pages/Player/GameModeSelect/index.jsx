@@ -24,7 +24,7 @@ const GameModeSelect = () => {
         <button
           type="button"
           onClick={goToWelcome}
-          className="absolute top-24 left-6 md:left-12 flex items-center gap-1 font-mono uppercase tracking-widest text-xs text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] hover:opacity-100 transition-all"
+          className="absolute top-24 left-6 md:left-12 flex items-center gap-1 font-mono uppercase tracking-widest text-xs text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] hover:opacity-100 transition-[color,opacity]"
         >
           <span className="material-symbols-outlined text-base">arrow_back</span>
           Welcome

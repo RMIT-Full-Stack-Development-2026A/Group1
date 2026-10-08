@@ -141,9 +141,9 @@ export default function ProfileHeader({ playerData, countryFlag, onEditProfile, 
           {playerData ? (
             <>
               <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="font-arcade text-xl sm:text-2xl text-on-surface break-all">
+                <h1 className="font-arcade text-xl sm:text-2xl text-on-surface break-all">
                   {playerData.username}
-                </h2>
+                </h1>
                 {playerData.isPremium && (
                   <div
                     className="bg-[#fad100]/10 text-[#fad100] px-3 py-1 flex items-center gap-2 text-xs font-bold border-2 border-[#fad100] chunky-shadow"

@@ -21,8 +21,10 @@ export default function FullScreenSection({ id, children, className }) {
       id={id}
       className={cn(
         // snap-start + snap-always: each wheel notch lands on the section
-        "relative flex h-dvh w-full snap-start snap-always",
-        "flex-col items-center justify-center overflow-hidden",
+        // Phones: at least one screen tall but free to grow, so tall content is never cut off.
+        // md and up: exactly one screen, clipped, which the scroll-snap layout relies on.
+        "relative flex min-h-dvh w-full snap-start snap-always md:h-dvh",
+        "flex-col items-center justify-center overflow-x-clip md:overflow-hidden",
         // Clear navbar top (pt-20) and dock bottom (pb-28)
         "px-6 pt-20 pb-28",
         className

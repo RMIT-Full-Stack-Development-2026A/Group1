@@ -10,7 +10,7 @@ const MotionDiv = motion.div;
 
 export default function HowToPlaySection() {
   return (
-    <section id="how-to-play" className="w-full max-w-5xl mx-auto px-6 py-20">
+    <section className="w-full max-w-5xl mx-auto px-6 py-20">
       <h2 className="font-headline text-xl md:text-2xl text-[#e3e0f4] text-center uppercase mb-12">
         How to Play
       </h2>

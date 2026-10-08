@@ -52,7 +52,7 @@ export default function Landing() {
                             <span className="text-xs text-[#93e2ff] uppercase font-headline tracking-tighter my-1">
                                 Group 1
                             </span>
-                            <span className="text-xs text-[#e3e0f4] font-headline">Semester 1, 2026</span>
+                            <span className="text-xs text-[#e3e0f4] font-headline">Semester&nbsp;1,&nbsp;2026</span>
                         </div>
                     </div>
 

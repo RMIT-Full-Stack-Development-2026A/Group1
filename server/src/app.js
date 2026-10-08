@@ -14,6 +14,7 @@ import gameRoutes from "./modules/game/routes/game.routes.js";
 import roomRoutes from "./modules/room/routes/room.routes.js";
 import subscriptionRoutes from './modules/subscription/routes/subscription.routes.js';
 import countriesRoutes from './modules/countries/routes/countries.routes.js';
+import feedbackRoutes from './modules/feedback/routes/feedback.routes.js';
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/api/v1/games', gameRoutes);
 app.use('/api/v1/rooms', roomRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
 app.use('/api/v1/countries', countriesRoutes);
+app.use('/api/v1/feedback', feedbackRoutes);
 
 // Error handling
 app.use(notFoundHandler);

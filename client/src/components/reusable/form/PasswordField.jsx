@@ -15,10 +15,10 @@ const PasswordField = ({
     onToggleShow,
     passwordValidation = null,
     passwordMismatch = false,
-    passwordStrength = 0,
     CriteriaCheckbox,
     disabled = false,
     isConfirmField = false,
+    autoComplete = "new-password",
 }) => {
     // Calculate password strength based on validation criteria
     const calculateStrength = () => {
@@ -53,18 +53,20 @@ const PasswordField = ({
     };
     return (
         <div className="space-y-2">
-            <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+            <label htmlFor={`field-${name}`} className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                 {label}
             </label>
             <div className="relative">
                 <input
+                    id={`field-${name}`}
+                    autoComplete={autoComplete}
                     type={showPassword ? "text" : "password"}
                     name={name}
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}
                     disabled={disabled}
-                    className={`w-full bg-[#0d0d1a] border-b-2 p-3 font-body text-sm placeholder:opacity-30 focus:ring-0 transition-colors outline-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full bg-[#0d0d1a] border-b-2 p-3 font-body text-sm placeholder:text-[#879398] focus:ring-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] pr-10 disabled:opacity-50 disabled:cursor-not-allowed ${
                         isConfirmField && passwordMismatch
                             ? "border-[#ffb4ab] text-[#ffb4ab] focus:border-[#ffb4ab]"
                             : "border-[#3d484d] text-[#4cc9f0] focus:border-[#4cc9f0]"
@@ -74,18 +76,19 @@ const PasswordField = ({
                     type="button"
                     onClick={onToggleShow}
                     disabled={disabled}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                        showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                        showPassword ? "text-[#4cc9f0]" : "text-[#879398]"
                     } hover:text-[#4cc9f0]`}
                 >
-                    <span className="material-symbols-outlined text-sm">
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">
                         {showPassword ? "visibility_off" : "visibility"}
                     </span>
                 </button>
             </div>
 
             {isConfirmField && passwordMismatch && (
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#ffb4ab] font-bold">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#ffb4ab] font-bold">
                     Passwords do not match
                 </p>
             )}
@@ -96,11 +99,11 @@ const PasswordField = ({
                     {/* Strength Indicator Bar */}
                     <div className="space-y-1">
                         <div className="flex justify-between items-center">
-                            <p className="text-[10px] text-[#4cc9f0] font-bold uppercase tracking-widest">
+                            <p className="text-xs text-[#4cc9f0] font-bold uppercase tracking-widest">
                                 Strength:
                             </p>
                             <span
-                                className="text-[10px] font-bold"
+                                className="text-xs font-bold"
                                 style={{ color: getStrengthDisplay().color }}
                             >
                                 {getStrengthDisplay().label}
@@ -108,7 +111,7 @@ const PasswordField = ({
                         </div>
                         <div className="w-full h-2 bg-[#0d0d1a] border border-[#2a2a4e] overflow-hidden">
                             <div
-                                className="h-full transition-all duration-300"
+                                className="h-full transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] duration-300"
                                 style={{
                                     width: `${getStrengthDisplay().percentage}%`,
                                     backgroundColor: getStrengthDisplay().color,
@@ -119,7 +122,7 @@ const PasswordField = ({
 
                     {/* Requirements Box */}
                     <div className="p-3 bg-[#1a1a28] border border-[#2a2a4e]">
-                        <p className="text-[10px] text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
+                        <p className="text-xs text-[#4cc9f0] font-bold mb-2 uppercase tracking-widest">
                             Requirements:
                         </p>
                         <div className="space-y-1">

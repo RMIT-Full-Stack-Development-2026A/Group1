@@ -44,21 +44,3 @@ export const notifyUpdate = (toastId, type, message) => {
     return toast[type](message, { id: toastId });
 };
 
-/**
- * Dismiss a toast by id.
- * @param {string} toastId - Toast id to dismiss.
- * @returns {void}
- */
-export const notifyDismiss = (toastId) => {
-    toast.dismiss(toastId);
-};
-
-/**
- * Show a custom JSX toast.
- * @param {React.ReactNode} jsxComponent - JSX content to render.
- * @param {import('react-hot-toast').ToastOptions} [options={}] - Toast options.
- * @returns {string}
- */
-export const notifyCustom = (jsxComponent, options = {}) => {
-    return toast.custom(jsxComponent, options);
-};

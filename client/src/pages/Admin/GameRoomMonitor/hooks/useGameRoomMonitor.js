@@ -12,7 +12,7 @@ const formatDateTime = (value) => {
     return "-";
   }
 
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(undefined, {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -70,7 +70,6 @@ const normalizeRoom = (room) => {
     ...room,
     status: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
     playerOneName: playerOne,
-    playerTwoName: playerTwo,
     statusLabel,
     statusTone: isClosed ? "closed" : isInProgress ? "in-progress" : "waiting",
     canClose: !isClosed,
@@ -82,11 +81,11 @@ const normalizeRoom = (room) => {
   };
 };
 
-export const useGameRoomMonitor = () => {
+export const useGameRoomMonitor = ({ initialSearch = "", initialPage = 1 } = {}) => {
   const [rooms, setRooms] = useState([]);
   const [now, setNow] = useState(() => Date.now());
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [closingRoomId, setClosingRoomId] = useState(null);
@@ -161,10 +160,11 @@ export const useGameRoomMonitor = () => {
   const totalPages = Math.max(1, Math.ceil(filteredRooms.length / pageSize));
 
   useEffect(() => {
-    if (page > totalPages) {
+    // Wait for the first load: before it, totalPages is 1 and would wipe a page restored from the URL.
+    if (!loading && page > totalPages) {
       setPage(totalPages);
     }
-  }, [page, totalPages]);
+  }, [loading, page, totalPages]);
 
   const paginatedRooms = useMemo(() => {
     const startIndex = (page - 1) * pageSize;

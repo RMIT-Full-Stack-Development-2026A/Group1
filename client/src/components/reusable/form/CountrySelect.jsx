@@ -6,7 +6,7 @@ import React, { useState, useRef, useEffect } from "react";
  * Uses REST Countries API flag URLs
  * Features keyboard navigation - type to jump to countries
  */
-export const CountrySelect = ({
+const CountrySelect = ({
     value,
     onChange,
     disabled = false,
@@ -104,17 +104,19 @@ export const CountrySelect = ({
                 type="button"
                 onClick={() => !disabled && !loading && setIsOpen(!isOpen)}
                 disabled={disabled || loading}
-                className="w-full bg-deep-bg border-b-2 border-outline-variant focus:border-primary-cyan text-primary-cyan p-3 font-body text-sm focus:ring-0 transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center justify-between"
+                className="w-full bg-deep-bg border-b-2 border-outline-variant focus:border-primary-cyan text-primary-cyan p-3 font-body text-sm focus:ring-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center justify-between"
             >
                 <span className="flex items-center gap-2">
                     {loading ? (
-                        <span>Loading countries...</span>
+                        <span>Loading countries…</span>
                     ) : selectedCountry ? (
                         <>
                             {selectedFlag?.type === 'image' ? (
                                 <img
                                     src={selectedFlag.value}
                                     alt={selectedCountry.name.common}
+                                    width="20"
+                                    height="16"
                                     className="w-5 h-4 object-cover rounded-sm"
                                 />
                             ) : selectedFlag?.type === 'emoji' ? (
@@ -150,7 +152,7 @@ export const CountrySelect = ({
                     className="mt-1 w-full bg-surface-card border border-outline-variant shadow-lg max-h-64 overflow-y-auto rounded-sm"
                 >
                     {error ? (
-                            <div className="p-3 text-[#ffb4ab] text-[10px]">
+                            <div className="p-3 text-[#ffb4ab] text-xs">
                             Failed to load countries
                         </div>
                     ) : (
@@ -169,6 +171,9 @@ export const CountrySelect = ({
                                     <img
                                         src={getFlagDisplay(country).value}
                                         alt={country.name.common}
+                                        width="24"
+                                        height="16"
+                                        loading="lazy"
                                         className="w-6 h-4 object-cover rounded-sm shrink-0"
                                     />
                                 ) : getFlagDisplay(country)?.type === 'emoji' ? (

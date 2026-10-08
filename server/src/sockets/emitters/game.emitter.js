@@ -28,11 +28,6 @@ export const GameEmitter = {
         io.to(String(roomId)).emit('player:disconnected', payload);
     },
 
-    /** Emits player reconnect event. */
-    emitPlayerReconnected: (io, roomId, payload) => {
-        io.to(String(roomId)).emit('player:reconnected', payload);
-    },
-
     /** Emits game state payload. */
     emitGameState: (io, roomId, payload) => {
         io.to(String(roomId)).emit('game:state', payload);

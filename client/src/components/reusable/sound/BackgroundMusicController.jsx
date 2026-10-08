@@ -13,7 +13,8 @@ export default function BackgroundMusicController() {
         const audio = new Audio(AUDIO_FILES.BACKGROUND);
         audio.loop = true;
         audio.volume = 0.28;
-        audio.preload = 'load';
+        // 'none': nothing downloads until playback actually starts (the file is ~1.8 MB)
+        audio.preload = 'none';
         audioRef.current = audio;
 
         return () => {
@@ -41,20 +42,28 @@ export default function BackgroundMusicController() {
             return;
         }
 
-        const tryPlay = () => {
-            audio.play().catch(() => {
-                if (retryListenersRef.current.length > 0) return;
+        const waitForGesture = () => {
+            if (retryListenersRef.current.length > 0) return;
 
-                const retryPlayback = () => {
-                    audio.play().catch(() => {});
-                    clearRetryListeners();
-                };
+            const retryPlayback = () => {
+                audio.play().catch(() => {});
+                clearRetryListeners();
+            };
 
-                userGestureEvents.forEach((eventName) => {
-                    window.addEventListener(eventName, retryPlayback, { once: true, passive: true });
-                    retryListenersRef.current.push({ eventName, handler: retryPlayback });
-                });
+            userGestureEvents.forEach((eventName) => {
+                window.addEventListener(eventName, retryPlayback, { once: true, passive: true });
+                retryListenersRef.current.push({ eventName, handler: retryPlayback });
             });
+        };
+
+        const tryPlay = () => {
+            // Browsers block autoplay until the visitor has interacted with the page, and calling play() before
+            // that can still start fetching the file. So wait for the first gesture instead of trying blind.
+            if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+                waitForGesture();
+                return;
+            }
+            audio.play().catch(waitForGesture);
         };
 
         tryPlay();

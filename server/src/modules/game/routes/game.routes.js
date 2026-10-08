@@ -47,6 +47,20 @@ gameRoutes.get('/', GameController.getGames);
 
 /**
  * @openapi
+ * /api/v1/games/stats/total:
+ *   get:
+ *     tags: [Games]
+ *     summary: Total number of matches played on the platform
+ *     responses:
+ *       200:
+ *         description: Total match count fetched successfully.
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedResponse'
+ */
+gameRoutes.get('/stats/total', GameController.getTotalMatches);
+
+/**
+ * @openapi
  * /api/v1/games/{id}:
  *   get:
  *     tags: [Games]

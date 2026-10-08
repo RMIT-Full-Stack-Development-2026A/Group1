@@ -38,7 +38,7 @@ export default function Landing() {
                     {/* HUD Header */}
                     <div className="w-full flex justify-between items-end mb-12 border-b border-[#3d484d] pb-2">
                         <div className="flex flex-col items-start">
-                            <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter my-1 mb-1">
+                            <span className="text-xs text-[#93e2ff] uppercase font-headline tracking-tighter my-1 mb-1">
                                 COSC2769|COSC2808
                             </span>
                             <span className="text-xs text-[#fad100] font-headline">Fullstack Development</span>
@@ -49,16 +49,16 @@ export default function Landing() {
                             <div className="w-2 h-2 bg-[#3d484d]"></div>
                         </div>
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-[#93e2ff] uppercase font-headline tracking-tighter my-1">
+                            <span className="text-xs text-[#93e2ff] uppercase font-headline tracking-tighter my-1">
                                 Group 1
                             </span>
-                            <span className="text-xs text-[#e3e0f4] font-headline">Semester 1, 2026</span>
+                            <span className="text-xs text-[#e3e0f4] font-headline">Semester&nbsp;1,&nbsp;2026</span>
                         </div>
                     </div>
 
                     {/* Main Logo */}
                     <div className="relative group mb-6">
-                        <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
+                        <h1 translate="no" className="font-headline text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-[#4cc9f0] tracking-tighter uppercase [text-shadow:4px_4px_0px_#1e1e2c]">
                             TicTacToang
                         </h1>
                         <div className="absolute -top-4 -right-4 w-8 h-8 border-t-2 border-r-2 border-[#fda866]"></div>
@@ -74,20 +74,20 @@ export default function Landing() {
                     <div className="flex flex-col md:flex-row gap-6 mb-24">
                         <button
                             onClick={handlePlayNow}
-                            className="bg-[#4cc9f0] text-[#003543] px-10 py-5 font-headline text-xl flex items-center justify-center gap-4 border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#1e1e2c] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all hover:shadow-[0px_0px_8px_#4cc9f0]"
+                            className="bg-[#4cc9f0] text-[#003543] px-10 py-5 font-headline text-xl flex items-center justify-center gap-4 border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#1e1e2c] active:translate-x-1 active:translate-y-1 active:shadow-none transition-[transform,box-shadow] hover:shadow-[0px_0px_8px_#4cc9f0] whitespace-nowrap"
                         >
                             PLAY NOW
                         </button>
                         <button
                             onClick={handleLogin}
-                            className="border-2 border-[#3d484d] text-[#e3e0f4] px-10 py-5 font-headline text-xl active:translate-y-[1px] transition-all hover:shadow-[0px_0px_8px_#4cc9f0] hover:border-[#4cc9f0]"
+                            className="border-2 border-[#3d484d] text-[#e3e0f4] px-10 py-5 font-headline text-xl active:translate-y-[1px] transition-[transform,box-shadow,border-color] whitespace-nowrap hover:shadow-[0px_0px_8px_#4cc9f0] hover:border-[#4cc9f0]"
                         >
                             LOGIN
                         </button>
                     </div>
 
                     {/* Feature Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
                         {/* Card 1 */}
                         <div className="bg-[#1e1e2c] border border-[#3d484d] p-1 relative overflow-hidden group hover:border-[#4cc9f0] transition-colors">
                             <div className="h-1 bg-[#4cc9f0] w-full mb-4"></div>
@@ -96,7 +96,7 @@ export default function Landing() {
                                     <div className="w-12 h-12 bg-[#292937] flex items-center justify-center border border-[#3d484d] group-hover:border-[#4cc9f0] transition-colors flex-shrink-0">
                                         <span className="text-[#4cc9f0] text-3xl">⊞</span>
                                     </div>
-                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">10x10 & 15x15 Board</h3>
+                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase break-words min-w-0">10x10 & 15x15 Board</h3>
                                 </div>
                                 <p className="text-xs text-[#bcc8ce] leading-relaxed">
                                     Massive tactical grid for extended strategies and unpredictable outcomes.
@@ -110,12 +110,12 @@ export default function Landing() {
                             <div className="p-6">
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-[#292937] flex items-center justify-center border border-[#3d484d] group-hover:border-[#fad100] transition-colors flex-shrink-0">
-                                        <span className="material-symbols-outlined text-[#fad100]">settings</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[#fad100]">settings</span>
                                     </div>
-                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">3 AI Levels</h3>
+                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase break-words min-w-0">3 AI Levels</h3>
                                 </div>
                                 <p className="text-xs text-[#bcc8ce] leading-relaxed">
-                                    Challenge the mainframe from 'Novice Protocol' to 'God Mode Execution'.
+                                    Challenge the mainframe from ‘Novice Protocol’ to ‘God Mode Execution’.
                                 </p>
                             </div>
                         </div>
@@ -128,7 +128,7 @@ export default function Landing() {
                                     <div className="w-12 h-12 bg-[#292937] flex items-center justify-center border border-[#3d484d] group-hover:border-[#ffb780] transition-colors flex-shrink-0">
                                         <span className="text-[#ffb780] text-3xl">◐</span>
                                     </div>
-                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase">Online Multiplayer</h3>
+                                    <h3 className="font-headline text-sm text-[#e3e0f4] uppercase break-words min-w-0">Online Multiplayer</h3>
                                 </div>
                                 <p className="text-xs text-[#bcc8ce] leading-relaxed">
                                     Battle other pilots across the global network in real-time combat.

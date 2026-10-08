@@ -2,6 +2,7 @@
 // Route: /admin
 // Displays system overview metrics and quick navigation to admin features
 
+import { formatOneDecimal } from "@/utils/formatNumber";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminDashboard } from "./hooks/useAdminDashboard";
@@ -18,7 +19,7 @@ export default function AdminDashboard() {
   if (error) {
     return (
       <main className="max-w-7xl mx-auto p-8">
-        <div className="bg-error-container/20 border border-error-container text-error-container p-6 text-center">
+        <div className="bg-error-container/20 border border-error-container text-error p-6 text-center">
           Error loading dashboard: {error}
         </div>
       </main>
@@ -78,12 +79,12 @@ export default function AdminDashboard() {
           isPremium={true}
           footer={
             loading
-              ? "Calculating..."
+              ? "Calculating…"
               : metrics?.totalPlayers > 0
-              ? (
+              ? formatOneDecimal(
                   ((metrics?.premiumPlayers || 0) / metrics?.totalPlayers) *
                   100
-                ).toFixed(1) + "% conversion"
+                ) + "% conversion"
               : "No data"
           }
           loading={loading}
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
           value={`$${formatNumber(metrics?.totalRevenue || 0)}`}
           icon="monetization_on"
           colorScheme="yellow"
-          footer={loading ? "Calculating..." : `Monthly: $${formatNumber(metrics?.revenueThisMonth || 0)}`}
+          footer={loading ? "Calculating…" : `This month: $${formatNumber(metrics?.revenueThisMonth || 0)}`}
           loading={loading}
         />
       </section>
@@ -123,7 +124,7 @@ export default function AdminDashboard() {
           Registration Analytics
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Today - Line Chart */}
           <RegistrationLineChart
             data={metrics?.registrationsByHour || []}

@@ -42,14 +42,5 @@ export const ProfileDTO = {
             aborted: stats?.aborted ?? 0
         },
         recentGames: Array.isArray(recentGames) ? recentGames : []
-    }),
-
-    /**
-     * Maps avatar URL to response DTO.
-     * @param {string} avatarUrl - Uploaded image URL.
-     * @returns {Object} Avatar response.
-     */
-    toAvatarUploadResponse: (avatarUrl) => ({
-        avatarUrl
     })
 };

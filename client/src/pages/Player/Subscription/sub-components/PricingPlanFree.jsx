@@ -13,16 +13,17 @@ export default function PricingPlanFree({ isPremium }) {
                 <span className="font-headline text-xl text-[#ffb4ab]">$0</span>
             </div>
             <ul className="space-y-4 mb-8 flex-grow">
-                <li className="flex items-center gap-3 font-body text-sm"><span className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> BASIC 10x10 GRID</li>
-                <li className="flex items-center gap-3 font-body text-sm"><span className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> ONLINE PLAY</li>
-                <li className="flex items-center gap-3 font-body text-sm"><span className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> AI MATCHES</li>
-                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> MATCH REPLAYS</li>
-                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> CUSTOM MARKERS</li>
-                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> PRIORITY MATCHMAKING</li>
+                <li className="flex items-center gap-3 font-body text-sm"><span aria-hidden="true" className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> BASIC 10x10 GRID</li>
+                <li className="flex items-center gap-3 font-body text-sm"><span aria-hidden="true" className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> ONLINE PLAY</li>
+                <li className="flex items-center gap-3 font-body text-sm"><span aria-hidden="true" className="material-symbols-outlined text-[#93e2ff] text-sm">check_small</span> AI MATCHES</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> MATCH REPLAYS</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> MATCH CHAT</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> CUSTOM MARKERS</li>
+                <li className="flex items-center gap-3 font-body text-sm text-[#879398]"><span aria-hidden="true" className="material-symbols-outlined text-[#ffb4ab] text-sm">close</span> PRIORITY MATCHMAKING</li>
             </ul>
             <SoundButton
                 disabled
-                className="w-full border border-[#3d484d] text-[#879398] font-headline text-xs py-4 opacity-40 cursor-not-allowed"
+                className="w-full border border-[#3d484d] text-[#bcc8ce] font-headline text-xs py-4 cursor-default"
             >
                 {isPremium ? 'ENJOY YOUR PREMIUM BENEFITS' : 'CURRENT PLAN'}
             </SoundButton>

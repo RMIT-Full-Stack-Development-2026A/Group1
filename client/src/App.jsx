@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import Layout from "./Layout";
 import AppRouter from "./routes/AppRouter";
 import { useAuthStore } from "./stores/auth/AuthStore";
+import { hasSessionHint } from "@/utils/sessionHint";
 import BackgroundMusicController from "@/components/reusable/sound/BackgroundMusicController";
 
 function App() {
@@ -30,9 +31,10 @@ function App() {
         };
     }, []);
 
-    // When checking auth, show loading screen
-    if (isCheckingAuth) {
-        return <div className="loading-screen">Validating system...</div>;
+    // Only a visitor who probably has a session waits for the check. Everyone else sees the page straight away
+    // instead of waiting on the API (protected routes still wait for the answer in ProtectedRoute).
+    if (isCheckingAuth && hasSessionHint()) {
+        return <div className="loading-screen">Validating system…</div>;
     }
 
     return (

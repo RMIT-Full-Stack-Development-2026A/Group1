@@ -41,9 +41,13 @@ export default function LoginPage() {
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
             const { user } = useAuthStore.getState();
-            const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/play';
-            
-            navigate(redirectPath, { replace: true });
+            const redirectPath = user?.role === 'ADMIN' ? '/admin' : '/welcome';
+
+            // fromLogin: tells /welcome to play its 5s intro
+            // splash. Only a fresh login should trigger it -- clicking the
+            // logo or the /play "back to Welcome" button both navigate to
+            // /welcome without this state, so the splash doesn't replay.
+            navigate(redirectPath, { replace: true, state: redirectPath === '/welcome' ? { fromLogin: true } : undefined });
         }
     }, [isAuthenticated, isCheckingAuth, navigate]);
 
@@ -85,47 +89,54 @@ export default function LoginPage() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Email/Username */}
                             <div className="space-y-2">
-                                <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+                                <label htmlFor="login-identifier" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                     USERNAME OR EMAIL
                                 </label>
                                 <input
+                                    id="login-identifier"
                                     type="text"
                                     name="email"
+                                    autoComplete="username"
+                                    spellCheck={false}
+                                    autoCapitalize="none"
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     placeholder="USER_ID_70"
                                     disabled={loading}
-                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:text-[#879398] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>
 
                             {/* Password */}
                             <div className="space-y-2">
                                 <div className="flex justify-between items-end">
-                                    <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+                                    <label htmlFor="login-password" className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                         PASSWORD
                                     </label>
                                 </div>
 
                                 <div className="relative">
                                     <input
+                                        id="login-password"
                                         type={showPassword ? "text" : "password"}
                                         name="password"
+                                        autoComplete="current-password"
                                         value={formData.password}
                                         onChange={handleInputChange}
                                         placeholder="••••••••"
                                         disabled={loading || isLocked}
-                                        className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:opacity-30 disabled:opacity-50 disabled:cursor-not-allowed pr-10"
+                                        className="w-full bg-[#0d0d1a] border-b-2 border-[#3d484d] focus:border-[#4cc9f0] focus:ring-0 text-[#4cc9f0] p-3 font-body text-sm placeholder:text-[#879398] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4cc9f0] disabled:opacity-50 disabled:cursor-not-allowed pr-10"
                                     />
                                     <button
                                         type="button"
                                         onClick={toggleShowPassword}
                                         disabled={loading || isLocked}
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
                                         className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                                            showPassword ? "text-[#4cc9f0]" : "text-[#3d484d]"
+                                            showPassword ? "text-[#4cc9f0]" : "text-[#879398]"
                                         } hover:text-[#4cc9f0]`}
                                     >
-                                        <span className="material-symbols-outlined text-sm">
+                                        <span aria-hidden="true" className="material-symbols-outlined text-sm">
                                             {showPassword ? "visibility_off" : "visibility"}
                                         </span>
                                     </button>
@@ -136,7 +147,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading || isLocked}
-                                className={`w-full font-bold font-headline py-4 px-6 flex items-center justify-center gap-3 transition-all uppercase text-sm ${
+                                className={`w-full font-bold font-headline py-4 px-6 flex items-center justify-center gap-3 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase text-sm ${
                                     isLocked
                                         ? "bg-[#93000a] text-[#ffdad6] border-2 border-[#ffb4ab] cursor-not-allowed shadow-none"
                                         : loading
@@ -145,13 +156,13 @@ export default function LoginPage() {
                                 }`}
                             >
                                 {isLocked ? (
-                                        <span className="material-symbols-outlined">lock</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined">lock</span>
                                     ) : loading ? (
-                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined animate-spin">hourglass_empty</span>
                                     ) : (
-                                        <span className="material-symbols-outlined">play_arrow</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined">play_arrow</span>
                                     )}
-                                {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN..." : "LOGIN"}
+                                {isLocked ? "ACCOUNT LOCKED" : loading ? "LOGGING IN…" : "LOGIN"}
                             </button>
                         </form>
 
@@ -168,7 +179,7 @@ export default function LoginPage() {
                         No account?{" "}
                         <button
                             onClick={handleRegisterNav}
-                            className="text-[#4cc9f0] font-bold hover:drop-shadow-[0_0_8px_#4cc9f0] transition-all cursor-pointer"
+                            className="text-[#4cc9f0] font-bold hover:drop-shadow-[0_0_8px_#4cc9f0] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] cursor-pointer"
                         >
                             REGISTER NOW
                         </button>

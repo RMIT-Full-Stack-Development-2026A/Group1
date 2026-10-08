@@ -13,7 +13,7 @@ export default function GameLobby() {
     const { setGameMode } = useModeStore();
     const [page, setPage] = useState(1);
     const [showWaitingOnly, setShowWaitingOnly] = useState(false);
-    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, usingMockData, refreshLobby, pagination } = useLobby({
+    const { rooms, onlineCount, loading: lobbyLoading, error: lobbyError, refreshLobby, pagination } = useLobby({
         page,
         limit: 9,
         waitingOnly: showWaitingOnly,
@@ -73,14 +73,6 @@ export default function GameLobby() {
         return rooms.filter((room) => String(room.status || '').toLowerCase() === 'waiting');
     }, [rooms, showWaitingOnly]);
 
-    if (isCheckingAuth || lobbyLoading) {
-        return (
-            <div className="bg-deep-bg text-on-surface min-h-screen flex items-center justify-center">
-                <div className="font-mono text-primary-cyan">Loading Lobby...</div>
-            </div>
-        );
-    }
-
     // Show error if lobby data failed to load
     if (lobbyError) {
         return (
@@ -134,17 +126,10 @@ export default function GameLobby() {
                     </div>
                     <button
                         onClick={() => handleJoinRoom(activePlayingRoom.id)}
-                        className="bg-[#ff3d00] text-[#1a0a0a] hover:bg-[#ff5722] hover:scale-105 active:scale-95 transition-all font-headline tracking-widest px-8 py-3 w-full sm:w-auto shadow-[0_0_15px_rgba(255,61,0,0.5)] border border-[#ff3d00]"
+                        className="bg-[#ff3d00] text-[#1a0a0a] hover:bg-[#ff5722] hover:scale-105 active:scale-95 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] font-headline tracking-widest px-8 py-3 w-full sm:w-auto shadow-[0_0_15px_rgba(255,61,0,0.5)] border border-[#ff3d00]"
                     >
                         REJOIN MATCH
                     </button>
-                </div>
-            )}
-
-            {/* Mock Data Warning Banner */}
-            {usingMockData && !lobbyError && (
-                <div className="bg-surface-container-low border-b border-primary-cyan text-primary-cyan px-6 py-3 text-center text-sm font-mono tracking-tight">
-                    DEMO MODE: Showing example data. Backend endpoints not yet implemented.
                 </div>
             )}
 
@@ -166,6 +151,7 @@ export default function GameLobby() {
                 {/* Room Grid */}
                 <RoomGrid
                     rooms={visibleRooms}
+                    loading={lobbyLoading}
                     onJoinRoom={handleJoinRoom}
                     onCreateRoom={handleCreateRoom}
                     currentUserId={user?.id}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, X, Zap } from 'lucide-react';
+import Icon from '@/components/common/Icon';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -29,10 +29,12 @@ const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" })
                 
                 {/* Nút X Đóng */}
                 <button 
+                    type="button"
                     onClick={onClose}
+                    aria-label="Close"
                     className="absolute top-3 right-3 text-[#879398] hover:text-white transition-colors"
                 >
-                    <X size={20} />
+                    <Icon name="close" size={22} />
                 </button>
 
                 {/* Decorative Corners (Chuẩn style Cyberpunk của bạn) */}
@@ -41,7 +43,7 @@ const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" })
 
                 {/* Icon Lock */}
                 <div className="w-16 h-16 mb-4 bg-[#fad100]/10 flex items-center justify-center border border-[#fad100]/30 rounded-sm">
-                    <Lock size={32} color="#fad100" />
+                    <Icon name="lock" size={32} color="#fad100" />
                 </div>
 
                 {/* Title */}
@@ -50,7 +52,7 @@ const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" })
                 </h2>
                 
                 {/* Message */}
-                <p className="font-mono text-[11px] text-[#879398] text-center mb-8 uppercase leading-relaxed">
+                <p className="font-mono text-xs text-[#879398] text-center mb-8 uppercase leading-relaxed">
                     <span className="text-white font-bold">{featureName}</span> REQUIRES <br/>
                     <span className="text-[#4cc9f0]">NEURO-ELITE</span> STATUS TO UNLOCK.
                 </p>
@@ -59,10 +61,10 @@ const PremiumRequiredModal = ({ isOpen, onClose, featureName = "THIS FEATURE" })
                 <div className="w-full flex flex-col gap-3">
                     <button 
                         onClick={handleUpgradeClick}
-                        className="w-full bg-[#fad100] text-[#6d5a00] font-arcade text-[10px] py-4 uppercase flex items-center justify-center gap-2 hover:bg-[#ffe171] active:translate-x-[2px] active:translate-y-[2px] transition-all"
+                        className="w-full bg-[#fad100] text-[#6d5a00] font-arcade text-xs py-4 uppercase flex items-center justify-center gap-2 hover:bg-[#ffe171] active:translate-x-[2px] active:translate-y-[2px] transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                         style={{ boxShadow: '2px 2px 0px #6d5a00' }}
                     >
-                        <Zap size={14} /> UPGRADE NOW
+                        <Icon name="bolt" size={16} /> UPGRADE NOW
                     </button>
                     
                     <button 

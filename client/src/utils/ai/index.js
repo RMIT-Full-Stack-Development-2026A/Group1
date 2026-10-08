@@ -1,4 +1,3 @@
-// import { getEasyMove } from './ai.easy'; 
 import { getEasyMove } from './ai.easy';
 import { getMediumMove } from './ai.medium';
 import { getHardMove } from './ai.hard';

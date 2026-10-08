@@ -1,20 +1,7 @@
 // Custom hook for Admin Dashboard state and logic
+import { formatCount } from "@/utils/formatNumber";
 import { useState, useEffect } from "react";
 import { adminDashboardService } from "../services/adminDashboard.service";
-
-// Mock data for development/demo purposes
-const MOCK_METRICS = {
-  totalPlayers: 4200,
-  activePlayers: 312,
-  deactivatedPlayers: 3888,
-  premiumPlayers: 892,
-  registeredToday: [5, 8, 12, 15, 10, 8, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 24 hours
-  registeredThisWeek: [25, 35, 42, 38, 45, 60, 40], // Mon-Sun
-  registeredThisMonth: Array(29).fill(0).map((_, i) => Math.floor(Math.random() * 80) + 20), // 29 days (example)
-  activeRooms: 24,
-  totalMatches: 18500,
-  totalRevenue: 12850.50,
-};
 
 export const useAdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
@@ -70,10 +57,8 @@ export const useAdminDashboard = () => {
         setMetrics(formattedMetrics);
         setError(null);
       } catch (err) {
-        console.warn("[useAdminDashboard] API call failed, using mock data:", err.message);
-        // Use mock data as fallback instead of showing error
-        setMetrics(MOCK_METRICS);
-        setError(null);
+        console.error("[useAdminDashboard] Failed to load dashboard metrics:", err);
+        setError(err.message || "Could not load the dashboard.");
       } finally {
         setLoading(false);
       }
@@ -83,12 +68,7 @@ export const useAdminDashboard = () => {
   }, []);
 
   // Format large numbers with commas and K suffix
-  const formatNumber = (num) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "k";
-    }
-    return num.toLocaleString();
-  };
+  const formatNumber = (num) => formatCount(num);
 
   return {
     metrics,

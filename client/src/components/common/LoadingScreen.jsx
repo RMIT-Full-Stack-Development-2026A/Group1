@@ -1,4 +1,4 @@
-export default function LoadingScreen({ message = "LOADING..." }) {
+export default function LoadingScreen({ message = "LOADING…" }) {
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-4 bg-background">
       <div
@@ -11,7 +11,7 @@ export default function LoadingScreen({ message = "LOADING..." }) {
         <span className="h-2 w-2 bg-primary animate-pulse [animation-delay:450ms]" />
       </div>
 
-      <p className="font-headline text-[10px] uppercase tracking-widest text-primary animate-pulse">
+      <p className="font-headline text-xs uppercase tracking-widest text-primary animate-pulse">
         {message}
       </p>
     </div>

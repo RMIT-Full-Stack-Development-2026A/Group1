@@ -22,16 +22,17 @@ export default function Layout({ children }) {
     const connectSocket = useSocketStore((state) => state.connectSocket);
     const disconnectSocket = useSocketStore((state) => state.disconnectSocket);
 
+    // The session check itself runs once from App.jsx.
     useEffect(() => {
-        useAuthStore.getState().checkAuth();
-    }, []);
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            connectSocket();
-        } else {
+        if (!isAuthenticated) {
             disconnectSocket();
+            return;
         }
+        // Connect once the browser is idle so the socket handshake does not compete with the first paint
+        const schedule = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 200));
+        const cancel = window.cancelIdleCallback || window.clearTimeout;
+        const handle = schedule(() => connectSocket(), { timeout: 2000 });
+        return () => cancel(handle);
     }, [isAuthenticated, connectSocket, disconnectSocket]);
 
     useEffect(() => {
@@ -49,9 +50,9 @@ export default function Layout({ children }) {
         // Game board: no nav, no footer, no padding — pure full-screen shell
         // On small screens allow scrolling inside the main area so tall side panels are reachable
         return (
-            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto md:overflow-hidden">
+            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
                 <div className="scanlines"></div>
-                <main className="flex-1 overflow-auto md:overflow-hidden">
+                <main className="flex-1 overflow-auto lg:overflow-hidden">
                     {children}
                 </main>
             </div>
@@ -61,10 +62,16 @@ export default function Layout({ children }) {
     if (isConstrained) {
         // Viewport-fit pages: nav visible, no footer, content fills below nav
         return (
-            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto md:overflow-hidden">
+            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
+                <a
+                    href="#main-content"
+                    className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary-cyan focus:text-deep-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase"
+                >
+                    Skip to main content
+                </a>
                 <Navigation />
                 <div className="scanlines"></div>
-                <main className="flex-1 pt-16 overflow-auto">
+                <main id="main-content" className="flex-1 pt-16 overflow-auto">
                     {children}
                 </main>
             </div>
@@ -73,20 +80,28 @@ export default function Layout({ children }) {
 
     return (
         <div className="relative min-h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg">
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary-cyan focus:text-deep-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase"
+            >
+                Skip to main content
+            </a>
             <Navigation />
 
             <div className="scanlines"></div>
 
-            <main className="flex-1 pt-16">
+            <main id="main-content" className="flex-1 pt-16">
                 {children}
             </main>
 
             {showScrollTop && (
                 <button
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                    className="fixed bottom-6 right-6 bg-blue-600 text-white px-3 py-2 rounded-full shadow-md hover:bg-blue-800 transition-all duration-200"
+                    type="button"
+                    onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
+                    aria-label="Scroll to top"
+                    className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#4cc9f0] bg-[#4cc9f0] text-[#003543] shadow-md transition-[background-color,box-shadow] duration-200 hover:bg-[#93e2ff] hover:shadow-[0px_0px_8px_#4cc9f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#93e2ff]"
                 >
-                    ↑
+                    <span aria-hidden="true" className="material-symbols-outlined">arrow_upward</span>
                 </button>
             )}
 

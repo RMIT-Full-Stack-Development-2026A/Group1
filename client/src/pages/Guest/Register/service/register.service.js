@@ -2,8 +2,7 @@
  * Register Service
  * Handles registration-related API calls and DTO creation
  */
-    
-import { authService } from "@/services/auth/auth.service";
+
 import { RegisterRequest } from "@/pages/Guest/Login/model/auth";
 import {
     isEmailValid,
@@ -48,38 +47,4 @@ export const registerService = {
         };
     },
 
-    /**
-     * Attempt user registration
-     * @param {Object} formData - { username, email, password, confirmPassword, country }
-     * @param {Object} validationState - Validation states for all fields
-     * @returns {Promise<Object>} - Response from auth API
-     * @throws {Object} - Error object with message
-     */
-    attemptRegister: async (formData, validationState) => {
-        try {
-            // Validate form first
-            const validation = registerService.validateRegisterForm(formData, validationState);
-            if (!validation.isValid) {
-                throw {
-                    statusCode: 400,
-                    message: validation.errors.join("\n"),
-                    details: validation.errors,
-                };
-            }
-
-            // Create RegisterRequest DTO
-            const registerRequest = new RegisterRequest(formData);
-
-            // Call auth service
-            const response = await authService.register(registerRequest.toJSON());
-            return response;
-        } catch (error) {
-            // Re-throw with proper format
-            throw {
-                statusCode: error.statusCode || 500,
-                message: error.message || "Registration failed. Please try again.",
-                details: error.details,
-            };
-        }
-    },
 };

@@ -47,7 +47,10 @@ export const useSocketStore = create((set, get) => ({
                 }));
 
                 // Force clear the auth state to prevent auto-reconnect loops
-                void useAuthStore.getState().logout();
+                // (skipped when a voluntary logout already cleared it)
+                if (useAuthStore.getState().isAuthenticated) {
+                    void useAuthStore.getState().logout();
+                }
             }
         });
 
@@ -67,6 +70,13 @@ export const useSocketStore = create((set, get) => ({
 
         // Handle force logout triggered by a login from another device
         socketInstance.on('auth:force_logout', async (payload = {}) => {
+            // The user clicked LOGOUT in this browser: the HTTP logout already cleared the session and
+            // the UI is navigating away. Just drop the socket; no second logout, no "logged in elsewhere" redirect.
+            if (payload.code === 'LOGGED_OUT') {
+                get().disconnectSocket();
+                return;
+            }
+
             const forceLogoutPayload = {
                 message: payload.reason || 'Your account was logged in from another location.',
                 reason: 'FORCE_LOGOUT',
@@ -87,8 +97,12 @@ export const useSocketStore = create((set, get) => ({
             get().disconnectSocket();
             
             // Clear auth state and cookies
-            void useAuthStore.getState().logout();
-            window.location.href = '/login?reason=duplicate';
+            if (useAuthStore.getState().isAuthenticated) {
+                void useAuthStore.getState().logout();
+            }
+            window.location.href = payload.code === 'DUPLICATE_LOGIN' || payload.code === undefined
+                ? '/login?reason=duplicate'
+                : '/login';
         });
 
         // Catch Authentication Errors triggered by socketAuthMiddleware

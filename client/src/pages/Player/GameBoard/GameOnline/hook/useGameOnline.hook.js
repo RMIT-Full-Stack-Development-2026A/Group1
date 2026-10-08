@@ -41,10 +41,13 @@ export const useGameOnline = () => {
         if (!isConnected) joinedRoomIdRef.current = null;
     }, [isConnected]);
 
+    // Room data handed over by the lobby through navigation state.
+    // It is applied in an effect, one render after mount. (Applying it during render also works now that the
+    // leave cleanup below is deferred and cancellable, but this keeps the mount sequence simple.)
     useEffect(() => {
         const initialData = location.state?.initialRoomData;
         if (initialData && (initialData.id === roomId || initialData.roomId === roomId)) {
-            
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRoomData(initialData);
             setIsConnecting(false);
         }
@@ -65,7 +68,6 @@ export const useGameOnline = () => {
         function handleRoomUpdated(payload) {
             if (String(payload.room?.id) !== roomId) return;
             
-            // Delete this log after confirming payload structure is correct and consistent with backend
             if (joinTimeoutId) {
                 clearTimeout(joinTimeoutId);
                 joinTimeoutId = null;
@@ -233,24 +235,42 @@ export const useGameOnline = () => {
             const sizeStr = `${roomData.boardSize}x${roomData.boardSize}`;
             const styleMap = { CLASSIC: 'classic', NEON: 'neon', DARK: 'block' };
             setCustomization(sizeStr, styleMap[roomData.boardStyle] || 'classic', 3);
+            // The flag must flip only after the customization store above is updated (the board renders from it),
+            // so this has to happen in the effect, right after the store write.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsHydrated(true);
         }
     }, [roomData?.status, roomData?.id, roomData?.boardSize, roomData?.boardStyle, isHydrated, setCustomization]);
 
-    // Cleanup when user leaves page or gets disconnected
+    // Cleanup when user leaves page or gets disconnected.
+    // The leave is sent on the next tick, not inside the cleanup itself. React StrictMode (development) runs
+    // mount -> cleanup -> mount back to back, and a cleanup that leaves at once would delete a room that was
+    // only "unmounted" for an instant. If the same room mounts again right away, the pending leave is cancelled.
+    // Going to a different room or page still sends it, because the room id differs or nothing remounts.
+    const pendingLeaveRef = useRef(null);
     useEffect(() => {
+        const pending = pendingLeaveRef.current;
+        if (pending && pending.routeRoomId === roomId) {
+            clearTimeout(pending.timer);
+            pendingLeaveRef.current = null;
+        }
+
         return () => {
             const currentRoom = roomDataRef.current;
             const activeStatuses = ['WAITING', 'READY', 'PLAYING'];
-            if (socket?.connected && activeStatuses.includes(currentRoom?.status)) {
-                // SPA navigation: socket stays alive so the 'disconnect' handler
-                // never fires. Send intent so backend starts the grace period
-                // instead of aborting instantly.
-                socket.emit('room:leave', {
-                    roomId: currentRoom?.id || roomId,
-                    intent: 'navigate_away',
-                });
-            }
+            if (!socket?.connected || !activeStatuses.includes(currentRoom?.status)) return;
+
+            // SPA navigation: socket stays alive so the 'disconnect' handler
+            // never fires. Send intent so backend starts the grace period
+            // instead of aborting instantly.
+            const leavingRoomId = currentRoom?.id || roomId;
+            const timer = setTimeout(() => {
+                pendingLeaveRef.current = null;
+                if (socket.connected) {
+                    socket.emit('room:leave', { roomId: leavingRoomId, intent: 'navigate_away' });
+                }
+            }, 0);
+            pendingLeaveRef.current = { routeRoomId: roomId, timer };
         };
     }, [socket, roomId]);
 
@@ -258,6 +278,11 @@ export const useGameOnline = () => {
     const handleReady = useCallback(() => {
         if (!socket || !currentRoomId) return;
         socket.emit('room:ready', { roomId: currentRoomId });
+    }, [socket, currentRoomId]);
+
+    const handleUnready = useCallback(() => {
+        if (!socket || !currentRoomId) return;
+        socket.emit('room:unready', { roomId: currentRoomId });
     }, [socket, currentRoomId]);
 
     const handleLeaveRoom = useCallback(() => {
@@ -298,6 +323,7 @@ export const useGameOnline = () => {
         hasCompletedMatch,
         completedMatch,
         handleReady,
+        handleUnready,
         handlePlayAgain,
         handleLeaveRoom,
         handleSetFirstTurn,

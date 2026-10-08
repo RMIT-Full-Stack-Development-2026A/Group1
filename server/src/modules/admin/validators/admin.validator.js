@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import { escapeSearch } from '../../../utils/query.util.js';
 
 // Define constants 
-export const ACTIVE_ROOM_STATUSES = ['WAITING', 'READY', 'PLAYING'];
-export const ALL_ROOM_STATUSES = [...ACTIVE_ROOM_STATUSES, 'ABORTED', 'CLOSED'];
+const ACTIVE_ROOM_STATUSES = ['WAITING', 'READY', 'PLAYING'];
+const ALL_ROOM_STATUSES = [...ACTIVE_ROOM_STATUSES, 'ABORTED', 'CLOSED'];
 
 /**
  * Validates MongoDB ObjectId format.

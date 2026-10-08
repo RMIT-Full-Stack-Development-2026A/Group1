@@ -8,7 +8,7 @@ export default function RegisterPage() {
 
     // Criteria checkbox component
     const CriteriaCheckbox = ({ met, label }) => (
-        <div className="flex items-center gap-2 text-[10px] uppercase font-mono">
+        <div className="flex items-center gap-2 text-xs uppercase font-mono">
             <span className={`w-4 h-4 flex items-center justify-center border ${
                 met 
                     ? "bg-[#5cb85c] border-[#5cb85c]"
@@ -92,7 +92,7 @@ export default function RegisterPage() {
 
                         {/* Country */}
                         <div className="space-y-2">
-                            <label className="block text-[10px] tracking-[0.2em] uppercase text-[#879398] font-semibold">
+                            <label className="block text-xs tracking-[0.2em] uppercase text-[#879398] font-semibold">
                                 Regional Sector
                             </label>
                             <CountrySelect
@@ -104,7 +104,7 @@ export default function RegisterPage() {
                                 countries={countries}
                             />
                             {countriesError && (
-                                <p className="text-[10px] text-[#ffb4ab]">
+                                <p className="text-xs text-[#ffb4ab]">
                                     Failed to load countries. Please try again.
                                 </p>
                             )}
@@ -115,18 +115,18 @@ export default function RegisterPage() {
                             <button
                                 type="submit"
                                 disabled={form.loading}
-                                className={`w-full font-headline py-4 px-6 border-2 transition-all uppercase text-sm flex items-center justify-center gap-3 ${
+                                className={`w-full font-headline py-4 px-6 border-2 transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] uppercase text-sm flex items-center justify-center gap-3 ${
                                     form.loading
                                         ? "bg-[#3d484d] text-[#879398] border-[#3d484d] cursor-not-allowed shadow-none"
                                         : "bg-[#4cc9f0] text-[#003543] border-[#003543] shadow-[2px_2px_0px_0px_#005266] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:shadow-[0px_0px_8px_#4cc9f0]"
                                 }`}
                             >
                                 {form.loading ? (
-                                        <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined animate-spin">hourglass_empty</span>
                                     ) : (
-                                        <span className="material-symbols-outlined">add</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined">add</span>
                                     )}
-                                {form.loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
+                                {form.loading ? "CREATING ACCOUNT…" : "CREATE ACCOUNT"}
                             </button>
                         </div>
                     </form>
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                     <div className="mt-8 pt-6 border-t border-[#3d484d] text-center">
                         <button
                             onClick={handleLoginNav}
-                            className="text-[10px] tracking-[0.2em] text-[#4cc9f0] hover:underline uppercase font-bold cursor-pointer"
+                            className="text-xs tracking-[0.2em] text-[#4cc9f0] hover:underline uppercase font-bold cursor-pointer"
                         >
                             Already have an account? LOGIN
                         </button>

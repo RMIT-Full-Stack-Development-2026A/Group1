@@ -475,25 +475,29 @@ export const RoomService = {
         }
     },
 
-    // Delete room completely (called from socket layer for cleanup)
-    forceDeleteRoom: async (roomId) => {
-        await RoomRepository.deleteRoom(roomId);
-    },
-
     handleChatSend: async (userId, payload) => {
         const { roomId, message } = validateChatSend(payload);
         
-        const user = await AuthInterface.getUserById(userId);
+        // The two lookups are independent, so run them together: one database round trip instead of two.
+        // The checks below keep the same order, so callers see the same error for the same situation.
+        const [user, room] = await Promise.all([
+            AuthInterface.getUserById(userId),
+            RoomRepository.findById(roomId),
+        ]);
         if (!user?.isActive) {
             throw { statusCode: 403, error: 'FORBIDDEN', message: 'An active account is required.' };
         }
-        const room = await RoomRepository.findById(roomId);
         if (!room) throw { statusCode: 404, error: 'ROOM_NOT_FOUND', message: 'Room not found.' };
         if (!room.participants.some(p => String(p.userId) === String(userId))) {
             throw { statusCode: 403, error: 'FORBIDDEN', message: 'Only participants can chat in this room.' };
         }
         if (![ROOM_STATUS.WAITING, ROOM_STATUS.READY, ROOM_STATUS.PLAYING].includes(room.status)) {
             throw { statusCode: 400, error: 'INVALID_STATE', message: 'This room is no longer active.' };
+        }
+        // Match chat is a premium feature. The client hides it for free accounts, and the server enforces it too,
+        // because a client can emit chat:send directly. Checked last so the other errors keep their meaning.
+        if (!computeIsPremium(user)) {
+            throw { statusCode: 403, error: 'PREMIUM_REQUIRED', message: 'Chat is a Premium feature. Upgrade to unlock it!' };
         }
 
         return RoomDTO.toChatMessagePayload({
@@ -590,6 +594,23 @@ export const RoomService = {
     },
 
     /** Handles room ready status. */
+    /** Cancels the caller's READY before the match starts. */
+    handleRoomUnready: async (userId, payload) => {
+        const { roomId } = validateRoomReady(payload);
+        const room = await GameRoom.findById(roomId);
+
+        if (!room || room.status !== ROOM_STATUS.READY) {
+            throw { statusCode: 400, error: "INVALID_STATE", message: "Ready can only be cancelled before the match starts." };
+        }
+        if (!room.participants.some(p => String(p.userId) === String(userId))) {
+            throw { statusCode: 403, error: 'FORBIDDEN', message: 'Only participants can cancel ready.' };
+        }
+        const updated = await RoomRepository.markParticipantUnready(roomId, userId);
+        // The match started between the check above and the update.
+        if (!updated) throw { statusCode: 409, error: 'ROOM_CHANGED', message: 'The match already started.' };
+        return { roomId, room: RoomDTO.toRoomSummary(updated) };
+    },
+
     handleRoomReady: async (userId, payload) => {
         const { roomId } = validateRoomReady(payload);
         let room = await GameRoom.findById(roomId);
@@ -605,10 +626,4 @@ export const RoomService = {
         return { roomId, room: RoomDTO.toRoomSummary(started || room), gameStart: !!started };
     },
 
-    /** Retrieves game state. */
-    getGameState: async (roomId) => {
-        const room = await GameRoom.findById(roomId);
-        if (!room) return null;
-        return RoomDTO.toGameStatePayload({ room, board: room.moves });
-    }
 };

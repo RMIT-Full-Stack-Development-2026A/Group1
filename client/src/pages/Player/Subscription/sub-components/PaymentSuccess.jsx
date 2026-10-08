@@ -11,7 +11,6 @@ export default function PaymentSuccess() {
     const [status, setStatus] = useState('loading'); // 'loading' | 'success' | 'error' | 'already_captured'
     const [error, setError] = useState(null);
     const [premiumExpiresAt, setPremiumExpiresAt] = useState(null);
-    const [navigated, setNavigated] = useState(false);
 
     const token = searchParams.get('token');
 
@@ -49,7 +48,10 @@ export default function PaymentSuccess() {
         if (hasCaptured.current) return;
         hasCaptured.current = true;
         runCapture();
-    }, []); // run only once on mount
+        // Runs once on mount by design: hasCaptured makes sure the PayPal capture request is never sent twice,
+        // so token, navigate and runCapture must not be dependencies.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (status === 'loading') {
         return (
@@ -59,7 +61,7 @@ export default function PaymentSuccess() {
                         <span className="font-mono text-[#fad100] animate-pulse">●</span>
                         <span className="font-headline text-sm text-[#fad100]">PROCESSING PAYMENT</span>
                     </div>
-                    <p className="font-mono text-[11px] text-[#879398] uppercase tracking-widest">
+                    <p className="font-mono text-xs text-[#879398] uppercase tracking-widest">
                         Please wait. Do not close this tab.
                     </p>
                 </div>
@@ -78,13 +80,13 @@ export default function PaymentSuccess() {
                             {status === 'already_captured' ? 'ALREADY ACTIVATED' : 'PAYMENT CONFIRMED'}
                         </span>
                     </div>
-                    <p className="font-mono text-[11px] text-[#879398] uppercase tracking-widest mb-4 leading-relaxed">
+                    <p className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-4 leading-relaxed">
                         {status === 'already_captured'
                             ? 'This payment has already been processed. Your premium access is active.'
                             : 'Your NEURO-ELITE subscription is now active. A confirmation email has been sent to your registered address.'}
                     </p>
                     {premiumExpiresAt && (
-                        <p className="font-mono text-[11px] text-[#93e2ff] uppercase tracking-widest mb-8">
+                        <p className="font-mono text-xs text-[#93e2ff] uppercase tracking-widest mb-8">
                             Access valid until: {premiumExpiresAt}
                         </p>
                     )}

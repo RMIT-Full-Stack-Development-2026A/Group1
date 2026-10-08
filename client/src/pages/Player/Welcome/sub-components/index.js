@@ -1,0 +1,17 @@
+export { default as IntroSplash } from "./IntroSplash";
+export { default as AuroraFlow } from "./AuroraFlow";
+export { default as HeroSection } from "./HeroSection";
+export { default as MarqueeBand } from "./MarqueeBand";
+export { default as ModeSelectPreview } from "./ModeSelectPreview";
+export { default as HowToPlaySection } from "./HowToPlaySection";
+export { default as FeatureCardsSection } from "./FeatureCardsSection";
+export { default as BoardThemesSection } from "./BoardThemesSection";
+export { default as MarkerStylesSection } from "./MarkerStylesSection";
+export { default as HistorySection } from "./HistorySection";
+export { default as TeamSection } from "./TeamSection";
+export { default as TestimonialsMarquee } from "./TestimonialsMarquee";
+export { default as FeedbackCta } from "./FeedbackCta";
+export { default as ChallengeCounter } from "./ChallengeCounter";
+export { default as FinalCta } from "./FinalCta";
+export { default as MagneticDock } from "./MagneticDock";
+export { default as FullScreenSection } from "./FullScreenSection";

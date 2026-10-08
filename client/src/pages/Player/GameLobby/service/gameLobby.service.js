@@ -27,8 +27,6 @@ export const gameLobbyService = {
 
             const response = await http.get(API_ENDPOINTS.GAME.LIST, params);
             
-            
-            
             return response.data || {
                 items: [],
                 total: 0,
@@ -37,42 +35,6 @@ export const gameLobbyService = {
             };
         } catch (error) {
             console.error('[Game Lobby Service] Failed to fetch games:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Get single game session detail with replay data
-     * @param {string} gameId - Game session ID
-     * @returns {Promise<Object>} - Game detail including moves and board state
-     */
-    getGameDetail: async (gameId) => {
-        try {
-            const response = await http.get(API_ENDPOINTS.GAME.DETAILS(gameId));
-            
-            
-            
-            return response.data;
-        } catch (error) {
-            console.error('[Game Lobby Service] Failed to fetch game detail:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Create a local/AI game session
-     * @param {Object} gameData - { gameType, boardSize, status, participants, moves, etc. }
-     * @returns {Promise<Object>} - Created game session
-     */
-    createLocalGame: async (gameData) => {
-        try {
-            const response = await http.post(API_ENDPOINTS.GAME.LIST, gameData);
-            
-            
-            
-            return response.data;
-        } catch (error) {
-            console.error('[Game Lobby Service] Failed to create local game:', error);
             throw error;
         }
     },
@@ -93,8 +55,6 @@ export const gameLobbyService = {
 
             const response = await http.get(API_ENDPOINTS.ROOM.LIST, params);
             
-            
-            
             return response?.data || response || {
                 items: [],
                 total: 0,
@@ -103,66 +63,6 @@ export const gameLobbyService = {
             };
         } catch (error) {
             console.error('[Game Lobby Service] Failed to fetch rooms:', error);
-            // Return empty paginated payload as fallback for now (rooms endpoint not yet implemented)
-            return {
-                items: [],
-                total: 0,
-                page: 1,
-                limit: 20,
-            };
-        }
-    },
-
-    /**
-     * Get single room detail for reconnect/recovery
-     * @param {string} roomId - Room ID
-     * @returns {Promise<Object>} - Room detail
-     */
-    getRoomDetail: async (roomId) => {
-        try {
-            const response = await http.get(API_ENDPOINTS.ROOM.DETAILS(roomId));
-            
-            
-            
-            return response.data;
-        } catch (error) {
-            console.error('[Game Lobby Service] Failed to fetch room detail:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Join an existing room
-     * @param {string} roomId - Room ID to join
-     * @returns {Promise<Object>} - Updated room data
-     */
-    joinRoom: async (roomId) => {
-        try {
-            const response = await http.post(API_ENDPOINTS.ROOM.JOIN(roomId));
-            
-            
-            
-            return response.data;
-        } catch (error) {
-            console.error('[Game Lobby Service] Failed to join room:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Create a new game room
-     * @param {Object} roomData - { boardSize, marker }
-     * @returns {Promise<Object>} - Created room data
-     */
-    createRoom: async (roomData) => {
-        try {
-            const response = await http.post(API_ENDPOINTS.ROOM.CREATE, roomData);
-            
-            
-            
-            return response.data;
-        } catch (error) {
-            console.error('[Game Lobby Service] Failed to create room:', error);
             throw error;
         }
     },

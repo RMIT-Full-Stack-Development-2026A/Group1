@@ -3,7 +3,7 @@
  * Handles game mode data configuration and navigation logic
  */
 
-export const GAME_MODES = [
+const GAME_MODES = [
   {
     id: 'SINGLE_PLAYER',
     title: 'SINGLE PLAYER',
@@ -17,7 +17,6 @@ export const GAME_MODES = [
     route: '/customize',
     badge: null,
     glowEffect: false,
-    status: 'TODO',
   },
   {
     id: 'TWO_PLAYERS',
@@ -32,7 +31,6 @@ export const GAME_MODES = [
     route: '/customize',
     badge: null,
     glowEffect: false,
-    status: 'TODO', // ← Not yet implemented
   },
   {
     id: 'ONLINE_MATCH',
@@ -63,7 +61,7 @@ export const getGameModes = () => {
  * @param {string} id - Game mode ID
  * @returns {Object} Game mode object or null
  */
-export const getGameModeById = (id) => {
+const getGameModeById = (id) => {
   return GAME_MODES.find((mode) => mode.id === id) || null;
 };
 

@@ -52,7 +52,7 @@ export default function FirstPlayerSelector({ gameMode, selectedPlayer, onSelect
                     <SoundButton
                         key={option.value}
                         onClick={() => onSelect(option.value)}
-                        className={`bg-[#1e1e2c] border p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${
+                        className={`bg-[#1e1e2c] border p-6 flex flex-col items-center justify-center cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${
                             selectedPlayer === option.value
                                 ? "border-primary-cyan shadow-[2px_2px_0px_#343342] hover:shadow-[0px_0px_8px_#4cc9f0]"
                                 : "border-outline-variant shadow-[2px_2px_0px_#343342] hover:border-primary-cyan"
@@ -64,7 +64,7 @@ export default function FirstPlayerSelector({ gameMode, selectedPlayer, onSelect
                         <span className="text-sm tracking-widest font-bold text-[#e3e0f4]">
                             {option.label}
                         </span>
-                        <span className="text-[10px] tracking-widest opacity-60 font-bold mt-1">
+                        <span className="text-xs tracking-widest opacity-60 font-bold mt-1">
                             {option.subtitle}
                         </span>
                     </SoundButton>

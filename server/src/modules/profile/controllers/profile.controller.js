@@ -1,5 +1,4 @@
 import { ProfileService } from '../services/profile.service.js';
-import { upload } from '../../../config/multer.config.js';
 
 export const ProfileController = {
     // [GET] /profile endpoint

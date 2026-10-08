@@ -215,6 +215,15 @@ export const registerRoomSocketHandlers = (io, socket) => {
         }
     });
 
+    socket.on('room:unready', async (payload) => {
+        try {
+            const result = await RoomService.handleRoomUnready(user.id, payload);
+            GameEmitter.emitRoomUpdated(io, result.roomId, { room: result.room });
+        } catch (err) {
+            GameEmitter.emitError(socket, 'room:unready', err);
+        }
+    });
+
     socket.on('disconnect', async () => {
         try {
             const userSockets = await io.in(user.id.toString()).allSockets();

@@ -18,6 +18,7 @@ export default function GameOnline() {
     hasCompletedMatch,
     completedMatch,
     handleReady,
+    handleUnready,
     handlePlayAgain,
     handleLeaveRoom,
     handleSetFirstTurn,
@@ -26,7 +27,7 @@ export default function GameOnline() {
 
   const { user } = useAuthStore();
 
-  if (isConnecting) return <LoadingScreen message="CONNECTING TO ROOM..." />;
+  if (isConnecting) return <LoadingScreen message="CONNECTING TO ROOM…" />;
   if (error && !roomData) return <ErrorScreen message={error} />;
 
   const renderContent = () => {
@@ -34,7 +35,7 @@ export default function GameOnline() {
 
     // Keep the arena mounted while showing the result overlay after a finished match.
     if (hasCompletedMatch || status === 'PLAYING' || status === 'ABORTED') {
-      if (!isHydrated) return <LoadingScreen message="PREPARING BOARD..." />;
+      if (!isHydrated) return <LoadingScreen message="PREPARING BOARD…" />;
       return (
         <OnlineArena
           roomData={roomData}
@@ -54,6 +55,7 @@ export default function GameOnline() {
           roomData={roomData}
           currentUserId={user?.id}
           onReady={handleReady}
+          onUnready={handleUnready}
           onLeave={handleLeaveRoom}
           onSetFirstTurn={handleSetFirstTurn}
           onSetMarkerStyle={handleSetMarkerStyle}
@@ -64,6 +66,9 @@ export default function GameOnline() {
 
     return null;
   };
+
+  // The board replaces the lobby once a match starts (and stays after it ends), the chat moves with it.
+  const isBoardScreen = hasCompletedMatch || roomData?.status === 'PLAYING' || roomData?.status === 'ABORTED';
 
   return (
     <div className="h-screen w-screen bg-deep-bg text-on-surface overflow-hidden overscroll-none relative flex flex-col">
@@ -83,7 +88,7 @@ export default function GameOnline() {
       </main>
 
       {(roomData?.status === 'READY' || roomData?.status === 'PLAYING') && (
-        <ChatBox roomId={roomData?.id} currentUserId={user?.id} currentUsername={user?.username} />
+        <ChatBox roomId={roomData?.id} currentUserId={user?.id} currentUsername={user?.username} placement={isBoardScreen ? "bottom" : "top"} />
       )}
     </div>
   );

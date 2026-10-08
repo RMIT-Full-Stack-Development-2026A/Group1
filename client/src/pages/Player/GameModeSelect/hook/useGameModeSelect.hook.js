@@ -49,9 +49,17 @@ export const useGameModeSelect = () => {
    */
   const gameModes = getGameModes();
 
+  /**
+   * Back-to-welcome button: /play has no other way back to /welcome.
+   */
+  const goToWelcome = () => {
+    navigate('/welcome');
+  };
+
   return {
     gameModes,
     handleSelectMode,
+    goToWelcome,
     user,
   };
 };

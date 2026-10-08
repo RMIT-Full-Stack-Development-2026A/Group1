@@ -1,5 +1,5 @@
 // Route: /replay/:gameId
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PremiumRequiredModal from '@/components/reusable/overlay/PremiumBannerOverlay';
 import { useAuthStore } from '@/stores/auth/AuthStore';
@@ -13,10 +13,12 @@ const MatchReplay = () => {
     const { gameId: rawGameId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    // Read the clock once on mount: calling Date.now() while rendering is impure.
+    const [now] = useState(() => Date.now());
     const isUserPremium = (() => {
         if (!user) return false;
         if (user.premiumExpiresAt) {
-            return new Date(user.premiumExpiresAt).getTime() > Date.now();
+            return new Date(user.premiumExpiresAt).getTime() > now;
         }
         return user.isPremium || false;
     })();
@@ -44,7 +46,7 @@ const MatchReplay = () => {
     }
 
     if (isLoading) {
-        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
+        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY…</div>;
     }
 
     if (errorMessage) {
@@ -59,11 +61,11 @@ const MatchReplay = () => {
     }
 
     if (!sessionData) {
-        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY...</div>;
+        return <div className="flex-1 flex items-center justify-center font-arcade text-primary animate-pulse">LOADING REPLAY…</div>;
     }
 
     return (
-        <main className="flex-1 mt-16 mb-10 pb-32 px-6 py-6 flex flex-col items-center bg-surface">
+        <main className="flex-1 mt-16 mb-10 pb-56 lg:pb-44 px-6 py-6 flex flex-col items-center bg-surface">
             <MatchHeader session={sessionData} />
 
             <div className="w-full max-w-[1280px] grid grid-cols-12 gap-8 items-start">

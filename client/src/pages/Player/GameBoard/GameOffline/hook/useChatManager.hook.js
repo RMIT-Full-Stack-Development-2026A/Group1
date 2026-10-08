@@ -37,7 +37,7 @@ const makeMessage = (sender, text) => ({
     id:     ++_msgId,
     sender,
     text,
-    ts:     new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+    ts:     new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
 });
 
 /**

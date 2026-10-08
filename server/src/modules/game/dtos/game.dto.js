@@ -59,21 +59,6 @@ const deriveViewerResult = (session, viewerUserId) => {
 };
 
 /**
- * Extracts opponent name.
- * @param {Object} session - Game session data.
- * @param {string} viewerUserId - User ID.
- * @returns {string|null} Opponent username.
- */
-const getOpponentName = (session, viewerUserId) => {
-    const viewerId = String(viewerUserId || "");
-    const opponent = Array.isArray(session.participants)
-        ? session.participants.find((participant) => String(participant.userId || "") !== viewerId)
-        : null;
-
-    return opponent?.usernameSnapshot || null;
-};
-
-/**
  * Extracts opponent info.
  * @param {Object} session - Game session data.
  * @param {string} viewerUserId - User ID.

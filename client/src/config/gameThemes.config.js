@@ -1,8 +1,8 @@
-import classicBg from '@/assets/themes/classic/bg.png';
-import neonBg from '@/assets/themes/neon/bg.png';
-import blockBg from '@/assets/themes/block/bg.png';
+import classicBg from '@/assets/themes/classic/bg.webp';
+import neonBg from '@/assets/themes/neon/bg.webp';
+import blockBg from '@/assets/themes/block/bg.webp';
 
-export const GAME_THEMES = {
+const GAME_THEMES = {
     jungle: {
         boardWrapper: 'bg-[#0a0a1a] border-8 border-[#276112]',
         boardBorder: 'border-4 border-[#276112]',

@@ -1,16 +1,28 @@
-# React + Vite
+# TicTacToang client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + Vite + Zustand + Tailwind CSS 4. The game itself (modes, rules, API) is described in the root `README.md`;
+the client's structure is in `docs/ARCHITECTURE.md` and `docs/PAGES.md`.
 
-Currently, two official plugins are available:
+## Commands
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server on http://localhost:8000 |
+| `npm run build` | Production build into `dist/` |
+| `npm run preview` | Serves the production build (no compression or long cache headers, unlike the real host) |
+| `npm run lint` | ESLint (the project is kept at zero problems) |
+| `npm run icons:update` | Rebuilds the trimmed icon font; run it after adding or renaming a Material Symbols icon |
 
-## React Compiler
+## Configuration
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+`VITE_API_URL` is the backend **origin only** (for example `http://localhost:5000`). Do not add `/api/v1` or a socket path.
+It defaults to `http://localhost:5000`.
 
-## Expanding the ESLint configuration
+## Things worth knowing
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Icons:** the app ships a Material Symbols font that contains only the icons it uses (about 25 KB instead of 1.1 MB).
+  An icon missing from it shows up as its raw name (for example the text `chat_bubble_outline`). Run `npm run icons:update`.
+- **Fonts:** self-hosted in `src/assets/fonts` and declared in `src/fonts.css`; there are no Google Fonts requests.
+- **Media size:** keep files in `public/` small. The welcome page's hero video is about 0.35 MB; see `public/videos/README.md`
+  before replacing it.
+- **Tailwind:** v4, configured in `src/index.css` (`@theme`). There is no `tailwind.config.js`.

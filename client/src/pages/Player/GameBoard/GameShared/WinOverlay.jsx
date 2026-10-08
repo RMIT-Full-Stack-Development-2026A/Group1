@@ -1,9 +1,11 @@
+import { useDialogA11y } from '@/hooks/useDialogA11y';
+import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
-import { X, Eye } from 'lucide-react';
+import Icon from '@/components/common/Icon';
 
 const RESULT_UI_CONFIG = {
     winner: {
-        title: (winnerData) => `YOU WIN!`,
+        title: () => `YOU WIN!`,
         badge: 'CONGRATULATIONS',
         subtitle: (winnerData) => `${winnerData?.cells?.length ?? 5} MARKS IN A ROW`,
         color: '#fad100',
@@ -11,7 +13,7 @@ const RESULT_UI_CONFIG = {
         badgeTextColor: '#3b2f00',
     },
     loser: {
-        title: (winnerData) => `YOU LOSE!`,
+        title: () => `YOU LOSE!`,
         badge: 'GAME OVER',
         subtitle: 'BETTER LUCK NEXT TIME',
         color: '#ef6353',
@@ -50,6 +52,11 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
         }
     }, [winnerData, isDraw]);
 
+    const dialogRef = useDialogA11y({
+        active: Boolean(winnerData || isDraw) && !isMinimized,
+        onClose: () => setIsMinimized(true),
+    });
+
     if (!winnerData && !isDraw) return null;
 
     // Minimized state (bottom-right button)
@@ -60,7 +67,7 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
                     onClick={() => setIsMinimized(false)}
                     className="bg-[#12121f] border-2 border-primary-cyan text-primary-cyan px-4 py-3 font-headline text-[12px] uppercase flex items-center gap-2 shadow-[2px_2px_0px_#005266] hover:bg-primary-cyan hover:text-[#003543] transition-colors"
                 >
-                    <Eye size={16} /> VIEW RESULT
+                    <Icon name="visibility" size={18} /> VIEW RESULT
                 </button>
             </div>
         );
@@ -72,8 +79,9 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
     const subtitle = typeof resultConfig.subtitle === 'function' ? resultConfig.subtitle(winnerData) : resultConfig.subtitle;
     const badgeText = resultConfig.badge;
 
-    return (
-        <div className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center animate-fade-in">
+    // Portal to <body> so the overlay sits above fixed UI (chat button) that lives outside the game stacking context.
+    return createPortal(
+        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Game over" className="fixed inset-0 z-110 bg-deep-bg/85 flex items-center justify-center overscroll-contain animate-fade-in">
 
             {/* Background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none animated-particles">
@@ -96,16 +104,18 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
             >
                 {/* Close (minimize) button */}
                 <button
+                    type="button"
                     onClick={() => setIsMinimized(true)}
                     className="absolute top-4 right-4 text-[#879398] hover:text-[#ffb4ab] transition-colors"
+                    aria-label="Hide overlay"
                     title="Hide overlay"
                 >
-                    <X size={24} />
+                    <Icon name="close" size={26} />
                 </button>
 
                 {/* Badge */}
                 <div
-                    className="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 font-headline text-[10px] uppercase whitespace-nowrap"
+                    className="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 font-headline text-xs uppercase whitespace-nowrap"
                     style={{
                         backgroundColor: resultConfig.color,
                         color: resultConfig.badgeTextColor,
@@ -126,7 +136,7 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
                 </h1>
 
                 {/* Subtitle */}
-                <p className="font-mono text-[11px] text-[#879398] uppercase tracking-widest mb-10">
+                <p className="font-mono text-xs text-[#879398] uppercase tracking-widest mb-10">
                     {subtitle}
                 </p>
                 
@@ -135,20 +145,22 @@ const WinOverlay = ({ winnerData, isDraw, perspective, onRestart, onBackToLobby 
                 <div className="flex flex-col gap-3 items-center">
                     <button
                         onClick={onRestart}
-                        className="w-60 bg-primary-cyan text-[#003543] font-headline text-[9px] py-4 uppercase hover:translate-y-0.5 transition-transform"
+                        className="w-60 bg-primary-cyan text-[#003543] font-headline text-xs py-4 uppercase hover:translate-y-0.5 transition-transform"
                         style={{ boxShadow: '2px 2px 0px #005266' }}
                     >
                         PLAY AGAIN
                     </button>
                     <button
                         onClick={onBackToLobby}
-                        className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-[9px] py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-all"
+                        className="w-60 border-2 border-outline-variant text-[#879398] font-headline text-xs py-3 uppercase hover:border-primary-cyan hover:text-primary-cyan transition-[color,background-color,border-color,box-shadow,transform,opacity,filter]"
                     >
                         BACK TO LOBBY
                     </button>
                 </div>
             </div>
         </div>
+        ,
+        document.body
     );
 };
 

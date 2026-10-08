@@ -18,7 +18,7 @@ export const getMarkerVariant = (variantIdentifier) => {
         const variants = getMarkerVariants();
         const found = variants.find((v) => v.displayId === variantIdentifier || v.id === variantIdentifier);
         if (found) return found;
-    } catch (error) {
+    } catch {
         console.warn("Could not fetch marker variants from service, using fallback.");
     }
 
@@ -56,20 +56,6 @@ export const renderXMarker = (variantDisplayId, className = "") => {
 export const renderOMarker = (variantDisplayId, className = "") => {
     const variant = getMarkerVariant(variantDisplayId);
     return <MarkerO variantData={variant} className={className} />;
-};
-
-/**
- * Render both X and O markers side by side (for preview)
- * @param {number} variantDisplayId - Marker variant display ID (1-6)
- * @returns {JSX.Element} Both markers
- */
-export const renderMarkerPair = (variantDisplayId) => {
-    return (
-        <div className="flex items-center space-x-4">
-            {renderXMarker(variantDisplayId, "w-8 h-8")}
-            {renderOMarker(variantDisplayId, "w-8 h-8")}
-        </div>
-    );
 };
 
 /**

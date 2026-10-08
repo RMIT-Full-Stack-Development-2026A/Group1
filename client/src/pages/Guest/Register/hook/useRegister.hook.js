@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/auth/AuthStore";
+import { useAuthStore, SESSION_COOKIE_BLOCKED } from "@/stores/auth/AuthStore";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useCountries } from "@/hooks/useCountries";
 import { registerService } from "../service/register.service";
@@ -73,7 +73,8 @@ export const useRegister = () => {
                     form.setMessage({
                         type: "error",
                         text: error.message || "Registration failed. Please try again.",
-                        autoClose: true,
+                        // A blocked login cookie needs a browser setting changed, so keep that message on screen.
+                        autoClose: error.code !== SESSION_COOKIE_BLOCKED,
                     });
                 }
             } finally {

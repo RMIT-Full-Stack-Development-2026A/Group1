@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
-/* Cấu hình Theme của Tailwind v4 thay cho tailwind.config.js */
+/* Tailwind v4 theme: configured here in CSS (there is no tailwind.config.js) */
 @theme {
   --color-deep-bg: #0d0d1a;
   --color-surface-card: #1a1a2e;
@@ -12,9 +10,69 @@
   --color-premium-gold: #ffd60a;
   --color-outline-variant: #3d484d;
 
+  /* Material-style tokens, so classes like text-outline, text-on-surface and bg-primary-container render as authored. */
+  --color-on-tertiary: #4e2600;
+  --color-on-tertiary-fixed-variant: #6f3800;
+  --color-on-surface-variant: #bcc8ce;
+  --color-neon-green: #69ff47;
+  --color-neon-green-dim: rgba(105,255,71,0.08);
+  --color-secondary: #fff0c4;
+  --color-host-gold: #fad100;
+  --color-host-gold-dim: rgba(250,209,0,0.08);
+  --color-error: #ffb4ab;
+  --color-own-purple: rgba(123,97,255,0.18);
+  --color-own-purple-border: rgba(123,97,255,0.35);
+  --color-chat-bubble: rgba(76,201,240,0.08);
+  --color-chat-border: rgba(76,201,240,0.20);
+  --color-surface: #12121f;
+  --color-inverse-surface: #e3e0f4;
+  --color-surface-container: #1e1e2c;
+  --color-surface-tint: #5bd5fc;
+  --color-surface-container-highest: #343342;
+  --color-tertiary-fixed-dim: #ffb780;
+  --color-primary-fixed-dim: #5bd5fc;
+  --color-tertiary-container: #fba866;
+  --color-surface-container-high: #292937;
+  --color-secondary-container: #fad100;
+  --color-on-primary-fixed-variant: #004e61;
+  --color-secondary-fixed-dim: #e9c400;
+  --color-on-error-container: #ffdad6;
+  --color-outline: #879398;
+  --color-primary-fixed: #b7eaff;
+  --color-on-primary: #003543;
+  --color-on-tertiary-fixed: #2f1400;
+  --color-on-tertiary-container: #753b00;
+  --color-background: #12121f;
+  --color-on-secondary-fixed-variant: #554600;
+  --color-tertiary: #ffcca9;
+  --color-on-secondary-fixed: #221b00;
+  --color-inverse-on-surface: #2f2f3d;
+  --color-on-background: #e3e0f4;
+  --color-surface-dim: #12121f;
+  --color-surface-container-low: #1a1a28;
+  --color-primary-container: #4cc9f0;
+  --color-on-surface: #e3e0f4;
+  --color-on-error: #690005;
+  --color-surface-variant: #343342;
+  --color-primary: #93e2ff;
+  --color-tertiary-fixed: #ffdcc4;
+  --color-on-primary-fixed: #001f28;
+  --color-error-container: #93000a;
+  --color-secondary-fixed: #ffe171;
+  --color-on-secondary-container: #6d5a00;
+  --color-surface-container-lowest: #0d0d1a;
+  --color-on-primary-container: #005266;
+  --color-inverse-primary: #006780;
+  --color-surface-bright: #383847;
+  --color-on-secondary: #3b2f00;
+
   --font-mono: "IBM Plex Mono", monospace;
   --font-headline: "Press Start 2P", cursive;
   --font-body: "Space Grotesk", sans-serif;
+}
+
+html {
+  color-scheme: dark;
 }
 
 html, body, #root {
@@ -30,19 +88,17 @@ body {
     font-family: 'IBM Plex Mono', monospace;
 }
 
-/* Responsive adjustments for navbar and board */
-/* Hide default scrollbar for overflowed nav on small screens */
-.nav-scrollable {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  white-space: nowrap;
-}
-.nav-scrollable::-webkit-scrollbar { display: none; }
-
 /* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
 .board-wrapper {
-  width: clamp(300px, 90vmin, 900px);
+  /* Never wider than the viewport minus page gutters when the panels are stacked */
+  width: clamp(300px, min(90vmin, calc(100vw - 2rem)), 900px);
   margin: 0 auto;
+}
+/* Side-by-side layout: two 260px player panels + gaps + gutters take ~620px */
+@media (min-width: 1024px) {
+  .board-wrapper {
+    width: clamp(300px, min(90vmin, calc(100vw - 620px)), 900px);
+  }
 }
 .board-grid {
   width: 100%;
@@ -50,55 +106,14 @@ body {
   display: grid;
   /* columns controlled inline by BoardArea via gridTemplateColumns */
 }
-.grid-cell, .board-grid > * {
+.board-grid > * {
   touch-action: manipulation;
   min-width: 18px;
   min-height: 18px;
   padding: 4px;
 }
 
-/* Reflow side panels on small screens: stack vertically on narrow viewports */
 @media (max-width: 768px) {
-  main.responsive-game-layout {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    overflow:auto;
-  }
-
-  aside.w-55 {
-    width: 100%;
-    margin-top: 8px;
-    align-self: center;
-  }
-
-  /* Mobile menu dropdown spacing */
-  .mobile-nav-dropdown {
-    position: absolute;
-    left: 0; right: 0; top: 100%;
-    background: var(--color-deep-bg);
-    z-index: 60;
-    padding: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-  }
-
-  /* Ensure player columns and board column behave predictably on mobile */
-  .player-column {
-    width: 100%;
-    box-sizing: border-box;
-    padding-left: 6px;
-    padding-right: 6px;
-  }
-
-  .board-column {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    box-sizing: border-box;
-    padding-left: 6px;
-    padding-right: 6px;
-  }
-
   /* Stronger centering for the board wrapper on mobile */
   .board-wrapper {
     width: clamp(240px, 90vw, 700px) !important;
@@ -117,11 +132,6 @@ body {
     font-family: 'Press Start 2P', cursive;
 }
 
-/* Optional: Use for specific elements if needed */
-.pixel-font {
-    font-family: 'Press Start 2P', cursive;
-}
-
 /* Material Symbols Icon Font */
 .material-symbols-outlined {
     font-family: 'Material Symbols Outlined';
@@ -135,6 +145,8 @@ body {
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Hiệu ứng sọc màn hình CRT dùng chung */
@@ -164,14 +176,6 @@ body {
   box-shadow: 0 0 10px #4cc9f0;
 }
 
-.glow-amber {
-  box-shadow: 0 0 15px #fad100;
-}
-
-.text-glow-amber {
-  text-shadow: 0 0 12px #fad100;
-}
-
 .chunky-offset {
   box-shadow: 2px 2px 0px 0px #005266;
 }
@@ -186,14 +190,20 @@ body {
   .chunky-shadow-secondary {
     box-shadow: 6px 6px 0px rgba(250, 209, 0, 0.3);
   }
+}
 
-  /* Chunky shadow on primary action buttons */
-  .chunky-shadow-primary {
-    box-shadow: 4px 4px 0px rgba(76, 201, 240, 0.3);
-  }
 
-  /* Cyan glow effect for interactive elements */
-  .cyan-glow {
-    box-shadow: 0px 0px 8px rgba(147, 226, 255, 0.6);
+/* Honor reduced-motion: settle transitions and animations (the CRT overlay is static and stays). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
+
+
+/* Numbers line up in tables and stat blocks; headings avoid single-word last lines. */
+table, .tabular-nums { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { text-wrap: balance; }

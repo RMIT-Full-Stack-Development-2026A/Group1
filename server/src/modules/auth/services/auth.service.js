@@ -1,7 +1,7 @@
 import bcryptjs from "bcryptjs";
 import { AuthRepository } from "../repositories/auth.repository.js";
 import { AuthDTO } from "../dtos/auth.dto.js";
-import { generateTokenAndSetCookie } from "../../../utils/token.util.js";
+import { generateTokenAndSetCookie, clearAccessTokenCookies } from "../../../utils/token.util.js";
 import { validateRegisterInput, validateLoginInput,  validateRegisterConflicts } from "../validators/auth.validator.js";
 import { RoomInterface } from "../../room/interfaces/room.interface.js";
 import { eventBus } from "../../../utils/eventBus.util.js";
@@ -112,18 +112,15 @@ export const AuthService = {
 
      // [POST] /auth/logout endponit
     logoutUser: async (res, session) => {
-        const user = await AuthRepository.revokeSession(session.id, session.tokenVersion);
+        // Idempotent: with no valid session (already logged out, expired cookie) there is nothing to revoke,
+        // but the cookie is still cleared and the call still succeeds.
+        const user = session ? await AuthRepository.revokeSession(session.id, session.tokenVersion) : null;
         if (user) {
             eventBus.publish(SYSTEM_EVENTS.SESSION_REVOKED, {
-                userId: user.id, tokenVersion: user.auth.tokenVersion, reason: 'You have logged out.'
+                userId: user.id, tokenVersion: user.auth.tokenVersion, reason: 'You have logged out.', code: 'LOGGED_OUT'
             });
         }
-        res.clearCookie("access_token", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            path: "/"
-        });
+        clearAccessTokenCookies(res);
     },
 
      // [GET] /auth/check-auth endponit
@@ -207,7 +204,7 @@ export const AuthService = {
         const updatedUser = await AuthRepository.updatePassword(userId, newPasswordHash);
         eventBus.publish(SYSTEM_EVENTS.SESSION_REVOKED, {
             userId: String(userId), tokenVersion: updatedUser.auth.tokenVersion,
-            reason: 'Your password has changed. Please log in again.'
+            reason: 'Your password has changed. Please log in again.', code: 'PASSWORD_CHANGED'
         });
 
         return null;

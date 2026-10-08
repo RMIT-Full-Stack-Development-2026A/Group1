@@ -4,9 +4,6 @@
  * Connects to real backend endpoints for game/room data
  */
 
-// DEV toggle: set VITE_USE_MOCK_ROOMS=true in a .env or set localStorage key `USE_MOCK_ROOMS` to '1' to force mock data
-const FORCE_USE_MOCK = (typeof import.meta !== 'undefined' && import.meta.env && String(import.meta.env.VITE_USE_MOCK_ROOMS) === 'true') || (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('USE_MOCK_ROOMS') === '1');
-
 import { gameLobbyService } from "./gameLobby.service";
 
 const normalizeLobbyRoom = (room) => {
@@ -35,64 +32,31 @@ const normalizeLobbyRoom = (room) => {
     };
 };
 
-const paginateRooms = (rooms, page = 1, limit = 6) => {
-    const safePage = Math.max(1, Number(page) || 1);
-    const safeLimit = Math.max(1, Number(limit) || 6);
-    const start = (safePage - 1) * safeLimit;
-    return {
-        items: rooms.slice(start, start + safeLimit),
-        total: rooms.length,
-        page: safePage,
-        limit: safeLimit,
-    };
-};
-
 export const LobbyService = {
     /**
-     * Get available rooms from backend
-     * Returns joinable rooms (status: WAITING)
-     * Falls back to empty array if rooms endpoint not yet implemented
+     * Get rooms from the backend (paginated). Errors are thrown so the lobby can show its error state.
      */
     getRooms: async ({ page = 1, limit = 6, status, boardSize } = {}) => {
-        try {
-            // If developer explicitly requested mock rooms, return them immediately
-            if (FORCE_USE_MOCK) {
-                
-                const mockRooms = LobbyService._getMockRooms()
-                    .filter((room) => !status || String(room.status || '').toUpperCase() === String(status).toUpperCase())
-                    .filter((room) => !boardSize || String(room.boardSize).startsWith(String(boardSize)));
-                return paginateRooms(mockRooms.map(normalizeLobbyRoom), page, limit);
-            }
+        const requestParams = {
+            page,
+            limit,
+            ...(status && { status }),
+            ...(boardSize && { boardSize }),
+        };
 
-            const requestParams = {
-                page,
-                limit,
-                ...(status && { status }),
-                ...(boardSize && { boardSize }),
-            };
+        const response = await gameLobbyService.getRooms(requestParams);
 
-            // Fetch rooms with backend pagination support
-            const response = await gameLobbyService.getRooms(requestParams);
-            
-            // Map backend room shape to UI-friendly shape and normalize status
-            const payload = response?.data || response || {};
-            const normalizedRooms = (payload.items || []).map(normalizeLobbyRoom);
+        // Map backend room shape to UI-friendly shape and normalize status
+        const payload = response?.data || response || {};
+        const normalizedRooms = (payload.items || []).map(normalizeLobbyRoom);
 
-            
-
-            return {
-                items: normalizedRooms,
-                total: Number(payload.total || normalizedRooms.length || 0),
-                page: Number(payload.page || page || 1),
-                limit: Number(payload.limit || limit || 6),
-            };
-        } catch (error) {
-            console.error('[Lobby Service] Failed to fetch rooms:', error);
-            // Return mock data as fallback while backend is being implemented
-            return paginateRooms(LobbyService._getMockRooms().map(normalizeLobbyRoom), page, limit);
-        }
+        return {
+            items: normalizedRooms,
+            total: Number(payload.total || normalizedRooms.length || 0),
+            page: Number(payload.page || page || 1),
+            limit: Number(payload.limit || limit || 6),
+        };
     },
-
 
     /**
      * Get recent activity from backend
@@ -108,10 +72,10 @@ export const LobbyService = {
             });
 
             // Convert game history to activity format
-            const activity = games.items?.slice(0, 4).map((game, index) => {
+            const activity = games.items?.slice(0, 4).map((game) => {
                 const formatTime = (date) => {
                     const d = new Date(date);
-                    return d.toLocaleTimeString('en-US', { 
+                    return d.toLocaleTimeString(undefined, { 
                         hour: '2-digit', 
                         minute: '2-digit'
                     }).toLowerCase();
@@ -143,91 +107,10 @@ export const LobbyService = {
             }).filter(Boolean);
 
             
-            
             return activity.length > 0 ? activity : [];
         } catch (error) {
             console.error('[Lobby Service] Failed to fetch recent activity:', error);
             return [];
         }
     },
-
-    /**
-     * Get available rooms (filter by status)
-     */
-    getAvailableRooms: (rooms) => {
-        return (rooms || []).filter((r) => String(r.status || '').toLowerCase() === 'waiting');
-    },
-
-    normalizeRoom: normalizeLobbyRoom,
-
-    /**
-     * Get online player count
-     * Counts the total number of rooms available from the backend
-     */
-    getOnlineCount: (rooms = []) => {
-        // Return the count of rooms from the backend
-        return Array.isArray(rooms) ? rooms.length : 0;
-    },
-
-    // ===== MOCK DATA (Fallback) =====
-    _getMockRooms: () => {
-        return [
-            {
-                id: 1,
-                roomNumber: 42,
-                boardSize: "10x10",
-                host: "PLAYER_ONE",
-                hostRank: "#085",
-                    status: "waiting",
-                    opponent: 'WAITING',
-                    opponentRank: '',
-                    players: 1,
-                maxPlayers: 2,
-            },
-            {
-                id: 2,
-                roomNumber: 45,
-                boardSize: "15x15",
-                host: "NEON_PHANTOM",
-                hostRank: "#042",
-                status: "waiting",
-                players: 1,
-                maxPlayers: 2,
-            },
-            {
-                id: 3,
-                roomNumber: 39,
-                boardSize: "10x10",
-                host: "HOST_X",
-                hostRank: "#151",
-                    status: "full",
-                    opponent: 'RIVAL_007',
-                    opponentRank: '#204',
-                    players: 2,
-                maxPlayers: 2,
-            },
-            {
-                id: 4,
-                roomNumber: 46,
-                boardSize: "10x10",
-                host: "CYBER_KING",
-                hostRank: "#037",
-                status: "waiting",
-                players: 1,
-                maxPlayers: 2,
-            },
-            {
-                id: 5,
-                roomNumber: 47,
-                boardSize: "15x15",
-                host: "PIXEL_RANGER",
-                hostRank: "#099",
-                status: "waiting",
-                players: 1,
-                maxPlayers: 2,
-            },
-        ];
-    },
-
-
 };

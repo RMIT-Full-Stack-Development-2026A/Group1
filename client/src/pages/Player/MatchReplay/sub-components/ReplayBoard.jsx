@@ -6,7 +6,7 @@ import { getTheme } from '@/config/gameThemes.config';
 
 const COL_LETTERS = Array.from({ length: 15 }, (_, i) => String.fromCharCode(65 + i));
 
-export default function ReplayBoard({ boardState, boardSize, playerX = {}, playerO = {}, markerStyle, boardStyle = 'CLASSIC' }) {
+export default function ReplayBoard({ boardState, boardSize, playerX = {}, playerO = {}, boardStyle = 'CLASSIC' }) {
     const theme = getTheme(boardStyle) || getTheme('CLASSIC');
 
     const columns = useMemo(() => COL_LETTERS.slice(0, boardSize), [boardSize]);
@@ -22,12 +22,12 @@ export default function ReplayBoard({ boardState, boardSize, playerX = {}, playe
                 >
                     {/* Top Labels */}
                     <div className="col-start-2 flex justify-between px-1">
-                        {columns.map(c => <span key={c} className="w-full text-center text-[9px] text-[#879398] font-mono">{c}</span>)}
+                        {columns.map(c => <span key={c} className="w-full text-center text-xs text-[#879398] font-mono">{c}</span>)}
                     </div>
 
                     {/* Left Labels */}
                     <div className="row-start-2 flex flex-col justify-between py-1 px-1">
-                        {rows.map(r => <span key={r} className="h-full flex items-center text-[9px] text-[#879398] font-mono">{r}</span>)}
+                        {rows.map(r => <span key={r} className="h-full flex items-center text-xs text-[#879398] font-mono">{r}</span>)}
                     </div>
 
                     {/* Main Board Grid */}
@@ -38,7 +38,11 @@ export default function ReplayBoard({ boardState, boardSize, playerX = {}, playe
                         {theme.bgImage && (
                                     <img 
                                         src={theme.bgImage} 
-                                        alt={`${theme.bgImage} background`}
+                                        alt=""
+                                        aria-hidden="true"
+                                        width="640"
+                                        height="360"
+                                        decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover opacity-15 z-0 pointer-events-none"
                                     />
                                 )}
@@ -68,12 +72,12 @@ export default function ReplayBoard({ boardState, boardSize, playerX = {}, playe
 
                     {/* Right Labels */}
                     <div className="row-start-2 col-start-3 flex flex-col justify-between py-1 px-1">
-                        {rows.map(r => <span key={r} className="h-full flex items-center text-[9px] text-[#879398] font-mono">{r}</span>)}
+                        {rows.map(r => <span key={r} className="h-full flex items-center text-xs text-[#879398] font-mono">{r}</span>)}
                     </div>
 
                     {/* Bottom Labels */}
                     <div className="col-start-2 row-start-3 flex justify-between px-1">
-                        {columns.map(c => <span key={c} className="w-full text-center text-[9px] text-[#879398] font-mono">{c}</span>)}
+                        {columns.map(c => <span key={c} className="w-full text-center text-xs text-[#879398] font-mono">{c}</span>)}
                     </div>
                 </div>
             </div>

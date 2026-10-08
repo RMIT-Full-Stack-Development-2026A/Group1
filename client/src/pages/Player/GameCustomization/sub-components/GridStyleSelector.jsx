@@ -23,7 +23,7 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                         <SoundButton
                             key={style.id}
                             onClick={() => onSelect(style.displayId)}
-                            className={`bg-[#12121f] border p-1 cursor-pointer transition-all ${
+                            className={`bg-[#12121f] border p-1 cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] ${
                                 selectedStyle === style.displayId
                                     ? "border-2 border-[#4cc9f0] shadow-[2px_2px_0px_#343342]"
                                     : "border border-[#3d484d] hover:border-[#4cc9f0]"
@@ -34,7 +34,12 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                 {themeConfig.bgImage && (
                                     <img 
                                         src={themeConfig.bgImage} 
-                                        alt={`${style.name} background`}
+                                        alt=""
+                                        aria-hidden="true"
+                                        width="640"
+                                        height="360"
+                                        loading="lazy"
+                                        decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover opacity-40 z-0 pointer-events-none"
                                     />
                                 )}
@@ -61,8 +66,8 @@ export default function GridStyleSelector({ selectedStyle, onSelect }) {
                                     style.displayId === "dark" ? 
                                     "bg-[#4cc9f0] text-[#003543] drop-shadow-[0_0_5px_#4cc9f0]" : 
                                     style.displayId === "jungle" ? 
-                                    "bg-[#27872c] text-[#003543] drop-shadow-[0_0_5px_#27872c]": 
-                                    "bg-[#ff3d00] text-[#003543] drop-shadow-[0_0_5px_#ff3d00]"
+                                    "bg-[#2f9a34] text-[#0d0d1a] drop-shadow-[0_0_5px_#2f9a34]": 
+                                    "bg-[#ff3d00] text-[#0d0d1a] drop-shadow-[0_0_5px_#ff3d00]"
                                 }`}
                             >
 

@@ -31,8 +31,8 @@ export default function RegistrationLineChart({
         </h3>
       </div>
 
-      <div className="w-full h-48">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full min-w-0 h-48">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 192 }}>
           <LineChart data={chartData} margin={{ top: 10, right: 20, left: 24, bottom: 38 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 255, 255, 0.1)" />
             <YAxis
@@ -57,6 +57,7 @@ export default function RegistrationLineChart({
               dataKey={xAxisKey}
               stroke="rgba(0, 255, 255, 0.6)"
               interval={labelInterval}
+              minTickGap={14}
               tick={{ fontSize: 12, fontFamily: "inherit" }}
             >
               <Label

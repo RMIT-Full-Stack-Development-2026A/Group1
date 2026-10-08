@@ -52,12 +52,12 @@ export const AuthController = {
      // [GET] /auth/check-auth endponit
     checkAuth: async (req, res, next) => {
         try {
+            // Anonymous visitors are a normal case for this probe: answer 200 with no user
+            // instead of a 401 that browsers log as a console error on every first visit.
             if (!req.user || !req.user.id) {
-                return res.status(401).json({
-                    error: "UNAUTHORIZED",
-                    message: "Authentication failed. No valid token found.",
-                    cause: "The request context does not contain authenticated user information.",
-                    valid_example: "A valid JWT in the access_token cookie is required."
+                return res.status(200).json({
+                    data: { user: null, activeRoom: null },
+                    message: "Not authenticated."
                 });
             }
 

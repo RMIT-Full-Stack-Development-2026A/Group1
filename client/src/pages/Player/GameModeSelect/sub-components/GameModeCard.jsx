@@ -16,8 +16,8 @@ const GameModeCard = ({ mode, onSelect }) => {
     buttonText,
     buttonIcon,
     buttonStyle,
-    badge,
-    glowEffect,
+    badge = null,
+    glowEffect = false,
     topBarColor,
   } = mode;
 
@@ -27,7 +27,7 @@ const GameModeCard = ({ mode, onSelect }) => {
 
   return (
     <div
-      className={`group relative bg-surface border-2 border-outline-variant p-8 flex flex-col items-center text-center transition-all hover:border-primary-container ${
+      className={`group relative bg-surface border-2 border-outline-variant p-8 flex flex-col items-center text-center transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] hover:border-primary-container ${
         glowEffect ? 'glow-cyan' : ''
       } chunky-offset`}
     >
@@ -41,13 +41,13 @@ const GameModeCard = ({ mode, onSelect }) => {
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: '#4cc9f0', boxShadow: '0 0 5px #4cc9f0' }}
           ></span>
-          <span className="text-primary-container text-[8px] font-bold">{badge}</span>
+          <span className="text-primary-container text-xs font-bold">{badge}</span>
         </div>
       )}
 
       {/* Icon */}
       <div className="mb-8 mt-4" style={{ color: accentColor }}>
-        <span
+        <span aria-hidden="true"
           className="material-symbols-outlined block text-7xl"
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
@@ -65,7 +65,7 @@ const GameModeCard = ({ mode, onSelect }) => {
       <div className="mt-auto w-full">
         <button
           onClick={handleClick}
-          className={`w-full cursor-pointer py-4 font-headline text-[10px] transition-all flex items-center justify-center gap-2 chunky-offset-active ${
+          className={`w-full cursor-pointer py-4 font-headline text-xs transition-[color,background-color,border-color,box-shadow,transform,opacity,filter] flex items-center justify-center gap-2 chunky-offset-active ${
             buttonStyle === 'filled'
               ? 'bg-primary-container text-on-primary hover:drop-shadow-[0_0_8px_rgba(76,201,240,0.4)]'
               : 'border-2 border-primary-container text-primary-container hover:bg-primary-container/10'
@@ -73,7 +73,7 @@ const GameModeCard = ({ mode, onSelect }) => {
           aria-label={`Select ${title} game mode`}
         >
           {buttonText}
-          <span className="material-symbols-outlined text-sm">{buttonIcon}</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">{buttonIcon}</span>
         </button>
       </div>
     </div>
@@ -97,9 +97,7 @@ GameModeCard.propTypes = {
   onSelect: PropTypes.func.isRequired,
 };
 
-GameModeCard.defaultProps = {
-  badge: null,
-  glowEffect: false,
-};
+// defaultProps removed — React 19 dropped support for defaultProps on
+// function components. All defaults are now declared inline above.
 
 export default GameModeCard;

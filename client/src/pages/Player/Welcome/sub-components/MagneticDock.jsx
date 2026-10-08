@@ -187,7 +187,7 @@ export default function MagneticDock({ onNavigate }) {
 
   return (
     <MotionDiv
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-end gap-1.5 sm:gap-3 px-2 sm:px-4 py-2.5 rounded-full backdrop-blur-sm"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex max-w-[calc(100vw-0.5rem)] items-end gap-1.5 overflow-x-auto px-2 py-2.5 rounded-full backdrop-blur-sm [scrollbar-width:none] sm:gap-3 sm:px-4 sm:overflow-visible"
       style={{ backgroundColor: "rgba(13, 13, 26, 0.85)", border: "1px solid #3d484d" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

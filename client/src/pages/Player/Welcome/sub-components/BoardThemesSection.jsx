@@ -24,7 +24,7 @@ const THEME_ITEMS = buildThemeItems();
 
 export default function BoardThemesSection() {
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-6 h-full min-h-0">
+    <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-6 md:h-full md:min-h-0">
       <h2 className="font-headline text-xl md:text-3xl text-[#e3e0f4] text-center uppercase shrink-0">
         All 3 Board Themes
       </h2>
@@ -35,7 +35,9 @@ export default function BoardThemesSection() {
         photoWidth={42}
         apexInset={26}
         spacing={28}
-        className="flex-1 min-h-0 w-full"
+        // Below md the section is only "at least one screen tall", so a percentage height has nothing to resolve
+        // against and the theme names (which fill the wheel's height) collapse to zero. Give it a real height there.
+        className="h-[min(50dvh,360px)] w-full md:h-auto md:flex-1 md:min-h-0"
       />
     </div>
   );

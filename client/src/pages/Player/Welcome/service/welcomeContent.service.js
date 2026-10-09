@@ -8,7 +8,7 @@
 
 export const MARQUEE_ITEMS = [
   "3 GAME MODES",
-  "NO SIGN-UP REQUIRED TO TRY",
+  "SIGN-UP TO TRY",
   "PLAYS GREAT ON MOBILE",
   "100% FREE",
 ];
@@ -31,7 +31,7 @@ export const MODE_PREVIEWS = [
   {
     id: "ONLINE_MATCH",
     title: "ONLINE LOBBY",
-    description: "Enter the global network and climb the rankings.",
+    description: "Enter the global network.",
     accentColor: "#ffb780",
     icon: "public",
   },
@@ -72,14 +72,21 @@ export const FEATURE_CARDS = [
   },
 ];
 
-// TODO: replace with real milestones before merging to main
+// Dates pulled from the repo's real git history (git log), not guessed:
+//  - kickoff: first commit, 2026-03-16 (architecture setup)
+//  - offline prototype: 2026-04-11, "Implement Easy Mode AI" — first
+//    actually-playable single-player board
+//  - online multiplayer: socket client integration started 2026-05-06,
+//    stabilized (avatars, grace period, marker sync) through 2026-05-21
+//  - welcome page: 2026-10-07/08 welcome/feedback feature commits
 export const HISTORY_PLACEHOLDER = {
   id: "history",
   title: "DEVELOPMENT HISTORY",
   milestones: [
     { date: "2026-03", label: "Project kicked off" },
-    { date: "2026-06", label: "Offline gameplay prototype" },
-    { date: "2026-09", label: "Online multiplayer launched" },
+    { date: "2026-04", label: "Offline gameplay prototype" },
+    { date: "2026-05", label: "Online multiplayer launched" },
+    { date: "2026-10", label: "Welcome page shipped" },
   ],
 };
 

@@ -106,12 +106,17 @@ export default function HistorySection() {
           {HISTORY_PLACEHOLDER.title}
         </h2>
 
-        {/* Description paragraph — TODO(Khanh): review copy */}
+        {/* Description paragraph */}
         <p className="text-sm text-[#bcc8ce] leading-relaxed">
-          TicTacToang is a neon-arcade Tic-Tac-Toe built as a full-stack web game,
-          featuring offline single-player AI, real-time online multiplayer, extensive
-          board and marker customization, and full match-replay history. Developed by
-          a 5-person student team at RMIT as a course project semester B in 2026.
+          TicTacToang started as a simple question: what if the game everyone
+          already knows how to play could feel like an arcade again. Over one
+          semester at RMIT, five of us built it from the ground up as a
+          full-stack web game, teaching ourselves real-time multiplayer, AI
+          opponents, and the small details, board themes, marker styles, full
+          match replays, that turn a childhood classic into something worth
+          coming back to. This is Semester A, 2026, and it is proof of what a
+          small, stubborn team can ship when they actually care about what
+          they are building.
         </p>
 
         {/* Timeline */}

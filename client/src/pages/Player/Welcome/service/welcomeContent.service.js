@@ -61,7 +61,7 @@ export const FEATURE_CARDS = [
   {
     id: "board-size",
     title: "10x10 & 15x15 BOARDS",
-    description: "Massive tactical grids for unpredictable, drawn-out battles.",
+    description: "Limited grids for extended thinking and strategy.",
     icon: "grid_on",
   },
   {
@@ -86,7 +86,6 @@ export const HISTORY_PLACEHOLDER = {
     { date: "2026-03", label: "Project kicked off" },
     { date: "2026-04", label: "Offline gameplay prototype" },
     { date: "2026-05", label: "Online multiplayer launched" },
-    { date: "2026-10", label: "Welcome page shipped" },
   ],
 };
 
@@ -112,7 +111,7 @@ export const TEAM_MEMBERS = [
 // into client/public/avatars/ later; see the README there.
 export const TESTIMONIALS = [
   { id: 1, name: "Alex Tran", role: "Casual Player", avatar: "/avatars/reviewer-1.jpg", quote: "The online matches feel instant — no lag, no fuss. My go-to break between classes." },
-  { id: 2, name: "Priya Nair", role: "Weekend Grinder", avatar: "/avatars/reviewer-2.jpg", quote: "Finally a tic-tac-toe that doesn't get boring. The bigger boards actually make you think." },
+  { id: 2, name: "Priya Nair", role: "Weekend Grinder", avatar: "/avatars/reviewer-2.jpg", quote: "Finally a tic-tac-toe that doesn't get boring. The 15x15 boards actually make you think." },
   { id: 3, name: "Minh Khoa", role: "Local Arena Regular", avatar: "/avatars/reviewer-3.jpg", quote: "Playing against my roommate on the same screen is still the best way to end an argument." },
   { id: 4, name: "Sara Ibrahim", role: "Mobile Player", avatar: "/avatars/reviewer-4.jpg", quote: "Works great on my phone during commutes. Clean UI, zero sign-up friction to try it out." },
   { id: 5, name: "Daniel Vo", role: "AI Challenger", avatar: "/avatars/reviewer-5.jpg", quote: "Hard mode actually punishes mistakes. Took me a week to beat it consistently." },

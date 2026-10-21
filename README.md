@@ -133,6 +133,11 @@ ALLOW_UNVERIFIED_PAYPAL_WEBHOOKS=true
 # SMTP (Email)
 SMTP_EMAIL=your_smtp_email
 SMTP_PASSWORD=your_smtp_password
+
+# Optional: trust a successful socket session check for this many milliseconds instead of re-checking the
+# database on every socket event (every move costs one fewer database round trip). Leave unset for the strict
+# per-event check. See server/src/sockets/middleware/socketAuthMiddleware.js for the trade-off.
+# SOCKET_SESSION_RECHECK_MS=30000
 ```
 
 Seed the database with initial accounts and sample match data if your db is empty:

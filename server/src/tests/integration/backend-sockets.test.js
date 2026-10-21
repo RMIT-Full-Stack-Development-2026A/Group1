@@ -194,6 +194,24 @@ describe('Socket session lifecycle and chat delivery', () => {
         expect(await GameRoom.countDocuments()).toBe(0);
     });
 
+    it('can trust a recent session check for a configured window (opt-in, off by default)', async () => {
+        process.env.SOCKET_SESSION_RECHECK_MS = '60000';
+        try {
+            const auth = await generateTestUser();
+            const client = await connect(auth.cookie);
+            await User.updateOne({ _id: auth.user.id }, { $inc: { 'auth.tokenVersion': 1 } });
+            const disconnected = jest.fn();
+            client.on('disconnect', disconnected);
+            client.emit('room:create', { boardSize: 10, marker: 'X' });
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            // inside the window the event is accepted without asking the database again
+            expect(disconnected).not.toHaveBeenCalled();
+            expect(await GameRoom.countDocuments()).toBe(1);
+        } finally {
+            delete process.env.SOCKET_SESSION_RECHECK_MS;
+        }
+    });
+
     it('disconnects an idle socket when its token expires', async () => {
         const auth = await generateTestUser();
         const token = jwt.sign({ userId: auth.user.id }, process.env.JWT_SECRET, { expiresIn: 2 });

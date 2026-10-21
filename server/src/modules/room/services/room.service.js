@@ -17,6 +17,30 @@ import { SYSTEM_EVENTS } from '../../../utils/constants/event.containts.js';
 // Compute isPremium from user
 const computeIsPremium = (user) => !!(user.premiumExpiresAt && user.premiumExpiresAt > new Date());
 
+/**
+ * Only runs after RoomRepository.applyMove rejected a move: reads the room and throws the specific reason, in the
+ * order the rules are checked. Keeps the errors callers see the same as before moves were applied atomically.
+ */
+const explainRejectedMove = async (userId, roomId, row, col) => {
+    const room = await RoomRepository.findById(roomId);
+    if (!room || room.status !== ROOM_STATUS.PLAYING) {
+        throw { statusCode: 400, error: "INVALID_ROOM_STATE", message: "Room is not in a playing state." };
+    }
+
+    const pIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
+    if (pIndex === -1 || pIndex !== room.currentTurnParticipantIndex) {
+        throw { statusCode: 403, error: "NOT_YOUR_TURN", message: "It is not your turn." };
+    }
+
+    if (room.moves.some(m => m.row === row && m.col === col)) {
+        throw { statusCode: 400, error: "INVALID_MOVE", message: "Cell is already occupied." };
+    }
+
+    if (row >= room.boardSize || col >= room.boardSize) {
+        throw { statusCode: 400, error: 'INVALID_COORDINATES', message: 'Move must be inside the board.' };
+    }
+};
+
 export const RoomService = {
      // [GET] /rooms endpoint
     getArenaRooms: async (query, requestingUser) => {
@@ -282,37 +306,22 @@ export const RoomService = {
     handleGameMove: async (userId, payload) => {
         const { roomId, row, col } = validateGameMove(payload);
 
-        const room = await RoomRepository.findById(roomId);
-        if (!room || room.status !== ROOM_STATUS.PLAYING) {
-            throw { statusCode: 400, error: "INVALID_ROOM_STATE", message: "Room is not in a playing state." };
-        }
-
-        const pIndex = room.participants.findIndex(p => p.userId.toString() === userId.toString());
-        if (pIndex === -1 || pIndex !== room.currentTurnParticipantIndex) {
-            throw { statusCode: 403, error: "NOT_YOUR_TURN", message: "It is not your turn." };
-        }
-
-        if (room.moves.some(m => m.row === row && m.col === col)) {
-            throw { statusCode: 400, error: "INVALID_MOVE", message: "Cell is already occupied." };
-        }
-
-        if (row >= room.boardSize || col >= room.boardSize) {
-            throw { statusCode: 400, error: 'INVALID_COORDINATES', message: 'Move must be inside the board.' };
-        }
-
         const coordinate = `${String.fromCharCode(65 + col)}${row + 1}`;
-        const newMove = { 
-            moveNumber: room.moveCount + 1, 
-            byParticipantIndex: pIndex, 
-            row, col, coordinate, 
-            placedAt: new Date() 
-        };
 
-        const nextTurn = pIndex === 0 ? 1 : 0;
-        let updatedRoom = await RoomRepository.pushMove(roomId, newMove, nextTurn);
+        // One atomic database operation checks the rules (room is playing, it is this player's turn, the cell is
+        // free, the cell is on the board) and applies the move. A move therefore costs a single database round
+        // trip instead of a read followed by a write, and the opponent hears about it that much sooner.
+        let updatedRoom = await RoomRepository.applyMove(roomId, userId, { row, col, coordinate });
         if (!updatedRoom) {
+            // Rejected: work out why, so the caller gets the specific error.
+            await explainRejectedMove(userId, roomId, row, col);
             throw { statusCode: 409, error: 'MOVE_CONFLICT', message: 'The board changed. Wait for the latest game state before moving.' };
         }
+
+        // Everything below reads the room as it is after the move. The turn has already flipped, so the player who
+        // just moved is the other participant index.
+        const room = updatedRoom;
+        const pIndex = updatedRoom.currentTurnParticipantIndex === 0 ? 1 : 0;
 
         // Check for a Gomoku win after the latest move.
         const winningLine = checkGomokuWin(updatedRoom.moves, room.boardSize, row, col, pIndex);

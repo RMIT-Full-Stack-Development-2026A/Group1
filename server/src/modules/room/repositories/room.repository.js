@@ -1,4 +1,5 @@
 import { ACTIVE_ROOM_STATUSES, ROOM_STATUS } from '../constants/room.constants.js';
+import mongoose from 'mongoose';
 import { GameRoom } from '../models/gameRoom.model.js';
 
 export const RoomRepository = {
@@ -74,22 +75,44 @@ export const RoomRepository = {
     },
 
     /** Pushes move to room. */
-    pushMove: async (roomId, move, nextTurnIndex) => {
+    /**
+     * Applies a move in ONE database operation. The filter only matches when the room is playing, it is `userId`'s
+     * turn, the cell is free and the cell is on the board; the update pipeline then appends the move, advances the
+     * move count and flips the turn, all computed from the stored values. Returns the updated room, or null when the
+     * move was not allowed (the caller then reads the room to explain why).
+     */
+    applyMove: async (roomId, userId, { row, col, coordinate }) => {
+        const playerId = new mongoose.Types.ObjectId(String(userId));
         return await GameRoom.findOneAndUpdate(
-            { _id: roomId, status: ROOM_STATUS.PLAYING,
-                currentTurnParticipantIndex: move.byParticipantIndex,
-                moveCount: move.moveNumber - 1,
-                moves: { $not: { $elemMatch: { row: move.row, col: move.col } } }
-            },
             {
-                $push: { moves: move },
-                $inc: { moveCount: 1 },
-                $set: { 
-                    currentTurnParticipantIndex: nextTurnIndex,
-                    lastMove: { row: move.row, col: move.col, coordinate: move.coordinate }
-                }
+                _id: roomId,
+                status: ROOM_STATUS.PLAYING,
+                boardSize: { $gt: Math.max(row, col) },
+                moves: { $not: { $elemMatch: { row, col } } },
+                // the participant whose turn it is must be this user
+                $expr: { $eq: [{ $arrayElemAt: ['$participants.userId', '$currentTurnParticipantIndex'] }, playerId] },
             },
-            { returnDocument: 'after' }
+            [{
+                $set: {
+                    moves: {
+                        $concatArrays: [
+                            { $ifNull: ['$moves', []] },
+                            [{
+                                moveNumber: { $add: ['$moveCount', 1] },
+                                byParticipantIndex: '$currentTurnParticipantIndex',
+                                row,
+                                col,
+                                coordinate,
+                                placedAt: '$$NOW',
+                            }],
+                        ],
+                    },
+                    moveCount: { $add: ['$moveCount', 1] },
+                    lastMove: { row, col, coordinate },
+                    currentTurnParticipantIndex: { $subtract: [1, '$currentTurnParticipantIndex'] },
+                },
+            }],
+            { returnDocument: 'after', updatePipeline: true }
         ).lean();
     },
 

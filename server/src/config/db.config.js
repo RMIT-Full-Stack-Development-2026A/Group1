@@ -14,8 +14,7 @@ export const connectDB = async () => {
         
         // Ensure connection is fully closed before exiting
         await mongoose.disconnect(); 
-        
-        // Terminate the process with a failure code
-        process.exit(1); 
+
+        throw new Error(`Error connecting to the database: ${error.message}`);
     }
 };

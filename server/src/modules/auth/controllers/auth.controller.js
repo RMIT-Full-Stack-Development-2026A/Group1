@@ -5,7 +5,7 @@ export const AuthController = {
     // [POST] /auth/register endponit
     register: async (req, res, next) => {
         try {
-            const safeUser = await AuthService.registerUser(req.body);
+            const safeUser = await AuthService.registerUser(req.body, res);
 
             return res.status(201).json({
                 data: safeUser,

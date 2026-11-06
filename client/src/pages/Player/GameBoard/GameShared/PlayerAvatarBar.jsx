@@ -21,12 +21,12 @@ const AvatarSlot = ({ role, playerName, isActive, isBot, difficulty, avatarUrl, 
         >
             <div className="relative shrink-0">
                 <div
-                    className={`flex h-11 w-11 items-center justify-center overflow-hidden border-2 bg-[#1e1e2c] transition-[border-color,box-shadow] duration-300 ${
+                    className={`flex h-12 w-12 items-center justify-center overflow-hidden border-2 bg-[#1e1e2c] p-1 transition-[border-color,box-shadow] duration-300 ${
                         isActive ? 'border-primary-cyan glow-cyan avatar-pulse' : 'border-outline-variant'
                     }`}
                 >
                     {avatarUrl ? (
-                        <img width="44" height="44" src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                        <img width="48" height="48" src={avatarUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
                         <Icon name={isBot ? 'smart_toy' : 'person'} size={22} color="#879398" />
                     )}
@@ -88,7 +88,7 @@ const PlayerAvatarBar = ({ players }) => (
     <div
         role="group"
         aria-label="Players"
-        className="flex h-14 w-full shrink-0 items-center justify-between gap-2 bg-[#12121f]/90 lg:hidden"
+        className="flex h-14 w-full shrink-0 items-center justify-between gap-2 bg-[#12121f]/90 px-3 lg:hidden"
     >
         {players[0] && <AvatarSlot {...players[0]} />}
 

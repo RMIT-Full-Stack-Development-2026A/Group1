@@ -90,11 +90,15 @@ body {
 
 /* Responsive board wrapper — used by BoardArea (adds stable sizing across viewports) */
 .board-wrapper {
-  /* Never wider than the viewport minus page gutters when the panels are stacked */
-  width: clamp(300px, min(90vmin, calc(100vw - 2rem)), 900px);
+  /* Phones/tablets: the compact PlayerAvatarBar replaces the two side panels, so the board takes
+     almost the full width. The height cap uses dvh (not vh) so the iOS address bar cannot cut the
+     board off, and so landscape phones stay inside the viewport. 10rem covers main's top padding,
+     the avatar bar, the gaps and a little breathing room. */
+  width: min(calc(100vw - 2rem), calc(100vh - 10rem), 900px);
+  width: min(calc(100vw - 2rem), calc(100dvh - 10rem), 900px);
   margin: 0 auto;
 }
-/* Side-by-side layout: two 260px player panels + gaps + gutters take ~620px */
+/* Desktop (lg+): unchanged side-by-side layout — two 260px player panels + gaps + gutters take ~620px */
 @media (min-width: 1024px) {
   .board-wrapper {
     width: clamp(300px, min(90vmin, calc(100vw - 620px)), 900px);
@@ -106,6 +110,20 @@ body {
   display: grid;
   /* columns controlled inline by BoardArea via gridTemplateColumns */
 }
+/* Board frame: fixed coordinate-label gutters on each side, then the square board. */
+.board-frame {
+  grid-template-columns: 24px 1fr 24px;
+  grid-template-rows: 20px 1fr 20px;
+}
+/* Phones/tablets: the board is height-limited in landscape, so let the centre tracks ignore
+   the coordinate labels' min-content height. Desktop keeps the original `1fr` tracks, which
+   is what makes the lg+ layout pixel-identical to the pre-avatar-bar design. */
+@media (max-width: 1023px) {
+  .board-frame {
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    grid-template-rows: 20px minmax(0, 1fr) 20px;
+  }
+}
 .board-grid > * {
   touch-action: manipulation;
   min-width: 18px;
@@ -113,12 +131,13 @@ body {
   padding: 4px;
 }
 
-@media (max-width: 768px) {
-  /* Stronger centering for the board wrapper on mobile */
-  .board-wrapper {
-    width: clamp(240px, 90vw, 700px) !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+/* Phones/tablets: the board is much smaller than on desktop, so let cells shrink with it instead
+   of forcing 18px tracks that overflow a portrait 15x15 board or a landscape one. */
+@media (max-width: 1023px) {
+  .board-grid > * {
+    min-width: 0;
+    min-height: 0;
+    padding: 2px;
   }
 }
 
@@ -174,6 +193,16 @@ body {
 
 .glow-cyan {
   box-shadow: 0 0 10px #4cc9f0;
+}
+
+/* Soft cyan pulse for the active mobile avatar (PlayerAvatarBar); the animation only
+   touches the glow, so there is no layout shift when the turn changes. */
+@keyframes avatar-pulse {
+  0%, 100% { box-shadow: 0 0 8px #4cc9f0; }
+  50% { box-shadow: 0 0 18px #4cc9f0; }
+}
+.avatar-pulse {
+  animation: avatar-pulse 1.8s ease-in-out infinite;
 }
 
 .chunky-offset {

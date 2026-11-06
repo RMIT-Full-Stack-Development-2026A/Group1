@@ -47,10 +47,10 @@ export default function Layout({ children }) {
     );
 
     if (isImmersive) {
-        // Game board: no nav, no footer, no padding — pure full-screen shell
-        // On small screens allow scrolling inside the main area so tall side panels are reachable
+        // Game board: no nav, no footer, no padding — pure full-screen shell.
+        // dvh keeps the board inside the iOS visual viewport; the game screens fit without scrolling.
         return (
-            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
+            <div className="h-dvh w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
                 <div className="scanlines"></div>
                 <main className="flex-1 overflow-auto lg:overflow-hidden">
                     {children}

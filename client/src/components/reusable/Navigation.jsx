@@ -177,7 +177,7 @@ export default function Navigation() {
 
         {/* Mobile dropdown menu (visible when open) */}
         {mobileOpen && (
-            <div id="mobile-menu" className="lg:hidden absolute left-0 right-0 top-full z-[60] bg-deep-bg p-3 border-b-2 border-[#3d484d] shadow-[0_6px_18px_rgba(0,0,0,0.6)]">
+            <div id="mobile-menu" className="lg:hidden absolute left-0 right-0 top-full z-[60] max-h-[calc(100dvh-4rem)] overflow-y-auto bg-deep-bg p-3 border-b-2 border-[#3d484d] shadow-[0_6px_18px_rgba(0,0,0,0.6)]">
                 <div className="flex flex-col gap-2">
                     {isAuthenticated && !isLoading && (isAdmin ? (
                         <>

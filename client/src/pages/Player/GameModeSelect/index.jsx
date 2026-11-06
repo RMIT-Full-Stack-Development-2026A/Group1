@@ -13,18 +13,18 @@ const GameModeSelect = () => {
   const { gameModes, handleSelectMode, goToWelcome } = useGameModeSelect();
 
   return (
-    <div className="bg-surface-container-lowest text-on-surface font-body overflow-hidden min-h-screen w-full select-none">
+    <div className="bg-surface-container-lowest text-on-surface font-body min-h-[calc(100dvh-4rem)] w-full select-none flex flex-col">
       {/* Visual Texture Layers */}
       <div className="fixed inset-0 pixel-grid opacity-20 pointer-events-none"></div>
       <div className="fixed inset-0 scanlines opacity-30 pointer-events-none z-50"></div>
 
       {/* Main Content */}
-      <main className="pt-20 pb-20 px-6 md:px-12 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <main className="pt-20 pb-20 px-6 md:px-12 flex flex-1 flex-col items-center justify-start lg:justify-center relative z-10">
         {/* Back to Welcome */}
         <button
           type="button"
           onClick={goToWelcome}
-          className="absolute top-24 left-6 md:left-12 flex items-center gap-1 font-mono uppercase tracking-widest text-xs text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] hover:opacity-100 transition-[color,opacity]"
+          className="absolute top-6 left-6 md:left-12 flex items-center gap-1 font-mono uppercase tracking-widest text-xs text-[#e2e8f0] opacity-80 hover:text-[#4cc9f0] hover:opacity-100 transition-[color,opacity]"
         >
           <span className="material-symbols-outlined text-base">arrow_back</span>
           Welcome

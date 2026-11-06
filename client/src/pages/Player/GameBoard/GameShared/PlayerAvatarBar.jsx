@@ -42,9 +42,13 @@ const AvatarSlot = ({ role, playerName, isActive, isBot, difficulty, avatarUrl, 
                 )}
             </div>
 
-            <div className={`flex min-w-0 flex-1 flex-col gap-1 ${isRight ? 'items-end' : 'items-start'}`}>
+            <div className={`flex min-w-0 flex-1 flex-col ${isRight ? 'items-end' : 'items-start'}`}>
                 <p className={`flex min-w-0 max-w-full items-center gap-1 ${isRight ? 'justify-end' : ''}`}>
-                    <span aria-hidden="true" className="shrink-0 font-headline text-[10px] leading-none" style={{ color: markerColor }}>
+                    <span
+                        aria-hidden="true"
+                        className="shrink-0 font-headline text-[10px] leading-none"
+                        style={{ color: markerColor }}
+                    >
                         {role}
                     </span>
                     <span
@@ -58,12 +62,6 @@ const AvatarSlot = ({ role, playerName, isActive, isBot, difficulty, avatarUrl, 
                         {playerName}
                     </span>
                 </p>
-
-                <span
-                    aria-hidden="true"
-                    className="block h-0.5 w-6 shrink-0"
-                    style={{ backgroundColor: markerColor }}
-                />
             </div>
 
             {isActive && <span className="sr-only">{role}&apos;s turn</span>}

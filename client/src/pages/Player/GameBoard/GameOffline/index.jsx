@@ -17,6 +17,7 @@ import { getDifficultyLevels } from "@/pages/Player/GameCustomization/service/cu
 import { getMarkerVariant } from "@/utils/markerRenderer";
 import { getMarkerVariants } from '@/pages/Player/GameCustomization/service/customization.service';
 import { getTheme } from "@/config/gameThemes.config";
+import { isPlayerTurn } from "@/utils/gameTurn";
 import { useGame } from "./hook/useGame.hook";
 import { useChatManager } from "./hook/useChatManager.hook";
 
@@ -24,6 +25,7 @@ import { useChatManager } from "./hook/useChatManager.hook";
 import AbortModal from "../GameShared/AbortModal";
 import ScanLines from "@/components/reusable/custom/ScanLines";
 import PlayerPanel from "../GameShared/PlayerPanel";
+import PlayerAvatarBar from "../GameShared/PlayerAvatarBar";
 import BoardArea from "../GameShared/BoardArea";
 import ParticleLayer from "../GameShared/ParticleLayer";
 import WinOverlay from "../GameShared/WinOverlay";
@@ -145,6 +147,9 @@ const GameBoard = () => {
 
   const gameOver = !!winnerData || isDraw;
 
+  const playerXActive = isPlayerTurn("X", currentPlayer, { gameOver });
+  const playerOActive = isPlayerTurn("O", currentPlayer, { gameOver });
+
   const userMark = "X";
 
   const isLocalMatch = gameMode === "TWO_PLAYERS" || gameMode === "LOCAL_MULTIPLAYER";
@@ -250,7 +255,7 @@ const GameBoard = () => {
   }
 
   return (
-  <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden overscroll-none relative">
+  <div className="h-dvh w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden overscroll-none relative">
       {theme.bgImage && (
         <div
           aria-hidden="true"
@@ -277,9 +282,9 @@ const GameBoard = () => {
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden px-4 lg:px-6 pt-14 lg:pt-0 gap-4 lg:gap-6 items-center justify-start lg:justify-center font-mono max-w-350 w-full mx-auto">
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden px-4 lg:px-6 pt-14 lg:pt-0 gap-4 lg:gap-6 items-center justify-start lg:justify-center font-mono max-w-350 w-full mx-auto">
         {!gameOver && (
-          <div className="fixed top-20 right-6 lg:top-auto lg:bottom-6 z-50">
+          <div className="fixed top-3 right-6 lg:top-auto lg:bottom-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
               className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-xs px-4 py-2 uppercase bg-[#b82b1a]
@@ -290,15 +295,38 @@ const GameBoard = () => {
           </div>
         )}
         <div className="flex w-full flex-col lg:flex-row items-center justify-center gap-4 lg:gap-6">
-          <PlayerPanel
-            role="X"
-            playerName={playersInfo[0].usernameSnapshot}
-            isBot={false}
-            isActive={currentPlayer === "X" && !gameOver}
-            avatarUrl={userAvatarUrl}
-            markerVariantData={markerVariantDataX}
-            gameOver={gameOver}
+          <PlayerAvatarBar
+            players={[
+              {
+                role: "X",
+                playerName: playersInfo[0].usernameSnapshot,
+                isActive: playerXActive,
+                isBot: false,
+                avatarUrl: userAvatarUrl,
+              },
+              {
+                role: "O",
+                playerName: playersInfo[1].usernameSnapshot,
+                isActive: playerOActive,
+                isBot: isBotMatch,
+                difficulty: isBotMatch ? aiDifficulty : undefined,
+              },
+            ]}
           />
+
+          {/* Panels live from lg up only. `lg:contents` keeps them as direct flex children,
+              so the desktop layout stays pixel-identical to the side-by-side design. */}
+          <div className="hidden lg:contents">
+            <PlayerPanel
+              role="X"
+              playerName={playersInfo[0].usernameSnapshot}
+              isBot={false}
+              isActive={playerXActive}
+              avatarUrl={userAvatarUrl}
+              markerVariantData={markerVariantDataX}
+              gameOver={gameOver}
+            />
+          </div>
 
           <BoardArea
             p1MarkerVariant={markerVariantX ?? markerVariant}
@@ -317,15 +345,17 @@ const GameBoard = () => {
             onMarkerChange={handleMarkerChange}
           />
 
-          <PlayerPanel
-            role="O"
-            playerName={playersInfo[1].usernameSnapshot}
-            isBot={isBotMatch}
-            isActive={currentPlayer === "O" && !gameOver}
-            difficulty={isBotMatch ? aiDifficulty : undefined}
-            markerVariantData={markerVariantDataO}
-            gameOver={gameOver}
-          />
+          <div className="hidden lg:contents">
+            <PlayerPanel
+              role="O"
+              playerName={playersInfo[1].usernameSnapshot}
+              isBot={isBotMatch}
+              isActive={playerOActive}
+              difficulty={isBotMatch ? aiDifficulty : undefined}
+              markerVariantData={markerVariantDataO}
+              gameOver={gameOver}
+            />
+          </div>
         </div>
       </main>
 

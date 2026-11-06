@@ -33,21 +33,20 @@ const BoardArea = ({
     return (
         <section className="flex-1 flex items-center justify-center">
             <ScanLines />
-            <div
-                className={`${theme.boardWrapper} board-wrapper p-3 grid aspect-square w-[min(96vw,96vh)] max-w-[1100px]`}
-                style={{ gridTemplateColumns: '24px 1fr 24px', gridTemplateRows: '20px 1fr 20px' }}
-            >
+            {/* Width/track sizing is owned by .board-wrapper/.board-frame (index.css):
+                viewport-based and minmax tracks on phones/tablets, unchanged on lg+. */}
+            <div className={`${theme.boardWrapper} board-wrapper board-frame p-3 grid aspect-square max-w-[1100px]`}>
                 {/* Top labels */}
                 <div className="col-start-2 flex justify-between px-1">
                     {columns.map(col => (
-                        <span key={col} className="w-full text-center text-xs text-[#879398] font-mono">{col}</span>
+                        <span key={col} className="w-full text-center text-[10px] lg:text-xs text-[#879398] font-mono">{col}</span>
                     ))}
                 </div>
 
                 {/* Left labels */}
                 <div className="row-start-2 flex flex-col justify-between py-1">
                     {rows.map(row => (
-                        <span key={row} className="h-full flex items-center text-xs text-[#879398] font-mono">{row}</span>
+                        <span key={row} className="h-full flex items-center text-[10px] lg:text-xs text-[#879398] font-mono">{row}</span>
                     ))}
                 </div>
 
@@ -85,14 +84,14 @@ const BoardArea = ({
                 {/* Right labels */}
                 <div className="row-start-2 col-start-3 flex flex-col justify-between py-1 px-1">
                     {rows.map(row => (
-                        <span key={row} className="h-full flex items-center text-xs text-[#879398] font-mono">{row}</span>
+                        <span key={row} className="h-full flex items-center text-[10px] lg:text-xs text-[#879398] font-mono">{row}</span>
                     ))}
                 </div>
 
                 {/* Bottom labels */}
                 <div className="col-start-2 row-start-3 flex justify-between px-1">
                     {columns.map(col => (
-                        <span key={col} className="w-full text-center text-xs text-[#879398] font-mono">{col}</span>
+                        <span key={col} className="w-full text-center text-[10px] lg:text-xs text-[#879398] font-mono">{col}</span>
                     ))}
                 </div>
             </div>

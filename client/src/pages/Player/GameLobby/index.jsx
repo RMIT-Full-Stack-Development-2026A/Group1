@@ -76,7 +76,7 @@ export default function GameLobby() {
     // Show error if lobby data failed to load
     if (lobbyError) {
         return (
-            <div className="bg-deep-bg text-on-surface font-body min-h-screen flex flex-col">
+            <div className="bg-deep-bg text-on-surface font-body min-h-[calc(100dvh-4rem)] flex flex-col">
                 <main className="grow flex items-center justify-center">
                     <div className="text-center">
                         <div className="text-error mb-4">Failed to load lobby</div>
@@ -94,7 +94,7 @@ export default function GameLobby() {
     }
 
     return (
-        <div className="bg-deep-bg text-on-surface font-body min-h-screen flex flex-col overflow-x-hidden">
+        <div className="bg-deep-bg text-on-surface font-body min-h-[calc(100dvh-4rem)] flex flex-col overflow-x-hidden">
             {/* Background Grid Pattern */}
             <div
                 className="fixed inset-0 opacity-10 pointer-events-none"

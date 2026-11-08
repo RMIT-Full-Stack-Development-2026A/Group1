@@ -103,7 +103,7 @@ export default function PaymentSuccess() {
 
     // status === 'error'
     return (
-        <main className="flex h-screen items-center justify-center bg-background px-6">
+        <main className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-background px-6">
             <div className="bg-[#1a1a28] border border-[#ffb4ab] p-8 max-w-md w-full">
                 <div className="h-1 bg-[#ffb4ab] mb-6" />
                 <div className="flex items-center gap-3 mb-6">

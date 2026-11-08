@@ -10,7 +10,7 @@ import { SYSTEM_EVENTS } from "../../../utils/constants/event.containts.js";
 // Service contains auth business rules and throws standardized errors for errorMiddleware.
 export const AuthService = {
      // [POST] /auth/register endponit
-    registerUser: async (userData) => {
+    registerUser: async (userData, res) => {
         const validationErrors = validateRegisterInput(userData);
         if (validationErrors.length > 0) {
             throw {
@@ -39,6 +39,9 @@ export const AuthService = {
             country
         });
 
+        // Registering signs the user in, the same way login does: the client treats a successful register as
+        // a started session, so the response that says so must also carry the session cookie.
+        generateTokenAndSetCookie(res, newUser._id, newUser.role, newUser.isPremium, newUser.auth.tokenVersion);
         return AuthDTO.toUserResponse(newUser);
     },
 

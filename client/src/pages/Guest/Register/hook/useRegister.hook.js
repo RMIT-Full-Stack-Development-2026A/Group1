@@ -49,12 +49,13 @@ export const useRegister = () => {
 
                 form.setMessage({
                     type: "success",
-                    text: "Account created! Redirecting to lobby...",
+                    text: "Account created! Redirecting...",
                 });
 
-                // Redirect to lobby after showing success message
+                // Redirect to /welcome after showing success message, the same place a login goes
                 setTimeout(() => {
-                    navigate("/lobby");
+                    // fromLogin: /welcome plays its intro only for a fresh sign-in, as after login.
+                    navigate("/welcome", { replace: true, state: { fromLogin: true } });
                 }, 1500);
             } catch (error) {
                 console.error("Register error:", error);

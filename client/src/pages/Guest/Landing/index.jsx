@@ -13,7 +13,7 @@ export default function Landing() {
     // Redirect authenticated users to the correct dashboard
     useEffect(() => {
         if (!isCheckingAuth && isAuthenticated) {
-            const redirectPath = useAuthStore.getState().user?.role === "ADMIN" ? "/admin" : "/lobby";
+            const redirectPath = useAuthStore.getState().user?.role === "ADMIN" ? "/admin" : "/welcome";
             navigate(redirectPath, { replace: true });
         }
     }, [isCheckingAuth, isAuthenticated, navigate]);

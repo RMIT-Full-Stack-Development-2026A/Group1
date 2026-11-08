@@ -46,7 +46,7 @@ const Subscription = () => {
 
     return (
         <div>
-            <main className="pt-8 pb-20 px-6 max-w-[1440px] mx-auto min-h-screen bg-background text-on-surface">
+            <main className="pt-8 pb-20 px-6 max-w-[1440px] mx-auto min-h-[calc(100dvh-4rem)] bg-background text-on-surface">
                 {error && (
                     <div className="mb-6 border border-[#ffb4ab] bg-[#2b1515] text-[#ffb4ab] font-mono text-xs px-4 py-3 uppercase tracking-wider">
                         {error}

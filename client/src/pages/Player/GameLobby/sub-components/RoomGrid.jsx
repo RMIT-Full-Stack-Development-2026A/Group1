@@ -37,10 +37,10 @@ export default function RoomGrid({ rooms, loading = false, onJoinRoom, onCreateR
         <div className="flex flex-col w-full flex-1 min-h-0">
             
             {hasRooms && (
-                <div className="flex-1 overflow-x-auto md:overflow-visible -mx-4 px-4 py-2">
-                    <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 auto-rows-max">
+                <div className="flex-1 py-2 -mx-4 px-4 md:mx-0 md:px-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
                         {roomList.map((room) => (
-                            <div key={room.id} className="min-w-[260px] md:min-w-0">
+                            <div key={room.id}>
                                 <RoomCard room={room} onJoin={onJoinRoom} currentUserId={currentUserId} />
                             </div>
                         ))}

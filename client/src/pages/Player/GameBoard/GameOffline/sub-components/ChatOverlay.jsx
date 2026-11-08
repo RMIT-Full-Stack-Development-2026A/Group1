@@ -45,7 +45,7 @@ export default function ChatOverlay({
 
     return (
         <div
-            className="fixed top-20 left-6 lg:top-auto lg:bottom-8 lg:my-12 z-50 flex flex-col-reverse lg:flex-col items-start gap-2"
+            className="fixed top-3 left-6 lg:top-auto lg:bottom-8 lg:my-12 z-50 flex flex-col-reverse lg:flex-col items-start gap-2"
         >
             {isOpen && (
                 <div

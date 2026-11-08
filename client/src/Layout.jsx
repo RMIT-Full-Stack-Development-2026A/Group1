@@ -47,12 +47,12 @@ export default function Layout({ children }) {
     );
 
     if (isImmersive) {
-        // Game board: no nav, no footer, no padding — pure full-screen shell
-        // On small screens allow scrolling inside the main area so tall side panels are reachable
+        // Game board: no nav, no footer, no padding — pure full-screen shell.
+        // dvh keeps the board inside the iOS visual viewport; the game screens fit without scrolling.
         return (
-            <div className="h-screen w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
+            <div className="h-dvh w-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-hidden">
                 <div className="scanlines"></div>
-                <main className="flex-1 overflow-auto lg:overflow-hidden">
+                <main className="flex-1 min-h-0 overflow-y-auto">
                     {children}
                 </main>
             </div>
@@ -60,9 +60,10 @@ export default function Layout({ children }) {
     }
 
     if (isConstrained) {
-        // Viewport-fit pages: nav visible, no footer, content fills below nav
+        // Viewport-fit pages: nav visible, no footer. The page grows with its content and the
+        // document is the only scroll container, so there is no nested scroll area to hunt for.
         return (
-            <div className="h-screen flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg overflow-auto lg:overflow-hidden">
+            <div className="min-h-dvh flex flex-col font-mono selection:bg-primary-cyan selection:text-deep-bg">
                 <a
                     href="#main-content"
                     className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary-cyan focus:text-deep-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase"
@@ -71,7 +72,7 @@ export default function Layout({ children }) {
                 </a>
                 <Navigation />
                 <div className="scanlines"></div>
-                <main id="main-content" className="flex-1 pt-16 overflow-auto">
+                <main id="main-content" className="flex-1 pt-16">
                     {children}
                 </main>
             </div>

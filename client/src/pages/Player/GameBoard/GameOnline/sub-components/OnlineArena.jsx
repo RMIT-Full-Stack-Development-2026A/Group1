@@ -12,10 +12,12 @@ import { AUDIO_FILES } from "@/config/audioConfig";
 
 // Utils
 import { getMarkerVariant } from "@/utils/markerRenderer";
+import { isPlayerTurn } from "@/utils/gameTurn";
 
 // Components
 import AbortModal from "../../GameShared/AbortModal";
 import PlayerPanel from "../../GameShared/PlayerPanel";
+import PlayerAvatarBar from "../../GameShared/PlayerAvatarBar";
 import BoardArea from "../../GameShared/BoardArea";
 import WinOverlay from "../../GameShared/WinOverlay";
 import ParticleLayer from "../../GameShared/ParticleLayer";
@@ -151,6 +153,10 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
       : null;
   const gameOver = !!winnerDataToShow || isDrawToShow;
 
+  const isMatchPlaying = roomData?.status === "PLAYING";
+  const player1Active = isPlayerTurn(player1.mark, currentPlayerMark, { gameOver, isPlaying: isMatchPlaying });
+  const player2Active = isPlayerTurn(player2.mark, currentPlayerMark, { gameOver, isPlaying: isMatchPlaying });
+
   useEffect(() => {
     if (gameOver) {
       // Play sound immediately
@@ -193,6 +199,14 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
   );
 
   const userAvatarUrl = user?.avatar || user?.profileImage || undefined;
+  const player1AvatarUrl =
+    currentUserId === player1.userId
+      ? userAvatarUrl
+      : roomData?.participants?.[0]?.avatarSnapshot || roomData?.participants?.[0]?.avatar || undefined;
+  const player2AvatarUrl =
+    currentUserId === player2.userId
+      ? userAvatarUrl
+      : roomData?.participants?.[1]?.avatarSnapshot || roomData?.participants?.[1]?.avatar || undefined;
 
   // --- TIMEOUT EFFECT FOR DISCONNECTED OPPONENT ---
   useEffect(() => {
@@ -349,7 +363,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden overscroll-none relative">
+    <div className="h-dvh w-screen flex flex-col bg-deep-bg text-[#e3e0f4] overflow-hidden overscroll-none relative">
       {theme.bgImage && (
         <div
           aria-hidden="true"
@@ -376,7 +390,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         aria-hidden="true"
       />
 
-      <main className="relative z-10 flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden px-4 lg:px-6 pt-14 lg:pt-0 gap-4 lg:gap-6 items-center justify-start lg:justify-center font-mono max-w-350 w-full mx-auto">
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden px-4 lg:px-6 pt-14 lg:pt-0 gap-4 lg:gap-6 items-center justify-start lg:justify-center font-mono max-w-350 w-full mx-auto">
         {/* Grace-Period Overlay — shown when opponent disconnected */}
         {disconnectCountdown !== null && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -417,7 +431,7 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         )}
 
         {!gameOver && (
-          <div className="fixed top-20 right-6 lg:top-auto lg:bottom-6 z-50">
+          <div className="fixed top-3 right-6 lg:top-auto lg:bottom-6 z-50">
             <button
               onClick={() => setShowAbortModal(true)}
               className="border-3 border-[#b82b1a] text-[#ffff] font-headline text-xs px-4 py-2 uppercase bg-[#b82b1a]
@@ -429,22 +443,37 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
         )}
 
         <div className="flex w-full flex-col lg:flex-row items-center justify-center gap-4 lg:gap-6">
-          <PlayerPanel
-            role={player1.mark}
-            playerName={player1.usernameSnapshot}
-            isBot={false}
-            isActive={
-              currentPlayerMark === player1.mark &&
-              !gameOver &&
-              roomData?.status === "PLAYING"
-            }
-            avatarUrl={
-              currentUserId === player1.userId
-                ? userAvatarUrl
-                : roomData?.participants?.[0]?.avatarSnapshot || roomData?.participants?.[0]?.avatar || undefined
-            }
-            markerVariantData={player1MarkerVariantData}
+          <PlayerAvatarBar
+            players={[
+              {
+                role: player1.mark,
+                playerName: player1.usernameSnapshot,
+                isActive: player1Active,
+                isBot: false,
+                avatarUrl: player1AvatarUrl,
+              },
+              {
+                role: player2.mark,
+                playerName: player2.usernameSnapshot,
+                isActive: player2Active,
+                isBot: false,
+                avatarUrl: player2AvatarUrl,
+              },
+            ]}
           />
+
+          {/* Panels live from lg up only. `lg:contents` keeps them as direct flex children,
+              so the desktop layout stays pixel-identical to the side-by-side design. */}
+          <div className="hidden lg:contents">
+            <PlayerPanel
+              role={player1.mark}
+              playerName={player1.usernameSnapshot}
+              isBot={false}
+              isActive={player1Active}
+              avatarUrl={player1AvatarUrl}
+              markerVariantData={player1MarkerVariantData}
+            />
+          </div>
           <BoardArea
             p1MarkerVariant={player1MarkerStyle}
             p2MarkerVariant={player2MarkerStyle}
@@ -467,22 +496,16 @@ const OnlineGameBoard = ({ roomData, gameState, currentUserId, completedMatch, o
             onMarkerChange={handleMarkerChange}
           />
 
-          <PlayerPanel
-            role={player2.mark}
-            playerName={player2.usernameSnapshot}
-            isBot={false}
-            isActive={
-              currentPlayerMark === player2.mark &&
-              !gameOver &&
-              roomData?.status === "PLAYING"
-            }
-            avatarUrl={
-              currentUserId === player2.userId
-                ? userAvatarUrl
-                : roomData?.participants?.[1]?.avatarSnapshot || roomData?.participants?.[1]?.avatar || undefined
-            }
-            markerVariantData={player2MarkerVariantData}
-          />
+          <div className="hidden lg:contents">
+            <PlayerPanel
+              role={player2.mark}
+              playerName={player2.usernameSnapshot}
+              isBot={false}
+              isActive={player2Active}
+              avatarUrl={player2AvatarUrl}
+              markerVariantData={player2MarkerVariantData}
+            />
+          </div>
         </div>
       </main>
 

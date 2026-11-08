@@ -71,7 +71,7 @@ export default function GameOnline() {
   const isBoardScreen = hasCompletedMatch || roomData?.status === 'PLAYING' || roomData?.status === 'ABORTED';
 
   return (
-    <div className="h-screen w-screen bg-deep-bg text-on-surface overflow-hidden overscroll-none relative flex flex-col">
+    <div className="h-dvh w-screen bg-deep-bg text-on-surface overflow-hidden overscroll-none relative flex flex-col">
 
       <ScanLines />
       <div className="fixed inset-0 bg-[url('/assets/images/pixel-grid.png')] opacity-[0.03] pointer-events-none z-0" aria-hidden="true" />

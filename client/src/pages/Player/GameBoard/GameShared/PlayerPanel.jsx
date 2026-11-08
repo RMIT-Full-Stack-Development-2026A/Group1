@@ -1,11 +1,6 @@
 import Icon from '@/components/common/Icon';
 import { MarkerX, MarkerO } from '@/components/reusable/custom/CustomMarkers';
-
-const difficultyConfig = {
-    EASY: 'bg-green-400 text-green-950',
-    MEDIUM: 'bg-[#fad100] text-[#3b2f00]', 
-    HARD: 'bg-red-500 text-red-950'
-};
+import { getDifficultyBadgeClass, getMarkerColor, getMarkerGlow } from '@/utils/playerPresentation';
 
 /**
  * PlayerPanel — shared component for Player X and Player O.
@@ -23,10 +18,10 @@ const PlayerPanel = ({
     role, playerName, isBot, isActive, difficulty, avatarUrl, markerVariantData,
 }) => {
     const isX = role === 'X';
-    const markerColor = isX ? '#ffb4ab' : '#93e2ff';
-    const markerGlow  = isX ? '0 0 10px #93000a' : '0 0 10px #4cc9f0';
+    const markerColor = getMarkerColor(role);
+    const markerGlow  = getMarkerGlow(role);
     const Marker = isX ? MarkerX : MarkerO;
-    const diffStyle = difficulty ? (difficultyConfig[difficulty.toUpperCase()] || 'bg-gray-400 text-gray-900') : '';
+    const diffStyle = getDifficultyBadgeClass(difficulty);
 
     return (
         <aside

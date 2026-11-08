@@ -55,7 +55,7 @@ export default function PaymentSuccess() {
 
     if (status === 'loading') {
         return (
-            <main className="flex h-screen items-center justify-center bg-background">
+            <main className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-background">
                 <div className="text-center">
                     <div className="flex items-center gap-3 mb-4 justify-center">
                         <span className="font-mono text-[#fad100] animate-pulse">●</span>
@@ -71,7 +71,7 @@ export default function PaymentSuccess() {
 
     if (status === 'success' || status === 'already_captured') {
         return (
-            <main className="flex h-screen items-center justify-center bg-background px-6">
+            <main className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-background px-6">
                 <div className="bg-[#1a1a28] border border-[#3d484d] p-8 max-w-md w-full">
                     <div className="h-1 bg-[#a8ff78] mb-6" />
                     <div className="flex items-center gap-3 mb-6">
